@@ -12,6 +12,6 @@ public class TestController {
     public String testBackend() {
         // Mengembalikan sebuah String sederhana.
         // Spring secara otomatis akan mengubahnya menjadi response teks.
-        return "hello ini dari backend";
+        return "hello satria";
     }
 }

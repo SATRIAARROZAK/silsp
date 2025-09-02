@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/app :: layout(~{::title}, ~{::section})}">
+
+<head>
+    <title>Admin Dashboard</title>
+</head>
+<body>
+
+<section layout:fragment="content">
+    <div class="content-header">
+        <div class="container-fluid">
+            <h1 class="m-0">Selamat Datang, Admin!</h1>
+        </div>
+    </div>
+    <div class="content">
+        <div class="container-fluid">
+            <div class="card">
+                <div class="card-body">
+                    Ini adalah konten khusus untuk dashboard Admin.
+                    Di sini Anda bisa meletakkan widget, statistik, dan tabel.
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+</body>
+</html>

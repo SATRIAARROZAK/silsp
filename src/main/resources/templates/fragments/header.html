@@ -1,7 +1,7 @@
-<head th:fragment="header(title)">
+<head th:fragment="header(pageTitle)">
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title th:text="${title} + ' - SILSP'"></title>
+  <title th:text="${pageTitle} + ' - SILSP'"></title>
 
   <link
     rel="stylesheet"
@@ -31,6 +31,16 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
     rel="stylesheet"
+  />
+
+  <link
+    rel="stylesheet"
+    th:href="@{/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css}"
+  />
+  
+  <link
+    rel="stylesheet"
+    th:href="@{/plugins/datatables-responsive/css/responsive.bootstrap4.min.css}"
   />
 
   <link rel="stylesheet" th:href="@{/dist/css/adminlte.min.css}" />

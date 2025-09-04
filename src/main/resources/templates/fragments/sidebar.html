@@ -40,7 +40,13 @@
       >
         <th:block th:if="${user != null && user.role == 'ADMIN'}">
           <li class="nav-header">ADMINISTRATOR</li>
-          <li class="nav-item" th:each="item : ${menuItems}">
+          <li class="nav-item">
+            <a th:href="@{/admin}" class="nav-link">
+              <i class="nav-icon fas fa-home"></i>
+              <p>Dashboard</p>
+            </a>
+          </li>
+          <!-- <li class="nav-item" th:each="item : ${menuItems}">
             <a
               th:href="@{${item.url}}"
               class="nav-link"
@@ -48,6 +54,42 @@
             >
               <i class="nav-icon" th:classappend="${item.icon}"></i>
               <p th:text="${item.label}">Dashboard</p>
+            </a>
+          </li> -->
+          <li class="nav-item">
+            <a th:href="@{/admin/data-asesi}" class="nav-link">
+              <i class="nav-icon fas fa-users"></i>
+              <p>Data Asesi</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a th:href="@{/admin/asesors}" class="nav-link">
+              <i class="nav-icon fas fa-users"></i>
+              <p>Data Asesor</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a th:href="@{/admin/surattugas}" class="nav-link">
+              <i class="nav-icon fas fa-file-alt"></i>
+              <p>Surat Tugas</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a th:href="@{/admin/skema}" class="nav-link">
+              <i class="nav-icon fas fa-list-alt"></i>
+              <p>Skema</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a th:href="@{/admin/tuk}" class="nav-link">
+              <i class="nav-icon fas fa-building"></i>
+              <p>TUK</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a th:href="@{/admin/jadwal}" class="nav-link">
+              <i class="nav-icon fas fa-calendar-plus"></i>
+              <p>Jadwal Sertifikasi</p>
             </a>
           </li>
         </th:block>

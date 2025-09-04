@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import com.lsptddi.silsp.service.SidebarService;
 
-
 // Objek User tiruan untuk simulasi
 class User {
     private String fullName;
@@ -33,7 +32,7 @@ public class AdminController {
     @Autowired
     private SidebarService sidebarService;
 
-    @GetMapping("/dashboard")
+    @GetMapping
     public String showAdminDashboard(Model model) {
 
         // Simulasi: Membuat objek user yang sedang login
@@ -42,16 +41,22 @@ public class AdminController {
         // Mengirim objek user dan judul halaman ke frontend
         model.addAttribute("user", loggedInUser);
         model.addAttribute("pageTitle", "Admin Dashboard");
+        model.addAttribute("menuItems", sidebarService.getAdminMenuItems());
 
         return "layouts/admin/dashboard";
     }
 
-    @GetMapping("/asesi")
-    public String showAsesiListPage(Model model) {
-        // ... (logika data asesi Anda) ...
-
-        // Tambahkan daftar menu ke model
-        model.addAttribute("menuItems", sidebarService.getAdminMenuItems());
-        return "pages/admin/asesi-list";
+    @GetMapping("/data-asesi")
+    public String index() {
+        return "pages/admin/asesi/asesi-list";
     }
+
+    // @GetMapping("/asesi")
+    // public String showAsesiListPage(Model model) {
+    // // ... (logika data asesi Anda) ...
+
+    // // Tambahkan daftar menu ke model
+    // model.addAttribute("menuItems", sidebarService.getAdminMenuItems());
+    // return "pages/admin/asesi-list";
+    // }
 }

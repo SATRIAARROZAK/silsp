@@ -1,11 +1,11 @@
 package com.lsptddi.silsp.controller.admin;
 
-import org.springframework.beans.factory.annotation.Autowired;
+// import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import com.lsptddi.silsp.service.SidebarService;
+// import com.lsptddi.silsp.service.SidebarService;
 
 // Objek User tiruan untuk simulasi
 class User {
@@ -29,26 +29,47 @@ class User {
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
-    @Autowired
-    private SidebarService sidebarService;
+    // @Autowired
+    // private SidebarService sidebarService;
 
     @GetMapping
     public String showAdminDashboard(Model model) {
 
         // Simulasi: Membuat objek user yang sedang login
-        User loggedInUser = new User("Satria Arrozak (Admin)", "ADMIN");
+        User loggedInUser = new User("Satria Arrozak", "ADMIN");
 
         // Mengirim objek user dan judul halaman ke frontend
         model.addAttribute("user", loggedInUser);
-        model.addAttribute("pageTitle", "Admin Dashboard");
-        model.addAttribute("menuItems", sidebarService.getAdminMenuItems());
 
-        return "layouts/admin/dashboard";
+        return "pages/admin/dashboard";
     }
 
     @GetMapping("/data-asesi")
-    public String index() {
+    public String index(Model model) { // 1. Tambahkan Model sebagai parameter
+        // Simulasi: Membuat objek user yang sedang login
+        User loggedInUser = new User("Satria Arrozak", "ADMIN");
+
+        // 2. Tambahkan atribut yang diperlukan untuk layout
+        model.addAttribute("user", loggedInUser);
+        model.addAttribute("pageTitle", "Data Asesi"); // Judul halaman diubah sesuai konteks
+        // model.addAttribute("menuItems", sidebarService.getAdminMenuItems());
+
+        // 3. Kembalikan nama view yang benar
         return "pages/admin/asesi/asesi-list";
+    }
+
+     @GetMapping("/data-asesi/tambah")
+    public String showAsesiAddPage (Model model) { // 1. Tambahkan Model sebagai parameter
+        // Simulasi: Membuat objek user yang sedang login
+        User loggedInUser = new User("Satria Arrozak", "ADMIN");
+
+        // 2. Tambahkan atribut yang diperlukan untuk layout
+        model.addAttribute("user", loggedInUser);
+        model.addAttribute("pageTitle", "Data Asesi"); // Judul halaman diubah sesuai konteks
+        // model.addAttribute("menuItems", sidebarService.getAdminMenuItems());
+
+        // 3. Kembalikan nama view yang benar
+        return "pages/admin/asesi/asesi-add";
     }
 
     // @GetMapping("/asesi")

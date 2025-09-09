@@ -12,7 +12,7 @@ public class SidebarService {
     public List<MenuItemDTO> getAdminMenuItems() {
         List<MenuItemDTO> menuItems = new ArrayList<>();
         menuItems.add(new MenuItemDTO("Dashboard", "/admin/dashboard", "fas fa-tachometer-alt"));
-        menuItems.add(new MenuItemDTO("Data Asesi", "/admin/asesi", "fas fa-users"));
+        // menuItems.add(new MenuItemDTO("Data Asesi", "/admin/asesi", "fas fa-users"));
         menuItems.add(new MenuItemDTO("Kelola Skema", "#", "fas fa-list")); // Contoh link non-aktif
         // Tambahkan menu admin lainnya di sini
         return menuItems;

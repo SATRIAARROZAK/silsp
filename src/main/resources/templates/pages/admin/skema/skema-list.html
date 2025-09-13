@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html
+  lang="en"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/app}"
+>
+  <head th:replace="~{fragments/header :: header('Data Asesi')}"></head>
+
+  <body>
+    <div layout:fragment="page-title">
+      <h1 class="m-0">Data Asesi</h1>
+    </div>
+    <div layout:fragment="breadcrumb">
+      <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item"><a href="#">Home</a></li>
+        <li class="breadcrumb-item active">Data Asesi</li>
+      </ol>
+    </div>
+    <div layout:fragment="content">
+      <div class="card">
+        <div class="card-header">
+          <div
+            class="d-flex flex-column-reverse flex-md-row justify-content-md-between align-items-md-center gap-2 mb-3"
+          >
+            <form
+              th:action="@{/}"
+              method="get"
+              class="d-flex"
+              style="width: 100%; max-width: 450px"
+            >
+              <input
+                type="text"
+                name="keyword"
+                class="form-control me-2"
+                placeholder="Cari Pengguna"
+                th:value="${keyword}"
+                aria-label="Search"
+              />
+              <button type="submit" class="btn btn-outline-info">Cari</button>
+              <a
+                th:href="@{/}"
+                class="btn btn-outline-danger ms-2"
+                title="Reset Pencarian"
+                >Reset</a
+              >
+            </form>
+
+            <a th:href="@{/admin/data-asesi/tambah}" class="btn btn-primary">
+              <i class="bi bi-person-fill-add me-1"></i>Tambah Data
+            </a>
+          </div>
+        </div>
+        <!-- /.card-header -->
+        <div class="card-body responsive">
+          <table
+            id="example2"
+            class="table table-bordered table-hover table-responsive-sm text-nowrap"
+          >
+            <thead>
+              <tr class="text-center">
+                <th>No</th>
+                <th>Nama Skema</th>
+                <th>Jenis Skema</th>
+                <th>Nomer Dokumen</th>
+                <th>Level</th>
+                <th>File</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>Associate Data Science</td>
+                <td>Okupasi</td>
+                <td>X</td>
+                <td>4</td>
+                <td>Win 95+</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- /.card-body -->
+      </div>
+    </div>
+  </body>
+</html>

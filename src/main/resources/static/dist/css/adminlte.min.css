@@ -2872,7 +2872,7 @@ fieldset:disabled a.btn {
   border-color: #ffc107;
 }
 .btn-outline-warning:hover {
-  color: #1f2d3d;
+  color: #fff;
   background-color: #ffc107;
   border-color: #ffc107;
 }
@@ -59467,32 +59467,8 @@ a.text-muted:hover {
     border-top: 1px solid #e9ecef;
 }
 
-
-/*  
-.material-symbols-outlined {
-  font-variation-settings: "FILL" 0, "wght" 300, "GRAD" 0, "opsz" 24;
-  font-size: 1.25rem;
-  margin-right: 0.75rem;
-  vertical-align: middle;
+.action-buttons {
+  display: flex;          /* Membuat item di dalamnya sejajar horizontal */
+  justify-content: center;/* Opsional: Memposisikan item ke tengah jika ada sisa ruang */
+  gap: 5px;               /* Memberi jarak 5px antar tombol */
 }
-
-.user-menu .custom-dropdown{
-  background-color: #ffffff;
-  border-radius: 10px;
-  padding: 0;
-  box-shadow: 0 0 10px #00000020;
-  border: 1px solid #f2f2f2;
-  list-style: none;
-}
-.user-menu .custom-dropdown .dropdown-item {
-  display: flex;
-  align-items: center;
-  padding: 10px 15px;
-  line-height: 1;
-  font-size: 0.9rem;
-}
-
-.user-menu .custom-dropdown .dropdown-item:hover {
-  color: #ff34b2; 
-  background-color: #f8f9fa;
-} */

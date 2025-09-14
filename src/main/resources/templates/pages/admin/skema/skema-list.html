@@ -64,13 +64,29 @@
                 <th>Jenis Skema</th>
                 <th>Nomer Dokumen</th>
                 <th>Level</th>
-                <th>Skema Unit</th>
                 <th>File</th>
+                <th>Skema Unit</th>
                 <th>Aksi</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
+            <tbody id="skemaTableBody">
+              <tr th:each="skema, iter : ${skemas}">
+                <td th:text="${iter.index + 1}"></td>
+                <td th:text="${skema.namaSkema}"></td>
+                <td th:text="${skema.jenisSkema}"></td>
+                <td th:text="${skema.nomerSkema}"></td>
+                <td th:text="${skema.levelSkema}"></td>
+                <td th:text="${skema.fileSkema}"></td>
+
+                <td class="text-center">
+                  <a
+                    href="#"
+                    class="btn btn-primary btn-sm btn-expand"
+                    th:attr="data-target='#skema-unit-' + ${iter.index}"
+                  >
+                    <i class="fas fa-plus-circle"></i> Skema Unit
+                  </a>
+                </td>
                 <td>1</td>
                 <td>Associate Data Science</td>
                 <td>Okupasi</td>
@@ -106,137 +122,54 @@
                   </a>
                 </td>
               </tr>
+              <tr
+                class="expandable-content-row"
+                th:id="'skema-unit-' + ${iter.index}"
+              >
+                <td colspan="5">
+                  <div class="expandable-content-wrapper">
+                    <h5>
+                      Daftar Unit Skema:
+                      <span th:text="${skema.namaSkema}"></span>
+                    </h5>
+                    <div class="table-responsive">
+                      <table
+                        class="table table-sm table-hover table-bordered nested-table"
+                      >
+                        <thead class="thead-light">
+                          <tr>
+                            <th>No</th>
+                            <th>Kode Unit</th>
+                            <th>Judul Unit</th>
+                            <th>Standar Kompetensi</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>1</td>
+                            <td>J.620100.001.01</td>
+                            <td>Mengimplementasikan User Interface</td>
+                            <td>SKKNI</td>
+                          </tr>
+                          <tr>
+                            <td>2</td>
+                            <td>J.620100.002.01</td>
+                            <td>Membuat User Interface</td>
+                            <td>SKKNI</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </td>
+              </tr>
             </tbody>
-            <div class="row">
-              <div class="col-12">
-                <div class="card-body p-0">
-                  <caption>Daftar Unit Skema</caption>
-                  <table class="table table-striped table-hover responsive">
-                    <tbody>
-                      <tr class="expandable-body">
-                        <td>
-                          <div class="p-0">
-                            <table
-                              class="table table-hover"
-                              data-widget="expandable-table"
-                              aria-expanded="false"
-                            >
-                              <thead>
-                                <tr>
-                                  <th>No</th>
-                                  <th>Kode Unit</th>
-                                  <th>Nama Unit</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                <tr>
-                                  <td>1</td>
-                                  <td>SKA.01</td>
-                                  <td>Mengelola Proyek Data Science</td>
-                                </tr>
-                              </tbody>
-                            </table>
-                          </div>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
           </table>
         </div>
 
         <!-- /.card-body -->
       </div>
 
-      <div class="modal fade" id="modal-default">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h4 class="modal-title">Skema Unit</h4>
-              <button
-                type="button"
-                class="close"
-                data-dismiss="modal"
-                aria-label="Close"
-              >
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body responsive">
-              <table
-                id="example2"
-                class="table table-bordered table-hover table-responsive-sm"
-              >
-                <thead>
-                  <tr class="text-center">
-                    <th>No</th>
-                    <th>Nama Skema</th>
-                    <th>Jenis Skema</th>
-                    <th>Nomer Dokumen</th>
-                    <th>Level</th>
-                    <th>File</th>
-                    <td>Aksi</td>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>1</td>
-                    <td>Associate Data Science</td>
-                    <td>Okupasi</td>
-                    <td class="text-center">01/SKM/LSPTDDI/I/2025</td>
-                    <td class="text-center">4</td>
-                    <td class="project-actions text-right">
-                      <a
-                        class="btn btn-outline-primary btn-sm"
-                        data-toggle="modal"
-                        data-target="#modal-default"
-                      >
-                        <i class="fas fa-folder"> </i>
-                        View
-                      </a>
-                      <!-- <button
-                    type="button"
-                    class="btn btn-default"
-                    data-toggle="modal"
-                    data-target="#modal-default"
-                  >
-                    Launch Default Modal
-                  </button> -->
-                    </td>
-                    <td class="project-actions text-center">
-                      <a class="btn btn-outline-primary btn-sm" href="#">
-                        <i class="fas fa-eye"> </i>
-                        View
-                      </a>
-                      <a class="btn btn-outline-info btn-sm" href="#">
-                        <i class="fas fa-pencil-alt"> </i>
-                        Edit
-                      </a>
-                      <a class="btn btn-outline-danger btn-sm" href="#">
-                        <i class="fas fa-trash"> </i>
-                        Delete
-                      </a>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="modal-footer justify-content-between">
-              <button
-                type="button"
-                class="btn btn-default"
-                data-dismiss="modal"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-          <!-- /.modal-content -->
-        </div>
-        <!-- /.modal-dialog -->
-      </div>
       <!-- /.modal -->
     </div>
   </body>

@@ -59467,8 +59467,42 @@ a.text-muted:hover {
     border-top: 1px solid #e9ecef;
 }
 
-.action-buttons {
-  display: flex;          /* Membuat item di dalamnya sejajar horizontal */
-  justify-content: center;/* Opsional: Memposisikan item ke tengah jika ada sisa ruang */
-  gap: 5px;               /* Memberi jarak 5px antar tombol */
+
+/* Table Expand */
+/* Styling untuk baris konten yang bisa dilipat */
+.expandable-content-row {
+    display: none; /* Sembunyikan secara default */
+}
+
+/* Class 'show' akan ditambahkan oleh JavaScript untuk menampilkan baris */
+.expandable-content-row.show {
+    display: table-row;
+}
+
+/* Wrapper untuk konten di dalam baris yang dilipat */
+.expandable-content-wrapper {
+    padding: 15px;
+    background-color: #f9f9f9; /* Warna latar yang sedikit berbeda */
+    border-top: 4px solid #007bff; /* Garis aksen di kiri */
+    margin: 5px 0;
+}
+
+.expandable-content-wrapper h5 {
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+/* Memberi sedikit margin pada nested table */
+.nested-table {
+    margin-top: 10px;
+    margin-bottom: 0;
+}
+
+/* Transisi halus untuk ikon pada tombol */
+.btn-expand i {
+    transition: transform 0.3s ease;
+}
+
+.btn-expand.expanded i {
+    transition: transform 0.3s; /* Mengubah ikon '+' menjadi 'x' */
 }

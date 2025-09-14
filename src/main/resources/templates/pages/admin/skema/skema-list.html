@@ -5,16 +5,16 @@
   xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
   layout:decorate="~{layouts/app}"
 >
-  <head th:replace="~{fragments/header :: header('Data Asesi')}"></head>
+  <head th:replace="~{fragments/header :: header('Data Skema')}"></head>
 
   <body>
     <div layout:fragment="page-title">
-      <h1 class="m-0">Data Asesi</h1>
+      <h1 class="m-0">Data Skema</h1>
     </div>
     <div layout:fragment="breadcrumb">
       <ol class="breadcrumb float-sm-right">
         <li class="breadcrumb-item"><a href="#">Home</a></li>
-        <li class="breadcrumb-item active">Data Asesi</li>
+        <li class="breadcrumb-item active">Data Skema</li>
       </ol>
     </div>
     <div layout:fragment="content">
@@ -33,7 +33,7 @@
                 type="text"
                 name="keyword"
                 class="form-control me-2"
-                placeholder="Cari Pengguna"
+                placeholder="Cari Skema"
                 th:value="${keyword}"
                 aria-label="Search"
               />
@@ -46,7 +46,7 @@
               >
             </form>
 
-            <a th:href="@{/admin/data-asesi/tambah}" class="btn btn-primary">
+            <a th:href="@{/admin/tambah-skema}" class="btn btn-primary">
               <i class="bi bi-person-fill-add me-1"></i>Tambah Data
             </a>
           </div>
@@ -55,7 +55,7 @@
         <div class="card-body responsive">
           <table
             id="example2"
-            class="table table-bordered table-hover table-responsive-sm text-nowrap"
+            class="table table-bordered table-hover table-responsive-md"
           >
             <thead>
               <tr class="text-center">
@@ -64,7 +64,9 @@
                 <th>Jenis Skema</th>
                 <th>Nomer Dokumen</th>
                 <th>Level</th>
+                <th>Skema Unit</th>
                 <th>File</th>
+                <th>Aksi</th>
               </tr>
             </thead>
             <tbody>
@@ -72,15 +74,248 @@
                 <td>1</td>
                 <td>Associate Data Science</td>
                 <td>Okupasi</td>
-                <td>X</td>
-                <td>4</td>
-                <td>Win 95+</td>
+                <td class="text-center">01/SKM/LSPTDDI/I/2025</td>
+                <td class="text-center">4</td>
+                <td>
+                  <a
+                    class="btn btn-outline-primary btn-sm"
+                    data-widget="expandable-table"
+                    aria-expanded="true"
+                  >
+                    <i class="fas fa-folder"> </i>
+                    View
+                  </a>
+                </td>
+                <td></td>
+                <td class="project-actions text-center ">
+                  <a class="btn btn-outline-primary btn-sm" href="#">
+                    <i class="fas fa-eye"> </i>
+                    View
+                  </a>
+                  <a class="btn btn-outline-info btn-sm" href="#">
+                    <i class="fas fa-pencil-alt"> </i>
+                    Edit
+                  </a>
+                  <a class="btn btn-outline-danger btn-sm" href="#">
+                    <i class="fas fa-trash"> </i>
+                    Delete
+                  </a>
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
+
         <!-- /.card-body -->
       </div>
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Expandable Table Tree</h3>
+            </div>
+            <!-- ./card-header -->
+            <div class="card-body p-0">
+              <table class="table table-hover">
+                <tbody>
+                  <tr>
+                    <td class="border-0">183</td>
+                  </tr>
+                  <tr data-widget="expandable-table" aria-expanded="true">
+                    <td>
+                      <i
+                        class="expandable-table-caret fas fa-caret-right fa-fw"
+                      ></i>
+                      219
+                    </td>
+                  </tr>
+                  <tr class="expandable-body">
+                    <td>
+                      <div class="p-0">
+                        <table class="table table-hover">
+                          <tbody>
+                            <tr
+                              data-widget="expandable-table"
+                              aria-expanded="false"
+                            >
+                              <td>219-1</td>
+                            </tr>
+                            <tr class="expandable-body">
+                              <td>
+                                <div class="p-0">
+                                  <table class="table table-hover">
+                                    <tbody>
+                                      <tr>
+                                        <td>219-1-1</td>
+                                      </tr>
+                                      <tr>
+                                        <td>219-1-2</td>
+                                      </tr>
+                                      <tr>
+                                        <td>219-1-3</td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr
+                              data-widget="expandable-table"
+                              aria-expanded="false"
+                            >
+                              <td>
+                                <button
+                                  type="button"
+                                  class="btn btn-primary p-0"
+                                >
+                                  <i
+                                    class="expandable-table-caret fas fa-caret-right fa-fw"
+                                  ></i>
+                                </button>
+                                219-2
+                              </td>
+                            </tr>
+                            <tr class="expandable-body">
+                              <td>
+                                <div class="p-0">
+                                  <table class="table table-hover">
+                                    <tbody>
+                                      <tr>
+                                        <td>219-2-1</td>
+                                      </tr>
+                                      <tr>
+                                        <td>219-2-2</td>
+                                      </tr>
+                                      <tr>
+                                        <td>219-2-3</td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>219-3</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>657</td>
+                  </tr>
+                  <tr>
+                    <td>175</td>
+                  </tr>
+                  <tr>
+                    <td>134</td>
+                  </tr>
+                  <tr>
+                    <td>494</td>
+                  </tr>
+                  <tr>
+                    <td>832</td>
+                  </tr>
+                  <tr>
+                    <td>982</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <!-- /.card-body -->
+          </div>
+          <!-- /.card -->
+        </div>
+      </div>
+      <div class="modal fade" id="modal-default">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Skema Unit</h4>
+              <button
+                type="button"
+                class="close"
+                data-dismiss="modal"
+                aria-label="Close"
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body responsive">
+              <table
+                id="example2"
+                class="table table-bordered table-hover table-responsive-sm"
+              >
+                <thead>
+                  <tr class="text-center">
+                    <th>No</th>
+                    <th>Nama Skema</th>
+                    <th>Jenis Skema</th>
+                    <th>Nomer Dokumen</th>
+                    <th>Level</th>
+                    <th>File</th>
+                    <td>Aksi</td>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>1</td>
+                    <td>Associate Data Science</td>
+                    <td>Okupasi</td>
+                    <td class="text-center">01/SKM/LSPTDDI/I/2025</td>
+                    <td class="text-center">4</td>
+                    <td class="project-actions text-right">
+                      <a
+                        class="btn btn-outline-primary btn-sm"
+                        data-toggle="modal"
+                        data-target="#modal-default"
+                      >
+                        <i class="fas fa-folder"> </i>
+                        View
+                      </a>
+                      <!-- <button
+                    type="button"
+                    class="btn btn-default"
+                    data-toggle="modal"
+                    data-target="#modal-default"
+                  >
+                    Launch Default Modal
+                  </button> -->
+                    </td>
+                    <td class="project-actions text-center">
+                      <a class="btn btn-outline-primary btn-sm" href="#">
+                        <i class="fas fa-eye"> </i>
+                        View
+                      </a>
+                      <a class="btn btn-outline-info btn-sm" href="#">
+                        <i class="fas fa-pencil-alt"> </i>
+                        Edit
+                      </a>
+                      <a class="btn btn-outline-danger btn-sm" href="#">
+                        <i class="fas fa-trash"> </i>
+                        Delete
+                      </a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer justify-content-between">
+              <button
+                type="button"
+                class="btn btn-default"
+                data-dismiss="modal"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+      <!-- /.modal -->
     </div>
   </body>
 </html>

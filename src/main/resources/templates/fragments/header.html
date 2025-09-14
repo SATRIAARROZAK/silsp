@@ -1,10 +1,14 @@
 <head th:fragment="header(pageTitle)">
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title th:text="${pageTitle} + ' - SILSP'"></title>
+  <title th:text="'SILSP | ' + ${pageTitle}"></title>
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="description" content="Sistem Informasi LSP TDDI" />
-  <link rel="shortcut icon" th:href="@{/dist/img/favicon2.ico}" type="image/x-icon" />
+  <link
+    rel="shortcut icon"
+    th:href="@{/dist/img/favicon2.ico}"
+    type="image/x-icon"
+  />
 
   <link
     rel="stylesheet"
@@ -32,6 +36,14 @@
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
     rel="stylesheet"
   />
+
+  <!-- SweetAlert2 -->
+  <link
+    rel="stylesheet"
+    th:href="@{plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css}"
+  />
+  <!-- Toastr -->
+  <link rel="stylesheet" th:href="@{plugins/toastr/toastr.min.css}" />
 
   <link
     rel="stylesheet"

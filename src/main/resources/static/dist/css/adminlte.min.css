@@ -59402,6 +59402,73 @@ a.text-muted:hover {
  * Custom Styles for User Menu
  * ---------------------------------------------------
  */
+
+ /* Container utama untuk user menu */
+ .material-symbols-outlined {
+  font-variation-settings: "FILL" 0, "wght" 300, "GRAD" 0, "opsz" 24;
+  font-size: 1.25rem;
+  margin-right: 0.75rem;
+  vertical-align: middle;
+}
+
+.user-menu {
+    position: relative; /* Penting untuk positioning dropdown */
+}
+
+/* Dropdown menu kustom */
+.custom-user-dropdown {
+    display: none; /* Sembunyikan secara default */
+    position: absolute;
+    top: 100%; /* Posisi tepat di bawah navbar */
+    right: 0;
+    z-index: 1050; /* Pastikan di atas elemen lain */
+    list-style: none;
+    background-color: #ffffff;
+    min-width: 180px;
+    border-radius: 0.5rem; /* Sudut membulat */
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15); /* Efek bayangan */
+    padding:.5rem; /* Hapus padding default */
+    margin-top: 10px; /* Jarak dari navbar */
+    border: 1px solid rgba(0,0,0,.1);
+}
+
+/* Class 'show' untuk menampilkan dropdown */
+.custom-user-dropdown.show {
+    display: block;
+}
+
+/* Item di dalam dropdown */
+.dropdown-item-custom {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0.5rem 1rem;
+    clear: both;
+    font-weight: 400;
+    color: #212529;
+    text-align: inherit;
+    white-space: nowrap;
+    background-color: transparent;
+    border: 0;
+    text-decoration: none;
+}
+
+/* Efek hover pada item */
+.dropdown-item-custom:hover {
+    background-color: #f8f9fa;
+    color: #16181b;
+}
+
+/* Garis pemisah */
+.dropdown-divider-custom {
+    height: 0;
+    margin: 0.5rem 0;
+    overflow: hidden;
+    border-top: 1px solid #e9ecef;
+}
+
+
+/*  
 .material-symbols-outlined {
   font-variation-settings: "FILL" 0, "wght" 300, "GRAD" 0, "opsz" 24;
   font-size: 1.25rem;
@@ -59417,7 +59484,6 @@ a.text-muted:hover {
   border: 1px solid #f2f2f2;
   list-style: none;
 }
-
 .user-menu .custom-dropdown .dropdown-item {
   display: flex;
   align-items: center;
@@ -59427,6 +59493,6 @@ a.text-muted:hover {
 }
 
 .user-menu .custom-dropdown .dropdown-item:hover {
-  color: #ff34b2; /* Warna pink seperti pada contoh */
+  color: #ff34b2; 
   background-color: #f8f9fa;
-}
+} */

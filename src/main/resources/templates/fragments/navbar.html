@@ -190,12 +190,12 @@
       </ul>
     </li> -->
 
-    <li class="nav-item dropdown user-menu">
-      <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+    <li class="nav-item user-menu">
+      <a href="#" class="nav-link" id="userMenuTrigger">
         <img th:src="@{/dist/img/user2-160x160.jpg}" class="user-image rounded-circle shadow" alt="User Image" />
         <span th:text="${user != null ? user.fullName : 'Guest'}">Nama Lengkap</span>
       </a>
-      <ul class="custom-dropdown dropdown-menu-end">
+      <ul class="custom-user-dropdown" id="userDropdownMenu">
         <li>
           <a href="#" class="dropdown-item">
             <span class="material-symbols-outlined">account_circle</span> Account

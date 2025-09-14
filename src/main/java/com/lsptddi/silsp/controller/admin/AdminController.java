@@ -113,7 +113,7 @@ public class AdminController {
         // model.addAttribute("menuItems", sidebarService.getAdminMenuItems());
 
         // 3. Kembalikan nama view yang benar
-        return "pages/admin/skema/skema-tambah";
+        return "pages/admin/skema/skema-add";
     }
 
     // @GetMapping("/asesi")

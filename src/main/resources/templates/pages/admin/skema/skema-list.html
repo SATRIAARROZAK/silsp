@@ -78,11 +78,14 @@
                 <td class="text-center">4</td>
                 <td class="text-center">
                   <a
-                    class="btn btn-outline-warning btn-sm"
+                    href="#"
+                    class="btn btn-secondary btn-sm"
                     data-toggle="modal"
-                    data-target="#modal-default"
+                    data-target="#previewModal"
+                    th:attr="data-filepath=@{/path/ke/dokumen/anda/} + ${skema.namaFile}"
+                    title="Lihat Dokumen"
                   >
-                    <i class="fas fa-folder"> </i>
+                    <i class="fas fa-folder-open"></i>
                   </a>
                 </td>
                 <td class="text-center">
@@ -157,11 +160,20 @@
 
         <!-- /.card-body -->
       </div>
-      <div class="modal fade" id="modal-default">
-        <div class="modal-dialog">
+      <div
+        class="modal fade"
+        id="previewModal"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="previewModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-xl" role="document">
           <div class="modal-content">
             <div class="modal-header">
-              <h4 class="modal-title">Default Modal</h4>
+              <h5 class="modal-title" id="previewModalLabel">
+                Preview Dokumen Skema
+              </h5>
               <button
                 type="button"
                 class="close"
@@ -172,24 +184,24 @@
               </button>
             </div>
             <div class="modal-body">
-              <p>One fine body&hellip;</p>
+              <iframe
+                id="pdf-viewer"
+                src=""
+                frameborder="0"
+                style="width: 100%; height: 75vh"
+              ></iframe>
             </div>
-            <div class="modal-footer justify-content-between">
+            <div class="modal-footer">
               <button
                 type="button"
-                class="btn btn-default"
+                class="btn btn-secondary"
                 data-dismiss="modal"
               >
-                Close
-              </button>
-              <button type="button" class="btn btn-primary">
-                Save changes
+                Tutup
               </button>
             </div>
           </div>
-          <!-- /.modal-content -->
         </div>
-        <!-- /.modal-dialog -->
       </div>
       <!-- /.modal -->
     </div>

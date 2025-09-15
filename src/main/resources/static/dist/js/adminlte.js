@@ -4402,3 +4402,4 @@ $(function () {
     $(this).bootstrapSwitch("state", $(this).prop("checked"));
   });
 });
+

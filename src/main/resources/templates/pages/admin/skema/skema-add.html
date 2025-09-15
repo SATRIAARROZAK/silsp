@@ -169,9 +169,75 @@
                       role="tabpanel"
                       aria-labelledby="tab-unit"
                     >
-                      <p>
-                        Tampilan untuk menambah unit-unit kompetensi pada skema.
-                      </p>
+                      <div class="row mb-3">
+                        <div class="col-12 text-right">
+                          <button
+                            type="button"
+                            id="add-unit-button"
+                            class="btn btn-success"
+                          >
+                            <i class="fas fa-plus"></i> Tambah Unit
+                          </button>
+                        </div>
+                      </div>
+
+                      <div id="unit-skema-container">
+                        <div class="unit-skema-row card card-body mb-3">
+                          <div class="row">
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label>Kode Unit</label>
+                                <input
+                                  type="text"
+                                  class="form-control"
+                                  name="kodeUnit[]"
+                                  placeholder="Contoh: J.620100.001.01"
+                                />
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label>Judul Unit</label>
+                                <input
+                                  type="text"
+                                  class="form-control"
+                                  name="judulUnit[]"
+                                  placeholder="Contoh: Mengimplementasikan User Interface"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          <div class="row">
+                            <div class="col-12">
+                              <div class="form-group">
+                                <label>Standar Kompetensi</label>
+                                <select
+                                  class="form-control"
+                                  name="standarKompetensi[]"
+                                >
+                                  <option value="SKKNI">SKKNI</option>
+                                  <option value="Standar Internasional">
+                                    Standar Internasional
+                                  </option>
+                                  <option value="Standar Khusus">
+                                    Standar Khusus
+                                  </option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="row">
+                            <div class="col-12 text-right">
+                              <button
+                                type="button"
+                                class="btn btn-danger btn-sm remove-unit-button"
+                              >
+                                <i class="fas fa-trash"></i> Hapus
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
 
                     <div

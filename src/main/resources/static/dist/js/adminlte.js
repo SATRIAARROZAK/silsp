@@ -4403,3 +4403,33 @@ $(function () {
   });
 });
 
+$(document).ready(function () {
+  bsCustomFileInput.init();
+
+  // --- SCRIPT UNTUK FORM DINAMIS UNIT SKEMA ---
+
+  // 1. Fungsi saat tombol 'Tambah Unit' diklik
+  $("#add-unit-button").click(function () {
+    // Kloning baris form pertama
+    var newUnitRow = $(".unit-skema-row:first").clone();
+
+    // Hapus nilai input dari baris yang baru di-kloning
+    newUnitRow.find("input, select").val("");
+
+    // Tambahkan baris baru ke dalam container
+    $("#unit-skema-container").append(newUnitRow);
+  });
+
+  // 2. Fungsi saat tombol 'Hapus' diklik
+  // Kita menggunakan 'on' karena tombol hapus dibuat secara dinamis
+  $("#unit-skema-container").on("click", ".remove-unit-button", function () {
+    // Cek apakah ini satu-satunya baris yang tersisa
+    if ($(".unit-skema-row").length > 1) {
+      // Hapus parent dari tombol yang diklik (yaitu seluruh baris form)
+      $(this).closest(".unit-skema-row").remove();
+    } else {
+      // Beri peringatan jika mencoba menghapus baris terakhir
+      alert("Minimal harus ada satu unit skema.");
+    }
+  });
+});

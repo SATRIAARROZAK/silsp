@@ -4403,33 +4403,73 @@ $(function () {
   });
 });
 
+// --- SCRIPT UNTUK FORM DINAMIS (Dapat diletakkan di file JS global) ---
 $(document).ready(function () {
-  bsCustomFileInput.init();
+  // Menggunakan Event Delegation untuk tombol 'Tambah Unit'
+  // Skrip "mendengarkan" klik pada 'document', lalu memeriksa apakah targetnya adalah '#add-unit-button'
+  $(document).on("click", "#add-unit-button", function () {
+    // Cari template baris form yang akan digandakan
+    var template = $("#unit-skema-container .unit-skema-row:first");
 
-  // --- SCRIPT UNTUK FORM DINAMIS UNIT SKEMA ---
+    // Kloning/gandakan baris template
+    var newUnitRow = template.clone();
 
-  // 1. Fungsi saat tombol 'Tambah Unit' diklik
-  $("#add-unit-button").click(function () {
-    // Kloning baris form pertama
-    var newUnitRow = $(".unit-skema-row:first").clone();
-
-    // Hapus nilai input dari baris yang baru di-kloning
+    // Kosongkan semua nilai input pada baris baru
     newUnitRow.find("input, select").val("");
+
+    // Pastikan tombol hapus terlihat (penting jika baris pertama disembunyikan)
+    newUnitRow.find(".remove-unit-button").show();
 
     // Tambahkan baris baru ke dalam container
     $("#unit-skema-container").append(newUnitRow);
   });
 
-  // 2. Fungsi saat tombol 'Hapus' diklik
-  // Kita menggunakan 'on' karena tombol hapus dibuat secara dinamis
-  $("#unit-skema-container").on("click", ".remove-unit-button", function () {
-    // Cek apakah ini satu-satunya baris yang tersisa
-    if ($(".unit-skema-row").length > 1) {
-      // Hapus parent dari tombol yang diklik (yaitu seluruh baris form)
+  // Menggunakan Event Delegation untuk tombol 'Hapus'
+  // Ini memastikan tombol hapus pada baris baru juga akan berfungsi
+  $(document).on("click", ".remove-unit-button", function () {
+    // Cek jumlah baris yang ada
+    if ($("#unit-skema-container .unit-skema-row").length > 1) {
+      // Hapus elemen card (.unit-skema-row) terdekat dari tombol yang diklik
       $(this).closest(".unit-skema-row").remove();
     } else {
       // Beri peringatan jika mencoba menghapus baris terakhir
       alert("Minimal harus ada satu unit skema.");
     }
   });
+});
+
+// --- SCRIPT UNTUK FORM DINAMIS PERSYARATAN DASAR ---
+
+$(function () {
+  // Summernote
+  $("#summernote").summernote();
+});
+
+// Menggunakan Event Delegation untuk tombol 'Tambah Persyaratan'
+$(document).on("click", "#add-persyaratan-button", function () {
+  // Kloning/gandakan baris template pertama
+  var newPersyaratanRow = $(
+    "#persyaratan-container .persyaratan-row:first"
+  ).clone();
+
+  // Kosongkan nilai input pada baris baru
+  newPersyaratanRow.find("input").val("");
+
+  // Pastikan tombol hapus terlihat
+  newPersyaratanRow.find(".remove-persyaratan-button").show();
+
+  // Tambahkan baris baru ke dalam container
+  $("#persyaratan-container").append(newPersyaratanRow);
+});
+
+// Menggunakan Event Delegation untuk tombol 'Hapus'
+$(document).on("click", ".remove-persyaratan-button", function () {
+  // Cek jumlah baris yang ada
+  if ($("#persyaratan-container .persyaratan-row").length > 1) {
+    // Hapus elemen baris (.persyaratan-row) terdekat
+    $(this).closest(".persyaratan-row").remove();
+  } else {
+    // Beri peringatan jika mencoba menghapus baris terakhir
+    alert("Minimal harus ada satu persyaratan.");
+  }
 });

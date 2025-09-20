@@ -4438,38 +4438,142 @@ $(document).ready(function () {
   });
 });
 
-// --- SCRIPT UNTUK FORM DINAMIS PERSYARATAN DASAR ---
+// --- ACTIVATE SIDEBAR MENU ---
 
-$(function () {
-  // Summernote
-  $("#summernote").summernote();
-});
+$(document).ready(function () {
+  /**
+   * Script untuk membuat menu sidebar aktif secara dinamis.
+   * Cocok untuk halaman list, tambah, edit, dll.
+   */
+  function activateSidebarMenu() {
+    var currentUrl = window.location.pathname;
+    var bestMatch = null;
+    var bestMatchLength = 0;
 
-// Menggunakan Event Delegation untuk tombol 'Tambah Persyaratan'
-$(document).on("click", "#add-persyaratan-button", function () {
-  // Kloning/gandakan baris template pertama
-  var newPersyaratanRow = $(
-    "#persyaratan-container .persyaratan-row:first"
-  ).clone();
+    // 1. Cari link menu yang paling cocok (paling panjang) dengan URL saat ini
+    $(".nav-sidebar .nav-link").each(function () {
+      var linkUrl = $(this).attr("href");
 
-  // Kosongkan nilai input pada baris baru
-  newPersyaratanRow.find("input").val("");
+      // Pastikan linkUrl valid dan bukan '#'
+      if (linkUrl && linkUrl !== "#") {
+        // Cek apakah URL saat ini DIAWALI dengan href link menu
+        if (currentUrl.startsWith(linkUrl)) {
+          // Jika ya, dan jika panjangnya lebih besar dari kandidat sebelumnya
+          if (linkUrl.length > bestMatchLength) {
+            bestMatch = $(this);
+            bestMatchLength = linkUrl.length;
+          }
+        }
+      }
+    });
 
-  // Pastikan tombol hapus terlihat
-  newPersyaratanRow.find(".remove-persyaratan-button").show();
+    // 2. Jika ditemukan link yang cocok, aktifkan menu tersebut
+    if (bestMatch) {
+      // Hapus dulu semua kelas 'active' dari link lain
+      $(".nav-sidebar .nav-link").removeClass("active");
 
-  // Tambahkan baris baru ke dalam container
-  $("#persyaratan-container").append(newPersyaratanRow);
-});
+      // Tambahkan kelas 'active' ke link yang paling cocok
+      bestMatch.addClass("active");
 
-// Menggunakan Event Delegation untuk tombol 'Hapus'
-$(document).on("click", ".remove-persyaratan-button", function () {
-  // Cek jumlah baris yang ada
-  if ($("#persyaratan-container .persyaratan-row").length > 1) {
-    // Hapus elemen baris (.persyaratan-row) terdekat
-    $(this).closest(".persyaratan-row").remove();
-  } else {
-    // Beri peringatan jika mencoba menghapus baris terakhir
-    alert("Minimal harus ada satu persyaratan.");
+      // Jika link tersebut berada di dalam submenu (treeview)
+      var parentTreeview = bestMatch.closest(".nav-treeview");
+      if (parentTreeview.length > 0) {
+        // Buka treeview-nya
+        parentTreeview.closest(".nav-item").addClass("menu-open");
+        // Aktifkan juga link utama dari treeview tersebut
+        parentTreeview
+          .closest(".nav-item")
+          .children(".nav-link")
+          .addClass("active");
+      }
+    }
   }
+
+  // Panggil fungsi saat dokumen siap
+  activateSidebarMenu();
+});
+
+// --- SCRIPT UNTUK FORM DINAMIS PERSYARATAN DENGAN SUMMERNOTE TERPUSAT (PERBAIKAN FINAL) ---
+
+$(document).ready(function () {
+  // Variabel global untuk selalu menunjuk ke editor yang terakhir aktif
+  var activeSummernoteInstance = null;
+
+  // Fungsi untuk menginisialisasi Summernote pada sebuah elemen textarea
+  function initializeSummernote(element) {
+    element.summernote({
+      height: 100,
+      toolbar: [], // Toolbar default disembunyikan
+      callbacks: {
+        // Saat kursor masuk ke editor (fokus), simpan instance-nya
+        onFocus: function () {
+          activeSummernoteInstance = $(this);
+          // Beri highlight biru untuk menandakan editor aktif
+          $(".note-editor").removeClass("border-primary"); // Hapus highlight dari yang lain
+          $(this).next(".note-editor").addClass("border-primary");
+        },
+        // Saat kursor keluar, hapus highlight
+        onBlur: function () {
+          $(this).next(".note-editor").removeClass("border-primary");
+        },
+      },
+    });
+  }
+
+  // Inisialisasi editor pertama yang sudah ada saat halaman dimuat
+  if ($(".summernote-persyaratan").length > 0) {
+    initializeSummernote($(".summernote-persyaratan"));
+  }
+
+  // Event handler untuk tombol 'Tambah Persyaratan'
+  $(document).on("click", "#add-persyaratan-button", function () {
+    // Buat elemen baris baru dari template HTML (lebih aman daripada clone)
+    var newRowHTML = `
+            <div class="persyaratan-row row align-items-center mb-3">
+                <div class="col-11">
+                    <textarea class="form-control summernote-persyaratan" name="persyaratan[]"></textarea>
+                </div>
+                <div class="col-1">
+                    <button type="button" class="btn btn-outline-danger btn-block remove-persyaratan-button">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>`;
+
+    var newRow = $(newRowHTML);
+
+    // Tambahkan baris baru ke container
+    $("#persyaratan-container").append(newRow);
+
+    // Inisialisasi Summernote HANYA pada textarea yang baru dibuat
+    initializeSummernote(newRow.find(".summernote-persyaratan"));
+  });
+
+  // Event handler untuk tombol 'Hapus'
+  $(document).on("click", ".remove-persyaratan-button", function () {
+    if ($("#persyaratan-container .persyaratan-row").length > 1) {
+      var rowToRemove = $(this).closest(".persyaratan-row");
+      // Hancurkan instance summernote sebelum menghapus elemen HTML-nya
+      rowToRemove.find(".summernote-persyaratan").summernote("destroy");
+      rowToRemove.remove();
+    } else {
+      alert("Minimal harus ada satu persyaratan.");
+    }
+  });
+
+  // Event handler untuk toolbar kustom
+  $("#custom-summernote-toolbar").on("click", "button", function (e) {
+    e.preventDefault(); // Mencegah fokus hilang dari editor
+    var command = $(this).data("command");
+
+    // Cek apakah ada editor yang aktif
+    if (activeSummernoteInstance && command) {
+      // Langsung jalankan perintah pada editor yang aktif
+      activeSummernoteInstance.summernote(command);
+    } else {
+      alert(
+        "Silakan klik di dalam kolom teks untuk mengaktifkan editor terlebih dahulu."
+      );
+    }
+  });
 });

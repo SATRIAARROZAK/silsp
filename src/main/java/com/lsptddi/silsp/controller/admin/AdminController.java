@@ -33,7 +33,7 @@ public class AdminController {
     // private SidebarService sidebarService;
 
     @GetMapping
-    public String showAdminDashboard(Model model) {
+    public String index(Model model) {
 
         // Simulasi: Membuat objek user yang sedang login
         User loggedInUser = new User("Satria Arrozak", "ADMIN");
@@ -44,24 +44,87 @@ public class AdminController {
         return "pages/admin/dashboard";
     }
 
-    @GetMapping("/data-asesi")
-    public String index(Model model) { // 1. Tambahkan Model sebagai parameter
+    @GetMapping("/data-pengguna")
+    public String showDataPengguna(Model model) { // 1. Tambahkan Model sebagai parameter
+        // Simulasi: Membuat objek user yang sedang login
+        User loggedInUser = new User("Muhammad Satria Arrozak bin rajab bin kasim", "ADMIN");
+
+        // 2. Tambahkan atribut yang diperlukan untuk layout
+        model.addAttribute("user", loggedInUser);
+        // model.addAttribute("pageTitle", "Data Asesi"); // Judul halaman diubah sesuai
+        // konteks
+        // model.addAttribute("menuItems", sidebarService.getAdminMenuItems());
+
+        // 3. Kembalikan nama view yang benar
+        return "pages/admin/users/users-list";
+    }
+
+    @GetMapping("/data-pengguna/tambah-users")
+    public String showAddPengguna(Model model) { // 1. Tambahkan Model sebagai parameter
         // Simulasi: Membuat objek user yang sedang login
         User loggedInUser = new User("Satria Arrozak", "ADMIN");
 
         // 2. Tambahkan atribut yang diperlukan untuk layout
         model.addAttribute("user", loggedInUser);
-        model.addAttribute("pageTitle", "Data Asesi"); // Judul halaman diubah sesuai konteks
+        // model.addAttribute("pageTitle", "Data Asesi"); // Judul halaman diubah sesuai
+        // konteks
+        // model.addAttribute("menuItems", sidebarService.getAdminMenuItems());
+
+        // 3. Kembalikan nama view yang benar
+        return "pages/admin/users/users-add";
+    }
+
+    @GetMapping("/data-pengguna/view-users")
+    public String showViewPengguna(Model model) { // 1. Tambahkan Model sebagai parameter
+        // Simulasi: Membuat objek user yang sedang login
+        User loggedInUser = new User("Satria Arrozak", "ADMIN");
+
+        // 2. Tambahkan atribut yang diperlukan untuk layout
+        model.addAttribute("user", loggedInUser);
+        // model.addAttribute("pageTitle", "Data Asesi"); // Judul halaman diubah sesuai
+        // konteks
+        // model.addAttribute("menuItems", sidebarService.getAdminMenuItems());
+
+        // 3. Kembalikan nama view yang benar
+        return "pages/admin/users/users-view";
+    }
+
+    @GetMapping("/data-pengguna/edit-users")
+    public String showEditPengguna(Model model) { // 1. Tambahkan Model sebagai parameter
+        // Simulasi: Membuat objek user yang sedang login
+        User loggedInUser = new User("Satria Arrozak", "ADMIN");
+
+        // 2. Tambahkan atribut yang diperlukan untuk layout
+        model.addAttribute("user", loggedInUser);
+        // model.addAttribute("pageTitle", "Data Asesi"); // Judul halaman diubah sesuai
+        // konteks
+        // model.addAttribute("menuItems", sidebarService.getAdminMenuItems());
+
+        // 3. Kembalikan nama view yang benar
+        return "pages/admin/users/users-edit";
+    }
+
+
+
+    @GetMapping("/data-asesi")
+    public String showDataAsesi(Model model) { // 1. Tambahkan Model sebagai parameter
+        // Simulasi: Membuat objek user yang sedang login
+        User loggedInUser = new User("Satria Arrozak", "ADMIN");
+
+        // 2. Tambahkan atribut yang diperlukan untuk layout
+        model.addAttribute("user", loggedInUser);
+        // model.addAttribute("pageTitle", "Data Asesi"); // Judul halaman diubah sesuai
+        // konteks
         // model.addAttribute("menuItems", sidebarService.getAdminMenuItems());
 
         // 3. Kembalikan nama view yang benar
         return "pages/admin/asesi/asesi-list";
     }
 
-     // Removing duplicate method as it already exists above
+    // Removing duplicate method as it already exists above
 
     @GetMapping("/edit-data-asesi")
-    public String showAsesiEditPage (Model model) { // 1. Tambahkan Model sebagai parameter
+    public String showAsesiEditPage(Model model) { // 1. Tambahkan Model sebagai parameter
         // Simulasi: Membuat objek user yang sedang login
         User loggedInUser = new User("Satria Arrozak", "ADMIN");
 
@@ -74,9 +137,23 @@ public class AdminController {
         return "pages/admin/asesi/asesi-edit";
     }
 
-    
-     @GetMapping("/skema")
+    @GetMapping("/skema")
     public String showSkemaList(Model model) { // 1. Tambahkan Model sebagai parameter
+        // Simulasi: Membuat objek user yang sedang login
+        User loggedInUser = new User("Satria Arrozak", "ADMIN");
+
+        // 2. Tambahkan atribut yang diperlukan untuk layout
+        model.addAttribute("user", loggedInUser);
+        // model.addAttribute("pageTitle", "Data Skema"); // Judul halaman diubah sesuai
+        // konteks
+        // model.addAttribute("menuItems", sidebarService.getAdminMenuItems());
+
+        // 3. Kembalikan nama view yang benar
+        return "pages/admin/skema/skema-list";
+    }
+
+    @GetMapping("/skema/tambah-skema")
+    public String showSkemaTambahPage(Model model) { // 1. Tambahkan Model sebagai parameter
         // Simulasi: Membuat objek user yang sedang login
         User loggedInUser = new User("Satria Arrozak", "ADMIN");
 
@@ -86,10 +163,11 @@ public class AdminController {
         // model.addAttribute("menuItems", sidebarService.getAdminMenuItems());
 
         // 3. Kembalikan nama view yang benar
-        return "pages/admin/skema/skema-list";
+        return "pages/admin/skema/skema-add";
     }
-    @GetMapping("/edit-skema")
-    public String showSkemaEditPage (Model model) { // 1. Tambahkan Model sebagai parameter
+
+    @GetMapping("/skema/edit-skema")
+    public String showSkemaEditPage(Model model) { // 1. Tambahkan Model sebagai parameter
         // Simulasi: Membuat objek user yang sedang login
         User loggedInUser = new User("Satria Arrozak", "ADMIN");
 
@@ -102,8 +180,8 @@ public class AdminController {
         return "pages/admin/skema/skema-edit";
     }
 
-    @GetMapping("/tambah-skema")  
-    public String showSkemaTambahPage (Model model) { // 1. Tambahkan Model sebagai parameter
+    @GetMapping("/skema/view-skema")
+    public String showSkemaViewPage(Model model) { // 1. Tambahkan Model sebagai parameter
         // Simulasi: Membuat objek user yang sedang login
         User loggedInUser = new User("Satria Arrozak", "ADMIN");
 
@@ -113,7 +191,7 @@ public class AdminController {
         // model.addAttribute("menuItems", sidebarService.getAdminMenuItems());
 
         // 3. Kembalikan nama view yang benar
-        return "pages/admin/skema/skema-add";
+        return "pages/admin/skema/skema-view";
     }
 
     // @GetMapping("/asesi")

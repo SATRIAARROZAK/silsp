@@ -68,7 +68,7 @@
                       role="tabpanel"
                       aria-labelledby="skema-sertifikasi-tab"
                     >
-                      <div class="row mt-4">
+                      <div class="row">
                         <div class="col-12 text-right">
                           <button
                             type="button"
@@ -226,7 +226,7 @@
                       role="tabpanel"
                       aria-labelledby="tab-unit"
                     >
-                      <div class="row mt-4">
+                      <div class="row mb-3">
                         <div class="col-6 text-left">
                           <button
                             type="button"
@@ -240,7 +240,7 @@
                           <button
                             type="button"
                             class="btn btn-primary next-tab"
-                            data-target-tab="persyaratan-dasar-tab"
+                            data-target-tab="persyaratan-tab"
                           >
                             Selanjutnya <i class="fas fa-arrow-right"></i>
                           </button>
@@ -304,34 +304,6 @@
                           </div>
                         </div>
                       </div>
-                      <template id="unit-skema-template">
-                        <div class="unit-skema-row card card-body mb-3">
-                          <div class="row">
-                            <div class="col-md-6">
-                              <div class="form-group">
-                                <label>Kode Unit</label>
-                                <input
-                                  type="text"
-                                  class="form-control"
-                                  name="kodeUnit[]"
-                                  placeholder="Contoh: J.620100.001.01"
-                                />
-                              </div>
-                            </div>
-                            <div class="col-md-6">
-                              <div class="form-group">
-                                <label>Judul Unit</label>
-                                <input
-                                  type="text"
-                                  class="form-control"
-                                  name="judulUnit[]"
-                                  placeholder="Contoh: Mengimplementasikan User Interface"
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </template>
                       <div class="row mb-3">
                         <div class="col-12 text-center">
                           <button
@@ -393,7 +365,7 @@
                       role="tabpanel"
                       aria-labelledby="tab-persyaratan"
                     >
-                      <div class="row mt-4">
+                      <div class="row mb-3">
                         <div class="col-12 text-left">
                           <button
                             type="button"
@@ -479,26 +451,6 @@
                           </div>
                         </div>
                       </div>
-                      <template id="persyaratan-template">
-                        <div
-                          class="persyaratan-row row align-items-center mb-3"
-                        >
-                          <div class="col-11">
-                            <textarea
-                              class="form-control summernote-persyaratan"
-                              name="persyaratan[]"
-                            ></textarea>
-                          </div>
-                          <div class="col-1">
-                            <button
-                              type="button"
-                              class="btn btn-outline-danger btn-sm remove-persyaratan-button"
-                            >
-                              <i class="fas fa-trash"></i>
-                            </button>
-                          </div>
-                        </div>
-                      </template>
 
                       <div class="row mt-3">
                         <div class="col-12">

@@ -4263,6 +4263,63 @@ class AccessibilityManager {
   }
 }
 
+// =======================================================================
+// --- ACTIVATE SIDEBAR MENU ---
+// =======================================================================
+
+$(document).ready(function () {
+  /**
+   * Script untuk membuat menu sidebar aktif secara dinamis.
+   * Cocok untuk halaman list, tambah, edit, dll.
+   */
+  function activateSidebarMenu() {
+    var currentUrl = window.location.pathname;
+    var bestMatch = null;
+    var bestMatchLength = 0;
+
+    // 1. Cari link menu yang paling cocok (paling panjang) dengan URL saat ini
+    $(".nav-sidebar .nav-link").each(function () {
+      var linkUrl = $(this).attr("href");
+
+      // Pastikan linkUrl valid dan bukan '#'
+      if (linkUrl && linkUrl !== "#") {
+        // Cek apakah URL saat ini DIAWALI dengan href link menu
+        if (currentUrl.startsWith(linkUrl)) {
+          // Jika ya, dan jika panjangnya lebih besar dari kandidat sebelumnya
+          if (linkUrl.length > bestMatchLength) {
+            bestMatch = $(this);
+            bestMatchLength = linkUrl.length;
+          }
+        }
+      }
+    });
+
+    // 2. Jika ditemukan link yang cocok, aktifkan menu tersebut
+    if (bestMatch) {
+      // Hapus dulu semua kelas 'active' dari link lain
+      $(".nav-sidebar .nav-link").removeClass("active");
+
+      // Tambahkan kelas 'active' ke link yang paling cocok
+      bestMatch.addClass("active");
+
+      // Jika link tersebut berada di dalam submenu (treeview)
+      var parentTreeview = bestMatch.closest(".nav-treeview");
+      if (parentTreeview.length > 0) {
+        // Buka treeview-nya
+        parentTreeview.closest(".nav-item").addClass("menu-open");
+        // Aktifkan juga link utama dari treeview tersebut
+        parentTreeview
+          .closest(".nav-item")
+          .children(".nav-link")
+          .addClass("active");
+      }
+    }
+  }
+
+  // Panggil fungsi saat dokumen siap
+  activateSidebarMenu();
+});
+
 // expand and collapse table rows
 document.addEventListener("DOMContentLoaded", function () {
   // Ambil semua tombol yang berfungsi sebagai pemicu expand/collapse
@@ -4403,67 +4460,48 @@ $(function () {
   });
 });
 
-// --- ACTIVATE SIDEBAR MENU ---
-
+// =======================================================================
+// --- SCRIPT UNTUK FORM DINAMIS (Dapat diletakkan di file JS global) ---
+// =======================================================================
 $(document).ready(function () {
-  /**
-   * Script untuk membuat menu sidebar aktif secara dinamis.
-   * Cocok untuk halaman list, tambah, edit, dll.
-   */
-  function activateSidebarMenu() {
-    var currentUrl = window.location.pathname;
-    var bestMatch = null;
-    var bestMatchLength = 0;
+  // Menggunakan Event Delegation untuk tombol 'Tambah Unit'
+  // Skrip "mendengarkan" klik pada 'document', lalu memeriksa apakah targetnya adalah '#add-unit-button'
+  $(document).on("click", "#add-unit-button", function () {
+    // Cari template baris form yang akan digandakan
+    var template = $("#unit-skema-container .unit-skema-row:first");
 
-    // 1. Cari link menu yang paling cocok (paling panjang) dengan URL saat ini
-    $(".nav-sidebar .nav-link").each(function () {
-      var linkUrl = $(this).attr("href");
+    // Kloning/gandakan baris template
+    var newUnitRow = template.clone();
 
-      // Pastikan linkUrl valid dan bukan '#'
-      if (linkUrl && linkUrl !== "#") {
-        // Cek apakah URL saat ini DIAWALI dengan href link menu
-        if (currentUrl.startsWith(linkUrl)) {
-          // Jika ya, dan jika panjangnya lebih besar dari kandidat sebelumnya
-          if (linkUrl.length > bestMatchLength) {
-            bestMatch = $(this);
-            bestMatchLength = linkUrl.length;
-          }
-        }
-      }
-    });
+    // Kosongkan semua nilai input pada baris baru
+    newUnitRow.find("input, select").val("");
 
-    // 2. Jika ditemukan link yang cocok, aktifkan menu tersebut
-    if (bestMatch) {
-      // Hapus dulu semua kelas 'active' dari link lain
-      $(".nav-sidebar .nav-link").removeClass("active");
+    // Pastikan tombol hapus terlihat (penting jika baris pertama disembunyikan)
+    newUnitRow.find(".remove-unit-button").show();
 
-      // Tambahkan kelas 'active' ke link yang paling cocok
-      bestMatch.addClass("active");
+    // Tambahkan baris baru ke dalam container
+    $("#unit-skema-container").append(newUnitRow);
+  });
 
-      // Jika link tersebut berada di dalam submenu (treeview)
-      var parentTreeview = bestMatch.closest(".nav-treeview");
-      if (parentTreeview.length > 0) {
-        // Buka treeview-nya
-        parentTreeview.closest(".nav-item").addClass("menu-open");
-        // Aktifkan juga link utama dari treeview tersebut
-        parentTreeview
-          .closest(".nav-item")
-          .children(".nav-link")
-          .addClass("active");
-      }
+  // Menggunakan Event Delegation untuk tombol 'Hapus'
+  // Ini memastikan tombol hapus pada baris baru juga akan berfungsi
+  $(document).on("click", ".remove-unit-button", function () {
+    // Cek jumlah baris yang ada
+    if ($("#unit-skema-container .unit-skema-row").length > 1) {
+      // Hapus elemen card (.unit-skema-row) terdekat dari tombol yang diklik
+      $(this).closest(".unit-skema-row").remove();
+    } else {
+      // Beri peringatan jika mencoba menghapus baris terakhir
+      alert("Minimal harus ada satu unit skema.");
     }
-  }
-
-  // Panggil fungsi saat dokumen siap
-  activateSidebarMenu();
+  });
 });
 
 // --- SCRIPT UNTUK FORM DINAMIS PERSYARATAN DENGAN SUMMERNOTE TERPUSAT (PERBAIKAN FINAL) ---
 
 $(document).ready(function () {
-  // --- 1. Inisialisasi Awal ---
-  var localStorageKey = "skemaFormData";
-
+  // Variabel global untuk selalu menunjuk ke editor yang terakhir aktif
+  var activeSummernoteInstance = null;
   // Inisialisasi Toast SweetAlert
   var Toast = Swal.mixin({
     toast: true,
@@ -4477,138 +4515,85 @@ $(document).ready(function () {
     },
   });
 
-  // --- 2. Fungsi Utama (Simpan, Muat, Hapus) ---
-
-  /**
-   * Mengambil semua data dari form dan menyimpannya ke LocalStorage.
-   */
-  function saveFormDataToLocalStorage() {
-    var formData = {
-      skema: {},
-      unitSkema: [],
-      persyaratan: [],
-    };
-
-    // Ambil data dari Tab 1
-    formData.skema.nama = $("#namaSkema").val();
-    formData.skema.kode = $("#kodeSkema").val();
-    formData.skema.deskripsi = $("#deskripsi").val();
-    // (Nama file tidak kita simpan karena object file tidak bisa disimpan di JSON)
-
-    // Ambil data dari Tab 2 (Unit Skema)
-    $("#unit-skema-container .unit-skema-row").each(function () {
-      formData.unitSkema.push({
-        kode: $(this).find('input[name="kodeUnit[]"]').val(),
-        judul: $(this).find('input[name="judulUnit[]"]').val(),
-        standar: $(this).find('select[name="standarKompetensi[]"]').val(),
-      });
+  // Fungsi untuk menginisialisasi Summernote pada sebuah elemen textarea
+  function initializeSummernote(element) {
+    element.summernote({
+      height: 100,
+      toolbar: [], // Toolbar default disembunyikan
+      callbacks: {
+        // Saat kursor masuk ke editor (fokus), simpan instance-nya
+        onFocus: function () {
+          activeSummernoteInstance = $(this);
+          // Beri highlight biru untuk menandakan editor aktif
+          $(".note-editor").removeClass("border-primary"); // Hapus highlight dari yang lain
+          $(this).next(".note-editor").addClass("border-primary");
+        },
+        // Saat kursor keluar, hapus highlight
+        onBlur: function () {
+          $(this).next(".note-editor").removeClass("border-primary");
+        },
+      },
     });
-
-    // Ambil data dari Tab 3 (Persyaratan)
-    $("#persyaratan-container .persyaratan-row").each(function () {
-      // Ambil konten HTML dari Summernote
-      var summernoteContent = $(this)
-        .find(".summernote-persyaratan")
-        .summernote("code");
-      formData.persyaratan.push(summernoteContent);
-    });
-
-    // Simpan sebagai string JSON ke LocalStorage
-    localStorage.setItem(localStorageKey, JSON.stringify(formData));
   }
 
-  /**
-   * Memuat data dari LocalStorage dan membangun kembali form.
-   */
-  function loadFormDataFromLocalStorage() {
-    var savedData = localStorage.getItem(localStorageKey);
-    if (!savedData) return;
-
-    var formData = JSON.parse(savedData);
-
-    // Muat data untuk Tab 1
-    if (formData.skema) {
-      $("#namaSkema").val(formData.skema.nama);
-      $("#kodeSkema").val(formData.skema.kode);
-      $("#deskripsi").val(formData.skema.deskripsi);
-    }
-
-    // Muat data untuk Tab 2
-    if (formData.unitSkema && formData.unitSkema.length > 0) {
-      var unitContainer = $("#unit-skema-container");
-      unitContainer.empty(); // Kosongkan dulu container
-
-      formData.unitSkema.forEach(function (unit) {
-        var newRow = $($("#unit-skema-template").html()); // Gunakan template
-        newRow.find('input[name="kodeUnit[]"]').val(unit.kode);
-        newRow.find('input[name="judulUnit[]"]').val(unit.judul);
-        newRow.find('select[name="standarKompetensi[]"]').val(unit.standar);
-        unitContainer.append(newRow);
-      });
-    }
-
-    // Muat data untuk Tab 3
-    if (formData.persyaratan && formData.persyaratan.length > 0) {
-      var persyaratanContainer = $("#persyaratan-container");
-      persyaratanContainer.empty(); // Kosongkan dulu container
-
-      formData.persyaratan.forEach(function (p, index) {
-        var newRow = $($("#persyaratan-template").html());
-        persyaratanContainer.append(newRow);
-        // Inisialisasi summernote dulu, baru isi datanya
-        var newEditor = newRow.find(".summernote-persyaratan");
-        initializeSummernote(newEditor);
-        newEditor.summernote("code", p);
-      });
-    }
+  // Inisialisasi editor pertama yang sudah ada saat halaman dimuat
+  if ($(".summernote-persyaratan").length > 0) {
+    initializeSummernote($(".summernote-persyaratan"));
   }
 
-  /**
-   * Membersihkan data dari LocalStorage.
-   */
-  function clearFormDataFromLocalStorage() {
-    localStorage.removeItem(localStorageKey);
-  }
+  // Event handler untuk tombol 'Tambah Persyaratan'
+  $(document).on("click", "#add-persyaratan-button", function () {
+    // Buat elemen baris baru dari template HTML (lebih aman daripada clone)
+    var newRowHTML = `
+            <div class="persyaratan-row row align-items-center mb-3">
+                <div class="col-11">
+                    <textarea class="form-control summernote-persyaratan" name="persyaratan[]"></textarea>
+                </div>
+                <div class="col-1">
+                    <button type="button" class="btn btn-outline-danger remove-persyaratan-button">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>`;
 
-  // --- 3. Event Listeners ---
+    var newRow = $(newRowHTML);
 
-  // Panggil 'loadFormDataFromLocalStorage' saat halaman pertama kali siap
-  loadFormDataFromLocalStorage();
-  bsCustomFileInput.init();
+    // Tambahkan baris baru ke container
+    $("#persyaratan-container").append(newRow);
 
-  // Simpan data setiap kali ada input/perubahan
-  $(document).on(
-    "input change",
-    "#form-tambah-skema",
-    saveFormDataToLocalStorage
-  );
+    // Inisialisasi Summernote HANYA pada textarea yang baru dibuat
+    initializeSummernote(newRow.find(".summernote-persyaratan"));
+  });
 
-  // Untuk Summernote, kita perlu event 'summernote.change'
-  $(document).on(
-    "summernote.change",
-    ".summernote-persyaratan",
-    saveFormDataToLocalStorage
-  );
-
-  // Simpan juga setelah menambah atau menghapus baris
-  $(document).on(
-    "click",
-    "#add-unit-button, .remove-unit-button, #add-persyaratan-button, .remove-persyaratan-button",
-    function () {
-      // Beri sedikit delay agar DOM sempat terupdate sebelum menyimpan
-      setTimeout(saveFormDataToLocalStorage, 100);
+  // Event handler untuk tombol 'Hapus'
+  $(document).on("click", ".remove-persyaratan-button", function () {
+    if ($("#persyaratan-container .persyaratan-row").length > 1) {
+      var rowToRemove = $(this).closest(".persyaratan-row");
+      // Hancurkan instance summernote sebelum menghapus elemen HTML-nya
+      rowToRemove.find(".summernote-persyaratan").summernote("destroy");
+      rowToRemove.remove();
+    } else {
+      alert("Minimal harus ada satu persyaratan.");
     }
-  );
+  });
 
-  // Hapus data saat form disubmit atau dibatalkan
-  $("#form-tambah-skema").on("submit", clearFormDataFromLocalStorage);
-  $('a.btn-secondary:contains("Batal")').on(
-    "click",
-    clearFormDataFromLocalStorage
-  );
+  // Event handler untuk toolbar kustom
+  $("#custom-summernote-toolbar").on("click", "button", function (e) {
+    e.preventDefault(); // Mencegah fokus hilang dari editor
+    var command = $(this).data("command");
 
-  // --- Kode Validasi, Navigasi, dan Dinamis Lainnya ---
-  // (Kode dari jawaban sebelumnya, sudah digabungkan di sini)
+    // Cek apakah ada editor yang aktif
+    if (activeSummernoteInstance && command) {
+      // Langsung jalankan perintah pada editor yang aktif
+      activeSummernoteInstance.summernote(command);
+    } else {
+      alert(
+        "Silakan klik di dalam kolom teks untuk mengaktifkan editor terlebih dahulu."
+      );
+    }
+  });
+
+  // validation tabs skema
 
   $(".next-tab").on("click", function () {
     var currentTab = $(this).closest(".tab-pane");
@@ -4657,98 +4642,4 @@ $(document).ready(function () {
     e.preventDefault();
     return false;
   });
-
-  // Tambah/Hapus Unit Skema
-  $("#add-unit-button").on("click", function () {
-    var newRow = $($("#unit-skema-template").html());
-    $("#unit-skema-container").append(newRow);
-  });
-  $("#unit-skema-container").on("click", ".remove-unit-button", function () {
-    if ($("#unit-skema-container .unit-skema-row").length > 1) {
-      $(this).closest(".unit-skema-row").remove();
-    } else {
-      Toast.fire({
-        icon: "warning",
-        title: "Minimal harus ada satu unit skema.",
-      });
-    }
-  });
-
-  // Tambah/Hapus Persyaratan
-  $(document).on("click", "#add-persyaratan-button", function () {
-    var newRow = $($("#persyaratan-template").html());
-    $("#persyaratan-container").append(newRow);
-    initializeSummernote(newRow.find(".summernote-persyaratan"));
-  });
-  $(document).on("click", ".remove-persyaratan-button", function () {
-    if ($("#persyaratan-container .persyaratan-row").length > 1) {
-      var rowToRemove = $(this).closest(".persyaratan-row");
-      rowToRemove.find(".summernote-persyaratan").summernote("destroy");
-      rowToRemove.remove();
-    } else {
-      Toast.fire({
-        icon: "warning",
-        title: "Minimal harus ada satu persyaratan.",
-      });
-    }
-  });
-
-  // Toolbar Summernote
-  $("#custom-summernote-toolbar").on("click", "button", function (e) {
-    e.preventDefault();
-    var command = $(this).data("command");
-    if (activeSummernoteInstance && command) {
-      activeSummernoteInstance.summernote("focus");
-      activeSummernoteInstance.summernote(command);
-      updateToolbarStatus();
-    } else if (!activeSummernoteInstance) {
-      Toast.fire({
-        icon: "info",
-        title: "Klik di dalam editor untuk mengaktifkan.",
-      });
-    }
-  });
 });
-
-// --- FUNGSI HELPER (Letakkan di luar document.ready) ---
-var activeSummernoteInstance = null;
-
-function updateToolbarStatus() {
-  if (!activeSummernoteInstance) {
-    $("#custom-summernote-toolbar button").removeClass("active");
-    return;
-  }
-  var status = activeSummernoteInstance.summernote("getButtonStatus");
-  $("#custom-summernote-toolbar button").each(function () {
-    var command = $(this).data("command");
-    if (status[command]) {
-      $(this).addClass("active");
-    } else {
-      $(this).removeClass("active");
-    }
-  });
-}
-
-function initializeSummernote(element) {
-  element.summernote({
-    height: 100,
-    toolbar: [],
-    callbacks: {
-      onFocus: function () {
-        activeSummernoteInstance = $(this);
-        updateToolbarStatus();
-        $(".note-editor").removeClass("border-primary");
-        $(this).next(".note-editor").addClass("border-primary");
-      },
-      onBlur: function () {
-        $(this).next(".note-editor").removeClass("border-primary");
-      },
-      onKeyup: function () {
-        updateToolbarStatus();
-      },
-      onMouseup: function () {
-        updateToolbarStatus();
-      },
-    },
-  });
-}

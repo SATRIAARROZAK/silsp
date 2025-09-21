@@ -4403,41 +4403,6 @@ $(function () {
   });
 });
 
-// --- SCRIPT UNTUK FORM DINAMIS (Dapat diletakkan di file JS global) ---
-$(document).ready(function () {
-  // Menggunakan Event Delegation untuk tombol 'Tambah Unit'
-  // Skrip "mendengarkan" klik pada 'document', lalu memeriksa apakah targetnya adalah '#add-unit-button'
-  $(document).on("click", "#add-unit-button", function () {
-    // Cari template baris form yang akan digandakan
-    var template = $("#unit-skema-container .unit-skema-row:first");
-
-    // Kloning/gandakan baris template
-    var newUnitRow = template.clone();
-
-    // Kosongkan semua nilai input pada baris baru
-    newUnitRow.find("input, select").val("");
-
-    // Pastikan tombol hapus terlihat (penting jika baris pertama disembunyikan)
-    newUnitRow.find(".remove-unit-button").show();
-
-    // Tambahkan baris baru ke dalam container
-    $("#unit-skema-container").append(newUnitRow);
-  });
-
-  // Menggunakan Event Delegation untuk tombol 'Hapus'
-  // Ini memastikan tombol hapus pada baris baru juga akan berfungsi
-  $(document).on("click", ".remove-unit-button", function () {
-    // Cek jumlah baris yang ada
-    if ($("#unit-skema-container .unit-skema-row").length > 1) {
-      // Hapus elemen card (.unit-skema-row) terdekat dari tombol yang diklik
-      $(this).closest(".unit-skema-row").remove();
-    } else {
-      // Beri peringatan jika mencoba menghapus baris terakhir
-      alert("Minimal harus ada satu unit skema.");
-    }
-  });
-});
-
 // --- ACTIVATE SIDEBAR MENU ---
 
 $(document).ready(function () {
@@ -4496,84 +4461,294 @@ $(document).ready(function () {
 // --- SCRIPT UNTUK FORM DINAMIS PERSYARATAN DENGAN SUMMERNOTE TERPUSAT (PERBAIKAN FINAL) ---
 
 $(document).ready(function () {
-  // Variabel global untuk selalu menunjuk ke editor yang terakhir aktif
-  var activeSummernoteInstance = null;
+  // --- 1. Inisialisasi Awal ---
+  var localStorageKey = "skemaFormData";
 
-  // Fungsi untuk menginisialisasi Summernote pada sebuah elemen textarea
-  function initializeSummernote(element) {
-    element.summernote({
-      height: 100,
-      toolbar: [], // Toolbar default disembunyikan
-      callbacks: {
-        // Saat kursor masuk ke editor (fokus), simpan instance-nya
-        onFocus: function () {
-          activeSummernoteInstance = $(this);
-          // Beri highlight biru untuk menandakan editor aktif
-          $(".note-editor").removeClass("border-primary"); // Hapus highlight dari yang lain
-          $(this).next(".note-editor").addClass("border-primary");
-        },
-        // Saat kursor keluar, hapus highlight
-        onBlur: function () {
-          $(this).next(".note-editor").removeClass("border-primary");
-        },
-      },
-    });
-  }
-
-  // Inisialisasi editor pertama yang sudah ada saat halaman dimuat
-  if ($(".summernote-persyaratan").length > 0) {
-    initializeSummernote($(".summernote-persyaratan"));
-  }
-
-  // Event handler untuk tombol 'Tambah Persyaratan'
-  $(document).on("click", "#add-persyaratan-button", function () {
-    // Buat elemen baris baru dari template HTML (lebih aman daripada clone)
-    var newRowHTML = `
-            <div class="persyaratan-row row align-items-center mb-3">
-                <div class="col-11">
-                    <textarea class="form-control summernote-persyaratan" name="persyaratan[]"></textarea>
-                </div>
-                <div class="col-1">
-                    <button type="button" class="btn btn-outline-danger btn-block remove-persyaratan-button">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            </div>`;
-
-    var newRow = $(newRowHTML);
-
-    // Tambahkan baris baru ke container
-    $("#persyaratan-container").append(newRow);
-
-    // Inisialisasi Summernote HANYA pada textarea yang baru dibuat
-    initializeSummernote(newRow.find(".summernote-persyaratan"));
+  // Inisialisasi Toast SweetAlert
+  var Toast = Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+      toast.addEventListener("mouseenter", Swal.stopTimer);
+      toast.addEventListener("mouseleave", Swal.resumeTimer);
+    },
   });
 
-  // Event handler untuk tombol 'Hapus'
+  // --- 2. Fungsi Utama (Simpan, Muat, Hapus) ---
+
+  /**
+   * Mengambil semua data dari form dan menyimpannya ke LocalStorage.
+   */
+  function saveFormDataToLocalStorage() {
+    var formData = {
+      skema: {},
+      unitSkema: [],
+      persyaratan: [],
+    };
+
+    // Ambil data dari Tab 1
+    formData.skema.nama = $("#namaSkema").val();
+    formData.skema.kode = $("#kodeSkema").val();
+    formData.skema.deskripsi = $("#deskripsi").val();
+    // (Nama file tidak kita simpan karena object file tidak bisa disimpan di JSON)
+
+    // Ambil data dari Tab 2 (Unit Skema)
+    $("#unit-skema-container .unit-skema-row").each(function () {
+      formData.unitSkema.push({
+        kode: $(this).find('input[name="kodeUnit[]"]').val(),
+        judul: $(this).find('input[name="judulUnit[]"]').val(),
+        standar: $(this).find('select[name="standarKompetensi[]"]').val(),
+      });
+    });
+
+    // Ambil data dari Tab 3 (Persyaratan)
+    $("#persyaratan-container .persyaratan-row").each(function () {
+      // Ambil konten HTML dari Summernote
+      var summernoteContent = $(this)
+        .find(".summernote-persyaratan")
+        .summernote("code");
+      formData.persyaratan.push(summernoteContent);
+    });
+
+    // Simpan sebagai string JSON ke LocalStorage
+    localStorage.setItem(localStorageKey, JSON.stringify(formData));
+  }
+
+  /**
+   * Memuat data dari LocalStorage dan membangun kembali form.
+   */
+  function loadFormDataFromLocalStorage() {
+    var savedData = localStorage.getItem(localStorageKey);
+    if (!savedData) return;
+
+    var formData = JSON.parse(savedData);
+
+    // Muat data untuk Tab 1
+    if (formData.skema) {
+      $("#namaSkema").val(formData.skema.nama);
+      $("#kodeSkema").val(formData.skema.kode);
+      $("#deskripsi").val(formData.skema.deskripsi);
+    }
+
+    // Muat data untuk Tab 2
+    if (formData.unitSkema && formData.unitSkema.length > 0) {
+      var unitContainer = $("#unit-skema-container");
+      unitContainer.empty(); // Kosongkan dulu container
+
+      formData.unitSkema.forEach(function (unit) {
+        var newRow = $($("#unit-skema-template").html()); // Gunakan template
+        newRow.find('input[name="kodeUnit[]"]').val(unit.kode);
+        newRow.find('input[name="judulUnit[]"]').val(unit.judul);
+        newRow.find('select[name="standarKompetensi[]"]').val(unit.standar);
+        unitContainer.append(newRow);
+      });
+    }
+
+    // Muat data untuk Tab 3
+    if (formData.persyaratan && formData.persyaratan.length > 0) {
+      var persyaratanContainer = $("#persyaratan-container");
+      persyaratanContainer.empty(); // Kosongkan dulu container
+
+      formData.persyaratan.forEach(function (p, index) {
+        var newRow = $($("#persyaratan-template").html());
+        persyaratanContainer.append(newRow);
+        // Inisialisasi summernote dulu, baru isi datanya
+        var newEditor = newRow.find(".summernote-persyaratan");
+        initializeSummernote(newEditor);
+        newEditor.summernote("code", p);
+      });
+    }
+  }
+
+  /**
+   * Membersihkan data dari LocalStorage.
+   */
+  function clearFormDataFromLocalStorage() {
+    localStorage.removeItem(localStorageKey);
+  }
+
+  // --- 3. Event Listeners ---
+
+  // Panggil 'loadFormDataFromLocalStorage' saat halaman pertama kali siap
+  loadFormDataFromLocalStorage();
+  bsCustomFileInput.init();
+
+  // Simpan data setiap kali ada input/perubahan
+  $(document).on(
+    "input change",
+    "#form-tambah-skema",
+    saveFormDataToLocalStorage
+  );
+
+  // Untuk Summernote, kita perlu event 'summernote.change'
+  $(document).on(
+    "summernote.change",
+    ".summernote-persyaratan",
+    saveFormDataToLocalStorage
+  );
+
+  // Simpan juga setelah menambah atau menghapus baris
+  $(document).on(
+    "click",
+    "#add-unit-button, .remove-unit-button, #add-persyaratan-button, .remove-persyaratan-button",
+    function () {
+      // Beri sedikit delay agar DOM sempat terupdate sebelum menyimpan
+      setTimeout(saveFormDataToLocalStorage, 100);
+    }
+  );
+
+  // Hapus data saat form disubmit atau dibatalkan
+  $("#form-tambah-skema").on("submit", clearFormDataFromLocalStorage);
+  $('a.btn-secondary:contains("Batal")').on(
+    "click",
+    clearFormDataFromLocalStorage
+  );
+
+  // --- Kode Validasi, Navigasi, dan Dinamis Lainnya ---
+  // (Kode dari jawaban sebelumnya, sudah digabungkan di sini)
+
+  $(".next-tab").on("click", function () {
+    var currentTab = $(this).closest(".tab-pane");
+    var isValid = true;
+    var firstInvalidElement = null;
+
+    // Validasi input
+    currentTab
+      .find('input[type="text"], input[type="file"], textarea')
+      .each(function () {
+        if ($(this).is(":visible")) {
+          if (!$(this).val() || $(this).val().trim() === "") {
+            isValid = false;
+            if (!firstInvalidElement) {
+              firstInvalidElement = $(this);
+            }
+          }
+        }
+      });
+
+    // Jika form tidak valid, tampilkan Toast error
+    if (!isValid) {
+      Toast.fire({
+        icon: "error",
+        title: "Harap isi semua kolom sebelum melanjutkan.",
+      });
+      if (firstInvalidElement) {
+        firstInvalidElement.focus();
+      }
+      return;
+    }
+
+    // Jika valid, pindah tab
+    var targetTabId = $(this).data("target-tab");
+    $("#" + targetTabId).tab("show");
+  });
+
+  // Kembali ke tab sebelumnya
+  $(".prev-tab").on("click", function () {
+    var targetTabId = $(this).data("target-tab");
+    $("#" + targetTabId).tab("show");
+  });
+
+  // Nonaktifkan klik langsung pada header tab dengan Toast info
+  $(".card-tabs .nav-tabs .nav-link").on("click", function (e) {
+    e.preventDefault();
+    return false;
+  });
+
+  // Tambah/Hapus Unit Skema
+  $("#add-unit-button").on("click", function () {
+    var newRow = $($("#unit-skema-template").html());
+    $("#unit-skema-container").append(newRow);
+  });
+  $("#unit-skema-container").on("click", ".remove-unit-button", function () {
+    if ($("#unit-skema-container .unit-skema-row").length > 1) {
+      $(this).closest(".unit-skema-row").remove();
+    } else {
+      Toast.fire({
+        icon: "warning",
+        title: "Minimal harus ada satu unit skema.",
+      });
+    }
+  });
+
+  // Tambah/Hapus Persyaratan
+  $(document).on("click", "#add-persyaratan-button", function () {
+    var newRow = $($("#persyaratan-template").html());
+    $("#persyaratan-container").append(newRow);
+    initializeSummernote(newRow.find(".summernote-persyaratan"));
+  });
   $(document).on("click", ".remove-persyaratan-button", function () {
     if ($("#persyaratan-container .persyaratan-row").length > 1) {
       var rowToRemove = $(this).closest(".persyaratan-row");
-      // Hancurkan instance summernote sebelum menghapus elemen HTML-nya
       rowToRemove.find(".summernote-persyaratan").summernote("destroy");
       rowToRemove.remove();
     } else {
-      alert("Minimal harus ada satu persyaratan.");
+      Toast.fire({
+        icon: "warning",
+        title: "Minimal harus ada satu persyaratan.",
+      });
     }
   });
 
-  // Event handler untuk toolbar kustom
+  // Toolbar Summernote
   $("#custom-summernote-toolbar").on("click", "button", function (e) {
-    e.preventDefault(); // Mencegah fokus hilang dari editor
+    e.preventDefault();
     var command = $(this).data("command");
-
-    // Cek apakah ada editor yang aktif
     if (activeSummernoteInstance && command) {
-      // Langsung jalankan perintah pada editor yang aktif
+      activeSummernoteInstance.summernote("focus");
       activeSummernoteInstance.summernote(command);
-    } else {
-      alert(
-        "Silakan klik di dalam kolom teks untuk mengaktifkan editor terlebih dahulu."
-      );
+      updateToolbarStatus();
+    } else if (!activeSummernoteInstance) {
+      Toast.fire({
+        icon: "info",
+        title: "Klik di dalam editor untuk mengaktifkan.",
+      });
     }
   });
 });
+
+// --- FUNGSI HELPER (Letakkan di luar document.ready) ---
+var activeSummernoteInstance = null;
+
+function updateToolbarStatus() {
+  if (!activeSummernoteInstance) {
+    $("#custom-summernote-toolbar button").removeClass("active");
+    return;
+  }
+  var status = activeSummernoteInstance.summernote("getButtonStatus");
+  $("#custom-summernote-toolbar button").each(function () {
+    var command = $(this).data("command");
+    if (status[command]) {
+      $(this).addClass("active");
+    } else {
+      $(this).removeClass("active");
+    }
+  });
+}
+
+function initializeSummernote(element) {
+  element.summernote({
+    height: 100,
+    toolbar: [],
+    callbacks: {
+      onFocus: function () {
+        activeSummernoteInstance = $(this);
+        updateToolbarStatus();
+        $(".note-editor").removeClass("border-primary");
+        $(this).next(".note-editor").addClass("border-primary");
+      },
+      onBlur: function () {
+        $(this).next(".note-editor").removeClass("border-primary");
+      },
+      onKeyup: function () {
+        updateToolbarStatus();
+      },
+      onMouseup: function () {
+        updateToolbarStatus();
+      },
+    },
+  });
+}

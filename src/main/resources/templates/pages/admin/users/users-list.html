@@ -5,16 +5,16 @@
   xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
   layout:decorate="~{layouts/app}"
 >
-  <head th:replace="~{fragments/header :: header('Data Skema')}"></head>
+  <head th:replace="~{fragments/header :: header('Data Pengguna')}"></head>
 
   <body>
     <div layout:fragment="page-title">
-      <h1 class="m-0">Data Skema</h1>
+      <h1 class="m-0">Data Pengguna</h1>
     </div>
     <div layout:fragment="breadcrumb">
       <ol class="breadcrumb float-sm-right">
         <li class="breadcrumb-item"><a href="#">Home</a></li>
-        <li class="breadcrumb-item active">Data Skema</li>
+        <li class="breadcrumb-item active">Data Pengguna</li>
       </ol>
     </div>
     <div layout:fragment="content">
@@ -46,8 +46,8 @@
               >
             </form>
 
-            <a th:href="@{/admin/skema/tambah-skema}" class="btn btn-primary">
-              <i class="bi bi-person-fill-add me-1"></i>Tambah Data
+            <a th:href="@{/admin/data-pengguna/tambah-users}" class="btn btn-primary">
+              <i class="bi bi-person-fill-add me-1"></i>Tambah Pengguna
             </a>
           </div>
         </div>
@@ -55,115 +55,64 @@
         <div class="card-body responsive">
           <table
             id="example2"
-            class="table table-bordered table-hover table-responsive-md"
+            class="table table-bordered table-hover table-responsive-md projects"
           >
             <thead>
               <tr class="text-center">
                 <th>No</th>
-                <th>Nama Skema</th>
-                <th>Jenis Skema</th>
-                <th>Nomer Dokumen</th>
-                <th>Level</th>
-                <th>File</th>
-                <th>Skema Unit</th>
+                <th>Nama Lengkap</th>
+                <th>Photo</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>No Telp</th>
+                <th>Role</th>
                 <th>Aksi</th>
               </tr>
             </thead>
-            <tbody id="skemaTableBody">
-              <tr>
-                <td>1</td>
-                <td>Associate Data Science</td>
-                <td>Okupasi</td>
-                <td class="text-center">01/SKM/LSPTDDI/I/2025</td>
-                <td class="text-center">4</td>
-                <td class="text-center">
-                  <a
-                    href="#"
-                    class="btn btn-secondary btn-sm"
-                    data-toggle="modal"
-                    data-target="#previewModal"
-                    title="Lihat Dokumen"
-                  >
-                    <i class="fas fa-file"></i>
-                  </a>
-                </td>
-                <td class="text-center">
-                  <a
-                    class="btn btn-primary btn-sm btn-expand"
-                    data-target="#skema-unit"
-                  >
-                    <i class="fas fa-folder-plus"></i>
-                  </a>
-                </td>
-                <td class="project-actions text-center">
-                  <a
-                    class="btn btn-outline-primary btn-sm"
-                    th:href="@{/admin/skema/view-skema}"
-                    title="View"
-                  >
-                    <i class="fas fa-eye"> </i>
-                  </a>
-                  <a
-                    class="btn btn-outline-info btn-sm"
-                    th:href="@{/admin/skema/edit-skema}"
-                    title="Edit"
-                  >
-                    <i class="fas fa-pencil-alt"> </i>
-                  </a>
-                  <a
-                    class="btn btn-outline-danger btn-sm"
-                    href="#"
-                    title="Delete"
-                  >
-                    <i class="fas fa-trash"> </i>
-                  </a>
-                </td>
-              </tr>
-              <tr class="expandable-content-row" id="skema-unit">
-                <td colspan="8">
-                  <div class="expandable-content-wrapper">
-                    <h5>
-                      Daftar Unit Skema:
-                      <span th:text="(...)"></span>
-                    </h5>
-                    <div class="table-responsive">
-                      <table
-                        class="table table-valign-middle table-sm table-bordered nested-table"
-                      >
-                        <thead class="thead-light">
-                          <tr>
-                            <th>No</th>
-                            <th>Kode Unit</th>
-                            <th>Judul Unit</th>
-                            <th>Standar Kompetensi Kerja</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td>1</td>
-                            <td>J.620100.001.01</td>
-                            <td>Mengimplementasikan User Interface</td>
-                            <td rowspan="2" class="text-center">
-                              SKKNI No. (...) Tahun (...)
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>2</td>
-                            <td>J.620100.002.01</td>
-                            <td>Membuat User Interface</td>
-                            <!-- <td>SKKNI</td> -->
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </td>
-              </tr>
+            <tbody>
+              <td>1</td>
+              <td>Muhammad Satria</td>
+              <td class="text-center">
+                <ul class="list-inline">
+                  <li class="list-inline-item">
+                    <img
+                      alt="Avatar"
+                      class="table-avatar"
+                      th:src="@{/dist/img/photo.jpg}"
+                    />
+                  </li>
+                </ul>
+              </td>
+              <td>satria_admin</td>
+              <td>satria@gmail.com</td>
+              <td>08967556557</td>
+              <td class="project-state"><span class="badge bg-info">Admin</span></td>
+              <td class="project-actions text-center">
+                <a
+                  class="btn btn-outline-primary btn-sm"
+                  th:href="@{/admin/data-pengguna/view-users}"
+                  title="View"
+                >
+                  <i class="fas fa-eye"> </i>
+                </a>
+                <a
+                  class="btn btn-outline-info btn-sm"
+                  th:href="@{/admin/data-pengguna/edit-users}"
+                  title="Edit"
+                >
+                  <i class="fas fa-pencil-alt"> </i>
+                </a>
+                <a
+                  class="btn btn-outline-danger btn-sm"
+                  href="#"
+                  title="Delete"
+                >
+                  <i class="fas fa-trash"> </i>
+                </a>
+              </td>
             </tbody>
           </table>
         </div>
-
-        <!-- /.card-body -->
         <div class="card-footer clearfix">
           <ul class="pagination pagination-sm m-0 float-right">
             <li class="page-item"><a class="page-link" href="#">&laquo;</a></li>
@@ -174,50 +123,6 @@
           </ul>
         </div>
       </div>
-      <div
-        class="modal fade"
-        id="previewModal"
-        tabindex="-1"
-        role="dialog"
-        aria-labelledby="previewModalLabel"
-        aria-hidden="true"
-      >
-        <div class="modal-dialog modal-xl" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="previewModalLabel">
-                Preview Dokumen Skema
-              </h5>
-              <button
-                type="button"
-                class="close"
-                data-dismiss="modal"
-                aria-label="Close"
-              >
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-              <iframe
-                id="pdf-viewer"
-                src="about:blank"
-                frameborder="0"
-                style="width: 100%; height: 75vh"
-              ></iframe>
-            </div>
-            <div class="modal-footer">
-              <button
-                type="button"
-                class="btn btn-secondary"
-                data-dismiss="modal"
-              >
-                Tutup
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- /.modal -->
     </div>
   </body>
 </html>

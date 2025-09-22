@@ -4398,7 +4398,7 @@ $(function () {
 
   //Date picker
   $("#reservationdate").datetimepicker({
-    format: "L",
+    format: "DD/MM/YYYY",
   });
 
   //Date and time picker
@@ -4645,22 +4645,23 @@ $(document).ready(function () {
     return false;
   });
 
-  // --- SCRIPT UNTUK MENYIMPAN DATA FORM SAAT REFRESH ---
+  // --- FUNGSI UNTUK LOCALSTORAGE ---
 
-  // Fungsi untuk menyimpan seluruh data form ke localStorage
   function saveFormDataToLocalStorage() {
     const formData = {};
 
-    // Simpan nilai dari input biasa (Tab 1)
-    $("#form-tambah-skema input, #form-tambah-skema textarea").each(
-      function () {
-        if ($(this).attr("id")) {
-          formData[$(this).attr("id")] = $(this).val();
-        }
-      }
-    );
+    // TAB 1: Simpan semua input dari Tab 1
+    formData.namaSkema = $("#namaSkema").val();
+    formData.kodeSkema = $("#kodeSkema").val();
+    formData.noSkkni = $("#noSkkni").val();
+    formData.level = $("#levelSkema").val();
+    formData.tahun = $("#tahunSkkni").val();
+    formData.jenisSkema = $("#jenisSkema").val();
+    formData.modeSkema = $("#modeSkema").val();
+    formData.tanggal_penetapan = $("#tanggal_penetapan").val();
+    formData.fileSkemaName = $("#fileSkema").val().split("\\").pop();
 
-    // Simpan data dinamis dari Unit Skema (Tab 2)
+    // TAB 2: Simpan data dinamis dari Unit Skema
     formData.unitSkema = [];
     $("#unit-skema-container .unit-skema-row").each(function () {
       const unit = {
@@ -4673,7 +4674,7 @@ $(document).ready(function () {
       formData.unitSkema.push(unit);
     });
 
-    // Simpan data dinamis dari Persyaratan (Tab 3)
+    // TAB 3: Simpan data dinamis dari Persyaratan
     formData.persyaratan = [];
     $("#persyaratan-container .persyaratan-row").each(function () {
       formData.persyaratan.push(
@@ -4681,33 +4682,45 @@ $(document).ready(function () {
       );
     });
 
-    // Simpan ID tab yang aktif
+    // Simpan ID tab yang sedang aktif
     formData.activeTab = $(".nav-tabs .nav-link.active").attr("id");
 
+    // Simpan semua data ke localStorage
     localStorage.setItem("skemaFormData", JSON.stringify(formData));
+    console.log("Form data saved!"); // Untuk debugging
   }
 
-  // Fungsi untuk memuat data dari localStorage ke form
   function loadFormDataFromLocalStorage() {
     const savedData = localStorage.getItem("skemaFormData");
     if (!savedData) return;
 
     const formData = JSON.parse(savedData);
+    console.log("Loading form data:", formData); // Untuk debugging
 
     // Muat data untuk Tab 1
-    $("#form-tambah-skema input, #form-tambah-skema textarea").each(
-      function () {
-        if ($(this).attr("id") && formData[$(this).attr("id")]) {
-          $(this).val(formData[$(this).attr("id")]);
-        }
-      }
-    );
+    if (formData.namaSkema) $("#namaSkema").val(formData.namaSkema);
+    if (formData.kodeSkema) $("#kodeSkema").val(formData.kodeSkema);
+    if (formData.noSkkni) $("#noSkkni").val(formData.noSkkni);
+    if (formData.level) $("#levelSkema").val(formData.level);
+    if (formData.tahun) $("#tahunSkkni").val(formData.tahun);
+    if (formData.tanggal_penetapan)
+      $("#tanggal_penetapan").val(formData.tanggal_penetapan);
+
+    if (formData.jenisSkema) {
+      $("#jenisSkema").val(formData.jenisSkema).trigger("change");
+    }
+    if (formData.modeSkema) {
+      $("#modeSkema").val(formData.modeSkema).trigger("change");
+    }
+    if (formData.fileSkemaName) {
+      $('.custom-file-label[for="fileSkema"]').text(formData.fileSkemaName);
+    }
 
     // Muat data untuk Unit Skema (Tab 2)
     if (formData.unitSkema && formData.unitSkema.length > 0) {
       const unitContainer = $("#unit-skema-container");
       const unitTemplate = unitContainer.find(".unit-skema-row:first").clone();
-      unitContainer.empty(); // Kosongkan container
+      unitContainer.empty();
 
       formData.unitSkema.forEach(function (unit) {
         const newUnitRow = unitTemplate.clone();
@@ -4723,13 +4736,21 @@ $(document).ready(function () {
     // Muat data untuk Persyaratan (Tab 3)
     if (formData.persyaratan && formData.persyaratan.length > 0) {
       const reqContainer = $("#persyaratan-container");
-      const reqTemplate = reqContainer.find(".persyaratan-row:first").clone();
       reqContainer.empty();
 
-      formData.persyaratan.forEach(function (reqContent, index) {
-        const newReqRow = reqTemplate.clone();
+      formData.persyaratan.forEach(function (reqContent) {
+        const newRowHTML = `
+                        <div class="persyaratan-row row align-items-center mb-3">
+                            <div class="col-11">
+                                <textarea class="form-control summernote-persyaratan" name="persyaratan[]"></textarea>
+                            </div>
+                            <div class="col-1">
+                                <button type="button" class="btn btn-outline-danger remove-persyaratan-button"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>`;
+        const newReqRow = $(newRowHTML);
         reqContainer.append(newReqRow);
-        // Inisialisasi summernote dulu, baru set isinya
+
         const summernoteEditor = newReqRow.find(".summernote-persyaratan");
         initializeSummernote(summernoteEditor);
         summernoteEditor.summernote("code", reqContent);
@@ -4742,13 +4763,13 @@ $(document).ready(function () {
     }
   }
 
-  // --- Pemicu Event ---
+  // --- PANGGIL FUNGSI LOAD & ATUR PEMICU SAVE ---
 
   // Panggil fungsi load saat halaman pertama kali dibuka
   loadFormDataFromLocalStorage();
 
   // Simpan data setiap kali ada input yang berubah atau tombol navigasi diklik
-  $("#form-tambah-skema").on(
+  $("#form-tambah-skema", "#namaSkema, #kodeSkema, #noSkkni, #level, #tahun, #jenisSkema, #modeSkema, #tanggal_penetapan, #fileSkema").on(
     "keyup change",
     "input, textarea, select",
     saveFormDataToLocalStorage
@@ -4760,16 +4781,46 @@ $(document).ready(function () {
     "click",
     "#add-unit-button, .remove-unit-button, #add-persyaratan-button, .remove-persyaratan-button",
     function () {
-      // Beri sedikit jeda agar elemen baru/terhapus sempat diproses
       setTimeout(saveFormDataToLocalStorage, 100);
     }
   );
 
-  // Hapus data dari localStorage saat form berhasil disubmit (atau dibatalkan)
+  // Hapus data dari localStorage saat form berhasil disubmit atau dibatalkan
   $("#form-tambah-skema").on("submit", function () {
     localStorage.removeItem("skemaFormData");
   });
-  $('a[th\\:href="@{/admin/skema}"]').on("click", function () {
+  $('a.btn-success[href*="/admin/skema"]').on("click", function () {
     localStorage.removeItem("skemaFormData");
   });
+
+   // --- KODE BARU UNTUK TOMBOL BATAL DENGAN SWEETALERT ---
+        $('#cancel-button').on('click', function (e) {
+            // 1. Mencegah link langsung berpindah halaman
+            e.preventDefault(); 
+            
+            const redirectUrl = $(this).attr('href'); // Simpan URL tujuan
+
+            // 2. Tampilkan dialog konfirmasi SweetAlert
+            Swal.fire({
+                title: 'Apakah Anda Yakin?',
+                text: "Anda akan membatalkan pengisian form ini dan data yang belum disimpan akan hilang.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, Batalkan!',
+                cancelButtonText: 'Lanjutkan Mengisi'
+            }).then((result) => {
+                // 3. Jika pengguna menekan tombol "Ya, Batalkan!"
+                if (result.isConfirmed) {
+                    // Hapus data dari localStorage
+                    localStorage.removeItem(formKey);
+                    
+                    // Arahkan ke halaman daftar skema
+                    window.location.href = redirectUrl;
+                }
+            });
+        });
 });
+
+// User Dropdown

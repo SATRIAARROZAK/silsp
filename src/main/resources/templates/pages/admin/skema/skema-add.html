@@ -57,8 +57,8 @@
 
               <div class="card-body">
                 <form
-                  th:action="@{/admin/skema/save}"
-                  method="post"
+                  th:action="@{/}"
+                  method=""
                   enctype="multipart/form-data"
                 >
                   <div class="tab-content" id="skema-tabContent">
@@ -115,7 +115,7 @@
                             <input
                               type="number"
                               class="form-control"
-                              id="exampleInputLevel"
+                              id="levelSkema"
                               placeholder="Level"
                             />
                           </div>
@@ -126,7 +126,7 @@
                             <input
                               type="number"
                               class="form-control"
-                              id="exampleInputLevel"
+                              id="noSkkni"
                               placeholder="Level"
                             />
                           </div>
@@ -137,7 +137,7 @@
                             <input
                               type="number"
                               class="form-control"
-                              id="exampleInputLevel"
+                              id="tahunSkkni"
                               placeholder="Level"
                             />
                           </div>
@@ -150,7 +150,9 @@
                             <select
                               class="form-control select2"
                               style="width: 100%"
+                              id="jenisSkema"
                             >
+                              <option>------</option>
                               <option>KKNI</option>
                               <option>Okupasi</option>
                               <option>Klaster</option>
@@ -163,7 +165,9 @@
                             <select
                               class="form-control select2"
                               style="width: 100%"
+                              id="modeSkema"
                             >
+                              <option>------</option>
                               <option>Mandiri</option>
                               <option>Referensi BNSP</option>
                             </select>
@@ -182,6 +186,7 @@
                               <input
                                 type="text"
                                 class="form-control datetimepicker-input"
+                                id="tanggal_penetapan"
                                 data-target="#reservationdate"
                               />
                               <div
@@ -198,7 +203,7 @@
                         </div>
                         <div class="col-md-6">
                           <div class="form-group">
-                            <label for="fileSkema"
+                            <label
                               >Upload File Dokumen (PDF)</label
                             >
                             <div class="input-group">
@@ -470,7 +475,7 @@
                     <button type="submit" class="btn btn-outline-warning">
                       Simpan
                     </button>
-                    <a th:href="@{/admin/skema}" class="btn btn-outline-info"
+                    <a th:href="@{/admin/skema}" class="btn btn-outline-info" id="cancel-button"
                       >Batal</a
                     >
                   </div>

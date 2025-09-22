@@ -4470,6 +4470,8 @@ $(document).ready(function () {
 $(document).ready(function () {
   // Variabel global untuk selalu menunjuk ke editor yang terakhir aktif
   var activeSummernoteInstance = null;
+  const formKey = "skemaFormData";
+
   // Inisialisasi Toast SweetAlert
   var Toast = Swal.mixin({
     toast: true,
@@ -4762,21 +4764,32 @@ $(document).ready(function () {
       $("#" + formData.activeTab).tab("show");
     }
   }
+  // --- PEMICU EVENT (PERBAIKAN) ---
 
-  // --- PANGGIL FUNGSI LOAD & ATUR PEMICU SAVE ---
+  // Fungsi debounce untuk menunda eksekusi agar tidak terlalu sering
+  function debounce(func, delay) {
+    let timeout;
+    return function (...args) {
+      const context = this;
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(context, args), delay);
+    };
+  }
 
-  // Panggil fungsi load saat halaman pertama kali dibuka
+  const debouncedSave = debounce(saveFormDataToLocalStorage, 400);
+
+  // 1. Panggil fungsi load saat halaman pertama kali dibuka
   loadFormDataFromLocalStorage();
 
-  // Simpan data setiap kali ada input yang berubah atau tombol navigasi diklik
-  $("#form-tambah-skema", "#namaSkema, #kodeSkema, #noSkkni, #level, #tahun, #jenisSkema, #modeSkema, #tanggal_penetapan, #fileSkema").on(
-    "keyup change",
-    "input, textarea, select",
-    saveFormDataToLocalStorage
-  );
-  $(".next-tab, .prev-tab").on("click", saveFormDataToLocalStorage);
+  // 2. Gunakan event delegation pada seluruh form untuk event 'input'
+  $(
+    "#form-tambah-skema"
+  ).on("input", "input, select, textarea", debouncedSave);
 
-  // Simpan juga saat menambah/menghapus baris dinamis
+  // 3. Pemicu khusus untuk summernote
+  $(document).on("summernote.change", ".summernote-persyaratan", debouncedSave);
+
+  // 4. Simpan saat menambah/menghapus baris dinamis
   $(document).on(
     "click",
     "#add-unit-button, .remove-unit-button, #add-persyaratan-button, .remove-persyaratan-button",
@@ -4785,42 +4798,16 @@ $(document).ready(function () {
     }
   );
 
-  // Hapus data dari localStorage saat form berhasil disubmit atau dibatalkan
+  // 5. Simpan saat berpindah tab
+  $(".next-tab, .prev-tab").on("click", saveFormDataToLocalStorage);
+
+  // 6. Hapus data saat form disubmit atau dibatalkan
   $("#form-tambah-skema").on("submit", function () {
-    localStorage.removeItem("skemaFormData");
+    localStorage.removeItem(formKey);
   });
   $('a.btn-success[href*="/admin/skema"]').on("click", function () {
-    localStorage.removeItem("skemaFormData");
+    localStorage.removeItem(formKey);
   });
-
-   // --- KODE BARU UNTUK TOMBOL BATAL DENGAN SWEETALERT ---
-        $('#cancel-button').on('click', function (e) {
-            // 1. Mencegah link langsung berpindah halaman
-            e.preventDefault(); 
-            
-            const redirectUrl = $(this).attr('href'); // Simpan URL tujuan
-
-            // 2. Tampilkan dialog konfirmasi SweetAlert
-            Swal.fire({
-                title: 'Apakah Anda Yakin?',
-                text: "Anda akan membatalkan pengisian form ini dan data yang belum disimpan akan hilang.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Ya, Batalkan!',
-                cancelButtonText: 'Lanjutkan Mengisi'
-            }).then((result) => {
-                // 3. Jika pengguna menekan tombol "Ya, Batalkan!"
-                if (result.isConfirmed) {
-                    // Hapus data dari localStorage
-                    localStorage.removeItem(formKey);
-                    
-                    // Arahkan ke halaman daftar skema
-                    window.location.href = redirectUrl;
-                }
-            });
-        });
 });
 
 // User Dropdown

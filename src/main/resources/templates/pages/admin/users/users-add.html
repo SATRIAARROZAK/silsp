@@ -29,6 +29,7 @@
                           class="form-control"
                           id="exampleInputEmail1"
                           placeholder="Masukan Username"
+                          required
                         />
                       </div>
                     </div>
@@ -40,6 +41,7 @@
                           class="form-control"
                           id="exampleInputEmail1"
                           placeholder="Masukan Email"
+                          required
                         />
                       </div>
                     </div>
@@ -47,14 +49,15 @@
                       <div class="form-group">
                         <label>Role</label>
                         <select
-                          class="select2"
+                          class="form-control select2"
                           multiple="multiple"
                           data-placeholder="Select a State"
                           style="width: 100%"
+                          required
                         >
-                          <option>Admin</option>
-                          <option>Asesor</option>
-                          <option>Asesi</option>
+                          <option value="admin">Admin</option>
+                          <option value="asesor">Asesor</option>
+                          <option value="asesi">Asesi</option>
                         </select>
                       </div>
                     </div>
@@ -66,7 +69,9 @@
                   <button type="submit" class="btn btn-outline-warning">
                     Simpan
                   </button>
-                  <a th:href="@{/admin/data-pengguna}" class="btn btn-outline-info"
+                  <a
+                    th:href="@{/admin/data-pengguna}"
+                    class="btn btn-outline-info"
                     >Batal</a
                   >
                 </div>

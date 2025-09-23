@@ -36,7 +36,7 @@ public class AdminController {
     public String index(Model model) {
 
         // Simulasi: Membuat objek user yang sedang login
-        User loggedInUser = new User("Satria Arrozak", "ADMIN");
+        User loggedInUser = new User("Muhammad Satria Arrozak", "Admin");
 
         // Mengirim objek user dan judul halaman ke frontend
         model.addAttribute("user", loggedInUser);
@@ -47,7 +47,7 @@ public class AdminController {
     @GetMapping("/data-pengguna")
     public String showDataPengguna(Model model) { // 1. Tambahkan Model sebagai parameter
         // Simulasi: Membuat objek user yang sedang login
-        User loggedInUser = new User("Muhammad Satria Arrozak bin rajab bin kasim", "ADMIN");
+        User loggedInUser = new User("Muhammad Satria Arrozak", "Admin");
 
         // 2. Tambahkan atribut yang diperlukan untuk layout
         model.addAttribute("user", loggedInUser);
@@ -62,7 +62,7 @@ public class AdminController {
     @GetMapping("/data-pengguna/tambah-users")
     public String showAddPengguna(Model model) { // 1. Tambahkan Model sebagai parameter
         // Simulasi: Membuat objek user yang sedang login
-        User loggedInUser = new User("Satria Arrozak", "ADMIN");
+        User loggedInUser = new User("Muhammad Satria Arrozak", "Admin");
 
         // 2. Tambahkan atribut yang diperlukan untuk layout
         model.addAttribute("user", loggedInUser);
@@ -77,7 +77,7 @@ public class AdminController {
     @GetMapping("/data-pengguna/view-users")
     public String showViewPengguna(Model model) { // 1. Tambahkan Model sebagai parameter
         // Simulasi: Membuat objek user yang sedang login
-        User loggedInUser = new User("Satria Arrozak", "ADMIN");
+        User loggedInUser = new User("Muhammad Satria Arrozak", "Admin");
 
         // 2. Tambahkan atribut yang diperlukan untuk layout
         model.addAttribute("user", loggedInUser);
@@ -92,7 +92,7 @@ public class AdminController {
     @GetMapping("/data-pengguna/edit-users")
     public String showEditPengguna(Model model) { // 1. Tambahkan Model sebagai parameter
         // Simulasi: Membuat objek user yang sedang login
-        User loggedInUser = new User("Satria Arrozak", "ADMIN");
+        User loggedInUser = new User("Muhammad Satria Arrozak", "Admin");
 
         // 2. Tambahkan atribut yang diperlukan untuk layout
         model.addAttribute("user", loggedInUser);
@@ -109,7 +109,7 @@ public class AdminController {
     @GetMapping("/data-asesi")
     public String showDataAsesi(Model model) { // 1. Tambahkan Model sebagai parameter
         // Simulasi: Membuat objek user yang sedang login
-        User loggedInUser = new User("Satria Arrozak", "ADMIN");
+        User loggedInUser = new User("Muhammad Satria Arrozak", "Admin");
 
         // 2. Tambahkan atribut yang diperlukan untuk layout
         model.addAttribute("user", loggedInUser);
@@ -126,7 +126,7 @@ public class AdminController {
     @GetMapping("/edit-data-asesi")
     public String showAsesiEditPage(Model model) { // 1. Tambahkan Model sebagai parameter
         // Simulasi: Membuat objek user yang sedang login
-        User loggedInUser = new User("Satria Arrozak", "ADMIN");
+        User loggedInUser = new User("Muhammad Satria Arrozak", "Admin");
 
         // 2. Tambahkan atribut yang diperlukan untuk layout
         model.addAttribute("user", loggedInUser);
@@ -140,7 +140,7 @@ public class AdminController {
     @GetMapping("/skema")
     public String showSkemaList(Model model) { // 1. Tambahkan Model sebagai parameter
         // Simulasi: Membuat objek user yang sedang login
-        User loggedInUser = new User("Satria Arrozak", "ADMIN");
+        User loggedInUser = new User("Muhammad Satria Arrozak", "Admin");
 
         // 2. Tambahkan atribut yang diperlukan untuk layout
         model.addAttribute("user", loggedInUser);
@@ -155,11 +155,11 @@ public class AdminController {
     @GetMapping("/skema/tambah-skema")
     public String showSkemaTambahPage(Model model) { // 1. Tambahkan Model sebagai parameter
         // Simulasi: Membuat objek user yang sedang login
-        User loggedInUser = new User("Satria Arrozak", "ADMIN");
+        User loggedInUser = new User("Muhammad Satria Arrozak", "Admin");
 
         // 2. Tambahkan atribut yang diperlukan untuk layout
         model.addAttribute("user", loggedInUser);
-        model.addAttribute("pageTitle", "Data Skema"); // Judul halaman diubah sesuai konteks
+        // model.addAttribute("pageTitle", "Data Skema"); // Judul halaman diubah sesuai konteks
         // model.addAttribute("menuItems", sidebarService.getAdminMenuItems());
 
         // 3. Kembalikan nama view yang benar
@@ -169,7 +169,7 @@ public class AdminController {
     @GetMapping("/skema/edit-skema")
     public String showSkemaEditPage(Model model) { // 1. Tambahkan Model sebagai parameter
         // Simulasi: Membuat objek user yang sedang login
-        User loggedInUser = new User("Satria Arrozak", "ADMIN");
+        User loggedInUser = new User("Muhammad Satria Arrozak", "Admin");
 
         // 2. Tambahkan atribut yang diperlukan untuk layout
         model.addAttribute("user", loggedInUser);
@@ -183,7 +183,7 @@ public class AdminController {
     @GetMapping("/skema/view-skema")
     public String showSkemaViewPage(Model model) { // 1. Tambahkan Model sebagai parameter
         // Simulasi: Membuat objek user yang sedang login
-        User loggedInUser = new User("Satria Arrozak", "ADMIN");
+        User loggedInUser = new User("Muhammad Satria Arrozak", "Admin");
 
         // 2. Tambahkan atribut yang diperlukan untuk layout
         model.addAttribute("user", loggedInUser);

@@ -14375,6 +14375,8 @@ body:not(.layout-fixed) .main-sidebar .sidebar {
   border-color: rgba(0, 0, 0, 0.1);
 }
 
+
+/* sidebar dark */
 [class*="sidebar-dark-"] {
   background: linear-gradient(174deg, rgba(14, 31, 81, 1) 40%, rgba(121, 9, 9, 1) 86%);
 }
@@ -28488,6 +28490,54 @@ body.text-sm .input-group-text {
 .dark-mode .progress {
   background: #454d55;
 }
+
+.card-blue-dark:not(.card-outline)>.card-header {
+background: linear-gradient(0deg,rgba(14, 31, 81, 1) 27%, rgba(37, 37, 37, 1) 57%);
+}
+
+.card-blue-dark:not(.card-outline)>.card-header,
+.card-blue-dark:not(.card-outline)>.card-header a {
+  color: #fff;
+}
+
+.card-blue-dark:not(.card-outline)>.card-header a.active {
+  color: #1f2d3d;
+}
+
+.card-blue-dark.card-outline {
+  border-top: 3px solid #007bff;
+}
+
+.card-blue-dark.card-outline-tabs>.card-header a:hover {
+  border-top: 3px solid #dee2e6;
+}
+
+.card-blue-dark.card-outline-tabs>.card-header a.active,
+.card-blue-dark.card-outline-tabs>.card-header a.active:hover {
+  border-top: 3px solid #007bff;
+}
+
+.bg-gradient-blue-dark>.card-header .btn-tool,
+.bg-blue-dark>.card-header .btn-tool,
+.card-blue-dark:not(.card-outline)>.card-header .btn-tool {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.bg-gradient-blue-dark>.card-header .btn-tool:hover,
+.bg-blue-dark>.card-header .btn-tool:hover,
+.card-blue-dark:not(.card-outline)>.card-header .btn-tool:hover {
+  color: #fff;
+}
+
+.card.bg-gradient-blue-dark .bootstrap-datetimepicker-widget .table td,
+.card.bg-gradient-blue-dark .bootstrap-datetimepicker-widget .table th,
+.card.bg-blue-dark .bootstrap-datetimepicker-widget .table td,
+.card.bg-blue-dark .bootstrap-datetimepicker-widget .table th {
+  border: none;
+}
+
+
+
 
 .card-primary:not(.card-outline)>.card-header {
   background-color: #007bff;
@@ -56300,6 +56350,16 @@ a.text-muted:hover {
 .btn-expand.expanded i {
   transition: transform 0.3s;
   /* Mengubah ikon '+' menjadi 'x' */
+}
+
+.is-invalid {
+  border-color: #dc3545 !important;
+}
+.select2-container--default .select2-selection--single.is-invalid {
+  border-color: #dc3545 !important;
+}
+.note-editor.is-invalid {
+  border: 1px solid #dc3545 !important;
 }
 
 /* CSS UNTUK TOMBOL TOOLBAR SUMMERNOTE AKTIF */

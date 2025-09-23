@@ -18,7 +18,13 @@
               </div>
               <!-- /.card-header -->
               <!-- form start -->
-              <form>
+              <form
+                th:action="@{/}"
+                method="post"
+                enctype="multipart/form-data"
+                id="form-tambah-user"
+                novalidate
+              >
                 <div class="card-body">
                   <div class="row">
                     <div class="col-4">
@@ -31,18 +37,20 @@
                           placeholder="Masukan Username"
                           required
                         />
+                        <div class="invalid-feedback"></div>
                       </div>
                     </div>
                     <div class="col-4">
                       <div class="form-group">
-                        <label for="exampleInputEmail1">Email</label>
+                        <label for="emailAdmin">Email</label>
                         <input
                           type="email"
                           class="form-control"
-                          id="exampleInputEmail1"
-                          placeholder="Masukan Email"
+                          id="emailAdmin"
+                          placeholder="Masukkan Email"
                           required
                         />
+                        <div class="invalid-feedback"></div>
                       </div>
                     </div>
                     <div class="col-4">
@@ -51,6 +59,7 @@
                         <select
                           class="form-control select2"
                           multiple="multiple"
+                          id="role"
                           data-placeholder="Select a State"
                           style="width: 100%"
                           required
@@ -59,6 +68,7 @@
                           <option value="asesor">Asesor</option>
                           <option value="asesi">Asesi</option>
                         </select>
+                        <div class="invalid-feedback"></div>
                       </div>
                     </div>
                   </div>

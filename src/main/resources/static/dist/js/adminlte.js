@@ -4324,11 +4324,11 @@ $(document).ready(function () {
 // --- INISIALISASI PLUGIN DATE & SELECT ---
 // =======================================================
 
-$(document).ready(function () {
-  // //Initialize Select2 Elements
+$(function () {
+  //Initialize Select2 Elements
   $(".select2").select2();
 
-  // //Initialize Select2 Elements
+  //Initialize Select2 Elements
   $(".select2bs4").select2({
     theme: "bootstrap4",
   });
@@ -4558,7 +4558,7 @@ $(document).ready(function () {
    * @param {jQuery} tabElement - Elemen jQuery dari .tab-pane yang akan divalidasi.
    * @returns {object} - Mengembalikan objek { isValid: boolean, firstInvalidElement: jQuery|null }.
    */
-  function validateSkemaForm(tabElement) {
+  function validateSkemaTab(tabElement) {
     let isValid = true;
     let firstInvalidElement = null;
 
@@ -4626,7 +4626,7 @@ $(document).ready(function () {
   // --- TOMBOL NAVIGASI TAB ---
   $(".next-tab").on("click", function () {
     const currentTab = $(this).closest(".tab-pane");
-    const validationResult = validateSkemaForm(currentTab);
+    const validationResult = validateSkemaTab(currentTab);
 
     if (validationResult.isValid) {
       const targetTabId = $(this).data("target-tab");
@@ -4931,7 +4931,7 @@ $(document).ready(function () {
     // Validasi setiap tab secara berurutan
     $(".tab-pane").each(function () {
       const tab = $(this);
-      const validationResult = validateSkemaForm(tab);
+      const validationResult = validateSkemaTab(tab);
 
       // Jika tab ini tidak valid DAN kita belum menemukan tab lain yang error
       if (!validationResult.isValid && isAllTabsValid) {
@@ -4972,10 +4972,8 @@ $(document).ready(function () {
 // =======================================================================
 $(document).ready(function () {
   // Inisialisasi plugin
-  $(".select2").select2();
-  $(".select2bs4").select2({
-    theme: "bootstrap4",
-  });
+  // bsCustomFileInput.init();
+  // $('.select2').select2();
 
   /**
    * Fungsi untuk validasi format email.
@@ -5016,23 +5014,22 @@ $(document).ready(function () {
    * Fungsi utama untuk memvalidasi seluruh form.
    * @returns {object} - Mengembalikan objek { isValid: boolean, firstInvalidElement: jQuery|null }.
    */
-  function validateSkemaForm() {
+  function validateUserForm() {
     let isValid = true;
     let firstInvalidElement = null;
     const form = $("#form-tambah-user");
 
     form.find(".is-invalid").removeClass("is-invalid");
-    
 
     form.find("input[required], select[required]").each(function () {
       const input = $(this);
       const feedback = input.closest(".form-group").find(".invalid-feedback");
       let isFieldValid = true;
-      let errorMessage = "";
+      let errorMessage = input.data('error');
 
       if (!input.val() || input.val().trim() === "") {
         isFieldValid = false;
-        errorMessage = "Field ini tidak boleh kosong.";
+        // errorMessage = "Field ini tidak boleh kosong.";
       } else {
         // Validasi spesifik untuk email
         if (input.attr("id") === "emailAdmin" && !isValidEmail(input.val())) {
@@ -5054,7 +5051,7 @@ $(document).ready(function () {
         input.addClass("is-invalid");
         feedback.text(errorMessage);
 
-        if (input.hasClass("select2")) {
+        if (input.attr("id") === "role") {
           input
             .next(".select2-container")
             .find(".select2-selection--single")
@@ -5074,7 +5071,7 @@ $(document).ready(function () {
   // 1. Saat tombol Simpan (submit) ditekan
   $("#form-tambah-user").on("submit", function (e) {
     e.preventDefault();
-    const validationResult = validateSkemaForm();
+    const validationResult = validateUserForm();
     if (validationResult.isValid) {
       Swal.fire("Sukses!", "Data user berhasil disimpan.", "success");
       // this.submit();

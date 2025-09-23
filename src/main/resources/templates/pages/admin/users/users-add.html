@@ -33,9 +33,10 @@
                         <input
                           type="username"
                           class="form-control"
-                          id="exampleInputEmail1"
+                          id="usernameAdmin"
                           placeholder="Masukan Username"
                           required
+                          data-error="Silahkan masukkan username"
                         />
                         <div class="invalid-feedback"></div>
                       </div>
@@ -49,20 +50,22 @@
                           id="emailAdmin"
                           placeholder="Masukkan Email"
                           required
+                          data-error="Silahkan masukkan email"
                         />
                         <div class="invalid-feedback"></div>
                       </div>
                     </div>
                     <div class="col-4">
                       <div class="form-group">
-                        <label>Role</label>
+                        <label for="role">Role</label>
                         <select
-                          class="form-control select2"
+                          class="select2"
                           multiple="multiple"
                           id="role"
                           data-placeholder="Select a State"
                           style="width: 100%"
                           required
+                          data-error="Silahkan pilih role"
                         >
                           <option value="admin">Admin</option>
                           <option value="asesor">Asesor</option>

@@ -4987,14 +4987,21 @@ $(document).ready(function () {
     $(".tab-pane").each(function () {
       const tab = $(this);
       const validationResult = validateTab(tab);
-      if (!validationResult.isValid) {
-        isAllTabsValid = false;
-        if (!firstInvalidTabLink) {
-          // Simpan link tab dan elemen pertama yang salah
-          firstInvalidTabLink = $("#" + tab.attr("aria-labelledby"));
-          elementToFocus = validationResult.firstInvalidElement;
-        }
+
+      // Jika tab ini tidak valid DAN kita belum menemukan tab lain yang error
+      if (!validationResult.isValid && isAllTabsValid) {
+        isAllTabsValid = false; // Tandai bahwa ada error
+        firstInvalidTabId = tab.attr("id"); // Simpan ID tab yang error
+        elementToFocus = validationResult.firstInvalidElement; // Simpan elemen yang error
       }
+      // if (!validationResult.isValid) {
+      //   isAllTabsValid = false;
+      //   if (!firstInvalidTabLink) {
+      //     // Simpan link tab dan elemen pertama yang salah
+      //     firstInvalidTabLink = $("#" + tab.attr("aria-labelledby"));
+      //     elementToFocus = validationResult.firstInvalidElement;
+      //   }
+      // }
     });
 
     if (isAllTabsValid) {
@@ -5004,19 +5011,35 @@ $(document).ready(function () {
       Swal.fire("Sukses!", "Formulir berhasil disimpan.", "success");
       // this.submit();
     } else {
-      // Jika ada yang tidak valid, pindah ke tab pertama yang error dan fokus
-      if (firstInvalidTabLink) {
-        firstInvalidTabLink.tab("show");
-        // Beri sedikit jeda agar tab sempat ditampilkan sebelum fokus
+      if (firstInvalidTabId) {
+        const tabLink = $('.nav-tabs a[href="#' + firstInvalidTabId + '"]');
+        tabLink.tab("show");
+
+        // Beri jeda agar perpindahan tab selesai sebelum fokus
         setTimeout(() => {
           if (elementToFocus) {
-            elementToFocus.focus();
             if (elementToFocus.hasClass("summernote-persyaratan")) {
               elementToFocus.summernote("focus");
+            } else {
+              elementToFocus.focus();
             }
           }
-        }, 200);
+        }, 250); // Jeda 250ms
       }
+
+      // Jika ada yang tidak valid, pindah ke tab pertama yang error dan fokus
+      // if (firstInvalidTabLink) {
+      //   firstInvalidTabLink.tab("show");
+      //   // Beri sedikit jeda agar tab sempat ditampilkan sebelum fokus
+      //   setTimeout(() => {
+      //     if (elementToFocus) {
+      //       elementToFocus.focus();
+      //       if (elementToFocus.hasClass("summernote-persyaratan")) {
+      //         elementToFocus.summernote("focus");
+      //       }
+      //     }
+      //   }, 200);
+      // }
     }
   });
 });

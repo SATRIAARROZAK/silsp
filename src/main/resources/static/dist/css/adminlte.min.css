@@ -56352,6 +56352,16 @@ a.text-muted:hover {
   /* Mengubah ikon '+' menjadi 'x' */
 }
 
+.is-invalid {
+  border-color: #dc3545 !important;
+}
+.select2-container--default .select2-selection--single.is-invalid {
+  border-color: #dc3545 !important;
+}
+.note-editor.is-invalid {
+  border: 1px solid #dc3545 !important;
+}
+
 /* CSS UNTUK TOMBOL TOOLBAR SUMMERNOTE AKTIF */
 /* #custom-summernote-toolbar .btn-default.active {
   background-color: #007bff;

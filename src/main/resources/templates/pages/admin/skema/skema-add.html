@@ -57,9 +57,11 @@
 
               <div class="card-body">
                 <form
-                  th:action="@{/}"
+                  id="form-tambah-skema"
+                  th:action="@{/skema/tambah}"
                   method=""
                   enctype="multipart/form-data"
+                  novalidate
                 >
                   <div class="tab-content" id="skema-tabContent">
                     <div
@@ -85,13 +87,16 @@
                             <label for="namaSkema">Nama Skema</label>
                             <input
                               type="text"
+                              required
                               class="form-control"
                               id="namaSkema"
                               name="namaSkema"
                               placeholder="Masukkan nama skema"
-                              required
                               autofocus
                             />
+                            <div class="invalid-feedback">
+                              Nama Skema Tidak Boleh Kosong!
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -101,12 +106,15 @@
                             <label for="kodeSkema">Kode Skema</label>
                             <input
                               type="text"
+                              required
                               class="form-control"
                               id="kodeSkema"
                               name="kodeSkema"
                               placeholder="Contoh: SKM-001"
-                              required
                             />
+                            <div class="invalid-feedback">
+                              Kode Skema Tidak Boleh Kosong!
+                            </div>
                           </div>
                         </div>
                         <div class="col-md-3">
@@ -114,21 +122,29 @@
                             <label for="exampleInputLevel">Level</label>
                             <input
                               type="number"
+                              required
                               class="form-control"
                               id="levelSkema"
                               placeholder="Level"
                             />
+                            <div class="invalid-feedback">
+                              Level Skema Tidak Boleh Kosong!
+                            </div>
                           </div>
                         </div>
                         <div class="col-md-3">
                           <div class="form-group">
-                            <label for="exampleInputLevel">No SKKNI</label>
+                            <label for="exampleInputLevel">No. SKKNI</label>
                             <input
                               type="number"
+                              required
                               class="form-control"
                               id="noSkkni"
-                              placeholder="Level"
+                              placeholder="No. SKKNI "
                             />
+                            <div class="invalid-feedback">
+                              No. SKKNI Tidak Boleh Kosong!
+                            </div>
                           </div>
                         </div>
                         <div class="col-md-3">
@@ -136,10 +152,14 @@
                             <label for="exampleInputLevel">Tahun SKKNI</label>
                             <input
                               type="number"
+                              required
                               class="form-control"
                               id="tahunSkkni"
-                              placeholder="Level"
+                              placeholder="Contoh: 2020"
                             />
+                            <div class="invalid-feedback">
+                              Tahun SKKNI Tidak Boleh Kosong!
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -148,29 +168,39 @@
                           <div class="form-group">
                             <label>Jenis Skema</label>
                             <select
+                              required
                               class="form-control select2"
                               style="width: 100%"
                               id="jenisSkema"
                             >
-                              <option>------</option>
-                              <option>KKNI</option>
-                              <option>Okupasi</option>
-                              <option>Klaster</option>
+                              <option value="" disabled selected></option>
+                              <option value="kkni">KKNI</option>
+                              <option value="okupasi">Okupasi</option>
+                              <option value="klaster">Klaster</option>
                             </select>
+                            <div class="invalid-feedback">
+                              Jenis Skema Tidak Boleh Kosong!
+                            </div>
                           </div>
                         </div>
                         <div class="col-md-6">
                           <div class="form-group">
                             <label>Mode Skema</label>
                             <select
+                              required
                               class="form-control select2"
                               style="width: 100%"
                               id="modeSkema"
                             >
-                              <option>------</option>
-                              <option>Mandiri</option>
-                              <option>Referensi BNSP</option>
+                              <option value="" disabled selected></option>
+                              <option value="Mandiri">Mandiri</option>
+                              <option value="Referensi BNSP">
+                                Referensi BNSP
+                              </option>
                             </select>
+                            <div class="invalid-feedback">
+                              Mode Skema Tidak Boleh Kosong!
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -185,10 +215,12 @@
                             >
                               <input
                                 type="text"
+                                required
                                 class="form-control datetimepicker-input"
                                 id="tanggal_penetapan"
                                 data-target="#reservationdate"
                               />
+
                               <div
                                 class="input-group-append"
                                 data-target="#reservationdate"
@@ -198,26 +230,32 @@
                                   <i class="fa fa-calendar"></i>
                                 </div>
                               </div>
+                              <div class="invalid-feedback">
+                                Tanggal Penetapan Tidak Boleh Kosong!
+                              </div>
                             </div>
                           </div>
                         </div>
                         <div class="col-md-6">
                           <div class="form-group">
-                            <label
-                              >Upload File Dokumen (PDF)</label
-                            >
+                            <label>Upload File Dokumen (PDF)</label>
                             <div class="input-group">
                               <div class="custom-file">
                                 <input
                                   type="file"
+                                  required
                                   class="custom-file-input"
                                   id="fileSkema"
                                   name="fileSkema"
                                   accept=".pdf"
                                 />
+
                                 <label class="custom-file-label" for="fileSkema"
                                   >Pilih file</label
                                 >
+                                <div class="invalid-feedback">
+                                  File Dokumen Tidak Boleh Kosong!
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -260,10 +298,14 @@
                                 <label>Kode Unit</label>
                                 <input
                                   type="text"
+                                  required
                                   class="form-control"
                                   name="kodeUnit[]"
                                   placeholder="Contoh: J.620100.001.01"
                                 />
+                                <div class="invalid-feedback">
+                                  Kode Unit Tidak Boleh Kosong!
+                                </div>
                               </div>
                             </div>
                             <div class="col-md-6">
@@ -271,10 +313,14 @@
                                 <label>Judul Unit</label>
                                 <input
                                   type="text"
+                                  required
                                   class="form-control"
                                   name="judulUnit[]"
                                   placeholder="Contoh: Mengimplementasikan User Interface"
                                 />
+                                <div class="invalid-feedback">
+                                  Judul Unit Tidak Boleh Kosong!
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -442,6 +488,7 @@
                         >
                           <div class="col-11">
                             <textarea
+                              required
                               class="form-control summernote-persyaratan"
                               name="persyaratan[]"
                             ></textarea>
@@ -453,6 +500,9 @@
                             >
                               <i class="fas fa-trash"></i>
                             </button>
+                          </div>
+                          <div class="invalid-feedback">
+                            Persyaratan Tidak Boleh Kosong!
                           </div>
                         </div>
                       </div>
@@ -475,7 +525,10 @@
                     <button type="submit" class="btn btn-outline-warning">
                       Simpan
                     </button>
-                    <a th:href="@{/admin/skema}" class="btn btn-outline-info" id="cancel-button"
+                    <a
+                      th:href="@{/admin/skema}"
+                      class="btn btn-outline-info"
+                      id="cancel-button"
                       >Batal</a
                     >
                   </div>

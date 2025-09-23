@@ -4320,155 +4320,11 @@ $(document).ready(function () {
   activateSidebarMenu();
 });
 
-// expand and collapse table rows
-document.addEventListener("DOMContentLoaded", function () {
-  // Ambil semua tombol yang berfungsi sebagai pemicu expand/collapse
-  const expandButtons = document.querySelectorAll(".btn-expand");
-
-  expandButtons.forEach((button) => {
-    button.addEventListener("click", function (event) {
-      event.preventDefault(); // Mencegah link berpindah halaman
-
-      // Ambil target baris konten dari atribut 'data-target'
-      const targetId = this.getAttribute("data-target");
-      const contentRow = document.querySelector(targetId);
-      const icon = this.querySelector("i");
-
-      // Toggle class 'show' untuk menampilkan/menyembunyikan baris
-      if (contentRow) {
-        contentRow.classList.toggle("show");
-
-        // Ubah tampilan tombol dan ikonnya
-        this.classList.toggle("expanded");
-        if (this.classList.contains("expanded")) {
-          icon.classList.remove("fa-folder-plus");
-          icon.classList.add("fa-folder-minus"); // Ganti ikon menjadi 'x'
-          this.classList.remove("btn-primary");
-          this.classList.add("btn-danger"); // Ganti warna tombol
-        } else {
-          icon.classList.remove("fa-folder-minus");
-          icon.classList.add("fa-folder-plus"); // Kembalikan ikon '+'
-          this.classList.remove("btn-danger");
-          this.classList.add("btn-primary"); // Kembalikan warna tombol
-        }
-      }
-    });
-  });
-});
-
-// PDF Preview in Modal
-$(document).ready(function () {
-  // Event ini akan dijalankan SETIAP KALI modal #previewModal akan ditampilkan
-  $("#previewModal").on("show.bs.modal", function (event) {
-    // Dapatkan tombol yang memicu modal
-    var button = $(event.relatedTarget);
-
-    // Ekstrak path file dari atribut data-filepath
-    var filePath = button.data("filepath");
-
-    // Dapatkan elemen modal itu sendiri
-    var modal = $(this);
-
-    // Cari elemen iframe di dalam modal dan atur atribut 'src'-nya
-    modal.find("#pdf-viewer").attr("src", filePath);
-  });
-
-  // (Opsional) Kosongkan src iframe saat modal ditutup agar tidak membebani browser
-  $("#previewModal").on("hidden.bs.modal", function () {
-    $(this).find("#pdf-viewer").attr("src", "");
-  });
-});
-
-// Date and Select
-$(function () {
-  //Initialize Select2 Elements
-  $(".select2").select2();
-
-  //Initialize Select2 Elements
-  $(".select2bs4").select2({
-    theme: "bootstrap4",
-  });
-
-  //Datemask dd/mm/yyyy
-  $("#datemask").inputmask("dd/mm/yyyy", { placeholder: "dd/mm/yyyy" });
-  //Datemask2 mm/dd/yyyy
-  $("#datemask2").inputmask("mm/dd/yyyy", { placeholder: "mm/dd/yyyy" });
-  //Money Euro
-  $("[data-mask]").inputmask();
-
-  //Date picker
-  $("#reservationdate").datetimepicker({
-    format: "DD/MM/YYYY",
-  });
-
-  //Date and time picker
-  $("#reservationdatetime").datetimepicker({ icons: { time: "far fa-clock" } });
-
-  //Date range picker
-  $("#reservation").daterangepicker();
-  //Date range picker with time picker
-  $("#reservationtime").daterangepicker({
-    timePicker: true,
-    timePickerIncrement: 30,
-    locale: {
-      format: "MM/DD/YYYY hh:mm A",
-    },
-  });
-  //Date range as a button
-  $("#daterange-btn").daterangepicker(
-    {
-      ranges: {
-        Today: [moment(), moment()],
-        Yesterday: [moment().subtract(1, "days"), moment().subtract(1, "days")],
-        "Last 7 Days": [moment().subtract(6, "days"), moment()],
-        "Last 30 Days": [moment().subtract(29, "days"), moment()],
-        "This Month": [moment().startOf("month"), moment().endOf("month")],
-        "Last Month": [
-          moment().subtract(1, "month").startOf("month"),
-          moment().subtract(1, "month").endOf("month"),
-        ],
-      },
-      startDate: moment().subtract(29, "days"),
-      endDate: moment(),
-    },
-    function (start, end) {
-      $("#reportrange span").html(
-        start.format("MMMM D, YYYY") + " - " + end.format("MMMM D, YYYY")
-      );
-    }
-  );
-
-  //Timepicker
-  $("#timepicker").datetimepicker({
-    format: "LT",
-  });
-
-  //Bootstrap Duallistbox
-  $(".duallistbox").bootstrapDualListbox();
-
-  //Colorpicker
-  $(".my-colorpicker1").colorpicker();
-  //color picker with addon
-  $(".my-colorpicker2").colorpicker();
-
-  $(".my-colorpicker2").on("colorpickerChange", function (event) {
-    $(".my-colorpicker2 .fa-square").css("color", event.color.toString());
-  });
-
-  $("input[data-bootstrap-switch]").each(function () {
-    $(this).bootstrapSwitch("state", $(this).prop("checked"));
-  });
-});
+// ========================================================
+// JAVASCRIPT UNTUK SKEMA ADMIN
+// ========================================================
 
 $(document).ready(function () {
-  // Menggunakan Event Delegation untuk tombol 'Tambah Unit'
-  // Skrip "mendengarkan" klik pada 'document', lalu memeriksa apakah targetnya adalah '#add-unit-button'
-});
-
-// --- SCRIPT UNTUK FORM DINAMIS PERSYARATAN DENGAN SUMMERNOTE TERPUSAT (PERBAIKAN FINAL) ---
-
-$(document).ready(function () {
-  // Variabel global untuk selalu menunjuk ke editor yang terakhir aktif
   var activeSummernoteInstance = null;
   const formKey = "skemaFormData";
 
@@ -4483,6 +4339,88 @@ $(document).ready(function () {
       toast.addEventListener("mouseenter", Swal.stopTimer);
       toast.addEventListener("mouseleave", Swal.resumeTimer);
     },
+  });
+
+  // =======================================================
+  // --- INISIALISASI PLUGIN DATE & SELECT ---
+  // =======================================================
+
+  //Initialize Select2 Elements
+  $(".select2").select2();
+
+  //Initialize Select2 Elements
+  $(".select2bs4").select2({
+    theme: "bootstrap4",
+  });
+
+  //Date picker
+  $("#reservationdate").datetimepicker({
+    format: "DD/MM/YYYY",
+  });
+
+  // =======================================================
+  // TABLE ROW EXPANDABLE
+  // =======================================================
+  // expand and collapse table rows
+  document.addEventListener("DOMContentLoaded", function () {
+    // Ambil semua tombol yang berfungsi sebagai pemicu expand/collapse
+    const expandButtons = document.querySelectorAll(".btn-expand");
+
+    expandButtons.forEach((button) => {
+      button.addEventListener("click", function (event) {
+        event.preventDefault(); // Mencegah link berpindah halaman
+
+        // Ambil target baris konten dari atribut 'data-target'
+        const targetId = this.getAttribute("data-target");
+        const contentRow = document.querySelector(targetId);
+        const icon = this.querySelector("i");
+
+        // Toggle class 'show' untuk menampilkan/menyembunyikan baris
+        if (contentRow) {
+          contentRow.classList.toggle("show");
+
+          // Ubah tampilan tombol dan ikonnya
+          this.classList.toggle("expanded");
+          if (this.classList.contains("expanded")) {
+            icon.classList.remove("fa-folder-plus");
+            icon.classList.add("fa-folder-minus"); // Ganti ikon menjadi 'x'
+            this.classList.remove("btn-primary");
+            this.classList.add("btn-danger"); // Ganti warna tombol
+          } else {
+            icon.classList.remove("fa-folder-minus");
+            icon.classList.add("fa-folder-plus"); // Kembalikan ikon '+'
+            this.classList.remove("btn-danger");
+            this.classList.add("btn-primary"); // Kembalikan warna tombol
+          }
+        }
+      });
+    });
+  });
+
+  //  =======================================================
+  // PDF PREVIEW MODAL
+  //  =======================================================
+  // PDF Preview in Modal
+  $(document).ready(function () {
+    // Event ini akan dijalankan SETIAP KALI modal #previewModal akan ditampilkan
+    $("#previewModal").on("show.bs.modal", function (event) {
+      // Dapatkan tombol yang memicu modal
+      var button = $(event.relatedTarget);
+
+      // Ekstrak path file dari atribut data-filepath
+      var filePath = button.data("filepath");
+
+      // Dapatkan elemen modal itu sendiri
+      var modal = $(this);
+
+      // Cari elemen iframe di dalam modal dan atur atribut 'src'-nya
+      modal.find("#pdf-viewer").attr("src", filePath);
+    });
+
+    // (Opsional) Kosongkan src iframe saat modal ditutup agar tidak membebani browser
+    $("#previewModal").on("hidden.bs.modal", function () {
+      $(this).find("#pdf-viewer").attr("src", "");
+    });
   });
 
   // =======================================================
@@ -4604,7 +4542,6 @@ $(document).ready(function () {
       $("#" + formData.activeTab).tab("show");
     }
   }
-  // --- PEMICU EVENT (PERBAIKAN) ---
 
   // Fungsi debounce untuk menunda eksekusi agar tidak terlalu sering
   function debounce(func, delay) {
@@ -4643,9 +4580,9 @@ $(document).ready(function () {
   // 5. Simpan saat berpindah tab
   $(".next-tab, .prev-tab").on("click", saveFormDataToLocalStorage);
 
-  // $('a.btn-success[href*="/admin/skema"]').on("click", function () {
-  //   localStorage.removeItem(formKey);
-  // });
+  // =======================================================
+  // --- FUNGSI UNTUK TOMBOL BATAL ---
+  // =======================================================
 
   // --- FUNGSI BARU UNTUK MEMERIKSA APAKAH FORM SUDAH DIISI ---
   function isFormDirty() {
@@ -4698,7 +4635,9 @@ $(document).ready(function () {
     return false;
   }
 
-  // --- FUNGSI UNTUK TOMBOL BATAL (YANG DIPERBARUI) ---
+  // =======================================================
+  // --- FUNGSI UNTUK TOMBOL BATAL ---
+  // =======================================================
   $(document).on("click", "#cancel-button", function (e) {
     e.preventDefault(); // Mencegah link langsung berpindah halaman
     const targetUrl = $(this).attr("href");
@@ -4740,7 +4679,7 @@ $(document).ready(function () {
   });
 
   // =======================================================================
-  // --- SCRIPT UNTUK FORM DINAMIS (Dapat diletakkan di file JS global) ---
+  // --- SCRIPT AWAL UNTUK FORM DINAMIS ---
   // =======================================================================
 
   $(document).on("click", "#add-unit-button", function () {
@@ -4858,6 +4797,10 @@ $(document).ready(function () {
       });
     }
   });
+
+  // =======================================================================
+  // --- SCRIPT AKHIR UNTUK FORM DINAMIS ---
+  // =======================================================================
 
   // ===================================================================
   // FUNGSI VALIDASI UTAMA
@@ -4994,14 +4937,6 @@ $(document).ready(function () {
         firstInvalidTabId = tab.attr("id"); // Simpan ID tab yang error
         elementToFocus = validationResult.firstInvalidElement; // Simpan elemen yang error
       }
-      // if (!validationResult.isValid) {
-      //   isAllTabsValid = false;
-      //   if (!firstInvalidTabLink) {
-      //     // Simpan link tab dan elemen pertama yang salah
-      //     firstInvalidTabLink = $("#" + tab.attr("aria-labelledby"));
-      //     elementToFocus = validationResult.firstInvalidElement;
-      //   }
-      // }
     });
 
     if (isAllTabsValid) {
@@ -5026,22 +4961,6 @@ $(document).ready(function () {
           }
         }, 250); // Jeda 250ms
       }
-
-      // Jika ada yang tidak valid, pindah ke tab pertama yang error dan fokus
-      // if (firstInvalidTabLink) {
-      //   firstInvalidTabLink.tab("show");
-      //   // Beri sedikit jeda agar tab sempat ditampilkan sebelum fokus
-      //   setTimeout(() => {
-      //     if (elementToFocus) {
-      //       elementToFocus.focus();
-      //       if (elementToFocus.hasClass("summernote-persyaratan")) {
-      //         elementToFocus.summernote("focus");
-      //       }
-      //     }
-      //   }, 200);
-      // }
     }
   });
 });
-
-// User Dropdown

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html
+  lang="en"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/app}"
+>
+  <head th:replace="~{fragments/header :: header('Edit Pengguna')}"></head>
+
+  <body>
+    <div layout:fragment="content">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-12">
+            <div class="card card-blue-dark">
+              <div class="card-header">
+                <h3 class="card-title">Edit Pengguna</h3>
+              </div>
+              <!-- /.card-header -->
+              <!-- form start -->
+              <form th:action="@{/}" method="" id="form-edit-user" novalidate>
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-4">
+                      <div class="form-group">
+                        <label>Username</label>
+                        <input
+                          type="username"
+                          class="form-control"
+                          id="usernameAdmin"
+                          placeholder="Masukan Username"
+                          disabled
+                        />
+                      </div>
+                    </div>
+                    <div class="col-4">
+                      <div class="form-group">
+                        <label for="emailAdmin">Email</label>
+                        <input
+                          type="email"
+                          class="form-control"
+                          id="emailAdmin"
+                          placeholder="Masukkan Email"
+                          disabled
+                        />
+                      </div>
+                    </div>
+                    <div class="col-4">
+                      <div class="form-group">
+                        <label for="role">Role</label>
+                        <select
+                          class="select2"
+                          multiple="multiple"
+                          id="role"
+                          data-placeholder="Pilih Role"
+                          style="width: 100%"
+                          disabled
+                        >
+                          <option value="admin">Admin</option>
+                          <option value="asesor">Asesor</option>
+                          <option value="asesi">Asesi</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- /.card-body -->
+
+                <div class="card-footer mt-3 text-left">
+                  <button type="submit" class="btn btn-outline-warning">
+                    Simpan
+                  </button>
+                  <a
+                    th:href="@{/admin/data-pengguna}"
+                    class="btn btn-outline-info"
+                    >Batal</a
+                  >
+                </div>
+              </form>
+            </div>
+            <!-- /.card -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

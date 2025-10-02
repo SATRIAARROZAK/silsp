@@ -56358,19 +56358,24 @@ a.text-muted:hover {
 .select2-container--default .select2-selection--single.is-invalid {
   border-color: #dc3545 !important;
 }
+
+/* Styling untuk border error pada plugin Select2 */
+.select2-container--default1 .select2-selection--single1.is-invalid {
+    border-color: #dc3545 !important;
+}
 .note-editor.is-invalid {
   border: 1px solid #dc3545 !important;
 }
 
 /* CSS UNTUK TOMBOL TOOLBAR SUMMERNOTE AKTIF */
-/* #custom-summernote-toolbar .btn-default.active {
+#custom-summernote-toolbar .btn-default.active {
   background-color: #007bff;
   color: white;
   border-color: #007bff;
-} */
+}
 
 /* CSS UNTUK MEMBERI TANDA EDITOR YANG AKTIF */
-/* .note-editor.border-primary {
+.note-editor.border-primary {
   border: 1px solid #007bff !important;
   box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-} */
+}

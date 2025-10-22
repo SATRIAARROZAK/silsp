@@ -5,23 +5,23 @@
   xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
   layout:decorate="~{layouts/app}"
 >
-  <head th:replace="~{fragments/header :: header('Data Skema')}"></head>
+  <head th:replace="~{fragments/header :: header('Jadwal Asesmen')}"></head>
 
   <body>
     <div layout:fragment="page-title">
-      <h1 class="m-0">Data Skema</h1>
+      <h1 class="m-0">Jadwal Sertifikasi</h1>
     </div>
     <div layout:fragment="breadcrumb">
       <ol class="breadcrumb float-sm-right">
         <li class="breadcrumb-item"><a href="#">Home</a></li>
-        <li class="breadcrumb-item active">Data Skema</li>
+        <li class="breadcrumb-item active">Jadwal Asesmen</li>
       </ol>
     </div>
     <div layout:fragment="content">
       <div class="card">
         <div class="card-header">
           <div
-            class="d-flex flex-column-reverse flex-md-row justify-content-md-between align-items-md-center gap-2 mb-3"
+            class="d-flex flex-column-reverse flex-w flex-md-row justify-content-md-between align-items-md-center gap-2 mb-3"
           >
             <form
               th:action="@{/}"
@@ -47,58 +47,64 @@
             </form>
 
             <a
-              th:href="@{/admin/skema/tambah-skema}"
+              th:href="@{/admin/jadwal-sertifikasi/jadwal-tambah}"
               class="btn btn-outline-primary"
             >
-              <i class="fas fa-plus me-1"></i>Tambah Data
+              <i class="fas fa-calendar-plus me-1"></i>Buat Jadwal
             </a>
           </div>
         </div>
         <!-- /.card-header -->
         <div class="card-body responsive">
-          <table class="table table-bordered table-hover table-responsive-md">
+          <table
+            class="table table-jadwal table-bordered table-hover table-responsive-md"
+          >
             <thead>
               <tr class="text-center">
                 <th>No</th>
-                <th>Nama Skema</th>
-                <th>Jenis Skema</th>
-                <th>Nomer Dokumen</th>
-                <th>Level</th>
-                <th>File</th>
-                <th>Skema Unit</th>
+                <th>Detail Jadwal</th>
+                <th>Asesor</th>
+                <th>Skema</th>
+                <th>Nama TUK</th>
                 <th>Aksi</th>
               </tr>
             </thead>
-            <!-- <tbody id="skemaTableBody"> -->
-
-            <tbody>
+            <tbody class="align-middle">
               <tr>
                 <td>1</td>
-                <td>Associate Data Science</td>
-                <td>Okupasi</td>
-                <td class="text-center">01/SKM/LSPTDDI/I/2025</td>
-                <td class="text-center">4</td>
-                <td class="text-center">
-                  <a th:href="@{/dist/doc/pedoman.pdf}" target="_blank">
-                    <i class="fas fa-file"></i>
-                  </a>
-                  <!-- <a
-                    href="#"
-                    class="btn btn-secondary btn-sm"
-                    data-toggle="modal"
-                    data-target="#previewModal"
-                    title="Lihat Dokumen"
-                  >
-                    
-                  </a> -->
+                <td>
+                  <div class="plan-profile">
+                    <strong>Nama Jadwal</strong>
+                    <p class="mb-3">Sertifikasi Digital Marketing</p>
+
+                    <div class="plan-details">
+                      <div class="jadwal-item">
+                        <strong>Kode Jadwal</strong>
+                        <strong>Kode Jadwal BNSP</strong>
+                        <strong>Tanggal Asesmen</strong>
+                        <!-- <span>TUK-LSPTDDI-001</span> -->
+                      </div>
+
+                      <div class="jadwal-item">
+                        <!-- <strong>Tanggal Asesmen</strong> -->
+                        <span>20250510-SKM01-UNBRAW</span>
+                        <span>BNSP.UJK.202505050488</span>
+                        <span>09 September 2025</span>
+                      </div>
+                    </div>
+                  </div>
                 </td>
-                <td class="text-center">
+                <td class="align-middle text-center">
                   <a
                     class="btn btn-primary btn-sm btn-expand"
-                    data-target="#skema-unit"
+                    data-target="#asesor-list"
                   >
-                    <i class="fas fa-folder-plus"></i>
+                    <span>2</span>
                   </a>
+                </td>
+                <td class="align-middle text-center">Associate Data Science</td>
+                <td class="align-middle">
+                  Fakultas Ilmu Komputer Universitas Brawijaya
                 </td>
                 <td class="align-middle">
                   <div class="action-buttons">
@@ -126,39 +132,46 @@
                   </div>
                 </td>
               </tr>
-              <tr class="expandable-content-row" id="skema-unit">
+              <tr class="expandable-content-row" id="asesor-list">
                 <td colspan="8">
                   <div class="expandable-content-wrapper">
-                    <h5>
-                      Daftar Unit Skema:
-                      <span th:text="(...)"></span>
-                    </h5>
+                    <h5>Daftar Asesor Bertugas</h5>
                     <div class="table-responsive">
                       <table
                         class="table table-valign-middle table-sm table-bordered nested-table"
                       >
-                        <thead class="thead-light">
+                        <thead class="thead-light text-center">
                           <tr>
                             <th>No</th>
-                            <th>Kode Unit</th>
-                            <th>Judul Unit</th>
-                            <th>Standar Kompetensi Kerja</th>
+                            <th>No. MET</th>
+                            <th>Nama Asesor</th>
+                            <th>Surat Tugas</th>
                           </tr>
                         </thead>
                         <tbody>
                           <tr>
-                            <td>1</td>
-                            <td>J.620100.001.01</td>
-                            <td>Mengimplementasikan User Interface</td>
-                            <td rowspan="2" class="text-center">
-                              SKKNI No. (...) Tahun (...)
+                            <td class="text-center">1</td>
+                            <td>MET.000.002580.2024</td>
+                            <td>Erlin Irosa</td>
+                            <td>
+                              <a
+                                th:href="@{/dist/doc/st_erlin.pdf}"
+                                target="_blank"
+                                >01/ST/LSPTDDI/V/2025</a
+                              >
                             </td>
                           </tr>
                           <tr>
-                            <td>2</td>
-                            <td>J.620100.002.01</td>
-                            <td>Membuat User Interface</td>
-                            <!-- <td>SKKNI</td> -->
+                            <td class="text-center">2</td>
+                            <td>MET.000.002584.2024</td>
+                            <td>Sigit Mareta</td>
+                            <td>
+                              <a
+                                th:href="@{/dist/doc/st_sigit.pdf}"
+                                target="_blank"
+                                >02/ST/LSPTDDI/V/2025</a
+                              >
+                            </td>
                           </tr>
                         </tbody>
                       </table>
@@ -181,7 +194,7 @@
           </ul>
         </div>
       </div>
-      <!-- <div
+      <div
         class="modal fade"
         id="previewModal"
         tabindex="-1"
@@ -223,7 +236,7 @@
             </div>
           </div>
         </div>
-      </div> -->
+      </div>
       <!-- /.modal -->
     </div>
   </body>

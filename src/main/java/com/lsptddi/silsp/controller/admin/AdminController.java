@@ -48,28 +48,52 @@ public class AdminController {
         return "pages/admin/dashboard";
     }
 
-    @GetMapping("/dataTuk")
+    @GetMapping("/tuk")
     public String showDataTuk(Model model) { // 1. Tambahkan Model sebagai parameter
 
         return "pages/admin/tuk/tuk-list";
     }
 
-    @GetMapping("/dataTuk/tambah-tuk")
+    @GetMapping("/tuk/tambah-tuk")
     public String showAddTuk(Model model) { // 1. Tambahkan Model sebagai parameter
 
         return "pages/admin/tuk/tuk-add";
     }
 
-    @GetMapping("/dataTuk/view-tuk")
+    @GetMapping("/tuk/view-tuk")
     public String showViewTuk(Model model) { // 1. Tambahkan Model sebagai parameter
 
         return "pages/admin/tuk/tuk-view";
     }
 
-    @GetMapping("/dataTuk/edit-tuk")
+    @GetMapping("/tuk/edit-tuk")
     public String showEditTuk(Model model) { // 1. Tambahkan Model sebagai parameter
 
         return "pages/admin/tuk/tuk-edit";
+    }
+
+    @GetMapping("/jadwal-sertifikasi")
+    public String showDataJadwalAsesmen(Model model) { // 1. Tambahkan Model sebagai parameter
+
+        return "pages/admin/jadwal/sertifikasi-list";
+    }
+
+    @GetMapping("/jadwal-sertifikasi/jadwal-tambah")
+    public String showAddJadwalAsesmen(Model model) { // 1. Tambahkan Model sebagai parameter
+
+        return "pages/admin/jadwal/sertifikasi-add";
+    }
+
+    @GetMapping("/jadwal-sertifikasi/jadwal-view")
+    public String showViewJadwalAsesmen(Model model) { // 1. Tambahkan Model sebagai parameter
+
+        return "pages/admin/jadwal/sertifikasi-view";
+    }
+
+    @GetMapping("/jadwal-sertifikasi/jadwal-edit")
+    public String showEditJadwalAsesmen(Model model) { // 1. Tambahkan Model sebagai parameter
+
+        return "pages/admin/jadwal/sertifikasi-edit";
     }
 
     @GetMapping("/data-pengguna")

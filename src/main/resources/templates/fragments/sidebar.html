@@ -1,8 +1,8 @@
-<aside
-  th:fragment="sidebar"
-  class="main-sidebar sidebar-dark-dark elevation-4"
->
-  <a th:href="@{/}" class="brand-link text-bg-blue-dark d-flex align-items-center">
+<aside class="main-sidebar main-sidebar-custom sidebar-dark-dark elevation-4" th:fragment="sidebar">
+  <a
+    th:href="@{/admin}"
+    class="brand-link text-bg-blue-dark d-flex align-items-center"
+  >
     <img
       th:src="@{/dist/img/logoLSP.png}"
       alt="AdminLTE Logo"
@@ -61,13 +61,13 @@
             </a>
           </li>
           <li class="nav-item">
-            <a th:href="@{/admin/dataTuk}" class="nav-link">
+            <a th:href="@{/admin/tuk}" class="nav-link">
               <i class="nav-icon fas fa-building"></i>
               <p>TUK</p>
             </a>
           </li>
           <li class="nav-item">
-            <a th:href="@{/admin/jadwal}" class="nav-link">
+            <a th:href="@{/admin/jadwal-sertifikasi}" class="nav-link">
               <i class="nav-icon fas fa-calendar-plus"></i>
               <p>Jadwal Sertifikasi</p>
             </a>

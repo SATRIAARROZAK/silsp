@@ -47,7 +47,7 @@
             </form>
 
             <a
-              th:href="@{/admin/skema/tambah-skema}"
+              th:href="@{/admin/tuk/tambah-tuk}"
               class="btn btn-outline-primary"
             >
               <i class="fas fa-plus me-1"></i>Tambah Data
@@ -66,52 +66,59 @@
                 <!-- <th>Nama TUK</th>
                 <th>Kode TUK</th>
                 <th>Jenis TUK</th> -->
-                <th>Profile TUK</th>
+                <th class="table-tuk col-profile">Profile TUK</th>
                 <th>Alamat</th>
                 <th>Aksi</th>
               </tr>
             </thead>
-            <tbody id="skemaTableBody">
+            <tbody>
               <tr>
-                <td>1</td>
-                <td>
-                  <pre> <b>Nama TUK</b> 
- PPKD Jakarta Selatan
+                <td class="align-middle text-center">1</td>
 
- <b>Kode TUK:</b>  TUK-LSPTDDI-001
- <b>Jenis TUK</b>  Sewaktu
-                </pre>
+                <td class="align-middle">
+                  <div class="tuk-profile">
+                    <strong>Nama TUK</strong>
+                    <p class="mb-2">
+                      Fakultas Ilmu Komputer Universitas Brawijaya
+                    </p>
+
+                    <div class="profile-details">
+                      <div class="detail-item">
+                        <strong>Kode TUK</strong>
+                        <span>TUK-LSPTDDI-001</span>
+                      </div>
+                      <div class="detail-item">
+                        <strong>Jenis TUK</strong>
+                        <span>Sewaktu</span>
+                      </div>
+                    </div>
+                  </div>
                 </td>
 
-                <td>
-                  <pre>
-(Kota Administrasi Jakarta Selatan), (DKI Jakarta) 
-Jalan Buncit Raya No.440, RT.3/RW.5, Kalibata, Kota Jakarta Selatan, 
-Daerah Khusus Ibukota Jakarta 12740 
-                  </pre>
+                <td class="align-middle">
+                  Jl. Kebon Sirih No.1, RT.1/RW.1, Gambir, Jakarta Pusat
                 </td>
-                <td class="">
-                  <a
-                    class="btn btn-outline-primary btn-sm"
-                    th:href="@{/admin/data-pengguna/view-users}"
-                    title="View"
-                  >
-                    <i class="fas fa-eye"> </i>
-                  </a>
-                  <a
-                    class="btn btn-outline-info btn-sm"
-                    th:href="@{/admin/data-pengguna/edit-users}"
-                    title="Edit"
-                  >
-                    <i class="fas fa-pencil-alt"> </i>
-                  </a>
-                  <a
-                    class="btn btn-outline-danger btn-sm"
-                    href="#"
-                    title="Delete"
-                  >
-                    <i class="fas fa-trash"> </i>
-                  </a>
+
+                <td class="align-middle">
+                  <div class="action-buttons">
+                    <a
+                      th:href="@{/admin/tuk/view-tuk}"
+                      class="btn btn-info btn-sm"
+                      title="Detail"
+                    >
+                      <i class="fas fa-eye"></i>
+                    </a>
+                    <a
+                      th:href="@{/admin/tuk/edit-tuk}"
+                      class="btn btn-warning btn-sm"
+                      title="Edit"
+                    >
+                      <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="#" class="btn btn-danger btn-sm" title="Hapus">
+                      <i class="fas fa-trash"></i>
+                    </a>
+                  </div>
                 </td>
               </tr>
             </tbody>

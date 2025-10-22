@@ -5,30 +5,30 @@
   xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
   layout:decorate="~{layouts/app}"
 >
-  <head th:replace="~{fragments/header :: header('Tambah TUK')}"></head>
+  <head th:replace="~{fragments/header :: header('Buat Jadwal')}"></head>
 
   <body>
     <div layout:fragment="page-title">
-      <h1 class="m-0">Tambah TUK</h1>
+      <h1 class="m-0">Buat Jadwal</h1>
     </div>
     <div layout:fragment="content">
       <div class="container-fluid">
-        <form th:action="@{/}" method="" id="form-tambah-tuk" novalidate>
+        <form th:action="@{/}" method="post" id="form-buat-jadwal" novalidate>
           <div class="row">
             <div class="col-12">
               <div class="card card-blue-dark">
                 <div class="card-header">
-                  <h3 class="card-title">1. Profile TUK</h3>
+                  <h3 class="card-title">1. Datail Jadwal</h3>
                 </div>
                 <!-- /.card-header -->
                 <!-- form start -->
                 <div class="card-body">
                   <div class="form-group">
-                    <label>Nama TUK</label>
+                    <label for="namaJadwal">Nama Jadwal</label>
                     <input
                       type="text"
                       class="form-control"
-                      id="namaTuk"
+                      id="namaJadwal"
                       placeholder=""
                       required
                     />
@@ -36,31 +36,143 @@
                   <div class="row">
                     <div class="col-6">
                       <div class="form-group">
-                        <label for="kodeTuk">Kode TUK</label>
+                        <label for="kodeJadwal">Kode Jadwal</label>
                         <input
                           type="text"
                           class="form-control"
-                          id="kodeTuk"
+                          id="kodeJadwal"
+                          value="JADWAL-LSPTDDI-001-2025"
                           placeholder=""
-                          required
+                          disabled
                         />
                       </div>
                     </div>
                     <div class="col-6">
                       <div class="form-group">
-                        <label for="jenisTuk">Jenis TUK</label>
+                        <label for="kodeJadwalBnsp">Kode Jadwal BNSP</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="kodeJadwalBnsp"
+                          placeholder=""
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-6">
+                      <div class="form-group">
+                        <label>Tanggal Sertifikasi</label>
+                        <div
+                          class="input-group date"
+                          id="reservationdate"
+                          data-target-input="nearest"
+                        >
+                          <input
+                            type="text"
+                            required
+                            class="form-control datetimepicker-input"
+                            id="tanggal_sertifikasi"
+                            data-target="#reservationdate"
+                          />
+
+                          <div
+                            class="input-group-append"
+                            data-target="#reservationdate"
+                            data-toggle="datetimepicker"
+                          >
+                            <div class="input-group-text">
+                              <i class="fa fa-calendar"></i>
+                            </div>
+                          </div>
+                          <div class="invalid-feedback">
+                            Tanggal Penetapan Tidak Boleh Kosong!
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-6">
+                      <div class="form-group">
+                        <label for="kuota">Kuota Peserta</label>
+                        <input
+                          type="number"
+                          class="form-control"
+                          id="kuota"
+                          placeholder=""
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-6">
+                      <div class="form-group">
+                        <label for="sumberAnggaran">Sumber Anggaran</label>
                         <select
                           class="form-control select2"
                           style="width: 100%"
                           required
-                          id="jenisTuk"
+                          id="sumberAnggaran"
                         >
                           <option value="" disabled selected></option>
-                          <option value="mandir">Mandiri</option>
-                          <option value="sewaktu">Sewaktu</option>
-                          <option value="tempat_kerja">Tempat Kerja</option>
+                          <option value="">APBN</option>
+                          <option value="">APBD</option>
+                          <option value="">Biaya MANDIRI</option>
                         </select>
                       </div>
+                    </div>
+                    <div class="col-6">
+                      <div class="form-group">
+                        <label for="pemberiAnggaran">Pemberi Anggaran</label>
+                        <select
+                          class="form-control select2"
+                          style="width: 100%"
+                          required
+                          id="pemberiAnggaran"
+                        >
+                          <option value="" disabled selected></option>
+                          <option value="">Kementerian</option>
+                          <option value="">Biaya Mandiri</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- /.card-body -->
+              </div>
+              <!-- /.card -->
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-12">
+              <div class="card card-blue-dark">
+                <div class="card-header">
+                  <h3 class="card-title">2. Detail Penugasan</h3>
+                </div>
+                <!-- /.card-header -->
+                <!-- form start -->
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-10">
+                      <div class="form-group">
+                        <label>Nama Asesor</label>
+                        <select
+                          class="form-control select2"
+                          style="width: 100%"
+                          required
+                          id="pilihAsesor"
+                        >
+                          <option value="" disabled selected></option>
+                          <option value="asesor1">Sigit Mareta</option>
+                          <option value="asesor2">Setyawati</option>
+                          <option value="asesor3">Haryo Mirsandi</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-2">
+                      <button class="btn btn-outline-info">Pilih Asesor</button>
                     </div>
                   </div>
                 </div>
@@ -160,7 +272,9 @@
             <button type="submit" class="btn btn-outline-warning">
               Simpan
             </button>
-            <a th:href="@{/admin/tuk}" class="btn btn-outline-info"
+            <a
+              th:href="@{/admin/jadwal-sertifikasi}"
+              class="btn btn-outline-info"
               >Batal</a
             >
           </div>

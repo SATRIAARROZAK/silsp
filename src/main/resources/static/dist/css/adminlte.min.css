@@ -11,7 +11,7 @@
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
  */
 :root {
-  --blue-dark: #0E1F51;
+  --blue-dark: #0e1f51;
   --blue: #007bff;
   --indigo: #6610f2;
   --purple: #6f42c1;
@@ -7543,7 +7543,6 @@ button.bg-blue-dark:hover {
   background-color: #2f50b4 !important;
 }
 
-
 .bg-danger {
   background-color: #dc3545 !important;
 }
@@ -12158,7 +12157,7 @@ body:not(.layout-fixed).layout-navbar-fixed.text-sm .wrapper .main-sidebar .side
 }
 
 .layout-navbar-fixed .wrapper .sidebar-light-blue-dark .brand-link:not([class*="navbar"]) {
-  background-color: #ff3E54;
+  background-color: #ff3e54;
 }
 
 .layout-navbar-fixed .wrapper .sidebar-dark-lightblue .brand-link:not([class*="navbar"]) {
@@ -14375,10 +14374,11 @@ body:not(.layout-fixed) .main-sidebar .sidebar {
   border-color: rgba(0, 0, 0, 0.1);
 }
 
-
 /* sidebar dark */
 [class*="sidebar-dark-"] {
-  background: linear-gradient(174deg, rgba(14, 31, 81, 1) 40%, rgba(121, 9, 9, 1) 86%);
+  background: linear-gradient(174deg,
+      rgba(14, 31, 81, 1) 40%,
+      rgba(121, 9, 9, 1) 86%);
 }
 
 [class*="sidebar-dark-"] .user-panel a:hover {
@@ -14532,7 +14532,6 @@ body:not(.layout-fixed) .main-sidebar .sidebar {
   border-color: #dc3545;
 }
 
-
 .sidebar-dark-blue-dark .nav-sidebar>.nav-item>.nav-link.active,
 .sidebar-light-blue-dark .nav-sidebar>.nav-item>.nav-link.active {
   background-color: #0e1f51;
@@ -14543,7 +14542,6 @@ body:not(.layout-fixed) .main-sidebar .sidebar {
 .sidebar-light-blue-dark .nav-sidebar.nav-legacy>.nav-item>.nav-link.active {
   border-color: #0e1f51;
 }
-
 
 .sidebar-dark-light .nav-sidebar>.nav-item>.nav-link.active,
 .sidebar-light-light .nav-sidebar>.nav-item>.nav-link.active {
@@ -17340,7 +17338,9 @@ body.text-sm .control-sidebar {
 }
 
 .navbar-dark {
-  background: linear-gradient(175deg, rgba(14, 31, 81, 1) 40%, rgba(255, 0, 0, 1) 100%);
+  background: linear-gradient(175deg,
+      rgba(14, 31, 81, 1) 40%,
+      rgba(255, 0, 0, 1) 100%);
   border-color: #4b545c;
 }
 
@@ -28492,7 +28492,9 @@ body.text-sm .input-group-text {
 }
 
 .card-blue-dark:not(.card-outline)>.card-header {
-background: linear-gradient(0deg,rgba(14, 31, 81, 1) 27%, rgba(37, 37, 37, 1) 57%);
+  background: linear-gradient(0deg,
+      rgba(14, 31, 81, 1) 27%,
+      rgba(37, 37, 37, 1) 57%);
 }
 
 .card-blue-dark:not(.card-outline)>.card-header,
@@ -28535,9 +28537,6 @@ background: linear-gradient(0deg,rgba(14, 31, 81, 1) 27%, rgba(37, 37, 37, 1) 57
 .card.bg-blue-dark .bootstrap-datetimepicker-widget .table th {
   border: none;
 }
-
-
-
 
 .card-primary:not(.card-outline)>.card-header {
   background-color: #007bff;
@@ -56355,14 +56354,16 @@ a.text-muted:hover {
 .is-invalid {
   border-color: #dc3545 !important;
 }
+
 .select2-container--default .select2-selection--single.is-invalid {
   border-color: #dc3545 !important;
 }
 
 /* Styling untuk border error pada plugin Select2 */
 .select2-container--default1 .select2-selection--single1.is-invalid {
-    border-color: #dc3545 !important;
+  border-color: #dc3545 !important;
 }
+
 .note-editor.is-invalid {
   border: 1px solid #dc3545 !important;
 }
@@ -56378,4 +56379,130 @@ a.text-muted:hover {
 .note-editor.border-primary {
   border: 1px solid #007bff !important;
   box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* 1. Atur lebar default kolom agar lebih rapi */
+/* .table-tuk th.col-no {
+  width: 5%;
+}
+
+.table-tuk th.col-profile {
+  width: 40%;
+}
+
+.table-tuk th.col-alamat {
+  width: 35%;
+}
+
+.table-tuk th.col-aksi {
+  width: 20%;
+} */
+
+/* 2. Styling untuk detail profile TUK */
+.tuk-profile .profile-details {
+  display: flex;
+  /* Membuat item sejajar horizontal (default) */
+  gap: 2rem;
+  /* Memberi jarak antar item (Kode TUK & Jenis TUK) */
+  flex-wrap: wrap;
+  /* Izinkan wrap jika layar terlalu kecil */
+}
+
+.tuk-profile .detail-item {
+  display: flex;
+  flex-direction: column;
+  /* Vertikal untuk title dan value */
+}
+
+.tuk-profile strong {
+  font-weight: 600;
+  /* Menebalkan tulisan title */
+}
+
+/* 3. Styling untuk tombol aksi */
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  /* Memberi jarak 8px antar tombol */
+  /* flex-wrap: wrap; */
+  /* Izinkan wrap jika layar terlalu kecil */
+}
+
+/* 4. Media Query untuk mode tablet dan HP (lebar di bawah 768px) */
+@media (max-width: 768px) {
+  .tuk-profile .profile-details {
+    flex-direction: column;
+    /* Mengubah susunan menjadi vertikal */
+    gap: 0.5rem;
+    /* Mengurangi jarak di mode mobile */
+  }
+}
+
+@media (max-width: 992px) {
+  .action-buttons {
+    flex-direction: column;
+    /* Mengubah susunan menjadi vertikal */
+    gap: 0.5rem;
+    /* Mengurangi jarak di mode mobile */
+  }
+}
+
+
+
+/* 2. Styling untuk detail profile TUK */
+.plan-profile .plan-details {
+  display: flex;
+  /* Membuat item sejajar horizontal (default) */
+  gap: 2rem;
+  /* Memberi jarak antar item (Kode TUK & Jenis TUK) */
+  flex-wrap: nowrap;
+  text-wrap: nowrap;
+  /* Izinkan wrap jika layar terlalu kecil */
+}
+
+.plan-profile .jadwal-item {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+  margin-left: 1rem;
+
+  /* Vertikal untuk title dan value */
+}
+
+.plan-profile strong {
+  font-weight: 600;
+}
+
+@media (min-width: 992px) {
+
+  .plan-details {
+    /* display: flex; */
+    flex-direction: row;
+    /* flex-wrap: nowrap; */
+    /* Vertikal untuk title dan value */
+  }
+
+  .jadwal-item {
+    flex-wrap: nowrap;
+    text-wrap: nowrap;
+  }
+
+}
+
+
+@media (max-width: 768px) {
+
+  .plan-details {
+    /* display: flex; */
+    flex-direction: row;
+    /* flex-wrap: nowrap; */
+    /* Vertikal untuk title dan value */
+  }
+
+  .jadwal-item {
+    flex-wrap: nowrap;
+    text-wrap: nowrap;
+  }
+
 }

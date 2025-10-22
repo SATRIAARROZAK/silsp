@@ -46,7 +46,10 @@
               >
             </form>
 
-            <a th:href="@{/admin/data-pengguna/tambah-users}" class="btn btn-primary">
+            <a
+              th:href="@{/admin/data-pengguna/tambah-users}"
+              class="btn btn-primary"
+            >
               <i class="bi bi-person-fill-add me-1"></i>Tambah Pengguna
             </a>
           </div>
@@ -86,29 +89,33 @@
               <td>satria_admin</td>
               <td>satria@gmail.com</td>
               <td>08967556557</td>
-              <td class="project-state"><span class="badge bg-info">Admin</span></td>
-              <td class="project-actions text-center">
-                <a
-                  class="btn btn-outline-primary btn-sm"
-                  th:href="@{/admin/data-pengguna/view-users}"
-                  title="View"
-                >
-                  <i class="fas fa-eye"> </i>
-                </a>
-                <a
-                  class="btn btn-outline-info btn-sm"
-                  th:href="@{/admin/data-pengguna/edit-users}"
-                  title="Edit"
-                >
-                  <i class="fas fa-pencil-alt"> </i>
-                </a>
-                <a
-                  class="btn btn-outline-danger btn-sm"
-                  href="#"
-                  title="Delete"
-                >
-                  <i class="fas fa-trash"> </i>
-                </a>
+              <td class="project-state">
+                <span class="badge bg-info">Admin</span>
+              </td>
+              <td class="align-middle">
+                <div class="action-buttons">
+                  <a
+                    class="btn btn-outline-primary btn-sm"
+                    th:href="@{/admin/data-pengguna/view-users}"
+                    title="View"
+                  >
+                    <i class="fas fa-eye"> </i>
+                  </a>
+                  <a
+                    class="btn btn-outline-info btn-sm"
+                    th:href="@{/admin/data-pengguna/edit-users}"
+                    title="Edit"
+                  >
+                    <i class="fas fa-pencil-alt"> </i>
+                  </a>
+                  <a
+                    class="btn btn-outline-danger btn-sm"
+                    href="#"
+                    title="Delete"
+                  >
+                    <i class="fas fa-trash"> </i>
+                  </a>
+                </div>
               </td>
             </tbody>
           </table>

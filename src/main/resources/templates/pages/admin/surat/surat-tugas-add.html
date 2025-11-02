@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html
+  lang="en"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/app}"
+>
+  <head th:replace="~{fragments/header :: header('Buat Surat')}"></head>
+
+  <body>
+    <div layout:fragment="page-title">
+      <h1 class="m-0">Buat Surat</h1>
+    </div>
+    <div layout:fragment="content">
+      <div class="container-fluid">
+        <form
+          th:action="@{/}"
+          method="post"
+          id="form-buat-surat-tugas"
+          novalidate
+        >
+          <div class="card-footer mt-3 text-left">
+            <button type="submit" class="btn btn-outline-warning">
+              Simpan
+            </button>
+            <a
+              th:href="@{/admin/surat-tugas-asesor}"
+              class="btn btn-outline-info"
+              >Batal</a
+            >
+          </div>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

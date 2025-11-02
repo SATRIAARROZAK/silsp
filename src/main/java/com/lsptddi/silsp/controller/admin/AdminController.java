@@ -124,6 +124,31 @@ public class AdminController {
         return "pages/admin/jadwal/sertifikasi-edit";
     }
 
+    
+    @GetMapping("/surat-tugas-asesor")
+    public String showDataSuratTugas(Model model) { // 1. Tambahkan Model sebagai parameter
+
+        return "pages/admin/surat/surat-tugas-list";
+    }
+
+    @GetMapping("/surat-tugas-asesor/add")
+    public String showAddSuratTugas(Model model) { // 1. Tambahkan Model sebagai parameter
+
+        return "pages/admin/surat/surat-tugas-add";
+    }
+
+    @GetMapping("/surat-tugas-asesor/view")
+    public String showViewSuratTugas(Model model) { // 1. Tambahkan Model sebagai parameter
+
+        return "pages/admin/surat/surat-tugas-view";
+    }
+
+    @GetMapping("/surat-tugas-asesor/edit")
+    public String showEditSuratTugas(Model model) { // 1. Tambahkan Model sebagai parameter
+
+        return "pages/admin/surat/surat-tugas-edit";
+    }
+
     @GetMapping("/data-pengguna")
     public String showDataPengguna(Model model) { // 1. Tambahkan Model sebagai parameter
 

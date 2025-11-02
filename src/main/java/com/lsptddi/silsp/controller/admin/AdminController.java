@@ -48,6 +48,34 @@ public class AdminController {
         return "pages/admin/dashboard";
     }
 
+    
+    // ==============================================
+    // Menu sidebar Skema Sertifikasi
+    // ==============================================
+
+    @GetMapping("/skema")
+    public String showSkemaList(Model model) { // 1. Tambahkan Model sebagai parameter
+        return "pages/admin/skema/skema-list";
+    }
+
+    @GetMapping("/skema/tambah-skema")
+    public String showSkemaTambahPage(Model model) { // 1. Tambahkan Model sebagai parameter
+
+        return "pages/admin/skema/skema-add";
+    }
+
+    @GetMapping("/skema/edit-skema")
+    public String showSkemaEditPage(Model model) { // 1. Tambahkan Model sebagai parameter
+
+        return "pages/admin/skema/skema-edit";
+    }
+
+    @GetMapping("/skema/view-skema")
+    public String showSkemaViewPage(Model model) { // 1. Tambahkan Model sebagai parameter
+     
+        return "pages/admin/skema/skema-view";
+    }
+
     @GetMapping("/tuk")
     public String showDataTuk(Model model) { // 1. Tambahkan Model sebagai parameter
 
@@ -154,29 +182,6 @@ public class AdminController {
     }
 
 
-
-    @GetMapping("/skema")
-    public String showSkemaList(Model model) { // 1. Tambahkan Model sebagai parameter
-        return "pages/admin/skema/skema-list";
-    }
-
-    @GetMapping("/skema/tambah-skema")
-    public String showSkemaTambahPage(Model model) { // 1. Tambahkan Model sebagai parameter
-
-        return "pages/admin/skema/skema-add";
-    }
-
-    @GetMapping("/skema/edit-skema")
-    public String showSkemaEditPage(Model model) { // 1. Tambahkan Model sebagai parameter
-
-        return "pages/admin/skema/skema-edit";
-    }
-
-    @GetMapping("/skema/view-skema")
-    public String showSkemaViewPage(Model model) { // 1. Tambahkan Model sebagai parameter
-     
-        return "pages/admin/skema/skema-view";
-    }
 
     // @GetMapping("/asesi")
     // public String showAsesiListPage(Model model) {

@@ -10,261 +10,217 @@
   <body>
     <div layout:fragment="content">
       <div class="container-fluid">
-        <div class="row">
-          <div class="col-12">
-            <div class="card card-secondary">
-              <div class="card-header">
-                <h3 class="card-title">1. Detail Skema Sertifikasi</h3>
-                <div class="card-tools">
-                  <button
-                    type="button"
-                    class="btn btn-tool"
-                    data-card-widget="collapse"
-                    title="Collapse"
-                  >
-                    <i class="fas fa-minus"></i>
-                  </button>
+        <form th:action="@{/}" method="post" id="form-buat-jadwal" novalidate>
+          <div class="row">
+            <div class="col-12">
+              <div class="card card-blue-dark">
+                <div class="card-header">
+                  <h3 class="card-title">1. Datail Jadwal</h3>
                 </div>
+                <!-- /.card-header -->
+                <!-- form start -->
+                <div class="card-body">
+                  <div class="form-group">
+                    <label>Nama Jadwal</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      value="Sertifikasi Data Analyst"
+                      disabled
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label>Pilih TUK</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      value="PPKD Jakarta Selatan"
+                      disabled
+                    />
+                  </div>
+                  <div class="row">
+                    <div class="col-6">
+                      <div class="form-group">
+                        <label>Kode Jadwal</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          value="JADWAL-LSPTDDI-001-2025"
+                          disabled
+                        />
+                      </div>
+                    </div>
+                    <div class="col-6">
+                      <div class="form-group">
+                        <label for="kodeJadwalBnsp">Kode Jadwal BNSP</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          value="BNSP.UJK.202505050488"
+                          disabled
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-6">
+                      <div class="form-group">
+                        <label>Tanggal Sertifikasi</label>
+                        <input
+                          class="form-control"
+                          value="15 Mei 2025"
+                          disabled
+                        />
+                      </div>
+                    </div>
+                    <div class="col-6">
+                      <div class="form-group">
+                        <label for="kuota">Kuota Peserta</label>
+                        <input class="form-control" value="25" disabled />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-6">
+                      <div class="form-group">
+                        <label for="sumberAnggaran">Sumber Anggaran</label>
+                        <input class="form-control" value="APBN" disabled />
+                      </div>
+                    </div>
+                    <div class="col-6">
+                      <div class="form-group">
+                        <label for="pemberiAnggaran">Pemberi Anggaran</label>
+                        <input
+                          class="form-control"
+                          value="Kementrian Kominfo"
+                          disabled
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- /.card-body -->
               </div>
-
-              <div class="card-body">
-                <div class="form-group">
-                  <label for="namaSkema">Nama Skema</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="namaSkema"
-                    name="namaSkema"
-                    placeholder="Masukkan nama skema"
-                    readonly
-                  />
-                </div>
-                <div class="row">
-                  <div class="col-md-3">
-                    <div class="form-group">
-                      <label for="kodeSkema">Kode Skema</label>
-                      <input
-                        type="text"
-                        class="form-control"
-                        id="kodeSkema"
-                        name="kodeSkema"
-                        placeholder="Contoh: SKM-001"
-                        readonly
-                      />
-                    </div>
-                  </div>
-                  <div class="col-md-3">
-                    <div class="form-group">
-                      <label for="exampleInputLevel">Level</label>
-                      <input
-                        type="number"
-                        class="form-control"
-                        id="exampleInputLevel"
-                        placeholder="Level"
-                        readonly
-                      />
-                    </div>
-                  </div>
-                  <div class="col-md-3">
-                    <div class="form-group">
-                      <label for="exampleInputLevel">No SKKNI</label>
-                      <input
-                        type="number"
-                        class="form-control"
-                        id="exampleInputLevel"
-                        placeholder="No SKKNI"
-                        readonly
-                      />
-                    </div>
-                  </div>
-                  <div class="col-md-3">
-                    <div class="form-group">
-                      <label for="exampleInputLevel">Tahun SKKNI</label>
-                      <input
-                        type="number"
-                        class="form-control"
-                        id="exampleInputLevel"
-                        placeholder="Tahun SKKNI"
-                        readonly
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-md-6">
-                    <div class="form-group">
-                      <label>Jenis Skema</label>
-                      <input
-                        type="text"
-                        class="form-control"
-                        id="exampleInputLevel"
-                        placeholder="Okupasi"
-                        readonly
-                      />
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="form-group">
-                      <label>Mode Skema</label>
-                      <input
-                        type="text"
-                        class="form-control"
-                        id="exampleInputLevel"
-                        placeholder="Mandiri"
-                        readonly
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-md-6">
-                    <div class="form-group">
-                      <label>Tanggal Penetapan</label>
-                      <input
-                        type="date"
-                        class="form-control"
-                        id="exampleInputLevel"
-                        placeholder="Okupasi"
-                        readonly
-                      />
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="form-group">
-                      <label>File</label>
-                      <ul class="list-unstyled">
-                        <li>
-                          <a href="" class="btn-link text-secondary"
-                            ><i class="far fa-fw fa-file-pdf"></i> Skema
-                            ADS.pdf</a
-                          >
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <!-- /.card-body -->
-            </div>
-            <!-- /.card -->
-
-            <div class="card card-secondary">
-              <div class="card-header">
-                <h3 class="card-title">2. Unit Skema</h3>
-                <div class="card-tools">
-                  <button
-                    type="button"
-                    class="btn btn-tool"
-                    data-card-widget="collapse"
-                    title="Collapse"
-                  >
-                    <i class="fas fa-minus"></i>
-                  </button>
-                </div>
-              </div>
-
-              <div class="card-body">
-                <div class="row">
-                  <div class="table-responsive">
-                    <table
-                      class="table table-valign-middle table-sm table-bordered nested-table"
-                    >
-                      <thead class="thead-light">
-                        <tr class="text-center">
-                          <th>No</th>
-                          <th>Kode Unit</th>
-                          <th>Judul Unit</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td class="text-center">1</td>
-                          <td>J.620100.001.01</td>
-                          <td>Mengimplementasikan User Interface</td>
-                        </tr>
-                        <tr>
-                          <td class="text-center">2</td>
-                          <td>J.620100.002.01</td>
-                          <td>Membuat User Interface</td>
-                          <!-- <td>SKKNI</td> -->
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-              <!-- /.card-body -->
-            </div>
-            <!-- /.card -->
-
-            <div class="card card-secondary">
-              <div class="card-header">
-                <h3 class="card-title">3. Persyaratan Dasar</h3>
-                <div class="card-tools">
-                  <button
-                    type="button"
-                    class="btn btn-tool"
-                    data-card-widget="collapse"
-                    title="Collapse"
-                  >
-                    <i class="fas fa-minus"></i>
-                  </button>
-                </div>
-              </div>
-
-              <div class="card-body">
-                <div class="row">
-                  <div class="table-responsive">
-                    <table
-                      class="table table-valign-middle table-sm table-bordered nested-table"
-                    >
-                      <thead class="thead-light text-center">
-                        <tr>
-                          <th>No</th>
-                          <th>Daftar Persyaratan</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td class="align-middle text-center">1</td>
-                          <td>
-                            Minimal mahasiswa D4 atau S1 semester VIII di bidang
-                            Sains dan Teknologi; atau
-                          </td>
-                        </tr>
-                        <tr>
-                          <td class="align-middle text-center">2</td>
-                          <td>
-                            Memiliki sertifikat pelatihan berbasis kompetensi
-                            Junior/Associate Data Scientist; atau
-                          </td>
-                        </tr>
-                        <tr>
-                          <td class="align-middle text-center">3</td>
-                          <td>
-                            Tenaga kerja yang telah berpengalaman sebagai
-                            Junior/Associate Data Scientist dengan pengalaman
-                            minimal 1 (satu) tahun di jabatan tersebut.
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-              <!-- /.card-body -->
-            </div>
-            <!-- /.card -->
-            <div class="card-footer mt-3 text-left">
-               <a th:href="@{/admin/skema/edit-skema}" class="btn btn-outline-warning"
-                >Edit</a
-              >
-              <a th:href="@{/admin/skema}" class="btn btn-outline-info"
-                >Batal</a
-              >
+              <!-- /.card -->
             </div>
           </div>
-        </div>
+          <div class="row">
+            <div class="col-12">
+              <div class="card card-blue-dark">
+                <div class="card-header">
+                  <h3 class="card-title">2. Detail Penugasan</h3>
+                </div>
+                <!-- /.card-header -->
+                <!-- form start -->
+                <div class="card-body">
+                  <div class="row">
+                    <div class="form-group">
+                      <label for="kodeJadwal">Detail Asesor:</label>
+                      <div class="table-responsive">
+                        <table
+                          class="table table-valign-middle table-sm table-bordered nested-table"
+                        >
+                          <thead class="thead-light text-center">
+                            <tr>
+                              <th>No</th>
+                              <th>No. MET</th>
+                              <th>Nama Asesor</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-center">1</td>
+                              <td>MET.000.002580.2024</td>
+                              <td>Erlin Irosa</td>
+                            </tr>
+                            <tr>
+                              <td class="text-center">2</td>
+                              <td>MET.000.002584.2024</td>
+                              <td>Sigit Mareta</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row mt-4 pt-3 border-top">
+                    <div class="row">
+                      <div class="form-group">
+                        <label for="kodeJadwal"
+                          >Detail Unit Skema: <span>Data Analyst</span></label
+                        >
+                        <div class="table-responsive">
+                          <table
+                            class="table table-valign-middle table-sm table-bordered nested-table"
+                          >
+                            <thead class="thead-light text-center">
+                              <tr>
+                                <th>NO</th>
+                                <th>KODE UNIT</th>
+                                <th>KETERANGAN</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td>1</td>
+                                <td>J.62DMS00.001.1</td>
+                                <td>
+                                  Mengidentifikasi Kebutuhan Pengelolaan Data
+                                  untuk Proses Bisnis
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>2</td>
+                                <td>J.62DMS00.015.1</td>
+                                <td>Membuat Business Intelligence</td>
+                              </tr>
+                              <tr>
+                                <td>3</td>
+                                <td>J.62DMI00.004.1</td>
+                                <td>Mengumpulkan Data</td>
+                              </tr>
+                              <tr>
+                                <td>4</td>
+                                <td>J.62DMI00.005.1</td>
+                                <td>Menelaah Data</td>
+                              </tr>
+                              <tr>
+                                <td>5</td>
+                                <td>J.62DMI00.006.1</td>
+                                <td>Memvalidasi Data</td>
+                              </tr>
+                              <tr>
+                                <td>6</td>
+                                <td>J.62DMI00.007.1</td>
+                                <td>Menentukan Objek Data</td>
+                              </tr>
+                              <tr>
+                                <td>7</td>
+                                <td>M.70BDA00.013.1</td>
+                                <td>Menyusun Laporan Hasil Analisis</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- /.card-body -->
+              </div>
+              <!-- /.card -->
+            </div>
+          </div>
+
+          <div class="card-footer mt-3 text-left">
+            <button type="submit" class="btn btn-outline-warning">Edit</button>
+            <a
+              th:href="@{/admin/jadwal-sertifikasi}"
+              class="btn btn-outline-info"
+              >Batal</a
+            >
+          </div>
+        </form>
       </div>
     </div>
   </body>

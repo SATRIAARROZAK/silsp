@@ -19,6 +19,150 @@
           id="form-buat-surat-tugas"
           novalidate
         >
+          <div class="row">
+            <div class="col-12">
+              <div class="card card-blue-dark">
+                <div class="card-header">
+                  <h3 class="card-title">1. Datail Jadwal</h3>
+                </div>
+                <!-- /.card-header -->
+                <!-- form start -->
+                <div class="card-body">
+                  <div class="form-group">
+                    <label for="namaJadwal">Nama Jadwal</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="namaJadwal"
+                      placeholder=""
+                      required
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="pilihTUK">Pilih TUK</label>
+                    <select
+                      class="form-control select2"
+                      style="width: 100%"
+                      required
+                      id="pilihTUK"
+                    >
+                      <option value="" disabled selected></option>
+                      <option value="">PPKD Jakarta Utara</option>
+                      <option value="">PPKD Jakarta Selatan</option>
+                      <option value="">Universitas Brawijaya Malang</option>
+                    </select>
+                  </div>
+                  <div class="row">
+                    <div class="col-6">
+                      <div class="form-group">
+                        <label for="kodeJadwal">Kode Jadwal</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="kodeJadwal"
+                          value="JADWAL-LSPTDDI-001-2025"
+                          placeholder=""
+                          disabled
+                        />
+                      </div>
+                    </div>
+                    <div class="col-6">
+                      <div class="form-group">
+                        <label for="kodeJadwalBnsp">Kode Jadwal BNSP</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="kodeJadwalBnsp"
+                          placeholder=""
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-6">
+                      <div class="form-group">
+                        <label>Tanggal Sertifikasi</label>
+                        <div
+                          class="input-group date"
+                          id="reservationdate"
+                          data-target-input="nearest"
+                        >
+                          <input
+                            type="text"
+                            required
+                            class="form-control datetimepicker-input"
+                            id="tanggal_sertifikasi"
+                            data-target="#reservationdate"
+                          />
+
+                          <div
+                            class="input-group-append"
+                            data-target="#reservationdate"
+                            data-toggle="datetimepicker"
+                          >
+                            <div class="input-group-text">
+                              <i class="fa fa-calendar"></i>
+                            </div>
+                          </div>
+                          <div class="invalid-feedback">
+                            Tanggal Penetapan Tidak Boleh Kosong!
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-6">
+                      <div class="form-group">
+                        <label for="kuota">Kuota Peserta</label>
+                        <input
+                          type="number"
+                          class="form-control"
+                          id="kuota"
+                          placeholder=""
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-6">
+                      <div class="form-group">
+                        <label for="sumberAnggaran">Sumber Anggaran</label>
+                        <select
+                          class="form-control select2"
+                          style="width: 100%"
+                          required
+                          id="sumberAnggaran"
+                        >
+                          <option value="" disabled selected></option>
+                          <option value="">APBN</option>
+                          <option value="">APBD</option>
+                          <option value="">Biaya MANDIRI</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-6">
+                      <div class="form-group">
+                        <label for="pemberiAnggaran">Pemberi Anggaran</label>
+                        <select
+                          class="form-control select2"
+                          style="width: 100%"
+                          required
+                          id="pemberiAnggaran"
+                        >
+                          <option value="" disabled selected></option>
+                          <option value="">Kementerian</option>
+                          <option value="">Biaya Mandiri</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- /.card-body -->
+              </div>
+              <!-- /.card -->
+            </div>
+          </div>
           <div class="card-footer mt-3 text-left">
             <button type="submit" class="btn btn-outline-warning">
               Simpan

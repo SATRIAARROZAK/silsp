@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Surat Tugas Asesor</title>
+    <style>
+      body {
+        font-family: "Times New Roman", Times, serif;
+        font-size: 12pt;
+        line-height: 1.5;
+      }
+      .container {
+        width: 90%;
+        margin: 0 auto;
+      }
+      .kop-surat {
+        text-align: center;
+        border-bottom: 4px solid black;
+        padding-bottom: 10px;
+      }
+      .logo-lsp {
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+        font-size: 24pt;
+        color: #007bff; /* Biru seperti di PDF */
+        margin: 0;
+      }
+      .nama-lsp {
+        font-size: 14pt;
+        font-weight: bold;
+        margin: 0;
+      }
+      .alamat-lsp {
+        font-size: 10pt;
+        margin: 5px 0 0 0;
+      }
+      .kontak-lsp {
+        font-size: 10pt;
+        margin: 0;
+      }
+      .tanggal-surat {
+        text-align: right;
+        margin-top: 20px;
+      }
+      .tabel-info,
+      .tabel-asesor {
+        border-collapse: collapse;
+        width: 100%;
+        margin-top: 15px;
+      }
+      .tabel-info td,
+      .tabel-asesor td {
+        padding: 4px 0;
+        vertical-align: top;
+      }
+      .tabel-info td:first-child {
+        width: 80px; /* Lebar untuk "Nomor", "Hal" */
+      }
+      .tabel-asesor td:first-child {
+        width: 120px; /* Lebar untuk "Nama", "No.Reg" */
+      }
+      .tujuan-surat {
+        margin-top: 20px;
+      }
+      .isi-surat {
+        margin-top: 20px;
+      }
+      .paragraf {
+        text-align: justify;
+        margin-top: 15px;
+      }
+      .ttd-container {
+        margin-top: 50px;
+        width: 50%;
+        margin-left: 50%; /* Posisi di sebelah kanan */
+        text-align: left;
+      }
+      .logo-ttd {
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+        font-size: 20pt;
+        color: #007bff;
+        margin: 0;
+      }
+      .nama-ttd {
+        margin-top: 60px; /* Jarak untuk tanda tangan */
+        font-weight: bold;
+        text-decoration: underline;
+      }
+      .jabatan-ttd {
+        margin-top: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="kop-surat">
+        <p class="logo-lsp" th:text="${kopLogo}">LSP TDDI</p>
+        <p class="nama-lsp" th:text="${kopNama}">LSP Teknologi Data Digital Indonesia</p>
+        <p class="alamat-lsp" th:text="${kopAlamat}">Jl Perumahan Griya Pratama Mas Blok D4 No.35, Desa Cikarageman Setu Bekasi, Jawa Barat 17320</p>
+        <p class="kontak-lsp" th:text="'Phone: ' + ${kopTelepon} + ' Email: ' + ${kopEmail}">Phone: +62815-1338-2480 Email: lsp.tddi@gmail.com</p>
+      </div>
+
+      <div class="tanggal-surat">
+        <p th:text="'Bekasi, ' + ${tanggalSurat}">Bekasi, 11 Oktober 2025</p>
+      </div>
+
+      <table class="tabel-info">
+        <tbody>
+          <tr>
+            <td>Nomor</td>
+            <td th:text="': ' + ${nomorSurat}">: 02/ST/LSPTDDI/X/2025</td>
+          </tr>
+          <tr>
+            <td>Lampiran</td>
+            <td>: -</td>
+          </tr>
+          <tr>
+            <td>Hal</td>
+            <td th:text="': ' + ${perihal}">: Penugasan Asesor untuk Kegiatan Asesmen</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="tujuan-surat">
+        <p>Ykh.</p>
+        <p th:text="${tujuanSurat}">LSP Teknologi Data Digital Indonesia</p>
+        <p>di tempat</p>
+      </div>
+
+      <div class="isi-surat">
+        <p class="paragraf" th:text="${paragrafPembuka}">Melalui surat ini, kami menyatakan bahwa saudara yang tersebut di bawah ini:</p>
+
+        <table class="tabel-asesor">
+          <tbody>
+            <tr>
+              <td>Nama</td>
+              <td th:text="': ' + ${namaAsesor}">: Muhammad Arifin</td>
+            </tr>
+            <tr>
+              <td>No.Reg</td>
+              <td th:text="': ' + ${noRegAsesor}">: MET.000.003549 2025</td>
+            </tr>
+            <tr>
+              <td>Bidang Keahlian</td>
+              <td th:text="': ' + ${skemaPenugasan}">: Associate Data Scientist</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p class="paragraf">
+          Kami tugaskan untuk menjadi asesor pada kegiatan Asesmen Kompetensi Skema
+          <span style="font-weight: bold;" th:text="${skemaPenugasan}">Associate Data Scientist</span>
+          yang akan dilaksanakan pada <span th:text="${tanggalPelaksanaan}">13 Oktober 2025</span>
+          di <span th:text="${namaTuk}">Universitas Muria Kudus</span>.
+        </p>
+
+        <p class="paragraf" th:text="${paragrafPenutup}">
+          Demikian surat tugas ini kami sampaikan. Terima kasih atas perhatian dan kerjasama yang Bapak/Ibu berikan.
+        </p>
+      </div>
+
+      <div class="ttd-container">
+        <p>Hormat kami,</p>
+        <p th:text="${namaLsp}">LSP Teknologi Data Digital Indonesia</p>
+        <p classs="logo-ttd" th:text="${kopLogo}">TDDI</p>
+        <p class="nama-ttd" th:text="${namaPenandaTangan}">Dr. Arinda Puspita Rachman, S.T., M.Sc</p>
+        <p class="jabatan-ttd" th:text="${jabatanPenandaTangan}">Direktur Eksekutif</p>
+      </div>
+    </div>
+  </body>
+</html>

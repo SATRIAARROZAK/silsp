@@ -56506,3 +56506,85 @@ a.text-muted:hover {
   }
 
 }
+
+.container-surat {
+        width: 90%;
+        margin: 0 auto;
+      }
+      .kop-surat {
+        text-align: center;
+        border-bottom: 4px solid black;
+        padding-bottom: 10px;
+      }
+      .logo-lsp {
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+        font-size: 24pt;
+        color: #007bff; /* Biru seperti di PDF */
+        margin: 0;
+      }
+      .nama-lsp {
+        font-size: 14pt;
+        font-weight: bold;
+        margin: 0;
+      }
+      .alamat-lsp {
+        font-size: 10pt;
+        margin: 5px 0 0 0;
+      }
+      .kontak-lsp {
+        font-size: 10pt;
+        margin: 0;
+      }
+      .tanggal-surat {
+        text-align: right;
+        margin-top: 20px;
+      }
+      .tabel-info,
+      .tabel-asesor {
+        border-collapse: collapse;
+        width: 100%;
+        margin-top: 15px;
+      }
+      .tabel-info td,
+      .tabel-asesor td {
+        padding: 4px 0;
+        vertical-align: top;
+      }
+      .tabel-info td:first-child {
+        width: 80px; /* Lebar untuk "Nomor", "Hal" */
+      }
+      .tabel-asesor td:first-child {
+        width: 120px; /* Lebar untuk "Nama", "No.Reg" */
+      }
+      .tujuan-surat {
+        margin-top: 20px;
+      }
+      .isi-surat {
+        margin-top: 20px;
+      }
+      .paragraf {
+        text-align: justify;
+        margin-top: 15px;
+      }
+      .ttd-container {
+        margin-top: 50px;
+        width: 50%;
+        margin-left: 50%; /* Posisi di sebelah kanan */
+        text-align: left;
+      }
+      .logo-ttd {
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+        font-size: 20pt;
+        color: #007bff;
+        margin: 0;
+      }
+      .nama-ttd {
+        margin-top: 60px; /* Jarak untuk tanda tangan */
+        font-weight: bold;
+        text-decoration: underline;
+      }
+      .jabatan-ttd {
+        margin-top: 2px;
+      }

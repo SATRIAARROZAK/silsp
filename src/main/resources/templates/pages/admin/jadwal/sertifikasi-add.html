@@ -48,7 +48,7 @@
                     </select>
                   </div>
                   <div class="row">
-                    <div class="col-6">
+                    <div class="col-md-6">
                       <div class="form-group">
                         <label for="kodeJadwal">Kode Jadwal</label>
                         <input
@@ -61,7 +61,7 @@
                         />
                       </div>
                     </div>
-                    <div class="col-6">
+                    <div class="col-md-6">
                       <div class="form-group">
                         <label for="kodeJadwalBnsp">Kode Jadwal BNSP</label>
                         <input
@@ -120,7 +120,7 @@
                     </div>
                   </div>
                   <div class="row">
-                    <div class="col-6">
+                    <div class="col-md-6">
                       <div class="form-group">
                         <label for="sumberAnggaran">Sumber Anggaran</label>
                         <select
@@ -136,7 +136,7 @@
                         </select>
                       </div>
                     </div>
-                    <div class="col-6">
+                    <div class="col-md-6">
                       <div class="form-group">
                         <label for="pemberiAnggaran">Pemberi Anggaran</label>
                         <select
@@ -169,99 +169,108 @@
                 <!-- form start -->
                 <div class="card-body">
                   <div class="row">
-                    <div class="col-10">
-                      <div class="form-group">
-                        <label>Pilih Asesor</label>
-                        <select
-                          class="form-control select2"
-                          style="width: 100%"
-                          required
-                          id="pilihAsesor"
-                        >
-                          <option value="" disabled selected></option>
-                          <option value="asesor1">Sigit Mareta</option>
-                          <option value="asesor2">Setyawati</option>
-                          <option value="asesor3">Haryo Mirsandi</option>
-                        </select>
+                    <label for="pilihAsesor">Pilih Asesor:</label>
+                    <div class="row mb-2 align-items-center">
+                      <div class="col-10">
+                        <div class="form-group mb-0">
+                          <select
+                            class="form-control select2"
+                            style="width: 100%"
+                            required
+                            id="pilihAsesor"
+                          >
+                            <option value="" disabled selected></option>
+                            <option value="asesor1">Sigit Mareta</option>
+                            <option value="asesor2">Setyawati</option>
+                            <option value="asesor3">Haryo Mirsandi</option>
+                          </select>
+                          <div class="invalid-feedback"></div>
+                        </div>
+                      </div>
+                      <div class="col-2">
+                        <button class="btn btn-outline-info">
+                          Pilih Asesor
+                        </button>
                       </div>
                     </div>
-                    <div class="col-2">
-                      <button class="btn btn-outline-info">Pilih Asesor</button>
-                    </div>
+
                     <div class="row">
-                      <div class="form-group">
-                        <label for="kodeJadwal">Detail Asesor:</label>
-                        <div class="table-responsive">
-                          <table
-                            class="table table-valign-middle table-sm table-bordered nested-table"
-                          >
-                            <thead class="thead-light text-center">
-                              <tr>
-                                <th>No</th>
-                                <th>No. MET</th>
-                                <th>Nama Asesor</th>
-                                <th>Aksi</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr>
-                                <td class="text-center">1</td>
-                                <td>MET.000.002580.2024</td>
-                                <td>Erlin Irosa</td>
-                                <td class="align-middle">
-                                  <div class="action-buttons">
-                                    <a
-                                      class="btn btn-outline-danger btn-sm"
-                                      href="#"
-                                      title="Delete"
-                                    >
-                                      <i class="fas fa-trash"> </i>
-                                    </a>
-                                  </div>
-                                </td>
-                              </tr>
-                              <tr>
-                                <td class="text-center">2</td>
-                                <td>MET.000.002584.2024</td>
-                                <td>Sigit Mareta</td>
-                                <td class="align-middle">
-                                  <div class="action-buttons">
-                                    <a
-                                      class="btn btn-outline-danger btn-sm"
-                                      href="#"
-                                      title="Delete"
-                                    >
-                                      <i class="fas fa-trash"> </i>
-                                    </a>
-                                  </div>
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </div>
+                      <label for="kodeJadwal">Detail Asesor:</label>
+                      <div class="table-responsive">
+                        <table
+                          class="table table-valign-middle table-sm table-bordered nested-table"
+                        >
+                          <thead class="thead-light text-center">
+                            <tr>
+                              <th>No</th>
+                              <th>No. MET</th>
+                              <th>Nama Asesor</th>
+                              <th>Aksi</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-center">1</td>
+                              <td>MET.000.002580.2024</td>
+                              <td>Erlin Irosa</td>
+                              <td class="align-middle">
+                                <div class="action-buttons">
+                                  <a
+                                    class="btn btn-outline-danger btn-sm"
+                                    href="#"
+                                    title="Delete"
+                                  >
+                                    <i class="fas fa-trash"> </i>
+                                  </a>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="text-center">2</td>
+                              <td>MET.000.002584.2024</td>
+                              <td>Sigit Mareta</td>
+                              <td class="align-middle">
+                                <div class="action-buttons">
+                                  <a
+                                    class="btn btn-outline-danger btn-sm"
+                                    href="#"
+                                    title="Delete"
+                                  >
+                                    <i class="fas fa-trash"> </i>
+                                  </a>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
                       </div>
                     </div>
                   </div>
                   <div class="row mt-4 pt-3 border-top">
-                    <div class="col-10">
-                      <div class="form-group">
-                        <label>Pilih Skema</label>
-                        <select
-                          class="form-control select2"
-                          style="width: 100%"
-                          required
-                          id="pilihSkema"
-                        >
-                          <option value="" disabled selected></option>
-                          <option value="">Data Analyst</option>
-                          <option value="">Digital Marketing</option>
-                          <option value="">Data Scientist</option>
-                        </select>
+                    <label for="pilihSkema">Pilih Skema</label>
+                    <div class="row mb-2 align-items-center">
+                      <div class="col-10 align-items-center">
+                        <div class="form-group mb-0">
+                          <select
+                            class="form-control select2"
+                            style="width: 100%"
+                            required
+                            id="pilihSkema"
+                          >
+                            <option value="" disabled selected></option>
+                            <option value="">Data Analyst</option>
+                            <option value="">Digital Marketing</option>
+                            <option value="">Data Scientist</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="col-2">
+                        <button class="btn btn-outline-info">
+                          Pilih Skema
+                        </button>
                       </div>
                     </div>
-                    <div class="col-2">
-                      <button class="btn btn-outline-info">Pilih Skema</button>
-                    </div>
+
                     <div class="row">
                       <div class="form-group">
                         <label for="kodeJadwal"

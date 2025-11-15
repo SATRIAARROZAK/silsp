@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SILSP | Daftar Akun</title>
+
+    <link
+      rel="shortcut icon"
+      th:href="@{/dist/img/favicon2.ico}"
+      type="image/x-icon"
+    />
+    <link rel="stylesheet" th:href="@{/dist/css/login.css}" />
+    <style>
+      /* Menggunakan palet warna dari CSS Anda */
+      .form-group .invalid-feedback {
+        display: none; /* Sembunyikan default */
+        color: var(--secondary); /* Warna merah dari palet Anda */
+        font-size: 0.85rem;
+        margin-top: 4px;
+      }
+      .form-group .input.is-invalid {
+        border-color: var(--secondary);
+      }
+      .form-group .input.is-invalid + .invalid-feedback {
+        display: block; /* Tampilkan jika input invalid */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <div class="banner">
+            <img th:src="@{/dist/img/LogoLSP.png}" alt="Banner" />
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="login-box">
+            <div class="card">
+              <div class="card-header">
+                <h1>Buat Akun</h1>
+                <p>Silakan daftar untuk melanjutkan</p>
+              </div>
+
+              <form
+                id="registerForm"
+                th:action="@{/register}"
+                method="post"
+                novalidate
+              >
+                <div class="card-body">
+                  <div class="form-group">
+                    <label for="username">Username</label>
+                    <input
+                      class="input"
+                      type="text"
+                      name="username"
+                      id="username"
+                      placeholder="Buat username unik"
+                      required
+                    />
+                    <div class="invalid-feedback">
+                      Username tidak boleh kosong.
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="email">Email</label>
+                    <input
+                      class="input"
+                      type="email"
+                      name="email"
+                      id="email"
+                      placeholder="contoh@email.com"
+                      required
+                    />
+                    <div class="invalid-feedback">
+                      Format email tidak valid.
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="password">Password</label>
+                    <input
+                      class="input"
+                      type="password"
+                      name="password"
+                      id="password"
+                      placeholder="Minimal 8 karakter"
+                      required
+                    />
+                    <div class="invalid-feedback">
+                      Password minimal 8 karakter.
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="confirmPassword">Konfirmasi Password</label>
+                    <input
+                      class="input"
+                      type="password"
+                      id="confirmPassword"
+                      placeholder="Ulangi password"
+                      required
+                    />
+                    <div class="invalid-feedback">Password tidak cocok.</div>
+                  </div>
+
+                  <span
+                    >Sudah punya akun?
+                    <a class="link" th:href="@{/login}">Login di sini</a></span
+                  >
+                </div>
+                <div class="card-footer">
+                  <button type="submit" class="btn-login">Daftar</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document
+        .getElementById("registerForm")
+        .addEventListener("submit", function (event) {
+          // Hentikan pengiriman form default
+          event.preventDefault();
+          let isValid = true;
+
+          // 1. Hapus semua status error sebelumnya
+          document.querySelectorAll(".input").forEach((input) => {
+            input.classList.remove("is-invalid");
+          });
+
+          // 2. Validasi Username
+          const username = document.getElementById("username");
+          if (username.value.trim() === "") {
+            showError(username, "Username tidak boleh kosong.");
+            isValid = false;
+          }
+
+          // 3. Validasi Email
+          const email = document.getElementById("email");
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(email.value)) {
+            showError(email, "Format email tidak valid.");
+            isValid = false;
+          }
+
+          // 4. Validasi Password
+          const password = document.getElementById("password");
+          if (password.value.length < 8) {
+            showError(password, "Password minimal 8 karakter.");
+            isValid = false;
+          }
+
+          // 5. Validasi Konfirmasi Password
+          const confirmPassword = document.getElementById("confirmPassword");
+          if (password.value !== confirmPassword.value) {
+            showError(confirmPassword, "Password tidak cocok.");
+            isValid = false;
+          } else if (confirmPassword.value.trim() === "") {
+            showError(
+              confirmPassword,
+              "Konfirmasi password tidak boleh kosong."
+            );
+            isValid = false;
+          }
+
+          // Jika semua valid, kirim form
+          if (isValid) {
+            // Hapus 'disabled' jika Anda menambahkannya
+            // event.target.submit();
+            alert("Validasi sukses! (Form akan disubmit)");
+            // Ganti alert di atas dengan: this.submit();
+          }
+        });
+
+      // Fungsi helper untuk menampilkan error
+      function showError(inputElement, message) {
+        inputElement.classList.add("is-invalid");
+        const errorElement = inputElement.nextElementSibling; // div .invalid-feedback
+        if (
+          errorElement &&
+          errorElement.classList.contains("invalid-feedback")
+        ) {
+          errorElement.textContent = message;
+        }
+      }
+    </script>
+  </body>
+</html>

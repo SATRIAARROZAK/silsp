@@ -26,6 +26,7 @@ public class SecurityConfig {
         // .authorizeHttpRequests(authorize -> authorize
         .requestMatchers(
         "/login",
+        "/register",
         "/dist/**",
         "/plugins/**"
         // "/assets/**" // <-- TAMBAHKAN BARIS INI

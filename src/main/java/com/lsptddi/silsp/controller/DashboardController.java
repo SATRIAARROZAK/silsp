@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class DashboardController {
 
     // Jika ada yang mengakses URL root "/", jalankan method ini
-    @GetMapping("/")
+    @GetMapping("/test-dashboard")
     public String showDashboard(Model model) {
         // 1. Menyiapkan data yang akan dikirim ke tampilan
         String pesan = "Hello ini dari Backend (Monolitik)";

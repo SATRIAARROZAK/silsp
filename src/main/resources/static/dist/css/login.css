@@ -31,7 +31,7 @@
   display: none;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  min-height: 100vh;
   background: linear-gradient(
     174deg,
     rgba(14, 31, 81, 1) 40%,
@@ -43,16 +43,39 @@
   width: 80%;
 }
 
+
+.register-box{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;  /* Biarkan ini agar tetap center di layar besar */
+  align-items: center;
+  min-height: 80vh;        /* UBAH INI: dari height ke min-height */
+  padding: 3rem 0;          /* TAMBAHKAN INI: beri jarak atas & bawah */
+}
+
+.login-box{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;  /* Biarkan ini agar tetap center di layar besar */
+  align-items: center;
+  min-height: 100vh;        /* UBAH INI: dari height ke min-height */
+  padding: 3rem 0;          /* TAMBAHKAN INI: beri jarak atas & bawah */
+}
+/* 
 .login-box {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100vh;
-}
+} */
 
 .card {
   width: 20rem;
+}
+
+.register-box .card-header {
+  margin-bottom: .5rem;
 }
 
 .card-header {
@@ -66,6 +89,20 @@
 
 .card-body {
   margin-bottom: 3rem;
+}
+
+.register-box .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: .2rem;
+  margin-bottom: 1rem;
+}
+
+.register-box .input {
+  outline: none;
+  border: .125rem solid var(--grey);
+  padding: 0.10rem .8rem;
+  border-radius: none;
 }
 
 .form-group {

@@ -53,6 +53,37 @@
                 novalidate
               >
                 <div class="card-body">
+                  <div
+                    th:if="${error}"
+                    class="alert alert-danger alert-dismissible fade show"
+                    role="alert"
+                  >
+                    <span th:text="${error}"></span>
+                    <button
+                      type="button"
+                      class="close"
+                      data-dismiss="alert"
+                      aria-label="Close"
+                    >
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+
+                  <div
+                    th:if="${success}"
+                    class="alert alert-success alert-dismissible fade show"
+                    role="alert"
+                  >
+                    <span th:text="${success}"></span>
+                    <button
+                      type="button"
+                      class="close"
+                      data-dismiss="alert"
+                      aria-label="Close"
+                    >
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
                   <div class="form-group">
                     <label for="username">Username</label>
                     <input

@@ -5,18 +5,19 @@
   xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
   layout:decorate="~{layouts/app}"
 >
-  <head th:replace="~{fragments/header :: header('Jadwal Asesmen')}"></head>
+  <head th:replace="~{fragments/header :: header('Pengajuan')}"></head>
 
   <body>
     <div layout:fragment="page-title">
-      <h1 class="m-0">Jadwal Sertifikasi</h1>
+      <h1 class="m-0">Pendaftaran Sertfikasi</h1>
     </div>
     <div layout:fragment="breadcrumb">
       <ol class="breadcrumb float-sm-right">
         <li class="breadcrumb-item"><a href="#">Home</a></li>
-        <li class="breadcrumb-item active">Jadwal Asesmen</li>
+        <li class="breadcrumb-item active">Pendaftaran Sertifkasi</li>
       </ol>
     </div>
+
     <div layout:fragment="content">
       <div class="card">
         <div class="card-header">
@@ -50,15 +51,13 @@
               th:href="@{/admin/jadwal-sertifikasi/jadwal-tambah}"
               class="btn btn-outline-primary"
             >
-              <i class="fas fa-calendar-plus me-1"></i>Buat Jadwal
+              <i class="fas fa-calendar-plus me-1"></i>Daftar Sertifikasi
             </a>
           </div>
         </div>
         <!-- /.card-header -->
         <div class="card-body responsive">
-          <table
-            class="table table-bordered table-hover table-responsive-md"
-          >
+          <table class="table table-bordered table-hover table-responsive-md">
             <thead>
               <tr class="text-center">
                 <th>No</th>
@@ -94,14 +93,7 @@
                     </div>
                   </div>
                 </td>
-                <td class="align-middle text-center">
-                  <a
-                    class="btn btn-primary btn-sm btn-expand"
-                    data-target="#asesor-list"
-                  >
-                    <span>2</span>
-                  </a>
-                </td>
+                <td class="align-middle text-center">Erlin Irosa</td>
                 <td class="align-middle text-center">Associate Data Science</td>
                 <td class="align-middle">
                   Fakultas Ilmu Komputer Universitas Brawijaya

@@ -2,8 +2,6 @@ package com.lsptddi.silsp.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -30,24 +28,22 @@ public class SecurityConfig {
         "/login",
         "/register",
         "/dist/**",
-        "/plugins/**"
+        "/plugins/**",
         // "/assets/**" // <-- TAMBAHKAN BARIS INI
-        // "/admin/**"
+        "/admin/**",
+        "/asesor/**",
+        "/asesi/**"
         ).permitAll()
-        .requestMatchers("/admin/**").authenticated() // Mengamankan semua halaman admin
-        .anyRequest().authenticated())
-        .formLogin(form -> form
-        .loginPage("/login") // Mengarahkan ke halaman login kustom Anda
-        .loginProcessingUrl("/login") // Endpoint yang diproses Spring Security
-        .defaultSuccessUrl("/admin/dashboard", true) // Halaman setelah login sukses
-        .permitAll());
+        // .requestMatchers("/admin/**").authenticated() // Mengamankan semua halaman admin
+        // .anyRequest().authenticated())
+        // .formLogin(form -> form
+        // .loginPage("/login") // Mengarahkan ke halaman login kustom Anda
+        // .loginProcessingUrl("/login") // Endpoint yang diproses Spring Security
+        // .defaultSuccessUrl("/admin/dashboard", true) // Halaman setelah login sukses
+        // .permitAll()
+        );
 
         return http.build();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 
 }

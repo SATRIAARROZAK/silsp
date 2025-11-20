@@ -1,4 +1,7 @@
-<aside class="main-sidebar main-sidebar-custom sidebar-dark-dark elevation-4" th:fragment="sidebar">
+<aside
+  class="main-sidebar main-sidebar-custom sidebar-dark-dark elevation-4"
+  th:fragment="sidebar"
+>
   <a
     th:href="@{/admin}"
     class="brand-link text-bg-blue-dark d-flex align-items-center"
@@ -109,34 +112,38 @@
           </li>
         </th:block>
 
-        <th:block th:if="${user != null && user.role == 'ASESOR'}">
-          <li class="nav-header">ASESOR</li>
+        <th:block th:if="${user != null && user.role == 'Asesi'}">
           <li class="nav-item">
-            <a th:href="@{/asesor/dashboard}" class="nav-link">
-              <i class="nav-icon fas fa-tachometer-alt"></i>
+            <a th:href="@{/asesi}" class="nav-link">
+              <i class="nav-icon fas fa-home"></i>
               <p>Dashboard</p>
             </a>
           </li>
           <li class="nav-item">
-            <a th:href="@{/asesor/penilaian}" class="nav-link">
-              <i class="nav-icon fas fa-check-square"></i>
-              <p>Penilaian Asesi</p>
+            <a th:href="@{/asesi/daftar-sertifikasi}" class="nav-link">
+              <i class="nav-icon fas fa-home"></i>
+              <p>Daftar Sertifikasi</p>
             </a>
           </li>
         </th:block>
 
-        <th:block th:if="${user != null && user.role == 'ASESI'}">
-          <li class="nav-header">ASESI</li>
+        <th:block th:if="${user != null && user.role == 'Asesor'}">
           <li class="nav-item">
-            <a th:href="@{/asesi/dashboard}" class="nav-link">
-              <i class="nav-icon fas fa-user"></i>
-              <p>Profil Saya</p>
+            <a th:href="@{/asesor}" class="nav-link">
+              <i class="nav-icon fas fa-home"></i>
+              <p>Dashboard</p>
             </a>
           </li>
           <li class="nav-item">
-            <a th:href="@{/asesi/pendaftaran}" class="nav-link">
-              <i class="nav-icon fas fa-file-alt"></i>
-              <p>Pendaftaran Sertifikasi</p>
+            <a th:href="@{/asesor/surat-tugas}" class="nav-link">
+              <i class="nav-icon fas fa-home"></i>
+              <p>Daftar Surat Tugas</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a th:href="@{/asesor/surat-tugas}" class="nav-link">
+              <i class="nav-icon fas fa-home"></i>
+              <p>Jadwal Asesmen</p>
             </a>
           </li>
         </th:block>

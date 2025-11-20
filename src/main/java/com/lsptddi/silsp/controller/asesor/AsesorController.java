@@ -2,6 +2,7 @@ package com.lsptddi.silsp.controller.asesor;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.ui.Model;
 
@@ -26,16 +27,28 @@ class User {
 @Controller
 @RequestMapping("/asesor")
 public class AsesorController {
-    @GetMapping("/dashboard")
-    public String showAsesorDashboard(Model model) {
-          User loggedInUser = new User("Satria Arrozak (Asesor)", "ASESOR");
-
-        // Mengirim objek user dan judul halaman ke frontend
+   @ModelAttribute
+    public void addGlobalAttributes(Model model) {
+        User loggedInUser = new User("Muhammad Satria Arrozak", "Asesor");
+        // Objek user tiruan
+        // Di aplikasi nyata, data ini akan diambil dari user yang sedang login
         model.addAttribute("user", loggedInUser);
-        model.addAttribute("pageTitle", "Admin Dashboard");
 
+    }
 
-        return "layouts/asesor/dashboard";
+    @GetMapping
+    public String index(Model model) {
+
+        return "pages/asesor/dashboard";
+    }
+
+    // ==============================================
+    // Menu sidebar Jadwal Sertifikasi
+    // ==============================================
+
+    @GetMapping("/surat-tugas")
+    public String showSertifikasiList(Model model) { // 1. Tambahkan Model sebagai parameter
+        return "pages/asesor/suratTugas-list";
     }
     
 }

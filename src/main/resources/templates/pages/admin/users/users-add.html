@@ -10,18 +10,18 @@
   <body>
     <div layout:fragment="content">
       <div class="container-fluid">
-        <div class="row">
-          <div class="col-12">
-            <div class="card card-blue-dark">
-              <div class="card-header">
-                <h3 class="card-title">Tambah Pengguna</h3>
-              </div>
-              <!-- /.card-header -->
-              <!-- form start -->
-              <form th:action="@{/}" method="" id="form-tambah-user" novalidate>
+        <form th:action="@{/}" method="" id="form-tambah-user" novalidate>
+          <div class="row">
+            <div class="col-12">
+              <div class="card card-blue-dark">
+                <div class="card-header">
+                  <h3 class="card-title">1. Data Akun</h3>
+                </div>
+                <!-- /.card-header -->
+                <!-- form start -->
                 <div class="card-body">
                   <div class="row">
-                    <div class="col-4">
+                    <div class="col-md-4">
                       <div class="form-group">
                         <label>Username</label>
                         <input
@@ -35,7 +35,7 @@
                         <div class="invalid-feedback"></div>
                       </div>
                     </div>
-                    <div class="col-4">
+                    <div class="col-md-4">
                       <div class="form-group">
                         <label for="emailAdmin">Email</label>
                         <input
@@ -49,7 +49,7 @@
                         <div class="invalid-feedback"></div>
                       </div>
                     </div>
-                    <div class="col-4">
+                    <div class="col-md-4">
                       <div class="form-group">
                         <label for="role">Role</label>
                         <select
@@ -70,23 +70,387 @@
                     </div>
                   </div>
                 </div>
-                <!-- /.card-body -->
-
-                <div class="card-footer mt-3 text-left">
-                  <button type="submit" class="btn btn-outline-warning">
-                    Simpan
-                  </button>
-                  <a
-                    th:href="@{/admin/data-pengguna}"
-                    class="btn btn-outline-info"
-                    >Batal</a
-                  >
-                </div>
-              </form>
+              </div>
+              <!-- /.card -->
             </div>
-            <!-- /.card -->
           </div>
-        </div>
+          <div class="row">
+            <div class="col-12">
+              <div class="card card-blue-dark">
+                <div class="card-header">
+                  <h3 class="card-title">2. Data Pribadi</h3>
+                </div>
+                <!-- /.card-header -->
+                <!-- form start -->
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-md-3">
+                      <div class="form-group">
+                        <label for="namaLengkap"
+                          >Nama Lengkap(Tanpa Gelar)</label
+                        >
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="namaLengkap"
+                          name="namaLengkap"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="form-group">
+                        <label for="tempatLahir">Tempat Lahir</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="tempatLahir"
+                          name="tempatLahir"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="form-group">
+                        <label for="tanggalLahir">Tanggal Lahir</label>
+                        <input
+                          type="date"
+                          class="date form-control"
+                          id="tanggalLahir"
+                          name="tanggalLahir"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div class="col-sm-3">
+                      <!-- radio -->
+                      <div class="form-group">
+                        <label>Jenis Kelamin</label>
+                        <div class="d-flex gap-3">
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="radio"
+                              name="jenisKelamin"
+                              id="lakiLaki"
+                              value="Laki-laki"
+                              required
+                            />
+                            <label class="form-check-label" for="lakiLaki">
+                              Laki-laki
+                            </label>
+                          </div>
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="radio"
+                              name="jenisKelamin"
+                              id="perempuan"
+                              value="Perempuan"
+                              required
+                            />
+                            <label class="form-check-label" for="perempuan">
+                              Perempuan
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-3">
+                      <label for="pilihProvinsi">Provinsi</label>
+                      <select
+                        class="form-control select2"
+                        style="width: 100%"
+                        required
+                        id="pilihProvinsi"
+                      >
+                        <option value="" disabled selected></option>
+                        <option value="kalsel">Kalimantan Selatan</option>
+                        <option value="jabar">Jawa Barat</option>
+                        <option value="asesi">Jawa Timur</option>
+                      </select>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="form-group">
+                        <label for="pilihKota ">Kota/Kabupaten</label>
+                        <select
+                          class="form-control select2"
+                          style="width: 100%"
+                          id="pilihKota"
+                          required
+                        >
+                          <option value="" disabled selected></option>
+                          <option value="kalsel">Kalimantan Selatan</option>
+                          <option value="jabar">Jawa Barat</option>
+                          <option value="asesi">Jawa Timur</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="form-group">
+                        <label for="pilihKel">Kelurahan</label>
+                        <select
+                          class="form-control select2"
+                          style="width: 100%"
+                          id="pilihKel"
+                          required
+                        >
+                          <option value="" disabled selected></option>
+                          <option value="">Pesanggrahan</option>
+                          <option value="jabar">Bahagia</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-3">
+                      <div class="form-group">
+                        <label for="alamat">Alamat</label>
+                        <textarea
+                          class="form-control"
+                          id="alamat"
+                          name="alamat"
+                          required
+                        ></textarea>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label for="alamat">NIK</label>
+                        <input
+                          class="form-control"
+                          type="number"
+                          name="nik"
+                          id="nik"
+                          value=""
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label for="noMET">No. MET</label>
+                        <div class="input-group mb-3">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text">MET.</span>
+                          </div>
+                          <input
+                            type="number"
+                            class="form-control"
+                            placeholder="000.000xxxxx 20xx"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label for="kewarganegaraan">Kewarganegaraan</label>
+                        <select
+                          class="form-control select2"
+                          style="width: 100%"
+                          id="pilihKewarganegaraan"
+                          required
+                        >
+                          <option value="" disabled selected></option>
+                          <option value="">Indonesia</option>
+                          <option value="">WNA</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label for="alamat">Kode Pos</label>
+                        <input
+                          class="form-control"
+                          type="number"
+                          name="kodePos"
+                          id="kodePos"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label for="alamat">No. Telp/Handphone</label>
+                        <input
+                          class="form-control"
+                          type="number"
+                          name="noTelp"
+                          id="noTelp"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label for="pendidikan">Kewarganegaraan</label>
+                        <select
+                          class="form-control select2"
+                          style="width: 100%"
+                          id="pendidikanTerakhir"
+                          required
+                        >
+                          <option value="" disabled selected></option>
+                          <option value="">Indonesia</option>
+                          <option value="">WNA</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label>Tanda Tangan</label>
+                        <input
+                          type="button"
+                          class="form-control btn btn-outline-success"
+                          id="btn-signature"
+                          value="Masukan Tanda Tangan"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- /.card-body -->
+              </div>
+              <!-- /.card -->
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12">
+              <div class="card card-blue-dark">
+                <div class="card-header">
+                  <h3 class="card-title">3. Data Pekerjaan</h3>
+                </div>
+                <!-- /.card-header -->
+                <!-- form start -->
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label>Jenis Pekerjaan</label>
+                        <select
+                          class="form-control select2"
+                          style="width: 100%"
+                          id="jenisPekerjaan"
+                          name="jenisPekerjaan"
+                          required
+                        >
+                          <option value="" disabled selected></option>
+                          <option value="pegawaiNegeri">Pegawai Negeri</option>
+                          <option value="pegawaiSwasta">Pegawai Swasta</option>
+                          <option value="wiraswasta">Wiraswasta</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label>Nama Perusahaan/Instansi/Universitas</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="namaPerusahaan"
+                          name="namaPerusahaan"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label class="">Jabatan</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="jabatan"
+                          name="jabatan"
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label>No Telp Kantor</label>
+                        <input
+                          type="number"
+                          class="form-control"
+                          id="noTelpKantor"
+                          name="noTelpKantor"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label>Email Kantor</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="namaPerusahaan"
+                          name="namaPerusahaan"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label class="">No Fax Kantor</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="noFaxKantor"
+                          name="noFaxKantor"
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label>Kode Pos</label>
+                        <input
+                          type="number"
+                          class="form-control"
+                          id="kodePos"
+                          name="kodePos"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div class="col-md-8">
+                      <div class="form-group">
+                        <label>Alamat Kantor</label>
+                        <textarea
+                          class="form-control"
+                          name="alamatKantor"
+                          rows="3"
+                          id="alamatKantor"
+                        ></textarea>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- /.card-body -->
+              </div>
+              <!-- /.card -->
+            </div>
+          </div>
+          <div class="card-footer mt-3 text-left">
+            <button type="submit" class="btn btn-outline-warning">
+              Simpan
+            </button>
+            <a th:href="@{/admin/data-pengguna}" class="btn btn-outline-info"
+              >Batal</a
+            >
+          </div>
+        </form>
       </div>
     </div>
   </body>

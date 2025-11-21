@@ -14,3 +14,20 @@
 #wrapperDataPekerjaan {
   display: none;
 } */
+
+/* Wrapper canvas agar ukurannya pas dan responsive */
+.signature-wrapper {
+  width: 450px; /*
+  max-width: 100%; /* Batas lebar agar tidak kebesaran */
+  height: 250px; /* Tinggi yang pas */
+  margin: 0 auto; /* Posisi tengah */
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  position: relative;
+  background-color: #f9f9f9;
+}
+
+/* Tombol upload file hidden */
+#uploadSigFile {
+  display: none;
+}

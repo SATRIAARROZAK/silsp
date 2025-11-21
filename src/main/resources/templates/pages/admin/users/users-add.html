@@ -273,10 +273,10 @@
                           tersimpan
                         </p>
                       </div>
-
                       <button
                         type="button"
                         class="btn btn-outline-primary btn-block"
+                        id="btnTriggerSignature"
                         data-toggle="modal"
                         data-target="#modalSignature"
                       >
@@ -430,18 +430,8 @@
                     <span aria-hidden="true">&times;</span>
                   </button>
                 </div>
-                <div class="modal-body">
-                  <div
-                    class="signature-wrapper"
-                    style="
-                      border: 1px solid #ccc;
-                      border-radius: 4px;
-                      position: relative;
-                      height: 300px;
-                      width: 100%;
-                      background-color: #fff;
-                    "
-                  >
+                <div class="modal-body text-center">
+                  <div class="signature-wrapper">
                     <canvas
                       id="signature-canvas"
                       style="width: 100%; height: 100%; display: block"
@@ -460,12 +450,7 @@
                     </div>
                   </div>
 
-                  <input
-                    type="file"
-                    id="uploadSigFile"
-                    accept="image/*"
-                    style="display: none"
-                  />
+                  <input type="file" id="uploadSigFile" accept="image/png" />
                 </div>
                 <div class="modal-footer justify-content-between">
                   <div>

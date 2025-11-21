@@ -253,11 +253,35 @@
                         >Tanda Tangan<span class="text-danger">*</span></label
                       >
                       <input
-                        type="button"
-                        class="form-control btn btn-outline-success"
-                        id="btn-signature"
-                        value="Masukkan Tanda Tangan"
+                        type="hidden"
+                        name="signatureBase64"
+                        id="signatureInput"
                       />
+
+                      <div
+                        id="signaturePreview"
+                        class="mb-2"
+                        style="display: none"
+                      >
+                        <img
+                          src=""
+                          id="imgPreview"
+                          style="max-height: 100px; border: 1px dashed #ccc"
+                        />
+                        <p class="text-success small">
+                          <i class="fas fa-check-circle"></i> Tanda tangan
+                          tersimpan
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        class="btn btn-outline-primary btn-block"
+                        data-toggle="modal"
+                        data-target="#modalSignature"
+                      >
+                        <i class="fas fa-pen-nib"></i> Masukkan Tanda Tangan
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -381,6 +405,106 @@
               >
             </div>
           </form>
+          <div
+            class="modal fade"
+            id="modalSignature"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="modalSigLabel"
+            aria-hidden="true"
+            data-backdrop="static"
+          >
+            <div
+              class="modal-dialog modal-dialog-centered modal-lg"
+              role="document"
+            >
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="modalSigLabel">Tanda Tangan</h5>
+                  <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                  >
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <div
+                    class="signature-wrapper"
+                    style="
+                      border: 1px solid #ccc;
+                      border-radius: 4px;
+                      position: relative;
+                      height: 300px;
+                      width: 100%;
+                      background-color: #fff;
+                    "
+                  >
+                    <canvas
+                      id="signature-canvas"
+                      style="width: 100%; height: 100%; display: block"
+                    ></canvas>
+                    <div
+                      class="text-muted small text-center"
+                      style="
+                        position: absolute;
+                        bottom: 10px;
+                        width: 100%;
+                        pointer-events: none;
+                        opacity: 0.5;
+                      "
+                    >
+                      Area Tanda Tangan
+                    </div>
+                  </div>
+
+                  <input
+                    type="file"
+                    id="uploadSigFile"
+                    accept="image/*"
+                    style="display: none"
+                  />
+                </div>
+                <div class="modal-footer justify-content-between">
+                  <div>
+                    <button
+                      type="button"
+                      class="btn btn-default"
+                      data-dismiss="modal"
+                    >
+                      Batal
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-outline-danger"
+                      id="btnClear"
+                    >
+                      Hapus Kanvas
+                    </button>
+                  </div>
+                  <div>
+                    <button
+                      type="button"
+                      class="btn btn-success"
+                      id="btnUpload"
+                    >
+                      Upload Signature
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-danger"
+                      style="background-color: #c0392b; border-color: #c0392b"
+                      id="btnSaveSignature"
+                    >
+                      Simpan
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

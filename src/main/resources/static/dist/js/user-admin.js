@@ -329,4 +329,93 @@ $(document).ready(function () {
     const namaPekerjaan = $(this).find(":selected").data("name");
     $("#inputPekerjaan").val(namaPekerjaan);
   });
+
+  // --- 1. INISIALISASI VARIABLE ---
+  var wrapper = document.getElementById("signature-pad");
+  var canvas = document.getElementById("signature-canvas");
+  var signaturePad;
+
+  // --- 2. FUNGSI RESIZE CANVAS (Agar tidak pecah/blur) ---
+  function resizeCanvas() {
+    var ratio = Math.max(window.devicePixelRatio || 1, 1);
+    // Set dimensi canvas sesuai ukuran layar
+    canvas.width = canvas.offsetWidth * ratio;
+    canvas.height = canvas.offsetHeight * ratio;
+    canvas.getContext("2d").scale(ratio, ratio);
+
+    // Jika sudah ada signaturePad, clear dulu agar bersih saat resize ulang
+    if (signaturePad) {
+      // signaturePad.clear(); // Opsional: Hapus atau biarkan (biasanya clear saat resize)
+    }
+  }
+
+  // --- 3. EVENT SAAT MODAL DIBUKA ---
+  $("#modalSignature").on("shown.bs.modal", function () {
+    // Resize canvas saat modal muncul (PENTING! Jika tidak, canvas akan error size-nya)
+    resizeCanvas();
+
+    // Inisialisasi SignaturePad
+    if (!signaturePad) {
+      signaturePad = new SignaturePad(canvas, {
+        backgroundColor: "rgba(255, 255, 255, 0)", // Transparan
+        penColor: "rgb(0, 0, 0)", // Warna Tinta Hitam
+      });
+    }
+  });
+
+  // --- 4. TOMBOL HAPUS KANVAS ---
+  $("#btnClear").on("click", function () {
+    if (signaturePad) {
+      signaturePad.clear();
+    }
+  });
+
+  // --- 5. TOMBOL UPLOAD SIGNATURE (Upload Gambar ke Canvas) ---
+  $("#btnUpload").on("click", function () {
+    $("#uploadSigFile").click(); // Trigger input file tersembunyi
+  });
+
+  // Saat file dipilih
+  $("#uploadSigFile").on("change", function (e) {
+    var file = e.target.files[0];
+    if (file) {
+      var reader = new FileReader();
+      reader.onload = function (event) {
+        var img = new Image();
+        img.onload = function () {
+          // Gambar image ke canvas
+          var ctx = canvas.getContext("2d");
+          // Bersihkan dulu
+          signaturePad.clear();
+          // Draw image (fit to canvas)
+          // Rasio aspek gambar agar tidak gepeng bisa ditambahkan di sini jika mau kompleks
+          // Untuk simpelnya kita draw full canvas dengan padding sedikit
+          ctx.drawImage(img, 20, 20, 600, 200);
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // --- 6. TOMBOL SIMPAN ---
+  $("#btnSaveSignature").on("click", function () {
+    if (signaturePad.isEmpty()) {
+      alert("Silakan tanda tangan atau upload gambar terlebih dahulu!");
+    } else {
+      // A. Ambil data Base64 dari canvas
+      // Format: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..."
+      var dataURL = signaturePad.toDataURL("image/png");
+
+      // B. Masukkan ke Input Hidden di Form Utama
+      $("#signatureInput").val(dataURL);
+
+      // C. Tampilkan Preview di Form Utama
+      $("#imgPreview").attr("src", dataURL);
+      $("#signaturePreview").show();
+
+      // D. Tutup Modal
+      $("#modalSignature").modal("hide");
+    }
+  });
 });

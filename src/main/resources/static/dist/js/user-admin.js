@@ -2,7 +2,7 @@
 // JAVASCRIPT UNTUK USERS ADMIN
 // =======================================================================
 $(document).ready(function () {
-    // --- FUNSI VALIDASI ---
+  // --- FUNSI VALIDASI ---
   /**
    * Fungsi untuk validasi format email.
    * @param {string} email - Alamat email yang akan divalidasi.
@@ -285,5 +285,48 @@ $(document).ready(function () {
   $("#selectKelurahan").on("change", function () {
     const subDistName = $(this).find(":selected").data("name");
     $("#inputKelurahan").val(subDistName);
+  });
+
+  // --- LOAD DATA JSON STATIS (Pendidikan & Pekerjaan) ---
+
+  // 1. Load Pendidikan
+  fetch("/dist/js/education.json")
+    .then((response) => response.json())
+    .then((data) => {
+      let options = '<option value="">Pilih Pendidikan...</option>';
+      data.forEach((item) => {
+        // Menyimpan nama di atribut data-name
+        options += `<option value="${item.id}" data-name="${item.name}">${item.name}</option>`;
+      });
+      $("#selectPendidikan").html(options);
+    })
+    .catch((error) => console.error("Error loading education:", error));
+
+  // 2. Load Pekerjaan
+  fetch("/dist/js/jobs.json")
+    .then((response) => response.json())
+    .then((data) => {
+      let options = '<option value="">Pilih Pekerjaan...</option>';
+      data.forEach((item) => {
+        options += `<option value="${item.id}" data-name="${item.name}">${item.name}</option>`;
+      });
+      $("#selectPekerjaan").html(options);
+    })
+    .catch((error) => console.error("Error loading jobs:", error));
+
+  // --- EVENT LISTENER UNTUK MENYIMPAN NAMA KE INPUT HIDDEN ---
+
+  // Saat Pendidikan dipilih
+  $("#selectPendidikan").on("change", function () {
+    // Ambil 'data-name' dari option yang dipilih
+    const namaPendidikan = $(this).find(":selected").data("name");
+    // Masukkan ke input hidden agar terkirim ke server
+    $("#inputPendidikan").val(namaPendidikan);
+  });
+
+  // Saat Pekerjaan dipilih
+  $("#selectPekerjaan").on("change", function () {
+    const namaPekerjaan = $(this).find(":selected").data("name");
+    $("#inputPekerjaan").val(namaPekerjaan);
   });
 });

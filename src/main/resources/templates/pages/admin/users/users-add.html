@@ -1,251 +1,388 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-  layout:decorate="~{layouts/app}">
+<html
+  lang="en"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/app}"
+>
+  <head th:replace="~{fragments/header :: header('Tambah Pengguna')}"> </head>
 
-<head th:replace="~{fragments/header :: header('Tambah Pengguna')}"> </head>
-
-<body>
-  <div layout:fragment="content">
-    <div class="container-fluid">
-      <div class="card card-blue-dark">
-        <div class="card-header">
-          <h3 class="card-title">Form Tambah Pengguna</h3>
-        </div>
-        <form th:action="@{/admin/users/save}" method="post" enctype="multipart/form-data">
-          <div class="card-body">
-            <div class="separator">
-              <span class="separator-text">Data Akun</span>
-            </div>
-
-            <div class="row">
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label>Username <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" name="username" required />
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label>Email <span class="text-danger">*</span></label>
-                  <input type="email" class="form-control" name="email" required />
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label>Role <span class="text-danger">*</span></label>
-                  <select class="select2" multiple="multiple" id="roleSelect" name="roles" data-placeholder="Pilih Role"
-                    style="width: 100%" required>
-                    <option value="Admin">Admin</option>
-                    <option value="Asesi">Asesi</option>
-                    <option value="Asesor">Asesor</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <div id="wrapperDataPribadi">
+  <body>
+    <div layout:fragment="content">
+      <div class="container-fluid">
+        <div class="card card-blue-dark">
+          <div class="card-header">
+            <h3 class="card-title">Form Tambah Pengguna</h3>
+          </div>
+          <form
+            th:action="@{/admin/users/save}"
+            method="post"
+            enctype="multipart/form-data"
+          >
+            <div class="card-body">
               <div class="separator">
-                <span class="separator-text">Data Pribadi</span>
+                <span class="separator-text">Data Akun</span>
               </div>
 
               <div class="row">
                 <div class="col-md-4">
                   <div class="form-group">
-                    <label>Nama Lengkap<span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="fullName" />
+                    <label>Username <span class="text-danger">*</span></label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      name="username"
+                      required
+                    />
                   </div>
                 </div>
                 <div class="col-md-4">
                   <div class="form-group">
-                    <label>Tempat Lahir<span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="birthPlace" />
+                    <label>Email <span class="text-danger">*</span></label>
+                    <input
+                      type="email"
+                      class="form-control"
+                      name="email"
+                      required
+                    />
                   </div>
                 </div>
                 <div class="col-md-4">
                   <div class="form-group">
-                    <label>Tanggal Lahir<span class="text-danger">*</span></label>
-                    <input type="date" class="form-control" name="birthDate" />
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label>Jenis Kelamin<span class="text-danger">*</span></label>
-                    <select class="form-control" name="gender">
-                      <option value="" disabled selected>
-                        ---Pilih Jenis Kelamin---
-                      </option>
-                      <option value="L">Laki-laki</option>
-                      <option value="P">Perempuan</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label>NIK<span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="nik" />
-                  </div>
-                </div>
-                <div class="col-md-4 group-asesi-only">
-                  <div class="form-group">
-                    <label>Kewarganegaraan<span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="citizenship" />
-                  </div>
-                </div>
-
-                <div class="col-md-4 group-asesor-only">
-                  <div class="form-group">
-                    <label>No. MET<span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="noMet" />
-                  </div>
-                </div>
-                <div class="col-md-4 group-asesi-asesor">
-                  <div class="form-group">
-                    <label>No Telepon<span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="phoneNumber" />
-                  </div>
-                </div>
-                <div class="col-md-4 group-asesi-asesor">
-                  <div class="form-group">
-                    <label>Pendidikan Terakhir<span class="text-danger">*</span></label>
-                    <select class="form-control" name="lastEducation">
-                      <option value="">- Pilih -</option>
-                      <option value="SMA">SMA/SMK</option>
-                      <option value="S1">S1</option>
-                      <option value="S2">S2</option>
+                    <label>Role <span class="text-danger">*</span></label>
+                    <select
+                      class="select2"
+                      multiple="multiple"
+                      id="roleSelect"
+                      name="roles"
+                      data-placeholder="Pilih Role"
+                      style="width: 100%"
+                      required
+                    >
+                      <option value="Admin">Admin</option>
+                      <option value="Asesi">Asesi</option>
+                      <option value="Asesor">Asesor</option>
                     </select>
                   </div>
                 </div>
               </div>
 
-              <div class="row mt-2">
-                <div class="col-md-4 group-asesi-only">
-                  <div class="form-group">
-                    <label>Provinsi</label>
-                    <select class="form-control select2" id="selectProvinsi">
-                      <option value="">Pilih Provinsi...</option>
-                    </select>
-                    <input type="hidden" name="province" id="inputProvinsi" />
+              <div id="wrapperDataPribadi">
+                <div class="separator">
+                  <span class="separator-text">Data Pribadi</span>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label
+                        >Nama Lengkap<span class="text-danger">*</span></label
+                      >
+                      <input type="text" class="form-control" name="fullName" />
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label
+                        >Tempat Lahir<span class="text-danger">*</span></label
+                      >
+                      <input
+                        type="text"
+                        class="form-control"
+                        name="birthPlace"
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label
+                        >Tanggal Lahir<span class="text-danger">*</span></label
+                      >
+                      <input
+                        type="date"
+                        class="form-control"
+                        name="birthDate"
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label
+                        >Jenis Kelamin<span class="text-danger">*</span></label
+                      >
+                      <select class="form-control" name="gender">
+                        <option value="" disabled selected>
+                          ---Pilih Jenis Kelamin---
+                        </option>
+                        <option value="L">Laki-laki</option>
+                        <option value="P">Perempuan</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label>NIK<span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" name="nik" />
+                    </div>
+                  </div>
+                  <div class="col-md-4 group-asesi-only">
+                    <div class="form-group">
+                      <label
+                        >Kewarganegaraan<span class="text-danger"
+                          >*</span
+                        ></label
+                      >
+                      <input
+                        type="text"
+                        class="form-control"
+                        name="citizenship"
+                      />
+                    </div>
+                  </div>
+
+                  <div class="col-md-4 group-asesor-only">
+                    <div class="form-group">
+                      <label>No. MET<span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" name="noMet" />
+                    </div>
+                  </div>
+                  <div class="col-md-4 group-asesi-asesor">
+                    <div class="form-group">
+                      <label
+                        >No Telepon<span class="text-danger">*</span></label
+                      >
+                      <input
+                        type="text"
+                        class="form-control"
+                        name="phoneNumber"
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-4 group-asesi-asesor">
+                    <div class="form-group">
+                      <label
+                        >Pendidikan Terakhir<span class="text-danger"
+                          >*</span
+                        ></label
+                      >
+                      <select
+                        class="form-control select2"
+                        style="width: 100%"
+                        id="selectPendidikan"
+                      ></select>
+                      <input
+                        type="hidden"
+                        name="lastEducation"
+                        id="inputPendidikan"
+                      />
+                    </div>
                   </div>
                 </div>
 
-                <div class="col-md-4 group-asesi-only">
-                  <div class="form-group">
-                    <label>Kota/Kabupaten</label>
-                    <select class="form-control select2" id="selectKota" disabled>
-                      <option value="">Pilih Kota/Kab...</option>
-                    </select>
-                    <input type="hidden" name="city" id="inputKota" />
+                <div class="row">
+                  <div class="col-md-4 group-asesi-only">
+                    <div class="form-group">
+                      <label>Provinsi</label>
+                      <select
+                        class="form-control select2"
+                        style="width: 100%"
+                        id="selectProvinsi"
+                      ></select>
+                      <input type="hidden" name="province" id="inputProvinsi" />
+                    </div>
+                  </div>
+
+                  <div class="col-md-4 group-asesi-only">
+                    <div class="form-group">
+                      <label>Kota/Kabupaten</label>
+                      <select
+                        class="form-control select2"
+                        style="width: 100%"
+                        id="selectKota"
+                        disabled
+                      ></select>
+                      <input type="hidden" name="city" id="inputKota" />
+                    </div>
+                  </div>
+
+                  <div class="col-md-4 group-asesi-only">
+                    <div class="form-group">
+                      <label>Kecamatan</label>
+                      <select
+                        class="form-control select2"
+                        style="width: 100%"
+                        id="selectKecamatan"
+                        disabled
+                      ></select>
+                      <input
+                        type="hidden"
+                        name="district"
+                        id="inputKecamatan"
+                      />
+                    </div>
+                  </div>
+
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label
+                        >Alamat Jalan<span class="text-danger">*</span></label
+                      >
+                      <textarea
+                        class="form-control"
+                        name="address"
+                        rows="2"
+                      ></textarea>
+                    </div>
                   </div>
                 </div>
 
-                <div class="col-md-4 group-asesi-only">
-                  <div class="form-group">
-                    <label>Kecamatan</label>
-                    <select class="form-control select2" id="selectKecamatan" disabled>
-                      <option value="">Pilih Kecamatan...</option>
-                    </select>
-                    <input type="hidden" name="district" id="inputKecamatan" />
+                <div class="row mt-2">
+                  <div class="col-md-4 group-asesi-only">
+                    <div class="form-group">
+                      <label>Kode Pos<span class="text-danger">*</span></label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        name="postalCode"
+                      />
+                    </div>
                   </div>
-                </div>
-
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label>Alamat Jalan<span class="text-danger">*</span></label>
-                    <textarea class="form-control" name="address" rows="2"></textarea>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label
+                        >Tanda Tangan<span class="text-danger">*</span></label
+                      >
+                      <input
+                        type="button"
+                        class="form-control btn btn-outline-success"
+                        id="btn-signature"
+                        value="Masukkan Tanda Tangan"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
-
-              <div class="row mt-2">
-                <div class="col-md-4 group-asesi-only">
-                  <div class="form-group">
-                    <label>Kode Pos<span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="postalCode" />
-                  </div>
+              <div id="wrapperDataPekerjaan">
+                <div class="separator">
+                  <span class="separator-text">Data Pekerjaan</span>
                 </div>
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label>Tanda Tangan<span class="text-danger">*</span></label>
-                    <input type="button" class="form-control btn btn-outline-success" id="btn-signature"
-                      value="Masukkan Tanda Tangan" />
+
+                <div class="row mt-2">
+                  <div class="col-4 group-asesi-asesor">
+                    <div class="form-group">
+                      <label
+                        >Jenis Pekerjaan<span class="text-danger"
+                          >*</span
+                        ></label
+                      >
+
+                      <select
+                        class="form-control select2"
+                        style="width: 100%"
+                        id="selectPekerjaan"
+                      >
+                        <option value="">Pilih Pekerjaan...</option>
+                      </select>
+                      <input type="hidden" name="jobType" id="inputPekerjaan" />
+                    </div>
+                  </div>
+                  <div class="col-md-4 group-asesi-only">
+                    <div class="form-group">
+                      <label>Nama Perusahaan/Instansi/Universitas</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="namaPerusahaan"
+                        name="namaPerusahaan"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-4 group-asesi-only">
+                    <div class="form-group">
+                      <label class="">Jabatan</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="jabatan"
+                        name="jabatan"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-4 group-asesi-only">
+                    <div class="form-group">
+                      <label>No Telp Kantor</label>
+                      <input
+                        type="number"
+                        class="form-control"
+                        id="noTelpKantor"
+                        name="noTelpKantor"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-4 group-asesi-only">
+                    <div class="form-group">
+                      <label>Email Kantor</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="namaPerusahaan"
+                        name="namaPerusahaan"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-4 group-asesi-only">
+                    <div class="form-group">
+                      <label class="">No Fax Kantor</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="noFaxKantor"
+                        name="noFaxKantor"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-4 group-asesi-only">
+                    <div class="form-group">
+                      <label>Kode Pos Kantor</label>
+                      <input
+                        type="number"
+                        class="form-control"
+                        id="kodePos"
+                        name="kodePos"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-8 group-asesi-only">
+                    <div class="form-group">
+                      <label>Alamat Kantor</label>
+                      <textarea
+                        class="form-control"
+                        name="alamatKantor"
+                        rows="3"
+                        id="alamatKantor"
+                      ></textarea>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-            <div id="wrapperDataPekerjaan">
-              <div class="separator">
-                <span class="separator-text">Data Pekerjaan</span>
-              </div>
-
-              <div class="row mt-2">
-                <div class="col-md-4 group-asesi-asesor">
-                  <div class="form-group">
-                    <label>Jenis Pekerjaan<span class="text-danger">*</span></label>
-                    <select class="form-control select2" style="width: 100%" id="jenisPekerjaan" name="jenisPekerjaan"
-                      required>
-                      <option value="" disabled selected></option>
-                      <option value="tidakbekerja">Tidak Bekerja</option>
-                      <option value="pegawaiNegeri">Pegawai Negeri</option>
-                      <option value="pegawaiSwasta">Pegawai Swasta</option>
-                      <option value="wiraswasta">Wiraswasta</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-4 group-asesi-only">
-                  <div class="form-group">
-                    <label>Nama Perusahaan/Instansi/Universitas</label>
-                    <input type="text" class="form-control" id="namaPerusahaan" name="namaPerusahaan" required />
-                  </div>
-                </div>
-                <div class="col-md-4 group-asesi-only">
-                  <div class="form-group">
-                    <label class="">Jabatan</label>
-                    <input type="text" class="form-control" id="jabatan" name="jabatan" required />
-                  </div>
-                </div>
-                <div class="col-md-4 group-asesi-only">
-                  <div class="form-group">
-                    <label>No Telp Kantor</label>
-                    <input type="number" class="form-control" id="noTelpKantor" name="noTelpKantor" required />
-                  </div>
-                </div>
-                <div class="col-md-4 group-asesi-only">
-                  <div class="form-group">
-                    <label>Email Kantor</label>
-                    <input type="text" class="form-control" id="namaPerusahaan" name="namaPerusahaan" required />
-                  </div>
-                </div>
-                <div class="col-md-4 group-asesi-only">
-                  <div class="form-group">
-                    <label class="">No Fax Kantor</label>
-                    <input type="text" class="form-control" id="noFaxKantor" name="noFaxKantor" required />
-                  </div>
-                </div>
-                <div class="col-md-4 group-asesi-only">
-                  <div class="form-group">
-                    <label>Kode Pos Kantor</label>
-                    <input type="number" class="form-control" id="kodePos" name="kodePos" required />
-                  </div>
-                </div>
-                <div class="col-md-8 group-asesi-only">
-                  <div class="form-group">
-                    <label>Alamat Kantor</label>
-                    <textarea class="form-control" name="alamatKantor" rows="3" id="alamatKantor"></textarea>
-                  </div>
-                </div>
-              </div>
+            <div class="card-footer mt-3 text-left">
+              <button type="submit" class="btn btn-outline-warning">
+                Simpan
+              </button>
+              <a th:href="@{/admin/data-pengguna}" class="btn btn-outline-info"
+                >Batal</a
+              >
             </div>
-          </div>
-          <div class="card-footer mt-3 text-left">
-            <button type="submit" class="btn btn-outline-warning">
-              Simpan
-            </button>
-            <a th:href="@{/admin/data-pengguna}" class="btn btn-outline-info">Batal</a>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
-  </div>
-</body>
-
+  </body>
 </html>

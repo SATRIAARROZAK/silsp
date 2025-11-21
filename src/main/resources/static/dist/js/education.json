@@ -1,0 +1,12 @@
+[
+  {"id": 1, "name": "SD"},
+  {"id": 2, "name": "SMP"},
+  {"id": 3, "name": "SMA/Sederajat"},
+  {"id": 10, "name": "D1"},
+  {"id": 4, "name": "D2"},
+  {"id": 5, "name": "D3"},
+  {"id": 6, "name": "D4"},
+  {"id": 7, "name": "S1"},
+  {"id": 8, "name": "S2"},
+  {"id": 9, "name": "S3"}
+]

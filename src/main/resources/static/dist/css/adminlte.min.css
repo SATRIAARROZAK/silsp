@@ -56633,19 +56633,3 @@ a.text-muted:hover {
   text-transform: uppercase;
   letter-spacing: 1px;
 }
-
-.group-asesi-only {
-  display: none;
-}
-
-.group-asesor-only {
-  display: none;
-}
-
-#wrapperDataPribadi {
-  display: none;
-}
-
-#wrapperDataPekerjaan {
-  display: none;
-}

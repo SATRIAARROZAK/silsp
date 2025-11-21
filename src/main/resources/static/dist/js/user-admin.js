@@ -2,10 +2,7 @@
 // JAVASCRIPT UNTUK USERS ADMIN
 // =======================================================================
 $(document).ready(function () {
-  // Inisialisasi plugin
-  // bsCustomFileInput.init();
-  // $('.select2').select2();
-
+    // --- FUNSI VALIDASI ---
   /**
    * Fungsi untuk validasi format email.
    * @param {string} email - Alamat email yang akan divalidasi.
@@ -145,56 +142,6 @@ $(document).ready(function () {
     }
   });
 
-  //   // 2. Event Listener ketika Role berubah
-  //   $("#roleSelect").on("change", function () {
-  //     // Ambil value role yang dipilih (hasilnya array string, misal ["ADMIN", "ASESI"])
-  //     var selectedRoles = $(this).val();
-
-  //     // --- RESET TAMPILAN (Sembunyikan dulu semua) ---
-  //     $("#sectionDataPribadi").hide();
-  //     $("#sectionDataPekerjaan").hide();
-
-  //     // Sembunyikan field-field spesifik di dalam Data Pribadi
-  //     $(".group-asesi-asesor").hide(); // Class untuk field gabungan Asesi & Asesor
-  //     $(".group-asesor-only").hide(); // Class untuk field khusus Asesor
-  //     $(".group-asesi-only").hide(); // Class untuk field khusus Asesi
-
-  //     // --- LOGIKA PENAMPILAN ---
-
-  //     // Jika ada role yang dipilih (tidak kosong)
-  //     if (selectedRoles && selectedRoles.length > 0) {
-  //       // A. Tampilkan Form Data Pribadi Utama (Nama, TTL, NIK, dll) untuk SEMUA role
-  //       $("#sectionDataPribadi").slideDown();
-
-  //       // B. Cek apakah ada role ASESI atau ASESOR
-  //       var isAsesi = selectedRoles.includes("ASESI");
-  //       var isAsesor = selectedRoles.includes("ASESOR");
-  //       var isAdmin = selectedRoles.includes("ADMIN");
-
-  //       // Jika Role mengandung ASESI atau ASESOR
-  //       if (isAsesi || isAsesor) {
-  //         // 1. Tampilkan Form Data Pekerjaan
-  //         $("#sectionDataPekerjaan").slideDown();
-
-  //         // 2. Tampilkan Field Gabungan (Alamat Detail, No Telp, Pendidikan)
-  //         $(".group-asesi-asesor").show();
-  //       }
-
-  //       // Jika Role mengandung ASESI saja
-  //       if (isAsesi) {
-  //         $(".group-asesi-only").show(); // Kewarganegaraan, Kode Pos
-  //       }
-
-  //       // Jika Role mengandung ASESOR saja
-  //       if (isAsesor) {
-  //         $(".group-asesor-only").show(); // No MET
-  //       }
-
-  //       // Catatan: Jika User memilih ADMIN + ASESI, maka field Admin (sederhana)
-  //       // tertimpa logika Asesi (lengkap). Ini perilaku yang benar (Superset).
-  //     }
-  //   });
-
   // Logic Tampil/Sembunyi Form
   $("#roleSelect").on("change", function () {
     var selectedRoles = $(this).val();
@@ -230,5 +177,113 @@ $(document).ready(function () {
         $(".group-asesor-only").show(); // No MET
       }
     }
+  });
+
+  // URL API Wilayah Indonesia
+  const apiBaseUrl = "https://www.emsifa.com/api-wilayah-indonesia/api";
+
+  // --- 1. FUNGSI FETCH DATA ---
+
+  // Load Provinsi saat halaman siap
+  fetch(`${apiBaseUrl}/provinces.json`)
+    .then((response) => response.json())
+    .then((provinces) => {
+      let data = provinces;
+      let options = '<option value="">Pilih Provinsi...</option>';
+      data.forEach((element) => {
+        options += `<option value="${element.id}" data-name="${element.name}">${element.name}</option>`;
+      });
+      $("#selectProvinsi").html(options);
+    });
+
+  // --- 2. EVENT LISTENER (CASCADING DROPDOWN) ---
+
+  // Ketika Provinsi Dipilih -> Ambil Kota
+  $("#selectProvinsi").on("change", function () {
+    const provId = $(this).val();
+    const provName = $(this).find(":selected").data("name");
+
+    // Simpan Nama Provinsi ke Input Hidden
+    $("#inputProvinsi").val(provName);
+
+    // Reset child dropdowns
+    $("#selectKota")
+      .html('<option value="">Loading...</option>')
+      .prop("disabled", true);
+    $("#selectKecamatan")
+      .html('<option value="">Pilih Kecamatan...</option>')
+      .prop("disabled", true);
+    $("#selectKelurahan")
+      .html('<option value="">Pilih Kelurahan...</option>')
+      .prop("disabled", true);
+
+    if (provId) {
+      fetch(`${apiBaseUrl}/regencies/${provId}.json`)
+        .then((response) => response.json())
+        .then((regencies) => {
+          let options = '<option value="">Pilih Kota/Kab...</option>';
+          regencies.forEach((element) => {
+            options += `<option value="${element.id}" data-name="${element.name}">${element.name}</option>`;
+          });
+          $("#selectKota").html(options).prop("disabled", false);
+        });
+    }
+  });
+
+  // Ketika Kota Dipilih -> Ambil Kecamatan
+  $("#selectKota").on("change", function () {
+    const cityId = $(this).val();
+    const cityName = $(this).find(":selected").data("name");
+
+    $("#inputKota").val(cityName);
+
+    $("#selectKecamatan")
+      .html('<option value="">Loading...</option>')
+      .prop("disabled", true);
+    $("#selectKelurahan")
+      .html('<option value="">Pilih Kelurahan...</option>')
+      .prop("disabled", true);
+
+    if (cityId) {
+      fetch(`${apiBaseUrl}/districts/${cityId}.json`)
+        .then((response) => response.json())
+        .then((districts) => {
+          let options = '<option value="">Pilih Kecamatan...</option>';
+          districts.forEach((element) => {
+            options += `<option value="${element.id}" data-name="${element.name}">${element.name}</option>`;
+          });
+          $("#selectKecamatan").html(options).prop("disabled", false);
+        });
+    }
+  });
+
+  // Ketika Kecamatan Dipilih -> Ambil Kelurahan
+  $("#selectKecamatan").on("change", function () {
+    const distId = $(this).val();
+    const distName = $(this).find(":selected").data("name");
+
+    $("#inputKecamatan").val(distName);
+
+    $("#selectKelurahan")
+      .html('<option value="">Loading...</option>')
+      .prop("disabled", true);
+
+    if (distId) {
+      fetch(`${apiBaseUrl}/villages/${distId}.json`)
+        .then((response) => response.json())
+        .then((villages) => {
+          let options = '<option value="">Pilih Kelurahan...</option>';
+          villages.forEach((element) => {
+            options += `<option value="${element.id}" data-name="${element.name}">${element.name}</option>`;
+          });
+          $("#selectKelurahan").html(options).prop("disabled", false);
+        });
+    }
+  });
+
+  // Ketika Kelurahan Dipilih -> Simpan Nama Kelurahan
+  $("#selectKelurahan").on("change", function () {
+    const subDistName = $(this).find(":selected").data("name");
+    $("#inputKelurahan").val(subDistName);
   });
 });

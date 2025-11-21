@@ -144,4 +144,91 @@ $(document).ready(function () {
       }
     }
   });
+
+  //   // 2. Event Listener ketika Role berubah
+  //   $("#roleSelect").on("change", function () {
+  //     // Ambil value role yang dipilih (hasilnya array string, misal ["ADMIN", "ASESI"])
+  //     var selectedRoles = $(this).val();
+
+  //     // --- RESET TAMPILAN (Sembunyikan dulu semua) ---
+  //     $("#sectionDataPribadi").hide();
+  //     $("#sectionDataPekerjaan").hide();
+
+  //     // Sembunyikan field-field spesifik di dalam Data Pribadi
+  //     $(".group-asesi-asesor").hide(); // Class untuk field gabungan Asesi & Asesor
+  //     $(".group-asesor-only").hide(); // Class untuk field khusus Asesor
+  //     $(".group-asesi-only").hide(); // Class untuk field khusus Asesi
+
+  //     // --- LOGIKA PENAMPILAN ---
+
+  //     // Jika ada role yang dipilih (tidak kosong)
+  //     if (selectedRoles && selectedRoles.length > 0) {
+  //       // A. Tampilkan Form Data Pribadi Utama (Nama, TTL, NIK, dll) untuk SEMUA role
+  //       $("#sectionDataPribadi").slideDown();
+
+  //       // B. Cek apakah ada role ASESI atau ASESOR
+  //       var isAsesi = selectedRoles.includes("ASESI");
+  //       var isAsesor = selectedRoles.includes("ASESOR");
+  //       var isAdmin = selectedRoles.includes("ADMIN");
+
+  //       // Jika Role mengandung ASESI atau ASESOR
+  //       if (isAsesi || isAsesor) {
+  //         // 1. Tampilkan Form Data Pekerjaan
+  //         $("#sectionDataPekerjaan").slideDown();
+
+  //         // 2. Tampilkan Field Gabungan (Alamat Detail, No Telp, Pendidikan)
+  //         $(".group-asesi-asesor").show();
+  //       }
+
+  //       // Jika Role mengandung ASESI saja
+  //       if (isAsesi) {
+  //         $(".group-asesi-only").show(); // Kewarganegaraan, Kode Pos
+  //       }
+
+  //       // Jika Role mengandung ASESOR saja
+  //       if (isAsesor) {
+  //         $(".group-asesor-only").show(); // No MET
+  //       }
+
+  //       // Catatan: Jika User memilih ADMIN + ASESI, maka field Admin (sederhana)
+  //       // tertimpa logika Asesi (lengkap). Ini perilaku yang benar (Superset).
+  //     }
+  //   });
+
+  // Logic Tampil/Sembunyi Form
+  $("#roleSelect").on("change", function () {
+    var selectedRoles = $(this).val();
+
+    // 1. Reset: Sembunyikan Wrapper Utama & Field Spesifik
+    $("#wrapperDataPribadi").slideUp();
+    $("#wrapperDataPekerjaan").slideUp();
+    $(".group-asesi-asesor").hide();
+    $(".group-asesor-only").hide();
+    $(".group-asesi-only").hide();
+
+    // 2. Cek Logic
+    if (selectedRoles && selectedRoles.length > 0) {
+      // A. Data Pribadi (Nama, Tgl Lahir, NIK, TTD) selalu muncul jika ada role
+      $("#wrapperDataPribadi").slideDown();
+
+      var isAsesi = selectedRoles.includes("Asesi");
+      var isAsesor = selectedRoles.includes("Asesor");
+
+      // B. Logic Data Pekerjaan & Field Gabungan
+      if (isAsesi || isAsesor) {
+        $("#wrapperDataPekerjaan").slideDown(); // Bagian 3
+        $(".group-asesi-asesor").show(); // Telp, Pendidikan, Detail Alamat
+      }
+
+      // C. Logic Spesifik Asesi
+      if (isAsesi) {
+        $(".group-asesi-only").show(); // Kewarganegaraan, Kode Pos
+      }
+
+      // D. Logic Spesifik Asesor
+      if (isAsesor) {
+        $(".group-asesor-only").show(); // No MET
+      }
+    }
+  });
 });

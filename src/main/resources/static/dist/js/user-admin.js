@@ -454,27 +454,37 @@ $(document).ready(function () {
         title: "Silakan tanda tangan atau upload gambar terlebih dahulu!",
       });
     } else {
-      // A. Ambil data Base64 dari canvas
-      // Format: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..."
+      try {
+        // A. Ambil data Base64 dari canvas
+        var dataURL = signaturePad.toDataURL("image/png");
 
-      var dataURL = signaturePad.toDataURL("image/png");
+        // B. Simpan ke Input Hidden
+        $("#signatureInput").val(dataURL);
 
-      // B. Simpan ke Input Hidden
-      $("#signatureInput").val(dataURL);
+        // C. Ubah Tampilan Tombol Pemicu
+        var btnTrigger = $("#btnTriggerSignature");
+        btnTrigger
+          .removeClass("btn-outline-primary")
+          .addClass("btn-outline-success");
+        btnTrigger.html('<i class="fas fa-eye"></i> Lihat Tanda Tangan');
 
-      // C. Ubah Tampilan Tombol Pemicu
-      var btnTrigger = $("#btnTriggerSignature");
-      btnTrigger
-        .removeClass("btn-outline-primary")
-        .addClass("btn-outline-success");
-      btnTrigger.html('<i class="fas fa-eye"></i> Lihat Tanda Tangan');
+        // D. Tampilkan Preview (Pastikan elemen imgPreview ada di HTML)
+        $("#imgPreview").attr("src", dataURL);
+        $("#signaturePreview").show();
 
-      // C. Tampilkan Preview di Form Utama
-      $("#imgPreview").attr("src", dataURL);
-      $("#signaturePreview").show();
+        // --- SOLUSI PERBAIKAN DISINI ---
+        // Cara 1: Cara Standar
+        // $('#modalSignature').modal('hide');
 
-      // D. Tutup Modal
-      $("#modalSignature").modal("hide");
+        // Cara 2: Cara Paksa (Simulasi Klik Tombol Close)
+        // Ini mencari tombol apa saja di dalam modal yang punya fungsi tutup, lalu di-klik otomatis
+        $("#modalSignature")
+          .find('[data-dismiss="modal"]')
+          .first()
+          .trigger("click");
+      } catch (error) {
+        console.error("Terjadi error saat menyimpan: ", error);
+      }
     }
   });
 });

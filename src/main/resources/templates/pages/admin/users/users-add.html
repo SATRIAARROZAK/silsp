@@ -304,9 +304,7 @@
                         class="form-control select2"
                         style="width: 100%"
                         id="selectPekerjaan"
-                      >
-                        <option value="">Pilih Pekerjaan...</option>
-                      </select>
+                      ></select>
                       <input type="hidden" name="jobType" id="inputPekerjaan" />
                     </div>
                   </div>
@@ -411,7 +409,6 @@
             tabindex="-1"
             role="dialog"
             aria-labelledby="modalSigLabel"
-            aria-hidden="true"
             data-backdrop="static"
           >
             <div
@@ -452,40 +449,32 @@
 
                   <input type="file" id="uploadSigFile" accept="image/png" />
                 </div>
-                <div class="modal-footer justify-content-between">
-                  <div>
-                    <button
-                      type="button"
-                      class="btn btn-default"
-                      data-dismiss="modal"
-                    >
-                      Batal
-                    </button>
-                    <button
-                      type="button"
-                      class="btn btn-outline-danger"
-                      id="btnClear"
-                    >
-                      Hapus Kanvas
-                    </button>
-                  </div>
-                  <div>
-                    <button
-                      type="button"
-                      class="btn btn-success"
-                      id="btnUpload"
-                    >
-                      Upload Signature
-                    </button>
-                    <button
-                      type="button"
-                      class="btn btn-danger"
-                      style="background-color: #c0392b; border-color: #c0392b"
-                      id="btnSaveSignature"
-                    >
-                      Simpan
-                    </button>
-                  </div>
+                <div class="modal-footer justify-content-center">
+                  <button
+                    type="button"
+                    class="btn btn-default"
+                    data-dismiss="modal"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-outline-danger"
+                    id="btnClear"
+                  >
+                    Hapus Kanvas
+                  </button>
+
+                  <button type="button" class="btn btn-success" id="btnUpload">
+                    Upload Signature
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-danger"
+                    id="btnSaveSignature"
+                  >
+                    Simpan
+                  </button>
                 </div>
               </div>
             </div>

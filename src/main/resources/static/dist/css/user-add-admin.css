@@ -1,4 +1,4 @@
-/* 
+
 .group-asesi-only {
   display: none;
 }
@@ -13,7 +13,7 @@
 
 #wrapperDataPekerjaan {
   display: none;
-} */
+}
 
 /* Wrapper canvas agar ukurannya pas dan responsive */
 .signature-wrapper {
@@ -25,6 +25,17 @@
   border-radius: 8px;
   position: relative;
   background-color: #f9f9f9;
+}
+
+/* TAMBAHKAN INI: Mengatur lebar Modal agar pas dengan Wrapper */
+#modalSignature .modal-dialog {
+  max-width: 500px; /* Sesuaikan sedikit diatas lebar wrapper (460px + padding) */
+  margin: 1.75rem auto; /* Posisi tengah */
+}
+
+/* Opsional: Hapus padding berlebih di body modal jika ada */
+#modalSignature .modal-body {
+  padding: 1.5rem;
 }
 
 /* Tombol upload file hidden */

@@ -18,6 +18,8 @@
             th:action="@{/admin/users/save}"
             method="post"
             enctype="multipart/form-data"
+            id="formTambahUser"
+            novalidate
           >
             <div class="card-body">
               <div class="separator">
@@ -78,7 +80,12 @@
                       <label
                         >Nama Lengkap<span class="text-danger">*</span></label
                       >
-                      <input type="text" class="form-control" name="fullName" />
+                      <input
+                        type="text"
+                        class="form-control"
+                        name="fullName"
+                        required
+                      />
                     </div>
                   </div>
                   <div class="col-md-4">
@@ -90,6 +97,7 @@
                         type="text"
                         class="form-control"
                         name="birthPlace"
+                        required
                       />
                     </div>
                   </div>
@@ -102,6 +110,7 @@
                         type="date"
                         class="form-control"
                         name="birthDate"
+                        required
                       />
                     </div>
                   </div>
@@ -305,7 +314,6 @@
                         style="width: 100%"
                         id="selectPekerjaan"
                       ></select>
-                      <input type="hidden" name="jobType" id="inputPekerjaan" />
                     </div>
                   </div>
                   <div class="col-md-4 group-asesi-only">
@@ -316,7 +324,6 @@
                         class="form-control"
                         id="namaPerusahaan"
                         name="namaPerusahaan"
-                        required
                       />
                     </div>
                   </div>
@@ -328,7 +335,6 @@
                         class="form-control"
                         id="jabatan"
                         name="jabatan"
-                        required
                       />
                     </div>
                   </div>
@@ -340,7 +346,6 @@
                         class="form-control"
                         id="noTelpKantor"
                         name="noTelpKantor"
-                        required
                       />
                     </div>
                   </div>
@@ -352,7 +357,6 @@
                         class="form-control"
                         id="namaPerusahaan"
                         name="namaPerusahaan"
-                        required
                       />
                     </div>
                   </div>
@@ -364,7 +368,6 @@
                         class="form-control"
                         id="noFaxKantor"
                         name="noFaxKantor"
-                        required
                       />
                     </div>
                   </div>
@@ -376,7 +379,6 @@
                         class="form-control"
                         id="kodePos"
                         name="kodePos"
-                        required
                       />
                     </div>
                   </div>

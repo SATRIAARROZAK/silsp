@@ -487,4 +487,82 @@ $(document).ready(function () {
       }
     }
   });
+
+  // --- KONFIGURASI VALIDASI FORM ---
+  $("#formTambahUser").validate({
+    // Abaikan field yang sedang disembunyikan (Logic Role Hide/Show aman)
+    ignore: ":hidden",
+
+    // 1. ATURAN VALIDASI
+    rules: {
+      username: { required: true },
+      email: {
+        required: true,
+        email: true, // Memaksa format @domain.com
+      },
+      roles: { required: true },
+      // Tambahkan field lain sesuai name-nya jika perlu spesifik
+      // Field yang punya attr 'required' di HTML otomatis ter-cover
+    },
+
+    // 2. PESAN ERROR
+    messages: {
+      // Default untuk semua field 'required'
+      required: "Isilah Form Ini!",
+
+      email: {
+        required: "Isilah Form Ini!",
+        email:
+          "Harap gunakan format email yang benar (contoh: user@domain.com)",
+      },
+      username: "Isilah Form Ini!",
+      roles: "Isilah Form Ini!",
+    },
+
+    // 3. PENGATURAN TAMPILAN (BOOTSTRAP 4)
+    errorElement: "span",
+    errorPlacement: function (error, element) {
+      error.addClass("invalid-feedback"); // Class bootstrap untuk teks error merah
+
+      // Logic penempatan pesan error
+      if (
+        element.hasClass("select2") ||
+        element.hasClass("select2-hidden-accessible")
+      ) {
+        // Khusus Select2, taruh error setelah elemen span select2
+        error.insertAfter(element.next(".select2"));
+      } else {
+        // Input biasa
+        element.closest(".form-group").append(error);
+      }
+    },
+
+    // Saat Error (Kosong/Salah) -> Border Merah
+    highlight: function (element, errorClass, validClass) {
+      $(element).addClass("is-invalid").removeClass("is-valid");
+
+      // Khusus Select2 border fix
+      if ($(element).hasClass("select2-hidden-accessible")) {
+        $(element)
+          .next(".select2")
+          .find(".select2-selection")
+          .addClass("is-invalid-border");
+      }
+    },
+
+    // Saat Sukses (Terisi Benar) -> Border Hijau (Standar)
+    // Jika Anda MAU MERAH SAAT SUKSES (Sesuai request), ubah 'is-valid' jadi 'is-invalid'
+    // tapi saya sarankan tetap 'is-valid' (hijau) agar user tidak bingung.
+    unhighlight: function (element, errorClass, validClass) {
+      $(element).removeClass("is-invalid").addClass("is-valid");
+
+      // Khusus Select2
+      if ($(element).hasClass("select2-hidden-accessible")) {
+        $(element)
+          .next(".select2")
+          .find(".select2-selection")
+          .removeClass("is-invalid-border");
+      }
+    },
+  });
 });

@@ -131,7 +131,12 @@
                   <div class="col-md-4">
                     <div class="form-group">
                       <label>NIK<span class="text-danger">*</span></label>
-                      <input type="text" class="form-control" name="nik" required />
+                      <input
+                        type="text"
+                        class="form-control"
+                        name="nik"
+                        required
+                      />
                     </div>
                   </div>
                   <div class="col-md-4 group-asesi-only">
@@ -153,7 +158,12 @@
                   <div class="col-md-4 group-asesor-only">
                     <div class="form-group">
                       <label>No. MET<span class="text-danger">*</span></label>
-                      <input type="text" class="form-control" name="noMet" required />
+                      <input
+                        type="text"
+                        class="form-control"
+                        name="noMet"
+                        required
+                      />
                     </div>
                   </div>
                   <div class="col-md-4 group-asesi-asesor">
@@ -177,11 +187,16 @@
                         ></label
                       >
                       <select
-                        class="form-control select2"
+                        class="form-control"
+                        name="pendidikanTerkahir"
                         style="width: 100%"
                         id="selectPendidikan"
                         required
-                      ></select>
+                      >
+                        <option value="" disabled selected>
+                          ---Pilih Pendidikan Terakhir---
+                        </option>
+                      </select>
                       <input
                         type="hidden"
                         name="lastEducation"
@@ -211,11 +226,12 @@
                       <select
                         class="form-control select2"
                         style="width: 100%"
+                        name="city"
                         id="selectKota"
-                        required
                         disabled
+                        required
                       ></select>
-                      <input type="hidden" name="city" id="inputKota" />
+                      <input type="hidden" name="cityName" id="inputKota"/>
                     </div>
                   </div>
 
@@ -226,12 +242,13 @@
                         class="form-control select2"
                         style="width: 100%"
                         id="selectKecamatan"
+                        name="district"
                         required
                         disabled
                       ></select>
                       <input
                         type="hidden"
-                        name="district"
+                        name="districtName"
                         id="inputKecamatan"
                       />
                     </div>
@@ -320,12 +337,15 @@
                       <select
                         class="form-control select2"
                         id="selectPekerjaan"
-                        required
+                        name="jobType"
                         style="width: 100%"
+                        required
                       >
-                        <option value="" disabled selected>Pilih Pekerjaan...</option>
+                        <option value="" disabled selected>
+                          Pilih Pekerjaan...
+                        </option>
                       </select>
-                      <input type="hidden" name="jobType" id="inputPekerjaan" />
+                      <input type="hidden" name="jobTypeName" id="inputPekerjaan" />
                     </div>
                   </div>
                 </div>

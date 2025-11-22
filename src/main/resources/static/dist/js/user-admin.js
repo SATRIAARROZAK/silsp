@@ -237,114 +237,6 @@ $(document).ready(function () {
     }
   });
 
-  // URL API Wilayah Indonesia
-  const apiBaseUrl = "https://www.emsifa.com/api-wilayah-indonesia/api";
-
-  // --- 1. FUNGSI FETCH DATA ---
-
-  // Load Provinsi saat halaman siap
-  fetch(`${apiBaseUrl}/provinces.json`)
-    .then((response) => response.json())
-    .then((provinces) => {
-      let data = provinces;
-      let options = '<option value="">Pilih Provinsi</option>';
-      data.forEach((element) => {
-        options += `<option value="${element.id}" data-name="${element.name}">${element.name}</option>`;
-      });
-      $("#selectProvinsi").html(options);
-    });
-
-  // --- 2. EVENT LISTENER (CASCADING DROPDOWN) ---
-
-  // Ketika Provinsi Dipilih -> Ambil Kota
-  $("#selectProvinsi").on("change", function () {
-    const provId = $(this).val();
-    const provName = $(this).find(":selected").data("name");
-
-    // Simpan Nama Provinsi ke Input Hidden
-    $("#inputProvinsi").val(provName);
-
-    // Reset child dropdowns
-    $("#selectKota")
-      .html('<option value="">Loading...</option>')
-      .prop("disabled", true);
-    $("#selectKecamatan")
-      .html('<option value="">Pilih Kecamatan</option>')
-      .prop("disabled", true);
-    $("#selectKelurahan")
-      .html('<option value="">Pilih Kelurahan</option>')
-      .prop("disabled", true);
-
-    if (provId) {
-      fetch(`${apiBaseUrl}/regencies/${provId}.json`)
-        .then((response) => response.json())
-        .then((regencies) => {
-          let options = '<option value="">Pilih Kota/Kab</option>';
-          regencies.forEach((element) => {
-            options += `<option value="${element.id}" data-name="${element.name}">${element.name}</option>`;
-          });
-          $("#selectKota").html(options).prop("disabled", false);
-        });
-    }
-  });
-
-  // Ketika Kota Dipilih -> Ambil Kecamatan
-  $("#selectKota").on("change", function () {
-    const cityId = $(this).val();
-    const cityName = $(this).find(":selected").data("name");
-
-    $("#inputKota").val(cityName);
-
-    $("#selectKecamatan")
-      .html('<option value="">Loading...</option>')
-      .prop("disabled", true);
-    $("#selectKelurahan")
-      .html('<option value="">Pilih Kelurahan</option>')
-      .prop("disabled", true);
-
-    if (cityId) {
-      fetch(`${apiBaseUrl}/districts/${cityId}.json`)
-        .then((response) => response.json())
-        .then((districts) => {
-          let options = '<option value="">Pilih Kecamatan</option>';
-          districts.forEach((element) => {
-            options += `<option value="${element.id}" data-name="${element.name}">${element.name}</option>`;
-          });
-          $("#selectKecamatan").html(options).prop("disabled", false);
-        });
-    }
-  });
-
-  // Ketika Kecamatan Dipilih -> Ambil Kelurahan
-  $("#selectKecamatan").on("change", function () {
-    const distId = $(this).val();
-    const distName = $(this).find(":selected").data("name");
-
-    $("#inputKecamatan").val(distName);
-
-    $("#selectKelurahan")
-      .html('<option value="">Loading...</option>')
-      .prop("disabled", true);
-
-    if (distId) {
-      fetch(`${apiBaseUrl}/villages/${distId}.json`)
-        .then((response) => response.json())
-        .then((villages) => {
-          let options = '<option value="">Pilih Kelurahan...</option>';
-          villages.forEach((element) => {
-            options += `<option value="${element.id}" data-name="${element.name}">${element.name}</option>`;
-          });
-          $("#selectKelurahan").html(options).prop("disabled", false);
-        });
-    }
-  });
-
-  // Ketika Kelurahan Dipilih -> Simpan Nama Kelurahan
-  $("#selectKelurahan").on("change", function () {
-    const subDistName = $(this).find(":selected").data("name");
-    $("#inputKelurahan").val(subDistName);
-  });
-
   // --- LOAD DATA JSON STATIS (Pendidikan & Pekerjaan) ---
 
   // 1. Load Pendidikan
@@ -507,41 +399,33 @@ $(document).ready(function () {
   // --- 6. TOMBOL SIMPAN ---
   $("#btnSaveSignature").on("click", function () {
     if (signaturePad.isEmpty()) {
-      Swal.fire({
-        icon: "warning",
-        title: "Silakan tanda tangan atau upload gambar terlebih dahulu!",
-      });
+      Swal.fire({ icon: "warning", title: "Silakan tanda tangan dulu!" });
     } else {
       try {
-        // A. Ambil data Base64 dari canvas
         var dataURL = signaturePad.toDataURL("image/png");
-
-        // B. Simpan ke Input Hidden
         $("#signatureInput").val(dataURL);
 
-        // C. Ubah Tampilan Tombol Pemicu
+        // --- BARIS BARU: PAKSA VALIDASI ULANG ---
+        // Agar pesan error "Isilah Form Ini!" langsung hilang saat user klik simpan
+        $("#signatureInput").valid();
+        // ----------------------------------------
+
+        // ... (Sisa kode update tampilan tombol & close modal tetap sama) ...
         var btnTrigger = $("#btnTriggerSignature");
         btnTrigger
-          .removeClass("btn-outline-primary")
+          .removeClass("btn-outline-primary btn-outline-danger")
           .addClass("btn-outline-success");
         btnTrigger.html('<i class="fas fa-eye"></i> Lihat Tanda Tangan');
 
-        // D. Tampilkan Preview (Pastikan elemen imgPreview ada di HTML)
         $("#imgPreview").attr("src", dataURL);
         $("#signaturePreview").show();
 
-        // --- SOLUSI PERBAIKAN DISINI ---
-        // Cara 1: Cara Standar
-        // $('#modalSignature').modal('hide');
-
-        // Cara 2: Cara Paksa (Simulasi Klik Tombol Close)
-        // Ini mencari tombol apa saja di dalam modal yang punya fungsi tutup, lalu di-klik otomatis
         $("#modalSignature")
           .find('[data-dismiss="modal"]')
           .first()
           .trigger("click");
       } catch (error) {
-        console.error("Terjadi error saat menyimpan: ", error);
+        console.error(error);
       }
     }
   });
@@ -559,67 +443,242 @@ $(document).ready(function () {
   });
 
   // --- 2. KONFIGURASI VALIDASI FORM ---
-  $("#formTambahUser").validate({
-    // Tetap abaikan field yang tersembunyi (Logic Role Hide/Show)
-    ignore: ":hidden",
 
-    // Rules: Hanya perlu mendefinisikan yang butuh logika KHUSUS
-    // Field biasa (Nama, Tempat Lahir, dll) cukup modal atribut 'required' di HTML
-    rules: {
-      email: {
-        required: true,
-        email: true, // Memaksa format email
-      },
-      // Tidak perlu menulis username, fullName, dll disini jika di HTML sudah ada 'required'
+  // ... (Kode Global Override $.validator.messages TETAP ADA) ...
+  // ... (Kode Logic Role & API Wilayah TETAP ADA) ...
+
+  // --- 1. EVENT LISTENER AGAR VALIDASI LANGSUNG JALAN (REAL-TIME) ---
+  // Masalah Select2: Validasi tidak otomatis hilang/muncul saat user memilih opsi.
+  // Solusi: Kita paksa validasi saat event 'change'.
+  $(".select2").on("change", function () {
+    $(this).valid(); // Memicu pengecekan ulang pada elemen ini
+  });
+
+  // ... (Kode Global Override Message $.extend tetap ada) ...
+  // ... (Kode Signature Pad tetap ada) ...
+
+  // ==========================================
+  // 1. KONFIGURASI VALIDASI (DIPERBARUI)
+  // ==========================================
+  $("#formTambahUser").validate({
+    // LOGIKA IGNORE: Jangan validasi elemen yang benar-benar tersembunyi
+    ignore: function (index, element) {
+      // A. Tanda Tangan (Jangan ignore walau hidden)
+      if ($(element).attr("id") === "signatureInput") {
+        return false;
+      }
+
+      // B. Select2 (Cek apakah container dropdown-nya terlihat?)
+      if ($(element).hasClass("select2-hidden-accessible")) {
+        // Jika container Select2 terlihat, maka elemen ini WAJIB divalidasi
+        // Jika container tersembunyi (misal karena Role logic), maka ignore.
+        return $(element).next(".select2-container").is(":hidden");
+      }
+
+      // C. Default: Ignore elemen lain yang hidden (CSS display:none)
+      return $(element).is(":hidden");
     },
 
-    // Messages: HAPUS BAGIAN INI (Kecuali mau override spesifik)
-    // Kita sudah handle pesan errornya di bagian $.extend di atas.
+    // RULES EKSPLISIT (INI KUNCINYA)
+    // Dengan menulis disini, validasi akan tetap jalan walau awalnya disabled
+    rules: {
+      email: { required: true, email: true },
+      username: { required: true },
+      fullName: { required: true },
 
-    // 3. PENGATURAN TAMPILAN (BOOTSTRAP 4)
+      // --- VALIDASI WILAYAH ---
+      province: { required: true },
+      city: { required: true }, // Wajibkan Kota
+      district: { required: true }, // Wajibkan Kecamatan
+      subDistrict: { required: true }, // Wajibkan Kelurahan
+
+      // --- VALIDASI PEKERJAAN ---
+      jobType: { required: true }, // Wajibkan Jenis Pekerjaan
+
+      signatureBase64: { required: true },
+    },
+
+    // ERROR PLACEMENT (Posisi Pesan Error)
     errorElement: "span",
     errorPlacement: function (error, element) {
-      error.addClass("invalid-feedback"); // Class bootstrap untuk teks error merah
+      error.addClass("invalid-feedback");
 
-      // Logic penempatan pesan error
       if (
         element.hasClass("select2") ||
         element.hasClass("select2-hidden-accessible")
       ) {
-        // Khusus Select2, taruh error setelah elemen span select2
+        // Taruh error di bawah dropdown Select2
         error.insertAfter(element.next(".select2"));
+      } else if (element.attr("id") === "signatureInput") {
+        error.insertAfter("#btnTriggerSignature");
+        error.css("display", "block");
       } else {
-        // Input biasa
         element.closest(".form-group").append(error);
       }
     },
 
-    // Saat Error (Kosong/Salah) -> Border Merah
-    highlight: function (element, errorClass, validClass) {
+    // HIGHLIGHT (Border Merah)
+    highlight: function (element) {
       $(element).addClass("is-invalid").removeClass("is-valid");
-
-      // Khusus Select2 border fix
       if ($(element).hasClass("select2-hidden-accessible")) {
         $(element)
           .next(".select2")
           .find(".select2-selection")
           .addClass("is-invalid-border");
       }
+      // Khusus Tanda Tangan
+      if ($(element).attr("id") === "signatureInput") {
+        $("#btnTriggerSignature")
+          .addClass("btn-outline-danger")
+          .removeClass("btn-outline-success btn-outline-primary");
+      }
     },
 
-    // Saat Sukses (Terisi Benar) -> Border Hijau (Standar)
-    // Jika Anda MAU MERAH SAAT SUKSES (Sesuai request), ubah 'is-valid' jadi 'is-invalid'
-    // tapi saya sarankan tetap 'is-valid' (hijau) agar user tidak bingung.
-    unhighlight: function (element, errorClass, validClass) {
+    // UNHIGHLIGHT (Hapus Border Merah)
+    unhighlight: function (element) {
       $(element).removeClass("is-invalid").addClass("is-valid");
-
-      // Khusus Select2
       if ($(element).hasClass("select2-hidden-accessible")) {
         $(element)
           .next(".select2")
           .find(".select2-selection")
           .removeClass("is-invalid-border");
       }
+      if ($(element).attr("id") === "signatureInput") {
+        $("#btnTriggerSignature").removeClass("btn-outline-danger");
+      }
     },
   });
+
+  // Trigger Validasi Saat Select2 Berubah (Agar error langsung hilang saat dipilih)
+  $(".select2").on("change", function () {
+    $(this).valid();
+  });
+
+  // ==========================================
+  // 2. LOGIKA API WILAYAH (DIPERBARUI)
+  // ==========================================
+  const apiBaseUrl = "https://www.emsifa.com/api-wilayah-indonesia/api";
+
+  // Load Provinsi
+  fetch(`${apiBaseUrl}/provinces.json`)
+    .then((response) => response.json())
+    .then((provinces) => {
+      let options = '<option value="">Pilih Provinsi...</option>';
+      provinces.forEach((el) => {
+        options += `<option value="${el.id}" data-name="${el.name}">${el.name}</option>`;
+      });
+      $("#selectProvinsi").html(options);
+    });
+
+  // Logic Provinsi -> Kota
+  $("#selectProvinsi").on("change", function () {
+    const provId = $(this).val();
+    $("#inputProvinsi").val($(this).find(":selected").data("name"));
+
+    // RESET CHILD (PENTING: Hapus class is-invalid agar bersih saat reset)
+    $("#selectKota")
+      .html('<option value="">Pilih Kota/Kab...</option>')
+      .prop("disabled", true)
+      .removeClass("is-invalid")
+      .next(".select2")
+      .find(".select2-selection")
+      .removeClass("is-invalid-border");
+    $("#selectKecamatan")
+      .html('<option value="">Pilih Kecamatan...</option>')
+      .prop("disabled", true)
+      .removeClass("is-invalid")
+      .next(".select2")
+      .find(".select2-selection")
+      .removeClass("is-invalid-border");
+    $("#selectKelurahan")
+      .html('<option value="">Pilih Kelurahan...</option>')
+      .prop("disabled", true)
+      .removeClass("is-invalid")
+      .next(".select2")
+      .find(".select2-selection")
+      .removeClass("is-invalid-border");
+
+    if (provId) {
+      fetch(`${apiBaseUrl}/regencies/${provId}.json`)
+        .then((response) => response.json())
+        .then((data) => {
+          let options = '<option value="">Pilih Kota/Kab...</option>'; // Value kosong PENTING untuk validasi
+          data.forEach((el) => {
+            options += `<option value="${el.id}" data-name="${el.name}">${el.name}</option>`;
+          });
+          // Buka disabled
+          $("#selectKota").html(options).prop("disabled", false);
+        });
+    }
+  });
+
+  // Logic Kota -> Kecamatan
+  $("#selectKota").on("change", function () {
+    const cityId = $(this).val();
+    $("#inputKota").val($(this).find(":selected").data("name"));
+
+    $("#selectKecamatan")
+      .html('<option value="">Pilih Kecamatan...</option>')
+      .prop("disabled", true)
+      .removeClass("is-invalid")
+      .next(".select2")
+      .find(".select2-selection")
+      .removeClass("is-invalid-border");
+    $("#selectKelurahan")
+      .html('<option value="">Pilih Kelurahan...</option>')
+      .prop("disabled", true)
+      .removeClass("is-invalid")
+      .next(".select2")
+      .find(".select2-selection")
+      .removeClass("is-invalid-border");
+
+    if (cityId) {
+      fetch(`${apiBaseUrl}/districts/${cityId}.json`)
+        .then((res) => res.json())
+        .then((data) => {
+          let options = '<option value="">Pilih Kecamatan...</option>';
+          data.forEach((el) => {
+            options += `<option value="${el.id}" data-name="${el.name}">${el.name}</option>`;
+          });
+          $("#selectKecamatan").html(options).prop("disabled", false);
+        });
+    }
+  });
+
+  // Logic Kecamatan -> Kelurahan
+  $("#selectKecamatan").on("change", function () {
+    const distId = $(this).val();
+    $("#inputKecamatan").val($(this).find(":selected").data("name"));
+
+    $("#selectKelurahan")
+      .html('<option value="">Pilih Kelurahan...</option>')
+      .prop("disabled", true)
+      .removeClass("is-invalid")
+      .next(".select2")
+      .find(".select2-selection")
+      .removeClass("is-invalid-border");
+
+    if (distId) {
+      fetch(`${apiBaseUrl}/villages/${distId}.json`)
+        .then((res) => res.json())
+        .then((data) => {
+          let options = '<option value="">Pilih Kelurahan...</option>';
+          data.forEach((el) => {
+            options += `<option value="${el.id}" data-name="${el.name}">${el.name}</option>`;
+          });
+          $("#selectKelurahan").html(options).prop("disabled", false);
+        });
+    }
+  });
+
+  // Simpan nama kelurahan
+  $("#selectKelurahan").on("change", function () {
+    $("#inputKelurahan").val($(this).find(":selected").data("name"));
+  });
+
+  // CSS Tambahan (Inject via JS agar praktis)
+  // Agar border Select2 menjadi merah saat error
+  $(
+    "<style>.is-invalid-border { border-color: #dc3545 !important; }</style>"
+  ).appendTo("head");
 });

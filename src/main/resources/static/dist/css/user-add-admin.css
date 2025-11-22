@@ -1,5 +1,5 @@
 
-/* .group-asesi-only {
+.group-asesi-only {
   display: none;
 }
 
@@ -13,7 +13,7 @@
 
 #wrapperDataPekerjaan {
   display: none;
-} */
+}
 
 /* Wrapper canvas agar ukurannya pas dan responsive */
 .signature-wrapper {

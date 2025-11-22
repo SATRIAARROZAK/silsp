@@ -142,40 +142,98 @@ $(document).ready(function () {
   //     }
   //   });
 
-  // Logic Tampil/Sembunyi Form
+  // ---------------------------------------------------
+  // 1. LOGIKA CHANGE ROLE (Admin/Asesi/Asesor)
+  // ---------------------------------------------------
   $("#roleSelect").on("change", function () {
-    var selectedRoles = $(this).val();
+    var selectedRoles = $(this).val() || [];
 
-    // 1. Reset: Sembunyikan Wrapper Utama & Field Spesifik
+    // --- RESET TAMPILAN AWAL ---
+    // Sembunyikan Section Utama
     $("#wrapperDataPribadi").slideUp();
-    $("#wrapperDataPekerjaan").slideUp();
+    $("#sectionDataPekerjaan").slideUp();
+    // Sembunyikan Detail Instansi (Form Bawah)
+    $("#wrapperDetailInstansi").slideUp();
+
+    // Sembunyikan field-field spesifik di Data Pribadi
     $(".group-asesi-asesor").hide();
     $(".group-asesor-only").hide();
     $(".group-asesi-only").hide();
 
-    // 2. Cek Logic
-    if (selectedRoles && selectedRoles.length > 0) {
-      // A. Data Pribadi (Nama, Tgl Lahir, NIK, TTD) selalu muncul jika ada role
+    // --- LOGIKA UTAMA ---
+    if (selectedRoles.length > 0) {
+      // A. Data Pribadi selalu muncul jika ada role
       $("#wrapperDataPribadi").slideDown();
 
       var isAsesi = selectedRoles.includes("Asesi");
       var isAsesor = selectedRoles.includes("Asesor");
 
-      // B. Logic Data Pekerjaan & Field Gabungan
+      // B. Handle Field Data Pribadi (Sama seperti sebelumnya)
       if (isAsesi || isAsesor) {
-        $("#wrapperDataPekerjaan").slideDown(); // Bagian 3
-        $(".group-asesi-asesor").show(); // Telp, Pendidikan, Detail Alamat
+        $(".group-asesi-asesor").show(); // Telp, Pendidikan, dll
+      }
+      if (isAsesi) $(".group-asesi-only").show();
+      if (isAsesor) $(".group-asesor-only").show();
+
+      // C. HANDLE DATA PEKERJAAN (Poin Inti Request Anda)
+
+      // Kondisi 1: Jika ASESI atau ASESOR, Tampilkan Section Utama (Dropdown Jenis Pekerjaan)
+      if (isAsesi || isAsesor) {
+        $("#sectionDataPekerjaan").slideDown();
       }
 
-      // C. Logic Spesifik Asesi
+      // Kondisi 2: Logika Detail Instansi
       if (isAsesi) {
-        $(".group-asesi-only").show(); // Kewarganegaraan, Kode Pos
+        // Jika ASESI, kita cek dropdown pekerjaannya untuk tentukan form detail
+        // Trigger manual agar logika 'change' dropdown jalan saat ganti role
+        $("#selectPekerjaan").trigger("change");
+      } else if (isAsesor && !isAsesi) {
+        // Jika HANYA ASESOR (Bukan Asesi), Pastikan Detail Instansi Hilang
+        // Sesuai request: "Asesor data pekerjaan hanya menampilkan column jenis pekerjaan"
+        $("#wrapperDetailInstansi").slideUp();
+        $("#inputCompanyName").prop("required", false); // Matikan validasi
       }
+    }
+  });
 
-      // D. Logic Spesifik Asesor
-      if (isAsesor) {
-        $(".group-asesor-only").show(); // No MET
+  // ---------------------------------------------------
+  // 2. LOGIKA CHANGE JENIS PEKERJAAN
+  // ---------------------------------------------------
+  $("#selectPekerjaan").on("change", function () {
+    var jobId = $(this).val(); // ID pekerjaan (1 = Tidak Bekerja)
+    var jobName = $(this).find(":selected").data("name");
+    $("#inputPekerjaan").val(jobName); // Simpan nama ke input hidden
+
+    // Cek Role User Saat Ini
+    var currentRoles = $("#roleSelect").val() || [];
+    var isAsesi = currentRoles.includes("Asesi");
+
+    // KITA HANYA PROSES DETAIL INSTANSI JIKA DIA ADALAH 'ASESI'
+    if (isAsesi) {
+      // Jika ID = 1 (Belum/Tidak Bekerja) ATAU Kosong
+      if (jobId === "1" || jobId === "") {
+        // Sembunyikan Form Detail
+        $("#wrapperDetailInstansi").slideUp();
+
+        // Hapus Validasi Required
+        $("#inputCompanyName").prop("required", false);
+
+        // (Opsional) Reset nilai input jika user berubah pikiran
+        $("#wrapperDetailInstansi").find("input, textarea").val("");
+      } else {
+        // Jika Bekerja
+        $("#wrapperDetailInstansi").slideDown();
+
+        // Hanya Nama Instansi yang WAJIB
+        $("#inputCompanyName").prop("required", true);
+
+        // Sisanya (Jabatan, Email, dll) biarkan default (Opsional)
+        // Tidak perlu coding apa-apa karena di HTML tidak ada 'required'
       }
+    } else {
+      // Jika BUKAN Asesi (Misal murni Asesor), Detail tetap sembunyi
+      $("#wrapperDetailInstansi").slideUp();
+      $("#inputCompanyName").prop("required", false);
     }
   });
 
@@ -488,36 +546,35 @@ $(document).ready(function () {
     }
   });
 
-  // --- KONFIGURASI VALIDASI FORM ---
+  // --- 1. GLOBAL OVERRIDE PESAN ERROR (PENTING) ---
+  // Kode ini mengubah pesan default "This field is required" menjadi "Isilah Form Ini!"
+  // untuk SEMUA field di halaman ini sekaligus.
+  $.extend($.validator.messages, {
+    required: "Isilah Form Ini!",
+    email: "Harap gunakan format email yang benar (contoh: user@domain.com)",
+    url: "Harap masukkan URL yang valid.",
+    date: "Harap masukkan tanggal yang valid.",
+    number: "Harap masukkan angka yang valid.",
+    digits: "Hanya boleh angka.",
+  });
+
+  // --- 2. KONFIGURASI VALIDASI FORM ---
   $("#formTambahUser").validate({
-    // Abaikan field yang sedang disembunyikan (Logic Role Hide/Show aman)
+    // Tetap abaikan field yang tersembunyi (Logic Role Hide/Show)
     ignore: ":hidden",
 
-    // 1. ATURAN VALIDASI
+    // Rules: Hanya perlu mendefinisikan yang butuh logika KHUSUS
+    // Field biasa (Nama, Tempat Lahir, dll) cukup modal atribut 'required' di HTML
     rules: {
-      username: { required: true },
       email: {
         required: true,
-        email: true, // Memaksa format @domain.com
+        email: true, // Memaksa format email
       },
-      roles: { required: true },
-      // Tambahkan field lain sesuai name-nya jika perlu spesifik
-      // Field yang punya attr 'required' di HTML otomatis ter-cover
+      // Tidak perlu menulis username, fullName, dll disini jika di HTML sudah ada 'required'
     },
 
-    // 2. PESAN ERROR
-    messages: {
-      // Default untuk semua field 'required'
-      required: "Isilah Form Ini!",
-
-      email: {
-        required: "Isilah Form Ini!",
-        email:
-          "Harap gunakan format email yang benar (contoh: user@domain.com)",
-      },
-      username: "Isilah Form Ini!",
-      roles: "Isilah Form Ini!",
-    },
+    // Messages: HAPUS BAGIAN INI (Kecuali mau override spesifik)
+    // Kita sudah handle pesan errornya di bagian $.extend di atas.
 
     // 3. PENGATURAN TAMPILAN (BOOTSTRAP 4)
     errorElement: "span",

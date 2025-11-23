@@ -199,10 +199,18 @@ $(document).ready(function () {
   // ---------------------------------------------------
   // 2. LOGIKA CHANGE JENIS PEKERJAAN
   // ---------------------------------------------------
+  // Change Pekerjaan -> Simpan ID
   $("#selectPekerjaan").on("change", function () {
-    var jobId = $(this).val(); // ID pekerjaan (1 = Tidak Bekerja)
-    var jobName = $(this).find(":selected").data("name");
-    $("#inputPekerjaan").val(jobName); // Simpan nama ke input hidden
+    var id = $(this).val();
+    // UBAH DISINI: Simpan ID ke input hidden
+    $("#inputPekerjaan").val(id);
+
+    //         // ... (Logika slideUp/Down detail instansi tetap jalan berdasarkan ID) ...
+    //     });
+    //   $("#selectPekerjaan").on("change", function () {
+    //     var jobId = $(this).val(); // ID pekerjaan (1 = Tidak Bekerja)
+    //     var jobName = $(this).find(":selected").data("name");
+    //     $("#inputPekerjaan").val(jobName); // Simpan nama ke input hidden
 
     // Cek Role User Saat Ini
     var currentRoles = $("#roleSelect").val() || [];
@@ -237,48 +245,80 @@ $(document).ready(function () {
     }
   });
 
-  // --- LOAD DATA JSON STATIS (Pendidikan & Pekerjaan) ---
+  // 2. LOGIKA PENDIDIKAN & PEKERJAAN
+  // --------------------------------
 
-  // 1. Load Pendidikan
-  fetch("/dist/js/education.json")
-    .then((response) => response.json())
+  // Load Pendidikan
+  fetch("/data/education.json")
+    .then((res) => res.json())
     .then((data) => {
-      let options = '<option value="">Pilih Pendidikan</option>';
+      let options = '<option value="">Pilih Pendidikan...</option>';
       data.forEach((item) => {
-        // Menyimpan nama di atribut data-name
-        options += `<option value="${item.id}" data-name="${item.name}">${item.name}</option>`;
+        // Value = ID (1, 2, 3...)
+        options += `<option value="${item.id}">${item.name}</option>`;
       });
       $("#selectPendidikan").html(options);
-    })
-    .catch((error) => console.error("Error loading education:", error));
+    });
 
-  // 2. Load Pekerjaan
-  fetch("/dist/js/jobs.json")
-    .then((response) => response.json())
+  // Change Pendidikan -> Simpan ID
+  $("#selectPendidikan").on("change", function () {
+    // UBAH DISINI: Ambil value (ID), bukan data-name
+    $("#inputPendidikan").val($(this).val());
+  });
+
+  // Load Pekerjaan
+  fetch("/data/jobs.json")
+    .then((res) => res.json())
     .then((data) => {
-      let options = '<option value="">Pilih Pekerjaan</option>';
+      let options = '<option value="">Pilih Pekerjaan...</option>';
       data.forEach((item) => {
         options += `<option value="${item.id}" data-name="${item.name}">${item.name}</option>`;
       });
       $("#selectPekerjaan").html(options);
-    })
-    .catch((error) => console.error("Error loading jobs:", error));
+    });
+
+  // --- LOAD DATA JSON STATIS (Pendidikan & Pekerjaan) ---
+
+  // 1. Load Pendidikan
+  //   fetch("/dist/js/education.json")
+  //     .then((response) => response.json())
+  //     .then((data) => {
+  //       let options = '<option value="">Pilih Pendidikan</option>';
+  //       data.forEach((item) => {
+  //         // Menyimpan nama di atribut data-name
+  //         options += `<option value="${item.id}" data-name="${item.name}">${item.name}</option>`;
+  //       });
+  //       $("#selectPendidikan").html(options);
+  //     })
+  //     .catch((error) => console.error("Error loading education:", error));
+
+  // 2. Load Pekerjaan
+  //   fetch("/dist/js/jobs.json")
+  //     .then((response) => response.json())
+  //     .then((data) => {
+  //       let options = '<option value="">Pilih Pekerjaan</option>';
+  //       data.forEach((item) => {
+  //         options += `<option value="${item.id}" data-name="${item.name}">${item.name}</option>`;
+  //       });
+  //       $("#selectPekerjaan").html(options);
+  //     })
+  //     .catch((error) => console.error("Error loading jobs:", error));
 
   // --- EVENT LISTENER UNTUK MENYIMPAN NAMA KE INPUT HIDDEN ---
 
   // Saat Pendidikan dipilih
-  $("#selectPendidikan").on("change", function () {
-    // Ambil 'data-name' dari option yang dipilih
-    const namaPendidikan = $(this).find(":selected").data("name");
-    // Masukkan ke input hidden agar terkirim ke server
-    $("#inputPendidikan").val(namaPendidikan);
-  });
+  //   $("#selectPendidikan").on("change", function () {
+  //     // Ambil 'data-name' dari option yang dipilih
+  //     const namaPendidikan = $(this).find(":selected").data("name");
+  //     // Masukkan ke input hidden agar terkirim ke server
+  //     $("#inputPendidikan").val(namaPendidikan);
+  //   });
 
-  // Saat Pekerjaan dipilih
-  $("#selectPekerjaan").on("change", function () {
-    const namaPekerjaan = $(this).find(":selected").data("name");
-    $("#inputPekerjaan").val(namaPekerjaan);
-  });
+  //   // Saat Pekerjaan dipilih
+  //   $("#selectPekerjaan").on("change", function () {
+  //     const namaPekerjaan = $(this).find(":selected").data("name");
+  //     $("#inputPekerjaan").val(namaPekerjaan);
+  //   });
 
   // --- 1. INISIALISASI VARIABLE ---
   var wrapper = document.getElementById("signature-pad");
@@ -554,126 +594,83 @@ $(document).ready(function () {
     $(this).valid();
   });
 
-  // ==========================================
-  // 2. LOGIKA API WILAYAH (DIPERBARUI)
-  // ==========================================
+  // 1. LOGIKA API WILAYAH
+  // ---------------------
   const apiBaseUrl = "https://www.emsifa.com/api-wilayah-indonesia/api";
 
   // Load Provinsi
   fetch(`${apiBaseUrl}/provinces.json`)
-    .then((response) => response.json())
-    .then((provinces) => {
+    .then((res) => res.json())
+    .then((data) => {
       let options = '<option value="">Pilih Provinsi...</option>';
-      provinces.forEach((el) => {
+      data.forEach((el) => {
+        // Value adalah ID (misal: 11), data-name adalah Nama (ACEH)
         options += `<option value="${el.id}" data-name="${el.name}">${el.name}</option>`;
       });
       $("#selectProvinsi").html(options);
     });
 
-  // Logic Provinsi -> Kota
+  // Change Provinsi -> Simpan ID ke hidden input
   $("#selectProvinsi").on("change", function () {
-    const provId = $(this).val();
-    $("#inputProvinsi").val($(this).find(":selected").data("name"));
+    const id = $(this).val();
+    // UBAH DISINI: Simpan ID ke input hidden, bukan nama
+    $("#inputProvinsi").val(id);
 
-    // RESET CHILD (PENTING: Hapus class is-invalid agar bersih saat reset)
-    $("#selectKota")
-      .html('<option value="">Pilih Kota/Kab...</option>')
-      .prop("disabled", true)
-      .removeClass("is-invalid")
-      .next(".select2")
-      .find(".select2-selection")
-      .removeClass("is-invalid-border");
-    $("#selectKecamatan")
-      .html('<option value="">Pilih Kecamatan...</option>')
-      .prop("disabled", true)
-      .removeClass("is-invalid")
-      .next(".select2")
-      .find(".select2-selection")
-      .removeClass("is-invalid-border");
-    $("#selectKelurahan")
-      .html('<option value="">Pilih Kelurahan...</option>')
-      .prop("disabled", true)
-      .removeClass("is-invalid")
-      .next(".select2")
-      .find(".select2-selection")
-      .removeClass("is-invalid-border");
-
-    if (provId) {
-      fetch(`${apiBaseUrl}/regencies/${provId}.json`)
-        .then((response) => response.json())
+    // ... (Logika fetch kota reset child tetap sama) ...
+    if (id) {
+      fetch(`${apiBaseUrl}/regencies/${id}.json`)
+        .then((res) => res.json())
         .then((data) => {
-          let options = '<option value="">Pilih Kota/Kab...</option>'; // Value kosong PENTING untuk validasi
-          data.forEach((el) => {
-            options += `<option value="${el.id}" data-name="${el.name}">${el.name}</option>`;
-          });
-          // Buka disabled
-          $("#selectKota").html(options).prop("disabled", false);
+          let opt = '<option value="">Pilih Kota/Kab...</option>';
+          data.forEach(
+            (el) => (opt += `<option value="${el.id}">${el.name}</option>`)
+          );
+          $("#selectKota").html(opt).prop("disabled", false);
         });
     }
   });
 
-  // Logic Kota -> Kecamatan
+  // Change Kota -> Simpan ID
   $("#selectKota").on("change", function () {
-    const cityId = $(this).val();
-    $("#inputKota").val($(this).find(":selected").data("name"));
+    const id = $(this).val();
+    $("#inputKota").val(id); // Simpan ID (contoh: 1101)
 
-    $("#selectKecamatan")
-      .html('<option value="">Pilih Kecamatan...</option>')
-      .prop("disabled", true)
-      .removeClass("is-invalid")
-      .next(".select2")
-      .find(".select2-selection")
-      .removeClass("is-invalid-border");
-    $("#selectKelurahan")
-      .html('<option value="">Pilih Kelurahan...</option>')
-      .prop("disabled", true)
-      .removeClass("is-invalid")
-      .next(".select2")
-      .find(".select2-selection")
-      .removeClass("is-invalid-border");
-
-    if (cityId) {
-      fetch(`${apiBaseUrl}/districts/${cityId}.json`)
+    // ... (Logika fetch kecamatan) ...
+    if (id) {
+      fetch(`${apiBaseUrl}/districts/${id}.json`)
         .then((res) => res.json())
         .then((data) => {
-          let options = '<option value="">Pilih Kecamatan...</option>';
-          data.forEach((el) => {
-            options += `<option value="${el.id}" data-name="${el.name}">${el.name}</option>`;
-          });
-          $("#selectKecamatan").html(options).prop("disabled", false);
+          let opt = '<option value="">Pilih Kecamatan...</option>';
+          data.forEach(
+            (el) => (opt += `<option value="${el.id}">${el.name}</option>`)
+          );
+          $("#selectKecamatan").html(opt).prop("disabled", false);
         });
     }
   });
 
-  // Logic Kecamatan -> Kelurahan
+  // Change Kecamatan -> Simpan ID
   $("#selectKecamatan").on("change", function () {
-    const distId = $(this).val();
-    $("#inputKecamatan").val($(this).find(":selected").data("name"));
+    const id = $(this).val();
+    $("#inputKecamatan").val(id); // Simpan ID
 
-    $("#selectKelurahan")
-      .html('<option value="">Pilih Kelurahan...</option>')
-      .prop("disabled", true)
-      .removeClass("is-invalid")
-      .next(".select2")
-      .find(".select2-selection")
-      .removeClass("is-invalid-border");
-
-    if (distId) {
-      fetch(`${apiBaseUrl}/villages/${distId}.json`)
+    // ... (Logika fetch kelurahan) ...
+    if (id) {
+      fetch(`${apiBaseUrl}/villages/${id}.json`)
         .then((res) => res.json())
         .then((data) => {
-          let options = '<option value="">Pilih Kelurahan...</option>';
-          data.forEach((el) => {
-            options += `<option value="${el.id}" data-name="${el.name}">${el.name}</option>`;
-          });
-          $("#selectKelurahan").html(options).prop("disabled", false);
+          let opt = '<option value="">Pilih Kelurahan...</option>';
+          data.forEach(
+            (el) => (opt += `<option value="${el.id}">${el.name}</option>`)
+          );
+          $("#selectKelurahan").html(opt).prop("disabled", false);
         });
     }
   });
 
-  // Simpan nama kelurahan
+  // Change Kelurahan -> Simpan ID
   $("#selectKelurahan").on("change", function () {
-    $("#inputKelurahan").val($(this).find(":selected").data("name"));
+    $("#inputKelurahan").val($(this).val()); // Simpan ID
   });
 
   // CSS Tambahan (Inject via JS agar praktis)

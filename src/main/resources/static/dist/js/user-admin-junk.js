@@ -2,6 +2,146 @@
 // JAVASCRIPT UNTUK USERS ADMIN
 // =======================================================================
 $(document).ready(function () {
+  //   // --- FUNSI VALIDASI ---
+  //   /**
+  //    * Fungsi untuk validasi format email.
+  //    * @param {string} email - Alamat email yang akan divalidasi.
+  //    * @returns {boolean} - True jika valid, false jika tidak.
+  //    */
+  //   function isValidEmail(email) {
+  //     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  //     return emailRegex.test(email);
+  //   }
+
+  //   /**
+  //    * Fungsi untuk validasi kekuatan password.
+  //    * @param {string} password - Password yang akan divalidasi.
+  //    * @returns {object} - Mengembalikan objek { isValid: boolean, errors: array }.
+  //    */
+  //   function validatePassword(password) {
+  //     let errors = [];
+  //     if (password.length < 8) {
+  //       errors.push("Minimal 8 karakter.");
+  //     }
+  //     if (!/[a-z]/.test(password)) {
+  //       errors.push("Harus ada huruf kecil.");
+  //     }
+  //     if (!/[A-Z]/.test(password)) {
+  //       errors.push("Harus ada huruf besar.");
+  //     }
+  //     if (!/\d/.test(password)) {
+  //       errors.push("Harus ada angka.");
+  //     }
+  //     return {
+  //       isValid: errors.length === 0,
+  //       errors: errors,
+  //     };
+  //   }
+
+  //   /**
+  //    * Fungsi utama untuk memvalidasi seluruh form.
+  //    * @returns {object} - Mengembalikan objek { isValid: boolean, firstInvalidElement: jQuery|null }.
+  //    */
+  //   function validateUserForm() {
+  //     let isValid = true;
+  //     let firstInvalidElement = null;
+  //     const form = $("#form-tambah-user");
+
+  //     form.find(".is-invalid").removeClass("is-invalid");
+
+  //     form.find("input[required], select[required]").each(function () {
+  //       const input = $(this);
+  //       const feedback = input.closest(".form-group").find(".invalid-feedback");
+  //       let isFieldValid = true;
+  //       let errorMessage = input.data("error");
+
+  //       if (!input.val() || input.val().trim() === "") {
+  //         isFieldValid = false;
+  //         // errorMessage = "Field ini tidak boleh kosong.";
+  //       } else {
+  //         // Validasi spesifik untuk email
+  //         if (input.attr("id") === "emailAdmin" && !isValidEmail(input.val())) {
+  //           isFieldValid = false;
+  //           errorMessage = "Format email tidak valid (contoh: user@domain.com).";
+  //         }
+  //         // Validasi spesifik untuk password
+  //         if (input.attr("id") === "password") {
+  //           const passwordValidation = validatePassword(input.val());
+  //           if (!passwordValidation.isValid) {
+  //             isFieldValid = false;
+  //             errorMessage = passwordValidation.errors.join(" ");
+  //           }
+  //         }
+  //       }
+
+  //       if (!isFieldValid) {
+  //         isValid = false;
+  //         input.addClass("is-invalid");
+  //         feedback.text(errorMessage);
+
+  //         if (input.attr("id") === "role") {
+  //           input
+  //             .next(".select2-container")
+  //             .find(".select2-selection--single")
+  //             .addClass("is-invalid");
+  //         }
+  //         if (!firstInvalidElement) {
+  //           firstInvalidElement = input;
+  //         }
+  //       }
+  //     });
+
+  //     return { isValid: isValid, firstInvalidElement: firstInvalidElement };
+  //   }
+
+  // --- EVENT HANDLERS ---
+
+  //   // 1. Saat tombol Simpan (submit) ditekan
+  //   $("#form-tambah-user").on("submit", function (e) {
+  //     e.preventDefault();
+  //     const validationResult = validateUserForm();
+  //     if (validationResult.isValid) {
+  //       Swal.fire("Sukses!", "Data user berhasil disimpan.", "success");
+  //       // this.submit();
+  //     } else {
+  //       if (validationResult.firstInvalidElement) {
+  //         validationResult.firstInvalidElement.focus();
+  //       }
+  //     }
+  //   });
+
+  //   // 2. Hapus error secara real-time saat pengguna mengisi form
+  //   $("#form-tambah-user").on("input change", ".is-invalid", function () {
+  //     const input = $(this);
+  //     const feedback = input.closest(".form-group").find(".invalid-feedback");
+  //     let isFieldValid = true;
+
+  //     if (!input.val() || input.val().trim() === "") {
+  //       isFieldValid = false;
+  //     } else {
+  //       if (input.attr("id") === "emailAdmin" && !isValidEmail(input.val())) {
+  //         isFieldValid = false;
+  //       }
+  //       if (input.attr("id") === "password") {
+  //         const passwordValidation = validatePassword(input.val());
+  //         if (!passwordValidation.isValid) {
+  //           isFieldValid = false;
+  //         }
+  //       }
+  //     }
+
+  //     if (isFieldValid) {
+  //       input.removeClass("is-invalid");
+  //       feedback.text(""); // Kosongkan pesan error
+  //       if (input.hasClass("select2")) {
+  //         input
+  //           .next(".select2-container")
+  //           .find(".select2-selection--single")
+  //           .removeClass("is-invalid");
+  //       }
+  //     }
+  //   });
+
   // ---------------------------------------------------
   // 1. LOGIKA CHANGE ROLE (Admin/Asesi/Asesor)
   // ---------------------------------------------------
@@ -97,42 +237,47 @@ $(document).ready(function () {
     }
   });
 
-  //   ===================================================================
-  // 3. LOAD DATA JSON STATIS (Pendidikan & Pekerjaan)
-  // =======================================================================
+  // --- LOAD DATA JSON STATIS (Pendidikan & Pekerjaan) ---
 
-  // 1. PENDIDIKAN
+  // 1. Load Pendidikan
   fetch("/dist/js/education.json")
-    .then((res) => res.json())
+    .then((response) => response.json())
     .then((data) => {
-      let options = '<option value="">Pilih Pendidikan...</option>';
+      let options = '<option value="">Pilih Pendidikan</option>';
       data.forEach((item) => {
-        // value="${item.id}" -> Ini ID (1, 2, 3...)
-        options += `<option value="${item.id}">${item.name}</option>`;
+        // Menyimpan nama di atribut data-name
+        options += `<option value="${item.id}" data-name="${item.name}">${item.name}</option>`;
       });
       $("#selectPendidikan").html(options);
-    });
+    })
+    .catch((error) => console.error("Error loading education:", error));
 
-  $("#selectPendidikan").on("change", function () {
-    // Ambil ID dari value option, simpan ke hidden input
-    $("#inputPendidikan").val($(this).val());
-  });
-
-  // 2. PEKERJAAN
+  // 2. Load Pekerjaan
   fetch("/dist/js/jobs.json")
-    .then((res) => res.json())
+    .then((response) => response.json())
     .then((data) => {
-      let options = '<option value="">Pilih Pekerjaan...</option>';
+      let options = '<option value="">Pilih Pekerjaan</option>';
       data.forEach((item) => {
-        // value="${item.id}" -> Ini ID
         options += `<option value="${item.id}" data-name="${item.name}">${item.name}</option>`;
       });
       $("#selectPekerjaan").html(options);
-    });
+    })
+    .catch((error) => console.error("Error loading jobs:", error));
 
+  // --- EVENT LISTENER UNTUK MENYIMPAN NAMA KE INPUT HIDDEN ---
+
+  // Saat Pendidikan dipilih
+  $("#selectPendidikan").on("change", function () {
+    // Ambil 'data-name' dari option yang dipilih
+    const namaPendidikan = $(this).find(":selected").data("name");
+    // Masukkan ke input hidden agar terkirim ke server
+    $("#inputPendidikan").val(namaPendidikan);
+  });
+
+  // Saat Pekerjaan dipilih
   $("#selectPekerjaan").on("change", function () {
-    // Simpan ID ke hidden input
-    $("#inputPekerjaan").val($(this).val());
+    const namaPekerjaan = $(this).find(":selected").data("name");
+    $("#inputPekerjaan").val(namaPekerjaan);
   });
 
   // --- 1. INISIALISASI VARIABLE ---
@@ -222,6 +367,34 @@ $(document).ready(function () {
     };
     reader.readAsDataURL(file);
   });
+
+  // --- 5. TOMBOL UPLOAD SIGNATURE (Upload Gambar ke Canvas) ---
+  //   $("#btnUpload").on("click", function () {
+  //     $("#uploadSigFile").click(); // Trigger input file tersembunyi
+  //   });
+
+  //   // Saat file dipilih
+  //   $("#uploadSigFile").on("change", function (e) {
+  //     var file = e.target.files[0];
+  //     if (file) {
+  //       var reader = new FileReader();
+  //       reader.onload = function (event) {
+  //         var img = new Image();
+  //         img.onload = function () {
+  //           // Gambar image ke canvas
+  //           var ctx = canvas.getContext("2d");
+  //           // Bersihkan dulu
+  //           signaturePad.clear();
+  //           // Draw image (fit to canvas)
+  //           // Rasio aspek gambar agar tidak gepeng bisa ditambahkan di sini jika mau kompleks
+  //           // Untuk simpelnya kita draw full canvas dengan padding sedikit
+  //           ctx.drawImage(img, 20, 20, 600, 200);
+  //         };
+  //         img.src = event.target.result;
+  //       };
+  //       reader.readAsDataURL(file);
+  //     }
+  //   });
 
   // --- 6. TOMBOL SIMPAN ---
   $("#btnSaveSignature").on("click", function () {
@@ -388,82 +561,119 @@ $(document).ready(function () {
 
   // Load Provinsi
   fetch(`${apiBaseUrl}/provinces.json`)
-    .then((res) => res.json())
-    .then((data) => {
+    .then((response) => response.json())
+    .then((provinces) => {
       let options = '<option value="">Pilih Provinsi...</option>';
-      data.forEach((el) => {
-        // Value = ID (misal 11), Text = Nama (ACEH)
+      provinces.forEach((el) => {
         options += `<option value="${el.id}" data-name="${el.name}">${el.name}</option>`;
       });
       $("#selectProvinsi").html(options);
     });
 
-  // Change Provinsi
+  // Logic Provinsi -> Kota
   $("#selectProvinsi").on("change", function () {
-    const id = $(this).val();
-    $("#inputProvinsi").val(id); // SIMPAN ID (11)
+    const provId = $(this).val();
+    $("#inputProvinsi").val($(this).find(":selected").data("name"));
 
-    // Reset Child
+    // RESET CHILD (PENTING: Hapus class is-invalid agar bersih saat reset)
     $("#selectKota")
       .html('<option value="">Pilih Kota/Kab...</option>')
-      .prop("disabled", true);
-    // ... (Reset Kecamatan/Kelurahan juga) ...
+      .prop("disabled", true)
+      .removeClass("is-invalid")
+      .next(".select2")
+      .find(".select2-selection")
+      .removeClass("is-invalid-border");
+    $("#selectKecamatan")
+      .html('<option value="">Pilih Kecamatan...</option>')
+      .prop("disabled", true)
+      .removeClass("is-invalid")
+      .next(".select2")
+      .find(".select2-selection")
+      .removeClass("is-invalid-border");
+    $("#selectKelurahan")
+      .html('<option value="">Pilih Kelurahan...</option>')
+      .prop("disabled", true)
+      .removeClass("is-invalid")
+      .next(".select2")
+      .find(".select2-selection")
+      .removeClass("is-invalid-border");
 
-    if (id) {
-      fetch(`${apiBaseUrl}/regencies/${id}.json`)
-        .then((res) => res.json())
+    if (provId) {
+      fetch(`${apiBaseUrl}/regencies/${provId}.json`)
+        .then((response) => response.json())
         .then((data) => {
-          let opt = '<option value="">Pilih Kota/Kab...</option>';
-          data.forEach(
-            (el) =>
-              (opt += `<option value="${el.id}" data-name="${el.name}">${el.name}</option>`)
-          );
-          $("#selectKota").html(opt).prop("disabled", false);
+          let options = '<option value="">Pilih Kota/Kab...</option>'; // Value kosong PENTING untuk validasi
+          data.forEach((el) => {
+            options += `<option value="${el.id}" data-name="${el.name}">${el.name}</option>`;
+          });
+          // Buka disabled
+          $("#selectKota").html(options).prop("disabled", false);
         });
     }
   });
 
-  // Change Kota
+  // Logic Kota -> Kecamatan
   $("#selectKota").on("change", function () {
-    const id = $(this).val();
-    $("#inputKota").val(id); // SIMPAN ID (1101)
+    const cityId = $(this).val();
+    $("#inputKota").val($(this).find(":selected").data("name"));
 
-    if (id) {
-      fetch(`${apiBaseUrl}/districts/${id}.json`)
+    $("#selectKecamatan")
+      .html('<option value="">Pilih Kecamatan...</option>')
+      .prop("disabled", true)
+      .removeClass("is-invalid")
+      .next(".select2")
+      .find(".select2-selection")
+      .removeClass("is-invalid-border");
+    $("#selectKelurahan")
+      .html('<option value="">Pilih Kelurahan...</option>')
+      .prop("disabled", true)
+      .removeClass("is-invalid")
+      .next(".select2")
+      .find(".select2-selection")
+      .removeClass("is-invalid-border");
+
+    if (cityId) {
+      fetch(`${apiBaseUrl}/districts/${cityId}.json`)
         .then((res) => res.json())
         .then((data) => {
-          let opt = '<option value="">Pilih Kecamatan...</option>';
-          data.forEach(
-            (el) =>
-              (opt += `<option value="${el.id}" data-name="${el.name}">${el.name}</option>`)
-          );
-          $("#selectKecamatan").html(opt).prop("disabled", false);
+          let options = '<option value="">Pilih Kecamatan...</option>';
+          data.forEach((el) => {
+            options += `<option value="${el.id}" data-name="${el.name}">${el.name}</option>`;
+          });
+          $("#selectKecamatan").html(options).prop("disabled", false);
         });
     }
   });
 
-  // Change Kecamatan
+  // Logic Kecamatan -> Kelurahan
   $("#selectKecamatan").on("change", function () {
-    const id = $(this).val();
-    $("#inputKecamatan").val(id); // SIMPAN ID
+    const distId = $(this).val();
+    $("#inputKecamatan").val($(this).find(":selected").data("name"));
 
-    if (id) {
-      fetch(`${apiBaseUrl}/villages/${id}.json`)
+    $("#selectKelurahan")
+      .html('<option value="">Pilih Kelurahan...</option>')
+      .prop("disabled", true)
+      .removeClass("is-invalid")
+      .next(".select2")
+      .find(".select2-selection")
+      .removeClass("is-invalid-border");
+
+    if (distId) {
+      fetch(`${apiBaseUrl}/villages/${distId}.json`)
         .then((res) => res.json())
         .then((data) => {
-          let opt = '<option value="">Pilih Kelurahan...</option>';
-          data.forEach(
-            (el) =>
-              (opt += `<option value="${el.id}" data-name="${el.name}">${el.name}</option>`)
-          );
-          $("#selectKelurahan").html(opt).prop("disabled", false);
+          let options = '<option value="">Pilih Kelurahan...</option>';
+          data.forEach((el) => {
+            options += `<option value="${el.id}" data-name="${el.name}">${el.name}</option>`;
+          });
+          $("#selectKelurahan").html(options).prop("disabled", false);
         });
     }
   });
 
-  // Change Kelurahan
+  // Simpan nama kelurahan
   $("#selectKelurahan").on("change", function () {
-    $("#inputKelurahan").val($(this).val()); // SIMPAN ID
+    $("#inputKelurahan").val($(this).find(":selected").data("name"));
   });
 
   // CSS Tambahan (Inject via JS agar praktis)

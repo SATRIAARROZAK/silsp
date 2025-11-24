@@ -43,12 +43,12 @@ public class User {
     // Menyimpan ID Pendidikan (Relasi ke tabel ref_educations)
     @ManyToOne 
     @JoinColumn(name = "education_id") 
-    private RefEducation lastEducation;
+    private RefEducation educationId;
 
     // Menyimpan ID Pekerjaan (Relasi ke tabel ref_job_types)
     @ManyToOne
     @JoinColumn(name = "job_type_id")
-    private RefJobType jobType;
+    private RefJobType jobTypeId;
 
     // --- WILAYAH (Disimpan String ID-nya saja) ---
     private String provinceId;    

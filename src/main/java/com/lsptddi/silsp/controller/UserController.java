@@ -4,6 +4,7 @@ import com.lsptddi.silsp.dto.UserDto;
 import com.lsptddi.silsp.model.*;
 import com.lsptddi.silsp.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.crypto.password.PasswordEncoder; // Pastikan ada ini
@@ -15,38 +16,45 @@ import java.util.Set;
 @RequestMapping("/admin/users")
 public class UserController {
 
-    @Autowired private UserRepository userRepository;
-    @Autowired private RoleRepository roleRepository; // <--- WAJIB DI-INJECT
-    @Autowired private RefEducationRepository educationRepository;
-    @Autowired private RefJobTypeRepository jobTypeRepository;
-    
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private RoleRepository roleRepository; // <--- WAJIB DI-INJECT
+    @Autowired
+    private RefEducationRepository educationRepository;
+    @Autowired
+    private RefJobTypeRepository jobTypeRepository;
+
     // Jika Anda menggunakan Spring Security, inject PasswordEncoder
-    @Autowired private PasswordEncoder passwordEncoder; 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @PostMapping("/save")
-    public String saveUser(@ModelAttribute UserDto userDto) {
+    @ResponseBody
+    public ResponseEntity<?> saveUser(@ModelAttribute UserDto userDto) {
+        // public String saveUser(@ModelAttribute UserDto userDto) {
         User user = new User();
 
         // 1. DATA AKUN DASAR
         user.setUsername(userDto.getUsername());
         user.setEmail(userDto.getEmail());
-        
+
         // Password Default (Harusnya di-encode)
         user.setPassword(passwordEncoder.encode("12345678"));
-        // user.setPassword(passwordEncoder.encode("123456")); 
+        // user.setPassword(passwordEncoder.encode("123456"));
         // user.setPassword("{noop}123456"); // Contoh tanpa encoder sementara
 
         // ==========================================
         // PERBAIKAN: LOGIKA SIMPAN ROLE
         // ==========================================
         Set<Role> roles = new HashSet<>();
-        
+
         // Cek apakah user memilih role di form?
         if (userDto.getRoles() != null && !userDto.getRoles().isEmpty()) {
             for (String roleName : userDto.getRoles()) {
                 // Cari Role di database berdasarkan nama ("ADMIN", "ASESI", dll)
                 Role role = roleRepository.findByName(roleName).orElse(null);
-                
+
                 if (role != null) {
                     roles.add(role);
                 } else {
@@ -58,7 +66,6 @@ public class UserController {
         // Set Role ke Entity User
         user.setRoles(roles);
         // ==========================================
-
 
         // 2. DATA PRIBADI & LAINNYA (Sama seperti sebelumnya)
         user.setFullName(userDto.getFullName());
@@ -95,6 +102,6 @@ public class UserController {
         user.setSignatureBase64(userDto.getSignatureBase64());
 
         userRepository.save(user);
-        return "redirect:/admin/users?success";
+        return ResponseEntity.ok().body("{\"status\": \"success\", \"message\": \"Pengguna berhasil disimpan\"}");
     }
 }

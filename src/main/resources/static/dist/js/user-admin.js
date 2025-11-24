@@ -274,6 +274,7 @@ $(document).ready(function () {
   // ==========================================
   $("#formTambahUser").validate({
     // LOGIKA IGNORE: Jangan validasi elemen yang benar-benar tersembunyi
+
     ignore: function (index, element) {
       // A. Tanda Tangan (Jangan ignore walau hidden)
       if ($(element).attr("id") === "signatureInput") {
@@ -358,6 +359,100 @@ $(document).ready(function () {
       if ($(element).attr("id") === "signatureInput") {
         $("#btnTriggerSignature").removeClass("btn-outline-danger");
       }
+    },
+
+    // --- TAMBAHAN BARU: SUBMIT HANDLER (AJAX) ---
+    submitHandler: function (form) {
+      // 1. Persiapkan Data (Termasuk File Upload)
+      var formData = new FormData(form);
+
+      // 2. Tampilkan Loading (Opsional, agar user tahu proses berjalan)
+      Swal.fire({
+        title: "Menyimpan Data...",
+        text: "Mohon tunggu sebentar",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
+      // 3. Kirim via AJAX
+      $.ajax({
+        url: $(form).attr("action"),
+        type: "POST",
+        data: formData,
+        processData: false, // Wajib false untuk FormData
+        contentType: false, // Wajib false untuk FormData
+        success: function (response) {
+          // 4. JIKA SUKSES -> TAMPILKAN POPUP PILIHAN
+          Swal.fire({
+            title: "Berhasil!",
+            text: "Pengguna Berhasil ditambahkan",
+            icon: "success",
+            showCancelButton: true,
+            confirmButtonText: "OK",
+            cancelButtonText: "Tambah",
+            confirmButtonColor: "#3085d6", // Warna Biru
+            cancelButtonColor: "#28a745", // Warna Hijau (Tombol Tambah)
+            reverseButtons: true, // Tukar posisi tombol agar lebih natural
+          }).then((result) => {
+            if (result.isConfirmed) {
+              // PILIHAN 1: KLIK "OK" -> PINDAH KE HALAMAN LIST
+              window.location.href = "/admin/data-pengguna"; // Sesuaikan URL list pengguna Anda
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+              // PILIHAN 2: KLIK "TAMBAH LAGI" -> RESET FORM
+
+              // A. Reset Form HTML standar
+              form.reset();
+
+              // B. Reset Select2 (Dropdown)
+              $(".select2").val(null).trigger("change");
+
+              // C. Reset Validasi (Hilangkan merah-merah)
+              var validator = $("#formTambahUser").validate();
+              validator.resetForm();
+              $(".is-invalid").removeClass("is-invalid");
+              $(".is-valid").removeClass("is-valid");
+              $(".is-invalid-border").removeClass("is-invalid-border");
+
+              // D. Reset Input Hidden (ID Wilayah/Pekerjaan)
+              $('input[type="hidden"]').val("");
+
+              // E. Reset Signature Pad & Preview
+              signaturePad.clear();
+              $("#signatureInput").val("");
+              $("#imgPreview").attr("src", "");
+              $("#signaturePreview").hide();
+
+              // Reset tombol signature ke awal
+              $("#btnTriggerSignature")
+                .removeClass(
+                  "btn-success btn-outline-success btn-outline-danger"
+                )
+                .addClass("btn-outline-primary")
+                .html('<i class="fas fa-pen-nib"></i> Masukkan Tanda Tangan');
+
+              // F. Reset Tampilan Section (Role Logic)
+              // Trigger change pada roleSelect kosong untuk menyembunyikan form detail
+              $("#roleSelect").trigger("change");
+
+              // Scroll ke atas
+              $("html, body").animate({ scrollTop: 0 }, "fast");
+            }
+          });
+        },
+        error: function (xhr, status, error) {
+          // JIKA GAGAL
+          Swal.fire({
+            icon: "error",
+            title: "Gagal Menyimpan",
+            text: "Terjadi kesalahan pada server. Silakan coba lagi.",
+          });
+          console.error(error);
+        },
+      });
+
+      return false; // Mencegah submit form standar HTML (Page Reload)
     },
   });
 

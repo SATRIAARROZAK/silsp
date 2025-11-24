@@ -2,6 +2,23 @@
 // JAVASCRIPT UNTUK USERS ADMIN
 // =======================================================================
 $(document).ready(function () {
+  // Aktifkan DataTables agar bisa search & paging otomatis
+  $("#tableUser").DataTable({
+    responsive: true,
+    lengthChange: false,
+    autoWidth: false,
+    language: {
+      emptyTable: "Tidak ada data yang tersedia",
+      search: "Cari:",
+      paginate: {
+        first: "Awal",
+        last: "Akhir",
+        next: "Lanjut",
+        previous: "Mundur",
+      },
+    },
+  });
+
   // ---------------------------------------------------
   // 1. LOGIKA CHANGE ROLE (Admin/Asesi/Asesor)
   // ---------------------------------------------------

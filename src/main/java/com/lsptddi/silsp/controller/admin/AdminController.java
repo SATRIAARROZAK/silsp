@@ -1,31 +1,34 @@
 package com.lsptddi.silsp.controller.admin;
 
-// import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-// import com.lsptddi.silsp.service.SidebarService;
+import com.lsptddi.silsp.model.User;
+import com.lsptddi.silsp.repository.UserRepository;
+
+import java.util.List;
 
 // Objek User tiruan untuk simulasi
-class User {
-    private String fullName;
-    private String role;
+// class User {
+//     private String fullName;
+//     private String role;
 
-    public User(String fullName, String role) {
-        this.fullName = fullName;
-        this.role = role;
-    }
+//     public User(String fullName, String role) {
+//         this.fullName = fullName;
+//         this.role = role;
+//     }
 
-    public String getFullName() {
-        return fullName;
-    }
+//     public String getFullName() {
+//         return fullName;
+//     }
 
-    public String getRole() {
-        return role;
-    }
-}
+//     public String getRole() {
+//         return role;
+//     }
+// }
 
 @Controller
 @RequestMapping("/admin")
@@ -33,14 +36,17 @@ public class AdminController {
     // @Autowired
     // private SidebarService sidebarService;
 
-    @ModelAttribute
-    public void addGlobalAttributes(Model model) {
-        User loggedInUser = new User("Muhammad Satria Arrozak", "Admin");
-        // Objek user tiruan
-        // Di aplikasi nyata, data ini akan diambil dari user yang sedang login
-        model.addAttribute("user", loggedInUser);
+    @Autowired
+    private UserRepository userRepository; // 1. Inject Repository
 
-    }
+    // @ModelAttribute
+    // public void addGlobalAttributes(Model model) {
+    //     User loggedInUser = new User("Muhammad Satria Arrozak", "Admin");
+    //     // Objek user tiruan
+    //     // Di aplikasi nyata, data ini akan diambil dari user yang sedang login
+    //     model.addAttribute("user", loggedInUser);
+
+    // }
 
     @GetMapping
     public String index(Model model) {
@@ -152,6 +158,11 @@ public class AdminController {
     @GetMapping("/data-pengguna")
     public String showDataPengguna(Model model) { // 1. Tambahkan Model sebagai parameter
 
+     // 2. Ambil semua data user dari database (SELECT * FROM users)
+        List<User> users = userRepository.findAll();
+        
+        // 3. Masukkan ke dalam Model agar bisa dibaca di HTML
+        model.addAttribute("listPengguna", users);
         return "pages/admin/users/users-list";
     }
 
@@ -175,14 +186,14 @@ public class AdminController {
 
     @GetMapping("/data-asesi")
     public String showDataAsesi(Model model) { // 1. Tambahkan Model sebagai parameter
-        // Simulasi: Membuat objek user yang sedang login
-        User loggedInUser = new User("Muhammad Satria Arrozak", "Admin");
+        // // Simulasi: Membuat objek user yang sedang login
+        // User loggedInUser = new User("Muhammad Satria Arrozak", "Admin");
 
-        // 2. Tambahkan atribut yang diperlukan untuk layout
-        model.addAttribute("user", loggedInUser);
-        // model.addAttribute("pageTitle", "Data Asesi"); // Judul halaman diubah sesuai
-        // konteks
-        // model.addAttribute("menuItems", sidebarService.getAdminMenuItems());
+        // // 2. Tambahkan atribut yang diperlukan untuk layout
+        // model.addAttribute("user", loggedInUser);
+        // // model.addAttribute("pageTitle", "Data Asesi"); // Judul halaman diubah sesuai
+        // // konteks
+        // // model.addAttribute("menuItems", sidebarService.getAdminMenuItems());
 
         // 3. Kembalikan nama view yang benar
         return "pages/admin/asesi/asesi-list";

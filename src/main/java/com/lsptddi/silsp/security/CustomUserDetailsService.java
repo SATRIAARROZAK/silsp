@@ -1,0 +1,45 @@
+package com.lsptddi.silsp.security;
+
+import com.lsptddi.silsp.model.User;
+import com.lsptddi.silsp.model.Role;
+import com.lsptddi.silsp.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collection;
+import java.util.stream.Collectors;
+
+@Service
+public class CustomUserDetailsService implements UserDetailsService {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Override
+    @Transactional // Penting agar bisa load Role (Lazy Loading)
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        // 1. Cari User di Database
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Username atau Password salah"));
+
+        // 2. Mapping User Database ke User Spring Security
+        return new org.springframework.security.core.userdetails.User(
+                user.getUsername(),
+                user.getPassword(),
+                mapRolesToAuthorities(user.getRoles())
+        );
+    }
+
+    // Konversi Role Database ke Authority Spring Security
+    private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
+        return roles.stream()
+                .map(role -> new SimpleGrantedAuthority(role.getName())) // misal: "ADMIN"
+                .collect(Collectors.toList());
+    }
+}

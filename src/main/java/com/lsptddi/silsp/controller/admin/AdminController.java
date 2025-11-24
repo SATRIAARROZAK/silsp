@@ -41,10 +41,10 @@ public class AdminController {
 
     // @ModelAttribute
     // public void addGlobalAttributes(Model model) {
-    //     User loggedInUser = new User("Muhammad Satria Arrozak", "Admin");
-    //     // Objek user tiruan
-    //     // Di aplikasi nyata, data ini akan diambil dari user yang sedang login
-    //     model.addAttribute("user", loggedInUser);
+    // User loggedInUser = new User("Muhammad Satria Arrozak", "Admin");
+    // // Objek user tiruan
+    // // Di aplikasi nyata, data ini akan diambil dari user yang sedang login
+    // model.addAttribute("user", loggedInUser);
 
     // }
 
@@ -54,7 +54,6 @@ public class AdminController {
         return "pages/admin/dashboard";
     }
 
-    
     // ==============================================
     // Menu sidebar Skema Sertifikasi
     // ==============================================
@@ -78,7 +77,7 @@ public class AdminController {
 
     @GetMapping("/skema/view-skema")
     public String showSkemaViewPage(Model model) { // 1. Tambahkan Model sebagai parameter
-     
+
         return "pages/admin/skema/skema-view";
     }
 
@@ -130,7 +129,6 @@ public class AdminController {
         return "pages/admin/jadwal/sertifikasi-edit";
     }
 
-    
     @GetMapping("/surat-tugas-asesor")
     public String showDataSuratTugas(Model model) { // 1. Tambahkan Model sebagai parameter
 
@@ -158,9 +156,9 @@ public class AdminController {
     @GetMapping("/data-pengguna")
     public String showDataPengguna(Model model) { // 1. Tambahkan Model sebagai parameter
 
-     // 2. Ambil semua data user dari database (SELECT * FROM users)
+        // 2. Ambil semua data user dari database (SELECT * FROM users)
         List<User> users = userRepository.findAll();
-        
+
         // 3. Masukkan ke dalam Model agar bisa dibaca di HTML
         model.addAttribute("listPengguna", users);
         return "pages/admin/users/users-list";
@@ -191,7 +189,8 @@ public class AdminController {
 
         // // 2. Tambahkan atribut yang diperlukan untuk layout
         // model.addAttribute("user", loggedInUser);
-        // // model.addAttribute("pageTitle", "Data Asesi"); // Judul halaman diubah sesuai
+        // // model.addAttribute("pageTitle", "Data Asesi"); // Judul halaman diubah
+        // sesuai
         // // konteks
         // // model.addAttribute("menuItems", sidebarService.getAdminMenuItems());
 
@@ -216,8 +215,6 @@ public class AdminController {
 
         return "pages/admin/asesi/asesi-view";
     }
-
-
 
     // @GetMapping("/asesi")
     // public String showAsesiListPage(Model model) {

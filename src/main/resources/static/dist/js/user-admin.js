@@ -175,18 +175,6 @@ $(document).ready(function () {
     }
   });
 
-  // --- 1. SAAT MODAL DIBUKA (Load Tanda Tangan Lama) ---
-  //   $("#modalSignature").on("shown.bs.modal", function () {
-  //     resizeCanvas(); // Atur ukuran dulu
-
-  //     var existingSignature = $("#signatureInput").val();
-
-  //     // Jika sudah ada tanda tangan tersimpan (Base64), muat ke canvas
-  //     if (existingSignature && existingSignature.trim() !== "") {
-  //       signaturePad.fromDataURL(existingSignature, { ratio: 1 });
-  //     }
-  //   });
-
   // --- 4. TOMBOL HAPUS KANVAS ---
   $("#btnClear").on("click", function () {
     if (signaturePad) {
@@ -270,9 +258,6 @@ $(document).ready(function () {
   });
 
   // --- 2. KONFIGURASI VALIDASI FORM ---
-
-  // ... (Kode Global Override $.validator.messages TETAP ADA) ...
-  // ... (Kode Logic Role & API Wilayah TETAP ADA) ...
 
   // --- 1. EVENT LISTENER AGAR VALIDASI LANGSUNG JALAN (REAL-TIME) ---
   // Masalah Select2: Validasi tidak otomatis hilang/muncul saat user memilih opsi.

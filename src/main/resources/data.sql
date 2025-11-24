@@ -1,3 +1,6 @@
+SELECT * FROM ref_educations;
+SELECT * FROM ref_job_types;
+
 -- DATA PENDIDIKAN --
 INSERT INTO ref_educations (id, name) VALUES (1, 'SD');
 INSERT INTO ref_educations (id, name) VALUES (2, 'SMP');
@@ -9,6 +12,8 @@ INSERT INTO ref_educations (id, name) VALUES (7, 'S1');
 INSERT INTO ref_educations (id, name) VALUES (8, 'S2');
 INSERT INTO ref_educations (id, name) VALUES (9, 'S3');
 INSERT INTO ref_educations (id, name) VALUES (10, 'D1');
+
+-- DATA JENIS PEKERJAAN --
 INSERT INTO ref_job_types (id, name) VALUES ( 1,'Belum/Tidak Bekerja');
 INSERT INTO ref_job_types (id, name) VALUES ( 2,'Mengurus Rumah Tangga');
 INSERT INTO ref_job_types (id, name) VALUES ( 3,'Pelajar/Mahasiswa');
@@ -98,3 +103,7 @@ INSERT INTO ref_job_types (id,  name) VALUES (86,'Kepala Desa');
 INSERT INTO ref_job_types (id,  name) VALUES (87,'Biarawati');
 INSERT INTO ref_job_types (id,  name) VALUES (88,'Wiraswasta');
 INSERT INTO ref_job_types (id,  name) VALUES (89,'Lainny');
+-- Pastikan nama role SAMA dengan value di HTML option value="ADMIN"
+INSERT INTO roles (id, name) VALUES (1, 'ADMIN');
+INSERT INTO roles (id, name) VALUES (2, 'ASESI');
+INSERT INTO roles (id, name) VALUES (3, 'ASESOR');

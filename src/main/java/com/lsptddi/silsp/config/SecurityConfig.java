@@ -5,6 +5,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -19,31 +21,36 @@ public class SecurityConfig {
                 // .csrf(csrf -> csrf.disable())
                 // // Aturan otorisasi request
                 .authorizeHttpRequests(auth -> auth
-                //         // Mengizinkan SEMUA request ke URL manapun tanpa perlu login
-                //         .requestMatchers("/admin/**").permitAll()
-                //         .anyRequest().permitAll());
+                        // // Mengizinkan SEMUA request ke URL manapun tanpa perlu login
+                        // .requestMatchers("/admin/**").permitAll()
+                        // .anyRequest().permitAll());
 
-        // .authorizeHttpRequests(authorize -> authorize
-        .requestMatchers(
-        "/login",
-        "/register",
-        "/dist/**",
-        "/plugins/**",
-        // "/assets/**" // <-- TAMBAHKAN BARIS INI
-        "/admin/**",
-        "/asesor/**",
-        "/asesi/**"
-        ).permitAll()
-        // .requestMatchers("/admin/**").authenticated() // Mengamankan semua halaman admin
-        // .anyRequest().authenticated())
-        // .formLogin(form -> form
-        // .loginPage("/login") // Mengarahkan ke halaman login kustom Anda
-        // .loginProcessingUrl("/login") // Endpoint yang diproses Spring Security
-        // .defaultSuccessUrl("/admin/dashboard", true) // Halaman setelah login sukses
-        // .permitAll()
-        );
+                        // .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(
+                                "/login",
+                                "/register",
+                                "/dist/**",
+                                "/plugins/**",
+                                // "/assets/**" // <-- TAMBAHKAN BARIS INI
+                                "/admin/**",
+                                "/asesor/**",
+                                "/asesi/**")
+                        .permitAll()
+                // .requestMatchers("/admin/**").authenticated() // Mengamankan semua halaman
+                // admin
+                // .anyRequest().authenticated())
+                // .formLogin(form -> form
+                // .loginPage("/login") // Mengarahkan ke halaman login kustom Anda
+                // .loginProcessingUrl("/login") // Endpoint yang diproses Spring Security
+                // .defaultSuccessUrl("/admin/dashboard", true) // Halaman setelah login sukses
+                // .permitAll()
+                );
 
         return http.build();
     }
 
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 }

@@ -26,7 +26,7 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
         for (GrantedAuthority authority : authorities) {
             // Jika role-nya ADMIN
             if (authority.getAuthority().equals("Admin")) {
-                redirectUrl = "/admin";
+                redirectUrl = "/admin/dashboard";
                 break;
             } 
             // Jika role-nya ASESI

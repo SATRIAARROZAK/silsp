@@ -48,7 +48,7 @@ public class AdminController {
 
     // }
 
-    @GetMapping
+    @GetMapping("/dashboard")
     public String index(Model model) {
 
         return "pages/admin/dashboard";

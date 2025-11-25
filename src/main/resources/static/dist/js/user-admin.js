@@ -7,6 +7,7 @@ $(document).ready(function () {
     responsive: true,
     lengthChange: false,
     autoWidth: false,
+    searching: false,
     language: {
       emptyTable: "Tidak ada data yang tersedia",
       search: "Cari:",

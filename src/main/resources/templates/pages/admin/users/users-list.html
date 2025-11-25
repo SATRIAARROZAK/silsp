@@ -24,22 +24,47 @@
             class="d-flex flex-column-reverse flex-md-row justify-content-md-between align-items-md-center gap-2 mb-3"
           >
             <form
-              th:action="@{/}"
+              th:action="@{/admin/data-pengguna}"
               method="get"
               class="d-flex"
               style="width: 100%; max-width: 450px"
             >
+              <select
+                class="form-control"
+                name="role"
+                onchange="this.form.submit()"
+              >
+                <option
+                  value=""
+                  th:selected="${selectedRole == null || selectedRole == ''}"
+                >
+                  -- Semua Role --
+                </option>
+                <option value="Admin" th:selected="${selectedRole == 'Admin'}">
+                  Admin
+                </option>
+                <option value="Asesi" th:selected="${selectedRole == 'Asesi'}">
+                  Asesi
+                </option>
+                <option
+                  value="Asesor"
+                  th:selected="${selectedRole == 'Asesor'}"
+                >
+                  Asesor
+                </option>
+              </select>
+
               <input
                 type="text"
                 name="keyword"
                 class="form-control me-2"
-                placeholder="Cari Skema"
+                placeholder="Cari Berdasarkan Nama"
                 th:value="${keyword}"
                 aria-label="Search"
               />
               <button type="submit" class="btn btn-outline-info">Cari</button>
               <a
-                th:href="@{/}"
+                th:href="@{/admin/data-pengguna}"
                 class="btn btn-outline-danger ms-2"
                 title="Reset Pencarian"
                 >Reset</a
@@ -74,7 +99,10 @@
             </thead>
             <tbody>
               <tr th:each="user, iter : ${listPengguna}">
-                <td class="align-middle text-center" th:text="${iter.count}"></td>
+                <td
+                  class="align-middle text-center"
+                  th:text="${iter.count}"
+                ></td>
 
                 <td th:text="${user.fullName}"></td>
                 <td class="text-center">
@@ -135,7 +163,7 @@
             </tbody>
           </table>
         </div>
-        <!-- <div class="card-footer clearfix">
+        <div class="card-footer clearfix">
           <ul class="pagination pagination-sm m-0 float-right">
             <li class="page-item"><a class="page-link" href="#">&laquo;</a></li>
             <li class="page-item"><a class="page-link" href="#">1</a></li>
@@ -143,7 +171,7 @@
             <li class="page-item"><a class="page-link" href="#">3</a></li>
             <li class="page-item"><a class="page-link" href="#">&raquo;</a></li>
           </ul>
-        </div> -->
+        </div>
       </div>
     </div>
   </body>

@@ -5,6 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import com.lsptddi.silsp.model.User;
 import com.lsptddi.silsp.repository.UserRepository;
@@ -154,13 +155,21 @@ public class AdminController {
     }
 
     @GetMapping("/data-pengguna")
-    public String showDataPengguna(Model model) { // 1. Tambahkan Model sebagai parameter
+    public String showDataPengguna(Model model, @RequestParam(value = "keyword", required = false) String keyword,
+            @RequestParam(value = "role", required = false) String role) { // 1. Tambahkan Model sebagai parameter
 
-        // 2. Ambil semua data user dari database (SELECT * FROM users)
-        List<User> users = userRepository.findAll();
+        // 1. Panggil Repository dengan parameter pencarian
+        List<User> users = userRepository.searchUsers(keyword, role);
 
-        // 3. Masukkan ke dalam Model agar bisa dibaca di HTML
+        // 2. Kirim hasil data ke HTML
         model.addAttribute("listPengguna", users);
+
+        // 3. Kirim BALIK parameter ke HTML (Agar form tidak reset setelah disubmit)
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("selectedRole", role);
+
+        // // 3. Masukkan ke dalam Model agar bisa dibaca di HTML
+        // model.addAttribute("listPengguna", users);
         return "pages/admin/users/users-list";
     }
 

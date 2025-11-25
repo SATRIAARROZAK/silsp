@@ -32,10 +32,12 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 // // Menonaktifkan CSRF protection (untuk saat ini, agar API test mudah)
-                .csrf(AbstractHttpConfigurer::disable)
+                // .csrf(AbstractHttpConfigurer::disable)
                 // .csrf(csrf -> csrf.disable())
+
                 .authorizeHttpRequests((requests) -> requests
                         // Halaman yang boleh diakses SIAPA SAJA (Tanpa Login)
+                        .requestMatchers("/dev/**").permitAll()
                         .requestMatchers("/login", "/register", "/assets/**", "/plugins/**",
                                 "/dist/**")
                         .permitAll()

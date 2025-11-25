@@ -20,7 +20,86 @@
     <div layout:fragment="content">
       <div class="card">
         <div class="card-header">
-          <div
+          <div class="row mb-3"></div>
+
+          <form th:action="@{/admin/data-pengguna}" method="get">
+            <div class="row">
+              <div class="col-12 col-md-2 mb-2">
+                <div class="form-group mb-0">
+                  <select
+                    class="form-control"
+                    name="role"
+                    onchange="this.form.submit()"
+                  >
+                    <option
+                      value=""
+                      th:selected="${selectedRole == null || selectedRole == ''}"
+                    >
+                      Pilih Role
+                    </option>
+                    <option
+                      value="Admin"
+                      th:selected="${selectedRole == 'Admin'}"
+                    >
+                      Admin
+                    </option>
+                    <option
+                      value="Asesi"
+                      th:selected="${selectedRole == 'Asesi'}"
+                    >
+                      Asesi
+                    </option>
+                    <option
+                      value="Asesor"
+                      th:selected="${selectedRole == 'Asesor'}"
+                    >
+                      Asesor
+                    </option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-12 col-md-4 mb-2">
+                <div class="form-group mb-0">
+                  <div class="input-group">
+                    <input
+                      type="text"
+                      class="form-control"
+                      name="keyword"
+                      th:value="${keyword}"
+                      placeholder="Masukkan Nama Lengkap"
+                    />
+                    <div class="input-group-append">
+                      <button type="submit" class="btn btn-outline-info">
+                        <i class="fas fa-search"></i> Cari
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12 col-md-3 mb-2 d-flex align-items-end">
+                <a
+                  th:href="@{/admin/data-pengguna}"
+                  class="btn btn-default btn-block"
+                >
+                  <i class="fas fa-sync-alt"></i> Reset Filter
+                </a>
+              </div>
+              <div
+                class="col-12 col-md-3 mb-2 d-flex align-items-end justify-content-end"
+              >
+                <a
+                  th:href="@{/admin/data-pengguna/tambah-users}"
+                  class="btn btn-primary"
+                >
+                  <i class="bi bi-person-fill-add"></i> Tambah
+                </a>
+              </div>
+            </div>
+          </form>
+
+          <!-- <div
             class="d-flex flex-column-reverse flex-md-row justify-content-md-between align-items-md-center gap-2 mb-3"
           >
             <form
@@ -77,12 +156,12 @@
             >
               <i class="bi bi-person-fill-add me-1"></i>Tambah Pengguna
             </a>
-          </div>
+          </div> -->
         </div>
         <!-- /.card-header -->
         <div class="card-body responsive">
           <table
-            id="example2"
+            id="tableUser"
             class="table table-bordered table-hover table-responsive-md projects"
           >
             <thead>
@@ -145,11 +224,11 @@
                       <i class="fas fa-pencil-alt"> </i>
                     </a>
                     <a
-                      class="btn btn-outline-danger btn-sm"
-                      href="#"
+                      th:href="@{/admin/data-pengguna/delete/{id}(id=${user.id})}"
+                      class="btn btn-outline-danger btn-sm delete-button"
                       title="Delete"
                     >
-                      <i class="fas fa-trash"> </i>
+                      <i class="fas fa-trash"></i>
                     </a>
                   </div>
                 </td>

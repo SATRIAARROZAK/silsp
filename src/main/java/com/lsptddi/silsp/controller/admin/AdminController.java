@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import com.lsptddi.silsp.model.User;
 import com.lsptddi.silsp.repository.UserRepository;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -154,6 +156,8 @@ public class AdminController {
         return "pages/admin/surat/surat-tugas-edit";
     }
 
+    
+
     @GetMapping("/data-pengguna")
     public String showDataPengguna(Model model, @RequestParam(value = "keyword", required = false) String keyword,
             @RequestParam(value = "role", required = false) String role) { // 1. Tambahkan Model sebagai parameter
@@ -189,6 +193,29 @@ public class AdminController {
     public String showEditPengguna(Model model) { // 1. Tambahkan Model sebagai parameter
 
         return "pages/admin/users/users-edit";
+    }
+
+    @GetMapping("/data-pengguna/delete/{id}")
+    public String deleteUser(@PathVariable Long id, RedirectAttributes attributes) {
+        
+        try {
+            // Cek apakah user ada sebelum dihapus (Opsional, tapi bagus)
+            if (!userRepository.existsById(id)) {
+                attributes.addFlashAttribute("error", "Data pengguna tidak ditemukan!");
+                return "redirect:/admin/data-pengguna";
+            }
+            
+            // Lakukan penghapusan data
+            userRepository.deleteById(id);
+            
+            // Kirim pesan sukses
+            attributes.addFlashAttribute("success", "Data pengguna berhasil dihapus secara permanen!");
+        } catch (Exception e) {
+            // Tangani error, misal Foreign Key Constraint
+            attributes.addFlashAttribute("error", "Gagal menghapus pengguna. Pastikan data terkait (misal: data registrasi) sudah dihapus.");
+        }
+        
+        return "redirect:/admin/data-pengguna";
     }
 
     @GetMapping("/data-asesi")

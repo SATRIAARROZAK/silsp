@@ -18,17 +18,16 @@ public class User {
     // --- DATA AKUN ---
     @Column(nullable = false, unique = true)
     private String username;
-    
+
     @Column(nullable = false, unique = true)
     private String email;
 
     private String password;
 
     // Relasi ke Role (Anggap Anda sudah punya entity Role)
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_roles",
-        joinColumns = @JoinColumn(name = "user_id"),
-        inverseJoinColumns = @JoinColumn(name = "role_id"))
+    // @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL) // <--- PASTIKAN ADA cascade = CascadeType.ALL
+    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
     // --- DATA PRIBADI ---
@@ -38,11 +37,11 @@ public class User {
     private String gender;
     private String nik;
     private String phoneNumber;
-    
+
     // --- RELASI 3NF (UBAH BAGIAN INI) ---
     // Menyimpan ID Pendidikan (Relasi ke tabel ref_educations)
-    @ManyToOne 
-    @JoinColumn(name = "education_id") 
+    @ManyToOne
+    @JoinColumn(name = "education_id")
     private RefEducation educationId;
 
     // Menyimpan ID Pekerjaan (Relasi ke tabel ref_job_types)
@@ -51,10 +50,10 @@ public class User {
     private RefJobType jobTypeId;
 
     // --- WILAYAH (Disimpan String ID-nya saja) ---
-    private String provinceId;    
-    private String cityId;        
-    private String districtId;    
-    private String subDistrictId; 
+    private String provinceId;
+    private String cityId;
+    private String districtId;
+    private String subDistrictId;
 
     private String address;
     private String postalCode;
@@ -70,7 +69,8 @@ public class User {
     private String officeAddress;
 
     // --- TANDA TANGAN ---
-    @Lob 
+    @Lob
     @Column(columnDefinition = "TEXT") // Agar muat string panjang
     private String signatureBase64;
+
 }

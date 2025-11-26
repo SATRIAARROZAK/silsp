@@ -247,7 +247,7 @@ public class AdminController {
                     "Gagal menghapus pengguna. Pastikan data terkait (misal: data registrasi) sudah dihapus.");
         }
 
-        return "redirect:/admin/data-pengguna";
+        return "pages/admin/users/users-list";
     }
 
     @GetMapping("/data-asesi")

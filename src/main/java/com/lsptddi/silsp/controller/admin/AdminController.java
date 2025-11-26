@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import com.lsptddi.silsp.dto.UserRoleDto;
 
 import java.util.List;
 
@@ -161,31 +162,62 @@ public class AdminController {
     }
 
     @GetMapping("/data-pengguna")
-    public String showDataPengguna(Model model,
+    public String dataPengguna(Model model,
             @RequestParam(value = "keyword", required = false) String keyword,
             @RequestParam(value = "role", required = false) String role,
-            @RequestParam(value = "page", defaultValue = "0") int page, // Default Halaman 1 (index 0)
-            @RequestParam(value = "size", defaultValue = "10") int size) { // Default 10 data
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
 
-        // 1. Buat Pageable (Urutkan berdasarkan ID DESC agar data terbaru diatas)
+        // 1. Pageable tetap sama
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
 
-        // 2. Panggil Repo
-        Page<User> userPage = userRepository.searchUsers(keyword, role, pageable);
+        // 2. Panggil Repo method BARU (searchUserRoles)
+        // Return type sekarang Page<UserRoleDto>
+        Page<UserRoleDto> pageResult = userRepository.searchUserRoles(keyword, role, pageable);
 
-        // 3. Kirim Data ke HTML
-        model.addAttribute("listPengguna", userPage.getContent()); // List Datanya
-        model.addAttribute("currentPage", page); // Halaman saat ini
-        model.addAttribute("totalPages", userPage.getTotalPages());// Total Halaman
-        model.addAttribute("totalItems", userPage.getTotalElements()); // Total semua data
-        model.addAttribute("size", size); // Ukuran per halaman (5, 10, etc)
+        // 3. Kirim ke HTML
+        model.addAttribute("listPengguna", pageResult.getContent()); // List DTO
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", pageResult.getTotalPages());
+        model.addAttribute("totalItems", pageResult.getTotalElements());
+        model.addAttribute("size", size);
 
-        // Kirim balik filter agar tidak hilang
         model.addAttribute("keyword", keyword);
         model.addAttribute("selectedRole", role);
 
         return "pages/admin/users/users-list";
+
     }
+
+    // @GetMapping("/data-pengguna")
+    // public String showDataPengguna(Model model,
+    // @RequestParam(value = "keyword", required = false) String keyword,
+    // @RequestParam(value = "role", required = false) String role,
+    // @RequestParam(value = "page", defaultValue = "0") int page, // Default
+    // Halaman 1 (index 0)
+    // @RequestParam(value = "size", defaultValue = "10") int size) { // Default 10
+    // data
+
+    // // 1. Buat Pageable (Urutkan berdasarkan ID DESC agar data terbaru diatas)
+    // Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+
+    // // 2. Panggil Repo
+    // Page<User> userPage = userRepository.searchUsers(keyword, role, pageable);
+
+    // // 3. Kirim Data ke HTML
+    // model.addAttribute("listPengguna", userPage.getContent()); // List Datanya
+    // model.addAttribute("currentPage", page); // Halaman saat ini
+    // model.addAttribute("totalPages", userPage.getTotalPages());// Total Halaman
+    // model.addAttribute("totalItems", userPage.getTotalElements()); // Total semua
+    // data
+    // model.addAttribute("size", size); // Ukuran per halaman (5, 10, etc)
+
+    // // Kirim balik filter agar tidak hilang
+    // model.addAttribute("keyword", keyword);
+    // model.addAttribute("selectedRole", role);
+
+    // return "pages/admin/users/users-list";
+    // }
 
     // @GetMapping("/data-pengguna")
     // public String showDataPengguna(Model model, @RequestParam(value = "keyword",

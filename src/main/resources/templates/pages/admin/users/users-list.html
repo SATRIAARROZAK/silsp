@@ -177,13 +177,13 @@
               </tr>
             </thead>
             <tbody>
-              <tr th:each="user, iter : ${listPengguna}">
+              <tr th:each="item, iter : ${listPengguna}">
                 <td
                   class="align-middle text-center"
                   th:text="${(currentPage * size) + iter.count}"
                 ></td>
 
-                <td th:text="${user.fullName}"></td>
+                <td th:text="${item.user.fullName}">Nama Lengkap</td>
                 <td class="text-center">
                   <ul class="list-inline">
                     <li class="list-inline-item">
@@ -195,19 +195,53 @@
                     </li>
                   </ul>
                 </td>
-                <td th:text="${user.username}"></td>
-                <td th:text="${user.email}"></td>
-                <td th:text="${user.phoneNumber}"></td>
-                <td class="align-middle text-center">
+                <td th:text="${item.user.username}">Username</td>
+                <td th:text="${item.user.email}">Email</td>
+                <td th:text="${item.user.phoneNumber}"></td>
+                <!-- <td class="align-middle text-center">
                   <span
                     th:each="role : ${user.roles}"
                     class="badge badge-info mr-1"
                     th:text="${role.name}"
                   >
                   </span>
+                </td> -->
+
+                <td class="align-middle text-center">
+                  <span
+                    th:classappend="${item.role.name == 'Admin' ? 'badge bg-danger' : (item.role.name == 'Asesor' ? 'badge bg-info' : 'badge bg-success')}"
+                    th:text="${item.role.name}"
+                  >
+                    Role
+                  </span>
                 </td>
 
                 <td class="align-middle">
+                  <div class="action-buttons">
+                    <a
+                      th:href="@{'/admin/data-pengguna/detail/' + ${item.user.id}}"
+                      class="btn btn-info btn-sm"
+                      title="Detail"
+                      ><i class="fas fa-eye"></i
+                    ></a>
+
+                    <a
+                      th:href="@{'/admin/data-pengguna/edit/' + ${item.user.id}}"
+                      class="btn btn-warning btn-sm"
+                      title="Edit"
+                      ><i class="fas fa-edit"></i
+                    ></a>
+
+                    <a
+                      th:href="@{'/admin/data-pengguna/delete/' + ${item.user.id}}"
+                      class="btn btn-danger btn-sm delete-button"
+                      title="Hapus"
+                      ><i class="fas fa-trash"></i
+                    ></a>
+                  </div>
+                </td>
+
+                <!-- <td class="align-middle">
                   <div class="action-buttons">
                     <a
                       class="btn btn-outline-primary btn-sm"
@@ -231,7 +265,7 @@
                       <i class="fas fa-trash"></i>
                     </a>
                   </div>
-                </td>
+                </td> -->
               </tr>
 
               <tr th:if="${#lists.isEmpty(listPengguna)}">

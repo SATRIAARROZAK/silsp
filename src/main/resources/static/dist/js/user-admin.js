@@ -3,56 +3,6 @@
 // =======================================================================
 $(document).ready(function () {
   // Aktifkan DataTables agar bisa search & paging otomatis
-
-  $("#tableUser").DataTable({
-    responsive: true,
-    autoWidth: false,
-    searching: false, // Pertahankan false karena kita pakai search server-side
-
-    // 2. DATA TERBARU DI ATAS
-    // Urutkan berdasarkan kolom pertama (No/ID) secara Descending
-    order: [[0, "desc"]],
-
-    // 4. AKTIFKAN PAGINATION & SELECT DISPLAY LIST
-    paging: true,
-    lengthChange: true, // Aktifkan select list display
-    lengthMenu: [
-      [5, 10, 30, 50, 100, -1],
-      [5, 10, 30, 50, 100, "Semua"],
-    ],
-
-    language: {
-      emptyTable: "Tidak ada data pengguna.",
-      zeroRecords: "Data tidak ditemukan.",
-      paginate: {
-        next: "Berikutnya",
-        previous: "Sebelumnya",
-      },
-      lengthMenu: "Tampilkan _MENU_ data", // Tampilkan select display list
-    },
-  });
-
-  // 3. LOGIKA SWEETALERT UNTUK TOMBOL DELETE
-  $(".delete-button").on("click", function (e) {
-    e.preventDefault(); // Mencegah navigasi langsung
-    var link = $(this).attr("th:href"); // Ambil URL delete dari tombol
-
-    Swal.fire({
-      title: "Yakin Ingin Hapus?",
-      text: "Data yang dihapus tidak dapat dikembalikan!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Ya, Hapus Permanen!",
-      cancelButtonText: "Batal",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        window.location.href = link; // Lanjutkan ke URL delete
-      }
-    });
-  });
-
   // $("#tableUser").DataTable({
   //   responsive: true,
   //   lengthChange: false,
@@ -68,8 +18,29 @@ $(document).ready(function () {
   //       previous: "Mundur",
   //     },
   //   },
+
+  //   order: [[0, "desc"]],
   // });
 
+  $(".delete-button").on("click", function (e) {
+    e.preventDefault();
+    var realLink = $(this).attr("href");
+
+    Swal.fire({
+      title: "Yakin Ingin Hapus?",
+      text: "Data yang dihapus tidak dapat dikembalikan!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Ya, Hapus Permanen!",
+      cancelButtonText: "Batal",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.href = realLink;
+      }
+    });
+  });
   // ---------------------------------------------------
   // 1. LOGIKA CHANGE ROLE (Admin/Asesi/Asesor)
   // ---------------------------------------------------

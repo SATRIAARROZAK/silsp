@@ -11,6 +11,10 @@ import com.lsptddi.silsp.model.User;
 import com.lsptddi.silsp.repository.UserRepository;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
@@ -156,26 +160,53 @@ public class AdminController {
         return "pages/admin/surat/surat-tugas-edit";
     }
 
-    
-
     @GetMapping("/data-pengguna")
-    public String showDataPengguna(Model model, @RequestParam(value = "keyword", required = false) String keyword,
-            @RequestParam(value = "role", required = false) String role) { // 1. Tambahkan Model sebagai parameter
+    public String showDataPengguna(Model model,
+            @RequestParam(value = "keyword", required = false) String keyword,
+            @RequestParam(value = "role", required = false) String role,
+            @RequestParam(value = "page", defaultValue = "0") int page, // Default Halaman 1 (index 0)
+            @RequestParam(value = "size", defaultValue = "10") int size) { // Default 10 data
 
-        // 1. Panggil Repository dengan parameter pencarian
-        List<User> users = userRepository.searchUsers(keyword, role);
+        // 1. Buat Pageable (Urutkan berdasarkan ID DESC agar data terbaru diatas)
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
 
-        // 2. Kirim hasil data ke HTML
-        model.addAttribute("listPengguna", users);
+        // 2. Panggil Repo
+        Page<User> userPage = userRepository.searchUsers(keyword, role, pageable);
 
-        // 3. Kirim BALIK parameter ke HTML (Agar form tidak reset setelah disubmit)
+        // 3. Kirim Data ke HTML
+        model.addAttribute("listPengguna", userPage.getContent()); // List Datanya
+        model.addAttribute("currentPage", page); // Halaman saat ini
+        model.addAttribute("totalPages", userPage.getTotalPages());// Total Halaman
+        model.addAttribute("totalItems", userPage.getTotalElements()); // Total semua data
+        model.addAttribute("size", size); // Ukuran per halaman (5, 10, etc)
+
+        // Kirim balik filter agar tidak hilang
         model.addAttribute("keyword", keyword);
         model.addAttribute("selectedRole", role);
 
-        // // 3. Masukkan ke dalam Model agar bisa dibaca di HTML
-        // model.addAttribute("listPengguna", users);
         return "pages/admin/users/users-list";
     }
+
+    // @GetMapping("/data-pengguna")
+    // public String showDataPengguna(Model model, @RequestParam(value = "keyword",
+    // required = false) String keyword,
+    // @RequestParam(value = "role", required = false) String role) { // 1.
+    // Tambahkan Model sebagai parameter
+
+    // // 1. Panggil Repository dengan parameter pencarian
+    // List<User> users = userRepository.searchUsers(keyword, role);
+
+    // // 2. Kirim hasil data ke HTML
+    // model.addAttribute("listPengguna", users);
+
+    // // 3. Kirim BALIK parameter ke HTML (Agar form tidak reset setelah disubmit)
+    // model.addAttribute("keyword", keyword);
+    // model.addAttribute("selectedRole", role);
+
+    // // // 3. Masukkan ke dalam Model agar bisa dibaca di HTML
+    // // model.addAttribute("listPengguna", users);
+    // return "pages/admin/users/users-list";
+    // }
 
     @GetMapping("/data-pengguna/tambah-users")
     public String showAddPengguna(Model model) { // 1. Tambahkan Model sebagai parameter
@@ -197,24 +228,25 @@ public class AdminController {
 
     @GetMapping("/data-pengguna/delete/{id}")
     public String deleteUser(@PathVariable Long id, RedirectAttributes attributes) {
-        
+
         try {
             // Cek apakah user ada sebelum dihapus (Opsional, tapi bagus)
             if (!userRepository.existsById(id)) {
                 attributes.addFlashAttribute("error", "Data pengguna tidak ditemukan!");
                 return "redirect:/admin/data-pengguna";
             }
-            
+
             // Lakukan penghapusan data
             userRepository.deleteById(id);
-            
+
             // Kirim pesan sukses
             attributes.addFlashAttribute("success", "Data pengguna berhasil dihapus secara permanen!");
         } catch (Exception e) {
             // Tangani error, misal Foreign Key Constraint
-            attributes.addFlashAttribute("error", "Gagal menghapus pengguna. Pastikan data terkait (misal: data registrasi) sudah dihapus.");
+            attributes.addFlashAttribute("error",
+                    "Gagal menghapus pengguna. Pastikan data terkait (misal: data registrasi) sudah dihapus.");
         }
-        
+
         return "redirect:/admin/data-pengguna";
     }
 

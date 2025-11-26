@@ -5,17 +5,18 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-
     @Query("SELECT DISTINCT u FROM User u JOIN u.roles r WHERE " +
             "(:role IS NULL OR :role = '' OR r.name = :role) AND " +
             "(:keyword IS NULL OR :keyword = '' OR LOWER(u.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')))")
-    List<User> searchUsers(@Param("keyword") String keyword, @Param("role") String role);
+    Page<User> searchUsers(@Param("keyword") String keyword, @Param("role") String role, Pageable pageable);
 
     // 1. METHOD BAWAAN (Otomatis ada, tidak perlu ditulis):
     // - findAll() -> Mengambil semua user

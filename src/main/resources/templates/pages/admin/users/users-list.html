@@ -180,7 +180,7 @@
               <tr th:each="user, iter : ${listPengguna}">
                 <td
                   class="align-middle text-center"
-                  th:text="${iter.count}"
+                  th:text="${(currentPage * size) + iter.count}"
                 ></td>
 
                 <td th:text="${user.fullName}"></td>
@@ -224,7 +224,7 @@
                       <i class="fas fa-pencil-alt"> </i>
                     </a>
                     <a
-                      th:href="@{/admin/data-pengguna/delete/{id}(id=${user.id})}"
+                      th:href="@{'/admin/users/delete/' + ${user.id}}"
                       class="btn btn-outline-danger btn-sm delete-button"
                       title="Delete"
                     >
@@ -243,13 +243,102 @@
           </table>
         </div>
         <div class="card-footer clearfix">
-          <ul class="pagination pagination-sm m-0 float-right">
-            <li class="page-item"><a class="page-link" href="#">&laquo;</a></li>
-            <li class="page-item"><a class="page-link" href="#">1</a></li>
-            <li class="page-item"><a class="page-link" href="#">2</a></li>
-            <li class="page-item"><a class="page-link" href="#">3</a></li>
-            <li class="page-item"><a class="page-link" href="#">&raquo;</a></li>
-          </ul>
+          <div class="row align-items-center">
+            <div class="col-md-4 col-12 mb-2 mb-md-0">
+              <span class="text-muted small">
+                Menampilkan
+                <b th:text="${(currentPage * size) + 1}">1</b>
+                sampai
+                <b th:text="${(currentPage * size) + listPengguna.size()}"
+                  >10</b
+                >
+                dari
+                <b th:text="${totalItems}">54</b> data
+              </span>
+            </div>
+
+            <div
+              class="col-md-8 col-12 text-right d-flex justify-content-end align-items-center"
+            >
+              <nav
+                aria-label="Page navigation"
+                class="mr-3"
+                th:if="${totalPages > 0}"
+              >
+                <ul class="pagination pagination-sm m-0 float-right">
+                  <li
+                    class="page-item"
+                    th:classappend="${currentPage == 0} ? 'disabled'"
+                  >
+                    <a
+                      class="page-link"
+                      th:href="@{/admin/data-pengguna(page=${currentPage - 1}, size=${size}, keyword=${keyword}, role=${selectedRole})}"
+                    >
+                      &laquo;
+                    </a>
+                  </li>
+
+                  <li
+                    class="page-item"
+                    th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                    th:if="${i >= currentPage - 2 && i <= currentPage + 2}"
+                    th:classappend="${i == currentPage} ? 'active'"
+                  >
+                    <a
+                      class="page-link"
+                      th:href="@{/admin/data-pengguna(page=${i}, size=${size}, keyword=${keyword}, role=${selectedRole})}"
+                      th:text="${i + 1}"
+                      >1</a
+                    >
+                  </li>
+
+                  <li
+                    class="page-item"
+                    th:classappend="${currentPage == totalPages - 1} ? 'disabled'"
+                  >
+                    <a
+                      class="page-link"
+                      th:href="@{/admin/data-pengguna(page=${currentPage + 1}, size=${size}, keyword=${keyword}, role=${selectedRole})}"
+                    >
+                      &raquo;
+                    </a>
+                  </li>
+                </ul>
+              </nav>
+
+              <form
+                th:action="@{/admin/data-pengguna}"
+                method="get"
+                id="formSize"
+              >
+                <input type="hidden" name="keyword" th:value="${keyword}" />
+                <input type="hidden" name="role" th:value="${selectedRole}" />
+                <input type="hidden" name="page" value="0" />
+                <div class="input-group input-group-sm">
+                  <select
+                    class="form-control custom-select"
+                    name="size"
+                    onchange="document.getElementById('formSize').submit()"
+                    style="width: 70px; border-radius: 4px"
+                  >
+                    <option value="5" th:selected="${size == 5}">5</option>
+                    <option value="10" th:selected="${size == 10}">10</option>
+                    <option value="20" th:selected="${size == 20}">20</option>
+                    <option value="50" th:selected="${size == 50}">50</option>
+                    <option value="100" th:selected="${size == 100}">
+                      100
+                    </option>
+                  </select>
+                  <div class="input-group-append">
+                    <span
+                      class="input-group-text bg-transparent border-0 small text-muted"
+                      >/ halaman</span
+                    >
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html
+  lang="en"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/app}"
+>
+  <head th:replace="~{fragments/header :: header('Detail Pengguna')}"></head>
+
+  <body>
+    <div layout:fragment="content">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-md-3">
+            <div class="card card-primary card-outline">
+              <div class="card-body box-profile">
+                <div class="text-center">
+                  <img
+                    class="profile-user-img img-fluid img-circle"
+                    th:src="@{/dist/img/user2-160x160.jpg}"
+                    alt="User profile picture"
+                  />
+                </div>
+
+                <h3
+                  class="profile-username text-center"
+                  th:text="${user.fullName}"
+                >
+                  Nama Lengkap
+                </h3>
+                <p
+                  class="text-muted text-center"
+                  th:text="${user.jobType?.name ?: '-'}"
+                >
+                  Pekerjaan
+                </p>
+
+                <ul class="list-group list-group-unbordered mb-3">
+                  <li class="list-group-item">
+                    <b>Username</b>
+                    <a class="float-right" th:text="${user.username}">-</a>
+                  </li>
+                  <li class="list-group-item">
+                    <b>Email</b>
+                    <a class="float-right" th:text="${user.email}">-</a>
+                  </li>
+                  <li class="list-group-item">
+                    <b>Role</b>
+                    <div class="float-right">
+                      <span
+                        th:each="role : ${user.roles}"
+                        class="badge badge-info ml-1"
+                        th:text="${role.name}"
+                      ></span>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-9">
+            <div class="card">
+              <div class="card-header p-2">
+                <ul class="nav nav-pills">
+                  <li class="nav-item">
+                    <a class="nav-link active" href="#pribadi" data-toggle="tab"
+                      >Data Pribadi</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#pekerjaan" data-toggle="tab"
+                      >Data Pekerjaan</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#alamat" data-toggle="tab"
+                      >Alamat & Kontak</a
+                    >
+                  </li>
+                </ul>
+              </div>
+              <div class="card-body">
+                <div class="tab-content">
+                  <div class="active tab-pane" id="pribadi">
+                    <form class="form-horizontal">
+                      <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">NIK</label>
+                        <div class="col-sm-9">
+                          <input
+                            type="text"
+                            class="form-control bg-white"
+                            th:value="${user.nik}"
+                            disabled
+                          />
+                        </div>
+                      </div>
+                      <div class="form-group row">
+                        <label class="col-sm-3 col-form-label"
+                          >Tempat, Tgl Lahir</label
+                        >
+                        <div class="col-sm-9">
+                          <input
+                            type="text"
+                            class="form-control bg-white"
+                            th:value="${user.birthPlace + ', ' + user.birthDate}"
+                            disabled
+                          />
+                        </div>
+                      </div>
+                      <div class="form-group row">
+                        <label class="col-sm-3 col-form-label"
+                          >Jenis Kelamin</label
+                        >
+                        <div class="col-sm-9">
+                          <input
+                            type="text"
+                            class="form-control bg-white"
+                            th:value="${user.gender == 'L' ? 'Laki-laki' : 'Perempuan'}"
+                            disabled
+                          />
+                        </div>
+                      </div>
+                      <div class="form-group row">
+                        <label class="col-sm-3 col-form-label"
+                          >Pendidikan Terakhir</label
+                        >
+                        <div class="col-sm-9">
+                          <input
+                            type="text"
+                            class="form-control bg-white"
+                            th:value="${user.lastEducation?.name ?: '-'}"
+                            disabled
+                          />
+                        </div>
+                      </div>
+                      <div class="form-group row" th:if="${user.noMet}">
+                        <label class="col-sm-3 col-form-label">No. MET</label>
+                        <div class="col-sm-9">
+                          <input
+                            type="text"
+                            class="form-control bg-white"
+                            th:value="${user.noMet}"
+                            disabled
+                          />
+                        </div>
+                      </div>
+                      <div class="form-group row">
+                        <label class="col-sm-3 col-form-label"
+                          >Kewarganegaraan</label
+                        >
+                        <div class="col-sm-9">
+                          <input
+                            type="text"
+                            class="form-control bg-white"
+                            th:value="${user.citizenship}"
+                            disabled
+                          />
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+
+                  <div class="tab-pane" id="pekerjaan">
+                    <form class="form-horizontal">
+                      <div class="form-group row">
+                        <label class="col-sm-3 col-form-label"
+                          >Jenis Pekerjaan</label
+                        >
+                        <div class="col-sm-9">
+                          <input
+                            type="text"
+                            class="form-control bg-white"
+                            th:value="${user.jobType?.name ?: '-'}"
+                            disabled
+                          />
+                        </div>
+                      </div>
+                      <div class="form-group row">
+                        <label class="col-sm-3 col-form-label"
+                          >Nama Instansi</label
+                        >
+                        <div class="col-sm-9">
+                          <input
+                            type="text"
+                            class="form-control bg-white"
+                            th:value="${user.companyName ?: '-'}"
+                            disabled
+                          />
+                        </div>
+                      </div>
+                      <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Jabatan</label>
+                        <div class="col-sm-9">
+                          <input
+                            type="text"
+                            class="form-control bg-white"
+                            th:value="${user.position ?: '-'}"
+                            disabled
+                          />
+                        </div>
+                      </div>
+                      <div class="form-group row">
+                        <label class="col-sm-3 col-form-label"
+                          >Kontak Kantor</label
+                        >
+                        <div class="col-sm-9">
+                          <p class="mb-1" th:if="${user.officePhone}">
+                            Telp: <span th:text="${user.officePhone}"></span>
+                          </p>
+                          <p class="mb-1" th:if="${user.officeEmail}">
+                            Email: <span th:text="${user.officeEmail}"></span>
+                          </p>
+                          <p class="mb-0" th:if="${user.officeFax}">
+                            Fax: <span th:text="${user.officeFax}"></span>
+                          </p>
+                        </div>
+                      </div>
+                      <div class="form-group row">
+                        <label class="col-sm-3 col-form-label"
+                          >Alamat Kantor</label
+                        >
+                        <div class="col-sm-9">
+                          <textarea
+                            class="form-control bg-white"
+                            rows="2"
+                            disabled
+                            th:text="${user.officeAddress ?: '-'}"
+                          ></textarea>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+
+                  <div class="tab-pane" id="alamat">
+                    <form class="form-horizontal">
+                      <div class="form-group row">
+                        <label class="col-sm-3 col-form-label"
+                          >No. Telepon (HP)</label
+                        >
+                        <div class="col-sm-9">
+                          <input
+                            type="text"
+                            class="form-control bg-white"
+                            th:value="${user.phoneNumber}"
+                            disabled
+                          />
+                        </div>
+                      </div>
+                      <div class="form-group row">
+                        <label class="col-sm-3 col-form-label"
+                          >Alamat Rumah</label
+                        >
+                        <div class="col-sm-9">
+                          <textarea
+                            class="form-control bg-white"
+                            rows="2"
+                            disabled
+                            th:text="${user.address}"
+                          ></textarea>
+                        </div>
+                      </div>
+
+                      <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Provinsi</label>
+                        <div class="col-sm-9">
+                          <span
+                            id="viewProv"
+                            th:data-id="${user.provinceId}"
+                            class="form-control-plaintext border-bottom"
+                            >Loading...</span
+                          >
+                        </div>
+                      </div>
+                      <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Kota/Kab</label>
+                        <div class="col-sm-9">
+                          <span
+                            id="viewCity"
+                            th:data-id="${user.cityId}"
+                            class="form-control-plaintext border-bottom"
+                            >Loading...</span
+                          >
+                        </div>
+                      </div>
+                      <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Kecamatan</label>
+                        <div class="col-sm-9">
+                          <span
+                            id="viewDist"
+                            th:data-id="${user.districtId}"
+                            class="form-control-plaintext border-bottom"
+                            >Loading...</span
+                          >
+                        </div>
+                      </div>
+                      <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Kelurahan</label>
+                        <div class="col-sm-9">
+                          <span
+                            id="viewSubDist"
+                            th:data-id="${user.subDistrictId}"
+                            class="form-control-plaintext border-bottom"
+                            >Loading...</span
+                          >
+                        </div>
+                      </div>
+                      <div class="form-group row">
+                        <label class="col-sm-3 col-form-label">Kode Pos</label>
+                        <div class="col-sm-9">
+                          <input
+                            type="text"
+                            class="form-control bg-white"
+                            th:value="${user.postalCode}"
+                            disabled
+                          />
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

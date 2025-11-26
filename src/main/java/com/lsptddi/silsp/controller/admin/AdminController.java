@@ -246,8 +246,19 @@ public class AdminController {
         return "pages/admin/users/users-add";
     }
 
-    @GetMapping("/data-pengguna/view-users")
-    public String showViewPengguna(Model model) { // 1. Tambahkan Model sebagai parameter
+    @GetMapping("/data-pengguna/view-users/{id}")
+
+    public String detailPengguna(@PathVariable Long id, Model model) {
+        // 1. Cari user berdasarkan ID
+        User user = userRepository.findById(id).orElse(null);
+
+        // 2. Jika tidak ditemukan, kembalikan ke list
+        if (user == null) {
+            return "redirect:/admin/data-pengguna";
+        }
+
+        // 3. Kirim data user ke HTML
+        model.addAttribute("user", user);
 
         return "pages/admin/users/users-view";
     }

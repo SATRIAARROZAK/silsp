@@ -227,7 +227,7 @@ public class AdminController {
     }
 
     @GetMapping("/data-pengguna/delete/{id}")
-    public String deleteUser(@PathVariable Long id, RedirectAttributes attributes) {
+    public String deletePengguna(@PathVariable Long id, RedirectAttributes attributes) {
 
         try {
             // Cek apakah user ada sebelum dihapus (Opsional, tapi bagus)
@@ -246,8 +246,7 @@ public class AdminController {
             attributes.addFlashAttribute("error",
                     "Gagal menghapus pengguna. Pastikan data terkait (misal: data registrasi) sudah dihapus.");
         }
-
-        return "pages/admin/users/users-list";
+        return "redirect:/admin/data-pengguna";
     }
 
     @GetMapping("/data-asesi")

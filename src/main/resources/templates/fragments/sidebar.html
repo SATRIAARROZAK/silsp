@@ -133,7 +133,7 @@
           </li>
         </th:block>
 
-        <th:block th:if="${user != null && user.role == 'Asesi'}">
+        <th:block sec:authorize="hasAuthority('Asesi')">
           <li class="nav-item">
             <a th:href="@{/asesi}" class="nav-link">
               <i class="nav-icon fas fa-home"></i>
@@ -148,7 +148,7 @@
           </li>
         </th:block>
 
-        <th:block th:if="${user != null && user.role == 'Asesor'}">
+        <th:block sec:authorize="hasAuthority('Asesor')">
           <li class="nav-item">
             <a th:href="@{/asesor}" class="nav-link">
               <i class="nav-icon fas fa-home"></i>

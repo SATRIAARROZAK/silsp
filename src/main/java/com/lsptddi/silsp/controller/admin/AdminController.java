@@ -248,17 +248,25 @@ public class AdminController {
 
     @GetMapping("/data-pengguna/view-users/{id}")
 
-    public String detailPengguna(@PathVariable Long id, Model model) {
-        // 1. Cari user berdasarkan ID
-        User user = userRepository.findById(id).orElse(null);
+    public String detailUser(@PathVariable Long id,
+            @RequestParam(value = "role", required = false) String role,
+            Model model) {
 
-        // 2. Jika tidak ditemukan, kembalikan ke list
+        // 1. Cari User
+        User user = userRepository.findById(id).orElse(null);
         if (user == null) {
             return "redirect:/admin/data-pengguna";
         }
 
-        // 3. Kirim data user ke HTML
+        // 2. Tentukan Role yang akan ditampilkan
+        // Jika parameter role kosong (misal akses langsung), ambil role pertama user
+        if (role == null && !user.getRoles().isEmpty()) {
+            role = user.getRoles().iterator().next().getName();
+        }
+
+        // 3. Kirim ke View
         model.addAttribute("user", user);
+        model.addAttribute("viewRole", role); // String: "ADMIN", "ASESI", atau "ASESOR"
 
         return "pages/admin/users/users-view";
     }

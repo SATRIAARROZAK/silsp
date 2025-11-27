@@ -590,4 +590,38 @@ $(document).ready(function () {
   $(
     "<style>.is-invalid-border { border-color: #dc3545 !important; }</style>"
   ).appendTo("head");
+
+  // ==========================================
+  // 3. LOGIKA VIEW USER
+  // ==========================================
+
+  if ($("#viewProv").length) {
+    const apiBaseUrl = "https://www.emsifa.com/api-wilayah-indonesia/api";
+    function fetchName(endpoint, elementId, idToFind) {
+      if (!idToFind) {
+        $("#" + elementId).text("-");
+        return;
+      }
+      $.getJSON(apiBaseUrl + endpoint, function (data) {
+        let found = data.find((item) => item.id == idToFind);
+        $("#" + elementId).text(found ? found.name : idToFind);
+      });
+    }
+
+    // Ambil data hanya jika elemen tersedia
+    let provId = $("#viewProv").data("id");
+    fetchName("/provinces.json", "viewProv", provId);
+
+    let cityId = $("#viewCity").data("id");
+    if (provId && cityId)
+      fetchName(`/regencies/${provId}.json`, "viewCity", cityId);
+
+    let distId = $("#viewDist").data("id");
+    if (cityId && distId)
+      fetchName(`/districts/${cityId}.json`, "viewDist", distId);
+
+    let subDistId = $("#viewSubDist").data("id");
+    if (distId && subDistId)
+      fetchName(`/villages/${distId}.json`, "viewSubDist", subDistId);
+  }
 });

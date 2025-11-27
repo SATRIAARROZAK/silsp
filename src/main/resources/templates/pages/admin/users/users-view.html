@@ -10,64 +10,377 @@
   <body>
     <div layout:fragment="content">
       <div class="container-fluid">
-        <form th:action="@{/}" method="post" id="form-buat-jadwal" novalidate>
-          <div class="row">
-            <div class="col-12">
-              <div class="card card-blue-dark">
-                <div class="card-header">
-                  <h3 class="card-title">1. Data Akun</h3>
-                </div>
-                <!-- /.card-header -->
-                <!-- form start -->
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>Detail Pengguna</h1>
+          </div>
+          <div class="col-sm-6 text-right">
+            <a th:href="@{/admin/data-pengguna}" class="btn btn-secondary">
+              <i class="fas fa-arrow-left"></i> Kembali
+            </a>
+          </div>
+        </div>
+      </div>
 
-                <div class="card-body">
-                  <div class="row">
-                    <div class="col-md-4">
-                      <div class="form-group">
-                        <label
-                          >Username <span class="text-danger">*</span></label
-                        >
-                        <input
-                          type="text"
-                          th:value="${user.username}"
-                          class="form-control"
-                          disabled
-                        />
-                      </div>
-                    </div>
-                    <div class="col-md-4">
-                      <div class="form-group">
-                        <label>Email <span class="text-danger">*</span></label>
-                        <input
-                          type="email"
-                          th:value="${user.email}"
-                          class="form-control"
-                          disabled
-                        />
-                      </div>
-                    </div>
-                    <div class="col-md-4">
-                      <div class="form-group">
-                        <label>Role <span class="text-danger">*</span></label>
-                      </div>
-                    </div>
+      <div class="container-fluid">
+        <div class="card card-primary card-outline">
+          <div class="card-body box-profile">
+            <div class="text-center">
+              <img
+                class="profile-user-img img-fluid img-circle"
+                th:src="@{/dist/img/user2-160x160.jpg}"
+                alt="User profile picture"
+                style="width: 100px"
+              />
+            </div>
+            <h3 class="profile-username text-center" th:text="${user.fullName}">
+              Nama User
+            </h3>
+
+            <div class="text-center mb-3">
+              <span
+                class="badge"
+                th:classappend="${viewRole == 'Admin' ? 'badge-danger' : (viewRole == 'Asesor' ? 'badge-info' : 'badge-success')}"
+                style="font-size: 1.1rem; padding: 8px 15px"
+              >
+                <i class="fas fa-user-tag"></i>
+                <span th:text="${viewRole}">ROLE</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <form>
+          <div class="card card-info">
+            <div class="card-header">
+              <h3 class="card-title">1. Data Akun</h3>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Username</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      th:value="${user.username}"
+                      disabled
+                    />
                   </div>
                 </div>
-
-                <!-- /.card-body -->
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Email</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      th:value="${user.email}"
+                      disabled
+                    />
+                  </div>
+                </div>
               </div>
-              <!-- /.card -->
             </div>
           </div>
 
-          <div class="card-footer mt-3 text-left">
-            <button type="submit" class="btn btn-outline-warning">Edit</button>
-            <a th:href="@{/admin/data-pengguna}" class="btn btn-outline-info"
-              >Batal</a
-            >
+          <div class="card card-primary">
+            <div class="card-header">
+              <h3 class="card-title">2. Data Pribadi</h3>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Nama Lengkap</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      th:value="${user.fullName}"
+                      disabled
+                    />
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Tempat Lahir</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      th:value="${user.birthPlace}"
+                      disabled
+                    />
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Tanggal Lahir</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      th:value="${user.birthDate}"
+                      disabled
+                    />
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Jenis Kelamin</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      th:value="${user.gender == 'L' ? 'Laki-laki' : 'Perempuan'}"
+                      disabled
+                    />
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>NIK</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      th:value="${user.nik}"
+                      disabled
+                    />
+                  </div>
+                </div>
+                <div class="col-md-4" th:if="${viewRole == 'Asesi'}">
+                  <div class="form-group">
+                    <label>Kewarganegaraan</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      th:value="${user.citizenship}"
+                      disabled
+                    />
+                  </div>
+                </div>
+
+                <div
+                  class="col-md-4"
+                  th:if="${viewRole == 'Asesi' or viewRole == 'Asesor'}"
+                >
+                  <div class="form-group">
+                    <label>No Telepon</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      th:value="${user.phoneNumber}"
+                      disabled
+                    />
+                  </div>
+                </div>
+                <div
+                  class="col-md-4"
+                  th:if="${viewRole == 'ASESI' or viewRole == 'ASESOR'}"
+                >
+                  <div class="form-group">
+                    <label>Pendidikan Terakhir</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      th:value="${user.educationId.name ?: '-'}"
+                      disabled
+                    />
+                  </div>
+                </div>
+
+                <div class="col-md-4" th:if="${viewRole == 'Asesor'}">
+                  <div class="form-group">
+                    <label>No. MET</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      th:value="${user.noMet}"
+                      disabled
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="row mt-2">
+                <div class="col-md-3" th:if="${viewRole == 'Asesi'}">
+                  <label>Provinsi</label>
+                  <span
+                    id="viewProv"
+                    th:data-id="${user.provinceId}"
+                    class="form-control bg-light"
+                    >Loading...</span
+                  >
+                </div>
+                <div class="col-md-3" th:if="${viewRole == 'Asesi'}">
+                  <label>Kota/Kab</label>
+                  <span
+                    id="viewCity"
+                    th:data-id="${user.cityId}"
+                    class="form-control bg-light"
+                    >Loading...</span
+                  >
+                </div>
+                <div class="col-md-3" th:if="${viewRole == 'Asesi'}">
+                  <label>Kecamatan</label>
+                  <span
+                    id="viewDist"
+                    th:data-id="${user.districtId}"
+                    class="form-control bg-light"
+                    >Loading...</span
+                  >
+                </div>
+                <div class="col-md-3" th:if="${viewRole == 'Asesi'}">
+                  <div class="form-group">
+                    <label>Kode Pos</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      th:value="${user.postalCode}"
+                      disabled
+                    />
+                  </div>
+                </div>
+                <!-- <div
+                  class="col-md-3"
+                  th:if="${viewRole == 'Asesi'}"
+                >
+                  <label>Kelurahan</label>
+                  <span
+                    id="viewSubDist"
+                    th:data-id="${user.subDistrictId}"
+                    class="form-control bg-light"
+                    >Loading...</span
+                  >
+                </div> -->
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label>Alamat Jalan</label>
+                    <textarea
+                      class="form-control"
+                      rows="2"
+                      disabled
+                      th:text="${user.address}"
+                    ></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row mt-4">
+                <div class="col-md-12">
+                  <label>Tanda Tangan</label>
+                  <div
+                    class="border p-2 rounded text-center bg-light"
+                    style="min-height: 100px"
+                  >
+                    <img
+                      th:if="${user.signatureBase64}"
+                      th:src="${user.signatureBase64}"
+                      style="max-height: 150px; max-width: 100%"
+                    />
+                    <span
+                      th:unless="${user.signatureBase64}"
+                      class="text-muted font-italic"
+                      >Tidak ada tanda tangan</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="card card-success"
+            th:if="${viewRole == 'Asesi' or viewRole == 'Asesor'}"
+          >
+            <div class="card-header">
+              <h3 class="card-title">3. Data Pekerjaan</h3>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label>Jenis Pekerjaan</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      th:value="${user.jobType?.name ?: '-'}"
+                      disabled
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div
+                th:if="${viewRole == 'Asesi' and user.jobType!= null and user.jobType.id != 1}"
+              >
+                <hr />
+                <h6 class="text-primary font-weight-bold">
+                  <i class="fas fa-building"></i> Detail Instansi
+                </h6>
+                <div class="row mt-3">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label>Nama Instansi</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        th:value="${user.companyName}"
+                        disabled
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label>Jabatan</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        th:value="${user.position}"
+                        disabled
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label>Email Kantor</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        th:value="${user.officeEmail}"
+                        disabled
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label>Telp Kantor</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        th:value="${user.officePhone}"
+                        disabled
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label>Alamat Kantor</label>
+                      <textarea
+                        class="form-control"
+                        rows="2"
+                        disabled
+                        th:text="${user.officeAddress}"
+                      ></textarea>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </form>
       </div>
     </div>
+    <script>
+      $(document).ready(function () {
+        // Cek apakah elemen wilayah ada (karena di Admin disembunyikan)
+      });
+    </script>
   </body>
 </html>

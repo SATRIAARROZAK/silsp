@@ -634,8 +634,4 @@ $(document).ready(function () {
   $(
     "<style>.is-invalid-border { border-color: #dc3545 !important; }</style>"
   ).appendTo("head");
-
-  // ==========================================
-  // 3. LOGIKA VIEW USER
-  // ==========================================
 });

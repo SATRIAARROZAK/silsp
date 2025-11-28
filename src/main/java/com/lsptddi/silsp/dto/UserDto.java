@@ -7,6 +7,7 @@ import java.util.List;
 
 @Data
 public class UserDto {
+    private Long id;
     private String username;
     private String email;
     private List<String> roles; // List ID Role (ADMIN, ASESI, dll)

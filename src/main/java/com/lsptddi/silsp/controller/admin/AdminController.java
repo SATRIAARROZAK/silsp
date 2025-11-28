@@ -189,57 +189,6 @@ public class AdminController {
 
     }
 
-    // @GetMapping("/data-pengguna")
-    // public String showDataPengguna(Model model,
-    // @RequestParam(value = "keyword", required = false) String keyword,
-    // @RequestParam(value = "role", required = false) String role,
-    // @RequestParam(value = "page", defaultValue = "0") int page, // Default
-    // Halaman 1 (index 0)
-    // @RequestParam(value = "size", defaultValue = "10") int size) { // Default 10
-    // data
-
-    // // 1. Buat Pageable (Urutkan berdasarkan ID DESC agar data terbaru diatas)
-    // Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
-
-    // // 2. Panggil Repo
-    // Page<User> userPage = userRepository.searchUsers(keyword, role, pageable);
-
-    // // 3. Kirim Data ke HTML
-    // model.addAttribute("listPengguna", userPage.getContent()); // List Datanya
-    // model.addAttribute("currentPage", page); // Halaman saat ini
-    // model.addAttribute("totalPages", userPage.getTotalPages());// Total Halaman
-    // model.addAttribute("totalItems", userPage.getTotalElements()); // Total semua
-    // data
-    // model.addAttribute("size", size); // Ukuran per halaman (5, 10, etc)
-
-    // // Kirim balik filter agar tidak hilang
-    // model.addAttribute("keyword", keyword);
-    // model.addAttribute("selectedRole", role);
-
-    // return "pages/admin/users/users-list";
-    // }
-
-    // @GetMapping("/data-pengguna")
-    // public String showDataPengguna(Model model, @RequestParam(value = "keyword",
-    // required = false) String keyword,
-    // @RequestParam(value = "role", required = false) String role) { // 1.
-    // Tambahkan Model sebagai parameter
-
-    // // 1. Panggil Repository dengan parameter pencarian
-    // List<User> users = userRepository.searchUsers(keyword, role);
-
-    // // 2. Kirim hasil data ke HTML
-    // model.addAttribute("listPengguna", users);
-
-    // // 3. Kirim BALIK parameter ke HTML (Agar form tidak reset setelah disubmit)
-    // model.addAttribute("keyword", keyword);
-    // model.addAttribute("selectedRole", role);
-
-    // // // 3. Masukkan ke dalam Model agar bisa dibaca di HTML
-    // // model.addAttribute("listPengguna", users);
-    // return "pages/admin/users/users-list";
-    // }
-
     @GetMapping("/data-pengguna/tambah-users")
     public String showAddPengguna(Model model) { // 1. Tambahkan Model sebagai parameter
 
@@ -271,11 +220,23 @@ public class AdminController {
         return "pages/admin/users/users-view";
     }
 
-    @GetMapping("/data-pengguna/edit-users")
-    public String showEditPengguna(Model model) { // 1. Tambahkan Model sebagai parameter
-
+    // --- FITUR HALAMAN EDIT PENGGUNA ---
+    @GetMapping("/data-pengguna/edit-users/{id}")
+    public String editUserForm(@PathVariable Long id, Model model) {
+        User user = userRepository.findById(id).orElse(null);
+        if (user == null) {
+            return "redirect:/admin/data-pengguna";
+        }
+        model.addAttribute("user", user);
         return "pages/admin/users/users-edit";
     }
+
+    // @GetMapping("/data-pengguna/edit-users")
+    // public String showEditPengguna(Model model) { // 1. Tambahkan Model sebagai
+    // parameter
+
+    // return "pages/admin/users/users-edit";
+    // }
 
     @GetMapping("/data-pengguna/delete/{id}")
     public String deletePengguna(@PathVariable Long id, RedirectAttributes attributes) {

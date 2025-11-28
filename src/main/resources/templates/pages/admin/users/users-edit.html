@@ -10,78 +10,454 @@
   <body>
     <div layout:fragment="content">
       <div class="container-fluid">
-        <div class="row">
-          <div class="col-12">
-            <div class="card card-blue-dark">
-              <div class="card-header">
-                <h3 class="card-title">Edit Pengguna</h3>
+        <div class="card card-outline card-warning">
+          <form
+            id="formEditUser"
+            th:action="@{/admin/users/update}"
+            method="post"
+          >
+            <input type="hidden" name="id" th:value="${user.id}" />
+
+            <div class="card-body">
+              <div class="separator">
+                <span class="separator-text">Data Akun</span>
               </div>
-              <!-- /.card-header -->
-              <!-- form start -->
-              <form th:action="@{/}" method="" id="form-edit-user" novalidate>
-                <div class="card-body">
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Username <span class="text-danger">*</span></label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      name="username"
+                      th:value="${user.username}"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Email <span class="text-danger">*</span></label>
+                    <input
+                      type="email"
+                      class="form-control"
+                      name="email"
+                      th:value="${user.email}"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Role <span class="text-danger">*</span></label>
+                    <select
+                      class="select2"
+                      multiple="multiple"
+                      id="roleSelect"
+                      name="roles"
+                      required
+                      style="width: 100%"
+                    >
+                      <option value="Admin">Admin</option>
+                      <option value="Asesi">Asesi</option>
+                      <option value="Asesor">Asesor</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-12">
+                  <div class="alert alert-info py-2 small">
+                    <i class="fas fa-info-circle"></i> Kosongkan password jika
+                    tidak ingin menggantinya.
+                  </div>
+                  <div class="form-group">
+                    <label>Password Baru</label>
+                    <input
+                      type="password"
+                      class="form-control"
+                      name="password"
+                      placeholder="Isi hanya jika ingin ubah password"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div id="wrapperDataPribadi">
+                <div class="separator">
+                  <span class="separator-text">Data Pribadi</span>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label
+                        >Nama Lengkap <span class="text-danger">*</span></label
+                      >
+                      <input
+                        type="text"
+                        class="form-control"
+                        name="fullName"
+                        th:value="${user.fullName}"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="form-group">
+                      <label
+                        >Tempat Lahir <span class="text-danger">*</span></label
+                      >
+                      <input
+                        type="text"
+                        class="form-control"
+                        name="birthPlace"
+                        th:value="${user.birthPlace}"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="form-group">
+                      <label
+                        >Tanggal Lahir <span class="text-danger">*</span></label
+                      >
+                      <input
+                        type="date"
+                        class="form-control"
+                        name="birthDate"
+                        th:value="${user.birthDate}"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label>Jenis Kelamin</label>
+                      <select class="form-control" name="gender">
+                        <option value="L" th:selected="${user.gender == 'L'}">
+                          Laki-laki
+                        </option>
+                        <option value="P" th:selected="${user.gender == 'P'}">
+                          Perempuan
+                        </option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label>NIK</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        name="nik"
+                        th:value="${user.nik}"
+                      />
+                    </div>
+                  </div>
+
+                  <div class="col-md-4 group-asesi-asesor">
+                    <div class="form-group">
+                      <label>No Telepon</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        name="phoneNumber"
+                        th:value="${user.phoneNumber}"
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-4 group-asesi-asesor">
+                    <div class="form-group">
+                      <label>Pendidikan Terakhir</label>
+                      <select
+                        class="form-control select2"
+                        id="selectPendidikan"
+                        style="width: 100%"
+                      >
+                        <option value="">Pilih Pendidikan...</option>
+                      </select>
+                      <input
+                        type="hidden"
+                        name="educationId"
+                        id="inputPendidikan"
+                        th:value="${user.educationId.id}"
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-4 group-asesor-only">
+                    <div class="form-group">
+                      <label>No. MET</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        name="noMet"
+                        th:value="${user.noMet}"
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-4 group-asesi-only">
+                    <div class="form-group">
+                      <label>Kewarganegaraan</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        name="citizenship"
+                        th:value="${user.citizenship}"
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-4 group-asesi-only">
+                    <div class="form-group">
+                      <label>Kode Pos</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        name="postalCode"
+                        th:value="${user.postalCode}"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row mt-2">
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label>Alamat Jalan</label>
+                      <textarea
+                        class="form-control"
+                        name="address"
+                        rows="2"
+                        th:text="${user.address}"
+                      ></textarea>
+                    </div>
+                  </div>
+                  <div class="col-md-3 group-asesi-asesor">
+                    <div class="form-group">
+                      <label>Provinsi</label>
+                      <select
+                        class="form-control select2"
+                        id="selectProvinsi"
+                        style="width: 100%"
+                      >
+                        <option value="">Pilih...</option>
+                      </select>
+                      <input
+                        type="hidden"
+                        name="provinceId"
+                        id="inputProvinsi"
+                        th:value="${user.provinceId}"
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-3 group-asesi-asesor">
+                    <div class="form-group">
+                      <label>Kota/Kab</label>
+                      <select
+                        class="form-control select2"
+                        id="selectKota"
+                        style="width: 100%"
+                        disabled
+                      >
+                        <option value="">Pilih...</option>
+                      </select>
+                      <input
+                        type="hidden"
+                        name="cityId"
+                        id="inputKota"
+                        th:value="${user.cityId}"
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-3 group-asesi-asesor">
+                    <div class="form-group">
+                      <label>Kecamatan</label>
+                      <select
+                        class="form-control select2"
+                        id="selectKecamatan"
+                        style="width: 100%"
+                        disabled
+                      >
+                        <option value="">Pilih...</option>
+                      </select>
+                      <input
+                        type="hidden"
+                        name="districtId"
+                        id="inputKecamatan"
+                        th:value="${user.districtId}"
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-3 group-asesi-asesor">
+                    <div class="form-group">
+                      <label>Kelurahan</label>
+                      <select
+                        class="form-control select2"
+                        id="selectKelurahan"
+                        style="width: 100%"
+                        disabled
+                      >
+                        <option value="">Pilih...</option>
+                      </select>
+                      <input
+                        type="hidden"
+                        name="subDistrictId"
+                        id="inputKelurahan"
+                        th:value="${user.subDistrictId}"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row mt-3">
+                  <div class="col-md-12">
+                    <label>Tanda Tangan</label>
+                    <input
+                      type="hidden"
+                      name="signatureBase64"
+                      id="signatureInput"
+                      th:value="${user.signatureBase64}"
+                    />
+
+                    <div
+                      id="signaturePreview"
+                      class="mb-2"
+                      th:style="${user.signatureBase64 == null ? 'display:none;' : ''}"
+                    >
+                      <img
+                        th:src="${user.signatureBase64}"
+                        id="imgPreview"
+                        style="max-height: 100px; border: 1px dashed #ccc"
+                      />
+                      <p class="text-success small">
+                        <i class="fas fa-check-circle"></i> Tanda tangan
+                        tersimpan
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      class="btn btn-outline-primary btn-block"
+                      id="btnTriggerSignature"
+                      data-toggle="modal"
+                      data-target="#modalSignature"
+                    >
+                      <i class="fas fa-pen-nib"></i> Ubah Tanda Tangan
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div id="sectionDataPekerjaan">
+                <div class="separator">
+                  <span class="separator-text">Data Pekerjaan</span>
+                </div>
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label
+                        >Jenis Pekerjaan
+                        <span class="text-danger">*</span></label
+                      >
+                      <select
+                        class="form-control select2"
+                        id="selectPekerjaan"
+                        style="width: 100%"
+                      >
+                        <option value="">Pilih Pekerjaan...</option>
+                      </select>
+                      <input
+                        type="hidden"
+                        name="jobTypeId"
+                        id="inputPekerjaan"
+                        th:value="${user.jobTypeId?.id}"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div id="wrapperDetailInstansi">
                   <div class="row">
-                    <div class="col-4">
+                    <div class="col-md-6">
                       <div class="form-group">
-                        <label>Username</label>
+                        <label>Nama Instansi</label>
                         <input
-                          type="username"
+                          type="text"
                           class="form-control"
-                          id="usernameAdmin"
-                          placeholder="Masukan Username"
-                          disabled
+                          name="companyName"
+                          id="inputCompanyName"
+                          th:value="${user.companyName}"
                         />
                       </div>
                     </div>
-                    <div class="col-4">
+                    <div class="col-md-6">
                       <div class="form-group">
-                        <label for="emailAdmin">Email</label>
+                        <label>Jabatan</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          name="position"
+                          th:value="${user.position}"
+                        />
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label>Telp Kantor</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          name="officePhone"
+                          th:value="${user.officePhone}"
+                        />
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label>Email Kantor</label>
                         <input
                           type="email"
                           class="form-control"
-                          id="emailAdmin"
-                          placeholder="Masukkan Email"
-                          disabled
+                          name="officeEmail"
+                          th:value="${user.officeEmail}"
                         />
                       </div>
                     </div>
-                    <div class="col-4">
+                    <div class="col-md-4">
                       <div class="form-group">
-                        <label for="role">Role</label>
-                        <select
-                          class="select2"
-                          multiple="multiple"
-                          id="role"
-                          data-placeholder="Pilih Role"
-                          style="width: 100%"
-                          disabled
-                        >
-                          <option value="admin">Admin</option>
-                          <option value="asesor">Asesor</option>
-                          <option value="asesi">Asesi</option>
-                        </select>
+                        <label>Fax</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          name="officeFax"
+                          th:value="${user.officeFax}"
+                        />
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label>Alamat Kantor</label>
+                        <textarea
+                          class="form-control"
+                          name="officeAddress"
+                          rows="1"
+                          th:text="${user.officeAddress}"
+                        ></textarea>
                       </div>
                     </div>
                   </div>
                 </div>
-                <!-- /.card-body -->
-
-                <div class="card-footer mt-3 text-left">
-                  <button type="submit" class="btn btn-outline-warning">
-                    Simpan
-                  </button>
-                  <a
-                    th:href="@{/admin/data-pengguna}"
-                    class="btn btn-outline-info"
-                    >Batal</a
-                  >
-                </div>
-              </form>
+              </div>
             </div>
-            <!-- /.card -->
-          </div>
+            <div class="card-footer text-right">
+              <a href="/admin/data-pengguna" class="btn btn-default mr-2"
+                >Batal</a
+              >
+              <button type="submit" class="btn btn-warning">
+                <i class="fas fa-save"></i> Simpan Perubahan
+              </button>
+            </div>
+          </form>
         </div>
       </div>
+      <div th:replace="~{pages/admin/users-add :: #modalSignature}"></div>
     </div>
   </body>
 </html>

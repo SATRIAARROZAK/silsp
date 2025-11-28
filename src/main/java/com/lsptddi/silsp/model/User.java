@@ -41,14 +41,49 @@ public class User {
 
     // --- RELASI 3NF (UBAH BAGIAN INI) ---
     // Menyimpan ID Pendidikan (Relasi ke tabel ref_educations)
-    @ManyToOne
-    @JoinColumn(name = "education_id")
+    // @ManyToOne
+    // @JoinColumn(name = "education_id")
+    // private RefEducation educationId;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "education_id") // Ini nama kolom di database (MySQL)
     private RefEducation educationId;
+
+    // ... getter setter ...
+    public RefEducation getEducationId() {
+        return educationId;
+    }
+
+    public void setEducationId(RefEducation educationId) {
+        this.educationId = educationId;
+    }
+
+    // @ManyToOne
+    // @JoinColumn(name = "education_id") // Ini nama kolom di database (MySQL)
+    // private RefEducation lastEducation;
+
+    // // ... getter setter ...
+    // public RefEducation getLastEducation() {
+    // return lastEducation;
+    // }
+
+    // public void setLastEducation(RefEducation lastEducation) {
+    // this.lastEducation = lastEducation;
+    // }
 
     // Menyimpan ID Pekerjaan (Relasi ke tabel ref_job_types)
     @ManyToOne
     @JoinColumn(name = "job_type_id")
     private RefJobType jobTypeId;
+
+    // ... getter setter ...
+    public RefJobType getJobTypeId() {
+        return jobTypeId;
+    }
+    public void setJobTypeId(RefJobType jobTypeId) {
+        this.jobTypeId = jobTypeId;
+    }
+    
 
     // --- WILAYAH (Disimpan String ID-nya saja) ---
     private String provinceId;

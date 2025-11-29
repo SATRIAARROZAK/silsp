@@ -222,7 +222,7 @@ public class AdminController {
 
     // --- FITUR HALAMAN EDIT PENGGUNA ---
     @GetMapping("/data-pengguna/edit-users/{id}")
-    public String editUserForm(@PathVariable Long id, Model model) {
+    public String updateUser(@PathVariable Long id, Model model) {
         User user = userRepository.findById(id).orElse(null);
         if (user == null) {
             return "redirect:/admin/data-pengguna";

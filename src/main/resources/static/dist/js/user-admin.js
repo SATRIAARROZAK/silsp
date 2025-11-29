@@ -2,26 +2,13 @@
 // JAVASCRIPT UNTUK USERS ADMIN
 // =======================================================================
 $(document).ready(function () {
-  // Aktifkan DataTables agar bisa search & paging otomatis
-  // $("#tableUser").DataTable({
-  //   responsive: true,
-  //   lengthChange: false,
-  //   autoWidth: false,
-  //   searching: false,
-  //   language: {
-  //     emptyTable: "Tidak ada data yang tersedia",
-  //     search: "Cari:",
-  //     paginate: {
-  //       first: "Awal",
-  //       last: "Akhir",
-  //       next: "Lanjut",
-  //       previous: "Mundur",
-  //     },
-  //   },
+  // ==========================================================
+  // USER LIST ADMIN SCRIPTS
+  // ==========================================================
 
-  //   order: [[0, "desc"]],
-  // });
-
+  // ---------------------------------------------------
+  // KONFIRMASI DELETE DENGAN SWEETALERT2
+  // ---------------------------------------------------
   $(".delete-button").on("click", function (e) {
     e.preventDefault();
     var realLink = $(this).attr("href");
@@ -41,6 +28,7 @@ $(document).ready(function () {
       }
     });
   });
+
   // ---------------------------------------------------
   // 1. LOGIKA CHANGE ROLE (Admin/Asesi/Asesor)
   // ---------------------------------------------------
@@ -174,6 +162,119 @@ $(document).ready(function () {
     $("#inputPekerjaan").val($(this).val());
   });
 
+  // --- 1. GLOBAL OVERRIDE PESAN ERROR (PENTING) ---
+  // Kode ini mengubah pesan default "This field is required" menjadi "Isilah Form Ini!"
+  // untuk SEMUA field di halaman ini sekaligus.
+  $.extend($.validator.messages, {
+    required: "Isilah Form Ini!",
+    email: "Harap gunakan format email yang benar (contoh: user@domain.com)",
+    url: "Harap masukkan URL yang valid.",
+    date: "Harap masukkan tanggal yang valid.",
+    number: "Harap masukkan angka yang valid.",
+    digits: "Hanya boleh angka.",
+  });
+
+  // --- 1. EVENT LISTENER AGAR VALIDASI LANGSUNG JALAN (REAL-TIME) ---
+  // Masalah Select2: Validasi tidak otomatis hilang/muncul saat user memilih opsi.
+  // Solusi: Kita paksa validasi saat event 'change'.
+  $(".select2").on("change", function () {
+    $(this).valid(); // Memicu pengecekan ulang pada elemen ini
+  });
+
+  // ==========================================
+  // 2. LOGIKA API WILAYAH (DIPERBARUI)
+  // ==========================================
+  const apiBaseUrl = "https://www.emsifa.com/api-wilayah-indonesia/api";
+
+  // Load Provinsi
+  fetch(`${apiBaseUrl}/provinces.json`)
+    .then((res) => res.json())
+    .then((data) => {
+      let options = '<option value="">Pilih Provinsi...</option>';
+      data.forEach((el) => {
+        // Value = ID (misal 11), Text = Nama (ACEH)
+        options += `<option value="${el.id}" data-name="${el.name}">${el.name}</option>`;
+      });
+      $("#selectProvinsi").html(options);
+    });
+
+  // Change Provinsi
+  $("#selectProvinsi").on("change", function () {
+    const id = $(this).val();
+    $("#inputProvinsi").val(id); // SIMPAN ID (11)
+
+    // Reset Child
+    $("#selectKota")
+      .html('<option value="">Pilih Kota/Kab...</option>')
+      .prop("disabled", true);
+    // ... (Reset Kecamatan/Kelurahan juga) ...
+
+    if (id) {
+      fetch(`${apiBaseUrl}/regencies/${id}.json`)
+        .then((res) => res.json())
+        .then((data) => {
+          let opt = '<option value="">Pilih Kota/Kab...</option>';
+          data.forEach(
+            (el) =>
+              (opt += `<option value="${el.id}" data-name="${el.name}">${el.name}</option>`)
+          );
+          $("#selectKota").html(opt).prop("disabled", false);
+        });
+    }
+  });
+
+  // Change Kota
+  $("#selectKota").on("change", function () {
+    const id = $(this).val();
+    $("#inputKota").val(id); // SIMPAN ID (1101)
+
+    if (id) {
+      fetch(`${apiBaseUrl}/districts/${id}.json`)
+        .then((res) => res.json())
+        .then((data) => {
+          let opt = '<option value="">Pilih Kecamatan...</option>';
+          data.forEach(
+            (el) =>
+              (opt += `<option value="${el.id}" data-name="${el.name}">${el.name}</option>`)
+          );
+          $("#selectKecamatan").html(opt).prop("disabled", false);
+        });
+    }
+  });
+
+  // Change Kecamatan
+  $("#selectKecamatan").on("change", function () {
+    const id = $(this).val();
+    $("#inputKecamatan").val(id); // SIMPAN ID
+
+    if (id) {
+      fetch(`${apiBaseUrl}/villages/${id}.json`)
+        .then((res) => res.json())
+        .then((data) => {
+          let opt = '<option value="">Pilih Kelurahan...</option>';
+          data.forEach(
+            (el) =>
+              (opt += `<option value="${el.id}" data-name="${el.name}">${el.name}</option>`)
+          );
+          $("#selectKelurahan").html(opt).prop("disabled", false);
+        });
+    }
+  });
+
+  // Change Kelurahan
+  $("#selectKelurahan").on("change", function () {
+    $("#inputKelurahan").val($(this).val()); // SIMPAN ID
+  });
+
+  // CSS Tambahan (Inject via JS agar praktis)
+  // Agar border Select2 menjadi merah saat error
+  $(
+    "<style>.is-invalid-border { border-color: #dc3545 !important; }</style>"
+  ).appendTo("head");
+
+  // ==========================================================
+  // TANDA TANGAN LOGIKA
+  // =========================================================
   // --- 1. INISIALISASI VARIABLE ---
   var wrapper = document.getElementById("signature-pad");
   var canvas = document.getElementById("signature-canvas");
@@ -284,33 +385,9 @@ $(document).ready(function () {
     }
   });
 
-  // --- 1. GLOBAL OVERRIDE PESAN ERROR (PENTING) ---
-  // Kode ini mengubah pesan default "This field is required" menjadi "Isilah Form Ini!"
-  // untuk SEMUA field di halaman ini sekaligus.
-  $.extend($.validator.messages, {
-    required: "Isilah Form Ini!",
-    email: "Harap gunakan format email yang benar (contoh: user@domain.com)",
-    url: "Harap masukkan URL yang valid.",
-    date: "Harap masukkan tanggal yang valid.",
-    number: "Harap masukkan angka yang valid.",
-    digits: "Hanya boleh angka.",
-  });
-
-  // --- 2. KONFIGURASI VALIDASI FORM ---
-
-  // --- 1. EVENT LISTENER AGAR VALIDASI LANGSUNG JALAN (REAL-TIME) ---
-  // Masalah Select2: Validasi tidak otomatis hilang/muncul saat user memilih opsi.
-  // Solusi: Kita paksa validasi saat event 'change'.
-  $(".select2").on("change", function () {
-    $(this).valid(); // Memicu pengecekan ulang pada elemen ini
-  });
-
-  // ... (Kode Global Override Message $.extend tetap ada) ...
-  // ... (Kode Signature Pad tetap ada) ...
-
-  // ==========================================
-  // 1. KONFIGURASI VALIDASI (DIPERBARUI)
-  // ==========================================
+  // ==========================================================
+  // VALIDASI DAN SIMPAN TAMBAH PENGGUNA
+  // ==========================================================
   $("#formTambahUser").validate({
     // LOGIKA IGNORE: Jangan validasi elemen yang benar-benar tersembunyi
 
@@ -495,6 +572,9 @@ $(document).ready(function () {
     },
   });
 
+  // =========================================================
+  // USER VIEW ADMIN SCRIPTS
+  // =========================================================
   if ($("#viewProv").length) {
     const apiBaseUrl = "https://www.emsifa.com/api-wilayah-indonesia/api";
 
@@ -539,99 +619,168 @@ $(document).ready(function () {
       setRegionName(`/villages/${distId}.json`, "viewSubDist", subDistId);
   }
 
-  // Trigger Validasi Saat Select2 Berubah (Agar error langsung hilang saat dipilih)
-  $(".select2").on("change", function () {
-    $(this).valid();
+  // ========================================================
+  //  USER EDIT ADMIN SCRIPTS
+  // ========================================================
+
+  // =======================================================================
+  // JAVASCRIPT UNTUK USERS ADMIN (ADD & EDIT)
+  // =======================================================================
+
+  // // 1. INISIALISASI PLUGIN
+  // // ------------------------------------------
+  // $(".select2").select2({ theme: "bootstrap4" });
+
+  // // Override pesan error default jQuery Validate
+  // $.extend($.validator.messages, {
+  //   required: "Isilah Form Ini!",
+  //   email: "Format email tidak valid",
+  // });
+
+  // // 2. FUNGSI LOGIKA TAMPILAN (REUSABLE)
+  // // ------------------------------------------
+  // // Fungsi ini dipanggil saat halaman load (Edit) & saat select berubah
+  // function toggleSections(selectedRoles) {
+  //   // A. Reset Tampilan (Sembunyikan Dulu)
+  //   $("#wrapperDataPribadi").slideUp();
+  //   $("#sectionDataPekerjaan").slideUp();
+  //   $(".group-asesi-asesor").hide();
+  //   $(".group-asesor-only").hide();
+  //   $(".group-asesi-only").hide();
+
+  //   // B. Logika Tampilkan
+  //   if (selectedRoles && selectedRoles.length > 0) {
+  //     // Data Pribadi selalu muncul jika ada role
+  //     $("#wrapperDataPribadi").slideDown();
+
+  //     var isAsesi =
+  //       selectedRoles.includes("Asesi") || selectedRoles.includes("Asesi");
+  //     var isAsesor =
+  //       selectedRoles.includes("Asesor") || selectedRoles.includes("Asesor");
+
+  //     // Field Gabungan (Asesi & Asesor)
+  //     if (isAsesi || isAsesor) {
+  //       $(".group-asesi-asesor").show();
+  //       $("#sectionDataPekerjaan").slideDown(); // Section Pekerjaan
+  //     }
+
+  //     // Field Khusus
+  //     if (isAsesi) $(".group-asesi-only").show();
+  //     if (isAsesor) $(".group-asesor-only").show();
+
+  //     // Logika detail instansi (jika Asesi) akan ditangani event listener pekerjaan
+  //     if (isAsesi) {
+  //       $("#selectPekerjaan").trigger("change");
+  //     }
+  //   }
+  // }
+
+  // 3. EVENT LISTENER ROLE
+  // ------------------------------------------
+  $("#roleSelect").on("change", function () {
+    var roles = $(this).val() || [];
+    toggleSections(roles);
   });
 
-  // ==========================================
-  // 2. LOGIKA API WILAYAH (DIPERBARUI)
-  // ==========================================
-  const apiBaseUrl = "https://www.emsifa.com/api-wilayah-indonesia/api";
+  // 4. LOGIKA KHUSUS HALAMAN EDIT
+  // ------------------------------------------
+  // if ($("#formEditUser").length > 0) {
+  //   // A. Pre-select Role dari Database
+  //   var currentRolesString = $("#roleSelect").data("current-roles"); // Baca data-attribute
+  //   if (currentRolesString) {
+  //     // Ubah string "ADMIN,ASESI" menjadi array ["ADMIN", "Asesi"]
+  //     var rolesArray = currentRolesString.split(",");
+  //     $("#roleSelect").val(rolesArray).trigger("change"); // Trigger change agar form bawah muncul!
+  //   }
+  // }
 
-  // Load Provinsi
-  fetch(`${apiBaseUrl}/provinces.json`)
-    .then((res) => res.json())
-    .then((data) => {
-      let options = '<option value="">Pilih Provinsi...</option>';
-      data.forEach((el) => {
-        // Value = ID (misal 11), Text = Nama (ACEH)
-        options += `<option value="${el.id}" data-name="${el.name}">${el.name}</option>`;
+  // 4. LOGIKA KHUSUS HALAMAN EDIT
+  // ------------------------------------------
+  if ($("#formEditUser").length > 0) {
+    // A. Pre-select Role dari Database
+    var currentRolesString = $("#roleSelect").data("current-roles"); // Contoh: "ADMIN,ASESI"
+
+    if (currentRolesString) {
+      var rawRoles = currentRolesString.split(",");
+
+      // --- PERBAIKAN DISINI ---
+      // Kita ubah format dari DB ("ADMIN") menjadi format HTML ("Admin")
+      var formattedRoles = rawRoles.map(function (role) {
+        // Ubah huruf pertama jadi Besar, sisanya Kecil
+        // Contoh: "ADMIN" -> "Admin", "ASESI" -> "Asesi"
+        return role.charAt(0).toUpperCase() + role.slice(1).toLowerCase();
       });
-      $("#selectProvinsi").html(options);
-    });
 
-  // Change Provinsi
-  $("#selectProvinsi").on("change", function () {
-    const id = $(this).val();
-    $("#inputProvinsi").val(id); // SIMPAN ID (11)
-
-    // Reset Child
-    $("#selectKota")
-      .html('<option value="">Pilih Kota/Kab...</option>')
-      .prop("disabled", true);
-    // ... (Reset Kecamatan/Kelurahan juga) ...
-
-    if (id) {
-      fetch(`${apiBaseUrl}/regencies/${id}.json`)
-        .then((res) => res.json())
-        .then((data) => {
-          let opt = '<option value="">Pilih Kota/Kab...</option>';
-          data.forEach(
-            (el) =>
-              (opt += `<option value="${el.id}" data-name="${el.name}">${el.name}</option>`)
-          );
-          $("#selectKota").html(opt).prop("disabled", false);
-        });
+      // Masukkan nilai yang sudah diformat ke Select2
+      $("#roleSelect").val(formattedRoles).trigger("change");
     }
-  });
+  }
 
-  // Change Kota
-  $("#selectKota").on("change", function () {
-    const id = $(this).val();
-    $("#inputKota").val(id); // SIMPAN ID (1101)
+  // // 5. VALIDASI & SUBMIT (ADD USER)
+  // // ------------------------------------------
+  // if ($("#formTambahUser").length > 0) {
+  //   $("#formTambahUser").validate({
+  //     ignore: ":hidden",
+  //     rules: {
+  //       username: { required: true },
+  //       email: { required: true, email: true },
+  //       password: { required: true, minlength: 6 }, // Password WAJIB saat Tambah
+  //       roles: { required: true },
+  //     },
+  //     submitHandler: function (form) {
+  //       handleAjaxSubmit(form, "Pengguna berhasil ditambahkan");
+  //     },
+  //   });
+  // }
 
-    if (id) {
-      fetch(`${apiBaseUrl}/districts/${id}.json`)
-        .then((res) => res.json())
-        .then((data) => {
-          let opt = '<option value="">Pilih Kecamatan...</option>';
-          data.forEach(
-            (el) =>
-              (opt += `<option value="${el.id}" data-name="${el.name}">${el.name}</option>`)
-          );
-          $("#selectKecamatan").html(opt).prop("disabled", false);
-        });
-    }
-  });
+  // // 6. VALIDASI & SUBMIT (EDIT USER)
+  // // ------------------------------------------
+  // if ($("#formEditUser").length > 0) {
+  //   $("#formEditUser").validate({
+  //     ignore: ":hidden",
+  //     rules: {
+  //       username: { required: true },
+  //       email: { required: true, email: true },
+  //       // Password TIDAK WAJIB saat Edit
+  //       roles: { required: true },
+  //     },
+  //     submitHandler: function (form) {
+  //       handleAjaxSubmit(form, "Data pengguna berhasil diperbarui");
+  //     },
+  //   });
+  // }
 
-  // Change Kecamatan
-  $("#selectKecamatan").on("change", function () {
-    const id = $(this).val();
-    $("#inputKecamatan").val(id); // SIMPAN ID
+  // // 7. FUNGSI SUBMIT AJAX (REUSABLE)
+  // // ------------------------------------------
+  // function handleAjaxSubmit(form, successMessage) {
+  //   var formData = new FormData(form);
 
-    if (id) {
-      fetch(`${apiBaseUrl}/villages/${id}.json`)
-        .then((res) => res.json())
-        .then((data) => {
-          let opt = '<option value="">Pilih Kelurahan...</option>';
-          data.forEach(
-            (el) =>
-              (opt += `<option value="${el.id}" data-name="${el.name}">${el.name}</option>`)
-          );
-          $("#selectKelurahan").html(opt).prop("disabled", false);
-        });
-    }
-  });
+  //   Swal.fire({
+  //     title: "Menyimpan Data...",
+  //     didOpen: () => {
+  //       Swal.showLoading();
+  //     },
+  //   });
 
-  // Change Kelurahan
-  $("#selectKelurahan").on("change", function () {
-    $("#inputKelurahan").val($(this).val()); // SIMPAN ID
-  });
-
-  // CSS Tambahan (Inject via JS agar praktis)
-  // Agar border Select2 menjadi merah saat error
-  $(
-    "<style>.is-invalid-border { border-color: #dc3545 !important; }</style>"
-  ).appendTo("head");
+  //   $.ajax({
+  //     url: $(form).attr("action"),
+  //     type: "POST",
+  //     data: formData,
+  //     processData: false,
+  //     contentType: false,
+  //     success: function (response) {
+  //       Swal.fire({
+  //         title: "Berhasil!",
+  //         text: successMessage,
+  //         icon: "success",
+  //       }).then(() => {
+  //         window.location.href = "/admin/data-pengguna";
+  //       });
+  //     },
+  //     error: function (xhr) {
+  //       Swal.fire("Gagal", "Terjadi kesalahan server", "error");
+  //       console.error(xhr);
+  //     },
+  //   });
+  // }
 });

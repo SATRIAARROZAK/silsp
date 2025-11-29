@@ -24,7 +24,7 @@ public class UserController {
     private RefEducationRepository educationRepository;
     @Autowired
     private RefJobTypeRepository jobTypeRepository;
-
+    
     // Jika Anda menggunakan Spring Security, inject PasswordEncoder
     @Autowired
     private PasswordEncoder passwordEncoder;

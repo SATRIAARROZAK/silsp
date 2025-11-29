@@ -623,6 +623,185 @@ $(document).ready(function () {
   //  USER EDIT ADMIN SCRIPTS
   // ========================================================
 
+  // // Init Plugins
+  // $(".select2").select2({ theme: "bootstrap4" });
+  // // (Init Signature Pad code here... sama seperti user-add)
+
+  // ==========================================
+  // 1. LOAD DATA PENDIDIKAN & PEKERJAAN (AUTO SELECT)
+  // ==========================================
+
+  // Load Pendidikan
+  var savedEduId = $("#selectPendidikan").data("selected");
+  fetch("/dist/js/education.json")
+    .then((res) => res.json())
+    .then((data) => {
+      let opts = '<option value="">Pilih Pendidikan...</option>';
+      data.forEach((item) => {
+        let selected = item.id == savedEduId ? "selected" : "";
+        opts += `<option value="${item.id}" ${selected}>${item.name}</option>`;
+      });
+      $("#selectPendidikan").html(opts);
+    });
+
+  // Simpan perubahan ke hidden input
+  $("#selectPendidikan").on("change", function () {
+    $("#inputPendidikan").val($(this).val());
+  });
+
+  // Load Pekerjaan
+  var savedJobId = $("#selectPekerjaan").data("selected");
+  fetch("/dist/js/jobs.json")
+    .then((res) => res.json())
+    .then((data) => {
+      let opts = '<option value="">Pilih Pekerjaan...</option>';
+      data.forEach((item) => {
+        let selected = item.id == savedJobId ? "selected" : "";
+        opts += `<option value="${item.id}" ${selected}>${item.name}</option>`;
+      });
+      $("#selectPekerjaan").html(opts).trigger("change"); // Trigger change untuk logic detail instansi
+    });
+
+  // ==========================================
+  // 2. LOGIKA API WILAYAH (CASCADING + AUTO SELECT)
+  // ==========================================
+  // const apiBaseUrl = "https://www.emsifa.com/api-wilayah-indonesia/api";
+
+  // Ambil ID yang tersimpan di database (dari attribut data-selected)
+  var savedProv = $("#selectProvinsi").data("selected");
+  var savedCity = $("#selectKota").data("selected");
+  var savedDist = $("#selectKecamatan").data("selected");
+  var savedSubDist = $("#selectKelurahan").data("selected");
+
+  // Fungsi Helper untuk Load Wilayah
+  function loadRegion(url, selectId, savedId, nextLoadCallback) {
+    fetch(url)
+      .then((res) => res.json())
+      .then((data) => {
+        let opts = `<option value="">Pilih...</option>`;
+        data.forEach((el) => {
+          let selected = el.id == savedId ? "selected" : "";
+          opts += `<option value="${el.id}" data-name="${el.name}" ${selected}>${el.name}</option>`;
+        });
+        $(selectId).html(opts).prop("disabled", false);
+
+        // Jika ada data tersimpan, lanjut load anak-nya
+        if (savedId && nextLoadCallback) nextLoadCallback();
+      });
+  }
+
+  // Rantai Loading (Chain) untuk Edit: Prov -> Kota -> Kec -> Kel
+  loadRegion(
+    `${apiBaseUrl}/provinces.json`,
+    "#selectProvinsi",
+    savedProv,
+    function () {
+      loadRegion(
+        `${apiBaseUrl}/regencies/${savedProv}.json`,
+        "#selectKota",
+        savedCity,
+        function () {
+          loadRegion(
+            `${apiBaseUrl}/districts/${savedCity}.json`,
+            "#selectKecamatan",
+            savedDist,
+            function () {
+              loadRegion(
+                `${apiBaseUrl}/villages/${savedDist}.json`,
+                "#selectKelurahan",
+                savedSubDist,
+                null
+              );
+            }
+          );
+        }
+      );
+    }
+  );
+
+  // Event Listener Perubahan (Sama seperti User Add)
+  // Saat user mengganti Provinsi manual, reset bawahnya
+  $("#selectProvinsi").on("change", function () {
+    let id = $(this).val();
+    $("#inputProvinsi").val(id); // Simpan ID
+    $("#selectKota")
+      .html('<option value="">Loading...</option>')
+      .prop("disabled", true);
+    // ... reset lainnya ...
+    if (id) {
+      fetch(`${apiBaseUrl}/regencies/${id}.json`)
+        .then((res) => res.json())
+        .then((data) => {
+          let opts = '<option value="">Pilih Kota...</option>';
+          data.forEach(
+            (el) => (opts += `<option value="${el.id}">${el.name}</option>`)
+          );
+          $("#selectKota").html(opts).prop("disabled", false);
+        });
+    }
+  });
+  // (Copy paste event listener Kota -> Kec -> Kel dari user-add.html ke sini)
+  // Pastikan update hidden input val() dengan ID
+
+  // ==========================================
+  // 3. LOGIKA ROLE & PEKERJAAN (TRIGGER ON LOAD)
+  // ==========================================
+
+  function checkRoleVisibility() {
+    var selectedRoles = $("#roleSelect").val() || [];
+
+    // Reset
+    $("#wrapperDataPribadi").slideUp();
+    $("#sectionDataPekerjaan").slideUp();
+    $("#wrapperDetailInstansi").slideUp();
+    $(".group-asesi-asesor").hide();
+    $(".group-asesi-only").hide();
+    $(".group-asesor-only").hide();
+
+    if (selectedRoles.length > 0) {
+      $("#wrapperDataPribadi").slideDown();
+
+      var isAsesi = selectedRoles.includes("Asesi");
+      var isAsesor = selectedRoles.includes("Asesor");
+
+      if (isAsesi || isAsesor) {
+        $(".group-asesi-asesor").show();
+        $("#sectionDataPekerjaan").slideDown();
+      }
+      if (isAsesi) $(".group-asesi-only").show();
+      if (isAsesor) $(".group-asesor-only").show();
+
+      // Cek Detail Pekerjaan
+      checkJobVisibility(isAsesi);
+    }
+  }
+
+  function checkJobVisibility(isAsesi) {
+    var jobId = $("#selectPekerjaan").val(); // Ambil nilai saat ini
+
+    if (isAsesi && jobId && jobId !== "1") {
+      $("#wrapperDetailInstansi").slideDown();
+      $("#inputCompanyName").prop("required", true);
+    } else {
+      $("#wrapperDetailInstansi").slideUp();
+      $("#inputCompanyName").prop("required", false);
+    }
+  }
+
+  // Event Listener Role Change
+  $("#roleSelect").on("change", checkRoleVisibility);
+
+  // Event Listener Job Change
+  $("#selectPekerjaan").on("change", function () {
+    $("#inputPekerjaan").val($(this).val()); // Simpan ID
+    var isAsesi = ($("#roleSelect").val() || []).includes("Asesi");
+    checkJobVisibility(isAsesi);
+  });
+
+  // PENTING: Trigger logic saat halaman pertama kali dibuka (untuk Edit)
+  // Beri sedikit delay agar Select2 Job terisi dulu oleh fetch
+  setTimeout(checkRoleVisibility, 500);
+
   // =======================================================================
   // JAVASCRIPT UNTUK USERS ADMIN (ADD & EDIT)
   // =======================================================================
@@ -677,10 +856,10 @@ $(document).ready(function () {
 
   // 3. EVENT LISTENER ROLE
   // ------------------------------------------
-  $("#roleSelect").on("change", function () {
-    var roles = $(this).val() || [];
-    toggleSections(roles);
-  });
+  // $("#roleSelect").on("change", function () {
+  //   var roles = $(this).val() || [];
+  //   toggleSections(roles);
+  // });
 
   // 4. LOGIKA KHUSUS HALAMAN EDIT
   // ------------------------------------------
@@ -696,25 +875,25 @@ $(document).ready(function () {
 
   // 4. LOGIKA KHUSUS HALAMAN EDIT
   // ------------------------------------------
-  if ($("#formEditUser").length > 0) {
-    // A. Pre-select Role dari Database
-    var currentRolesString = $("#roleSelect").data("current-roles"); // Contoh: "ADMIN,ASESI"
+  // if ($("#formEditUser").length > 0) {
+  //   // A. Pre-select Role dari Database
+  //   var currentRolesString = $("#roleSelect").data("current-roles"); // Contoh: "ADMIN,ASESI"
 
-    if (currentRolesString) {
-      var rawRoles = currentRolesString.split(",");
+  //   if (currentRolesString) {
+  //     var rawRoles = currentRolesString.split(",");
 
-      // --- PERBAIKAN DISINI ---
-      // Kita ubah format dari DB ("ADMIN") menjadi format HTML ("Admin")
-      var formattedRoles = rawRoles.map(function (role) {
-        // Ubah huruf pertama jadi Besar, sisanya Kecil
-        // Contoh: "ADMIN" -> "Admin", "ASESI" -> "Asesi"
-        return role.charAt(0).toUpperCase() + role.slice(1).toLowerCase();
-      });
+  //     // --- PERBAIKAN DISINI ---
+  //     // Kita ubah format dari DB ("ADMIN") menjadi format HTML ("Admin")
+  //     var formattedRoles = rawRoles.map(function (role) {
+  //       // Ubah huruf pertama jadi Besar, sisanya Kecil
+  //       // Contoh: "ADMIN" -> "Admin", "ASESI" -> "Asesi"
+  //       return role.charAt(0).toUpperCase() + role.slice(1).toLowerCase();
+  //     });
 
-      // Masukkan nilai yang sudah diformat ke Select2
-      $("#roleSelect").val(formattedRoles).trigger("change");
-    }
-  }
+  //     // Masukkan nilai yang sudah diformat ke Select2
+  //     $("#roleSelect").val(formattedRoles).trigger("change");
+  //   }
+  // }
 
   // // 5. VALIDASI & SUBMIT (ADD USER)
   // // ------------------------------------------
@@ -782,5 +961,77 @@ $(document).ready(function () {
   //       console.error(xhr);
   //     },
   //   });
+  // }
+
+  // ==========================================================
+  // LOGIKA TAMPILAN SHOW/HIDE (REUSABLE)
+  // ==========================================================
+  // function toggleSections(selectedRoles) {
+  //   // Normalisasi array roles menjadi UPPERCASE agar konsisten
+  //   // (Misal: ["Admin", "asesi"] -> ["ADMIN", "ASESI"])
+  //   const rolesChecked = (selectedRoles || []).map((r) => r.toUpperCase());
+
+  //   // A. Reset Tampilan (Sembunyikan Dulu)
+  //   $("#wrapperDataPribadi").slideUp();
+  //   $("#sectionDataPekerjaan").slideUp();
+  //   $("#wrapperDetailInstansi").slideUp(); // Reset detail instansi juga
+
+  //   $(".group-asesi-asesor").hide();
+  //   $(".group-asesor-only").hide();
+  //   $(".group-asesi-only").hide();
+
+  //   // B. Logika Tampilkan
+  //   if (rolesChecked.length > 0) {
+  //     // Data Pribadi selalu muncul jika ada role apapun
+  //     $("#wrapperDataPribadi").slideDown();
+
+  //     var isAsesi = rolesChecked.includes("Asesi");
+  //     var isAsesor = rolesChecked.includes("Asesor");
+
+  //     // Field Gabungan (Asesi & Asesor)
+  //     if (isAsesi || isAsesor) {
+  //       $(".group-asesi-asesor").show();
+  //       $("#sectionDataPekerjaan").slideDown(); // Section Pekerjaan muncul
+  //     }
+
+  //     // Field Khusus
+  //     if (isAsesi) $(".group-asesi-only").show();
+  //     if (isAsesor) $(".group-asesor-only").show();
+
+  //     // Trigger ulang logic pekerjaan untuk menampilkan/menyembunyikan detail instansi
+  //     // jika user adalah ASESI
+  //     if (isAsesi) {
+  //       $("#selectPekerjaan").trigger("change");
+  //     }
+  //   }
+  // }
+
+  // // EVENT LISTENER ROLE CHANGE
+  // $("#roleSelect").on("change", function () {
+  //   var roles = $(this).val() || [];
+  //   toggleSections(roles);
+  // });
+
+  // // ==========================================================
+  // // LOGIKA PRE-SELECT ROLE DI HALAMAN EDIT (SOLUSI MASALAH ANDA)
+  // // ==========================================================
+  // if ($("#formEditUser").length > 0) {
+  //   // Ambil data roles dari atribut HTML (format: "ADMIN,ASESI")
+  //   var currentRolesString = $("#roleSelect").data("current-roles");
+
+  //   if (currentRolesString) {
+  //     var rawRoles = currentRolesString.split(",");
+
+  //     // Transformasi Format: "ADMIN" -> "Admin" (Agar cocok dengan value option HTML)
+  //     var formattedRoles = rawRoles.map(function (role) {
+  //       if (!role) return "";
+  //       // Ubah huruf pertama jadi Besar, sisanya Kecil
+  //       return role.charAt(0).toUpperCase() + role.slice(1).toLowerCase();
+  //     });
+
+  //     // Masukkan nilai yang sudah diformat ke Select2 dan TRIGGER CHANGE
+  //     // Trigger change penting agar form bagian bawah langsung muncul!
+  //     $("#roleSelect").val(formattedRoles).trigger("change");
+  //   }
   // }
 });

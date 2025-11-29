@@ -8,16 +8,28 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import com.lsptddi.silsp.model.User;
+import com.lsptddi.silsp.repository.RefEducationRepository;
+import com.lsptddi.silsp.repository.RefJobTypeRepository;
+import com.lsptddi.silsp.repository.RoleRepository;
 import com.lsptddi.silsp.repository.UserRepository;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import com.lsptddi.silsp.dto.UserDto;
 import com.lsptddi.silsp.dto.UserRoleDto;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import com.lsptddi.silsp.model.*;
 
 // Objek User tiruan untuk simulasi
 // class User {
@@ -46,6 +58,17 @@ public class AdminController {
 
     @Autowired
     private UserRepository userRepository; // 1. Inject Repository
+
+    @Autowired
+    private RoleRepository roleRepository; // <--- WAJIB DI-INJECT
+    @Autowired
+    private RefEducationRepository educationRepository;
+    @Autowired
+    private RefJobTypeRepository jobTypeRepository;
+
+    // Jika Anda menggunakan Spring Security, inject PasswordEncoder
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     // @ModelAttribute
     // public void addGlobalAttributes(Model model) {
@@ -221,22 +244,165 @@ public class AdminController {
     }
 
     // --- FITUR HALAMAN EDIT PENGGUNA ---
+    // @GetMapping("/data-pengguna/edit-users/{id}")
+    // public String updateUser(@PathVariable Long id, Model model) {
+    // User user = userRepository.findById(id).orElse(null);
+    // if (user == null) {
+    // return "redirect:/admin/data-pengguna";
+    // }
+    // model.addAttribute("user", user);
+    // return "pages/admin/users/users-edit";
+    // }
+
+    // ==========================================
+    // FITUR EDIT PENGGUNA (DATA AKUN)
+    // ==========================================
+
+    // 1. TAMPILKAN FORM EDIT (GET)
     @GetMapping("/data-pengguna/edit-users/{id}")
-    public String updateUser(@PathVariable Long id, Model model) {
+    public String editUser(@PathVariable Long id, Model model) {
+        // A. Cari User Lama
         User user = userRepository.findById(id).orElse(null);
         if (user == null) {
             return "redirect:/admin/data-pengguna";
         }
-        model.addAttribute("user", user);
-        return "pages/admin/users/users-edit";
+
+        // B. Pindahkan Data Entity ke DTO (Mapping)
+        UserDto userDto = new UserDto();
+        userDto.setId(user.getId());
+
+        // --- DATA AKUN ---
+        userDto.setUsername(user.getUsername());
+        userDto.setEmail(user.getEmail());
+
+        // Mapping Role (Set<Role> -> List<String>)
+        // Agar dropdown Select2 otomatis terpilih
+        List<String> roleNames = user.getRoles().stream()
+                .map(Role::getName)
+                .collect(Collectors.toList());
+        userDto.setRoles(roleNames);
+
+        // --- DATA LAINNYA (Mapping agar tidak hilang saat ditampilkan) ---
+        // Penting: Masukkan data ini agar saat form diload, tab data pribadi juga
+        // terisi
+        userDto.setFullName(user.getFullName());
+        userDto.setBirthPlace(user.getBirthPlace());
+        userDto.setBirthDate(user.getBirthDate());
+        userDto.setGender(user.getGender());
+        userDto.setNik(user.getNik());
+        userDto.setPhoneNumber(user.getPhoneNumber());
+        userDto.setAddress(user.getAddress());
+        userDto.setPostalCode(user.getPostalCode());
+        userDto.setCitizenship(user.getCitizenship());
+        userDto.setNoMet(user.getNoMet());
+
+        userDto.setCompanyName(user.getCompanyName());
+        userDto.setPosition(user.getPosition());
+        userDto.setOfficePhone(user.getOfficePhone());
+        userDto.setOfficeEmail(user.getOfficeEmail());
+        userDto.setOfficeFax(user.getOfficeFax());
+        userDto.setOfficeAddress(user.getOfficeAddress());
+
+        // Mapping Relasi ID (3NF)
+        if (user.getEducationId() != null)
+            userDto.setEducationId(user.getEducationId().getId());
+        if (user.getJobTypeId() != null)
+            userDto.setJobTypeId(user.getJobTypeId().getId());
+
+        // Mapping Wilayah
+        userDto.setProvinceId(user.getProvinceId());
+        userDto.setCityId(user.getCityId());
+        userDto.setDistrictId(user.getDistrictId());
+        userDto.setSubDistrictId(user.getSubDistrictId());
+
+        userDto.setSignatureBase64(user.getSignatureBase64());
+
+        // C. Kirim ke View
+        model.addAttribute("userDto", userDto);
+
+        return "pages/admin/users/users-edit"; // File HTML baru
     }
 
-    // @GetMapping("/data-pengguna/edit-users")
-    // public String showEditPengguna(Model model) { // 1. Tambahkan Model sebagai
-    // parameter
+    // 2. PROSES UPDATE (POST)
+    @PostMapping("/users/update")
+    public String updateUser(@ModelAttribute UserDto userDto, RedirectAttributes attributes) {
+        try {
+            // A. Ambil User Lama dari Database berdasarkan ID (Hidden Input)
+            User user = userRepository.findById(userDto.getId())
+                    .orElseThrow(() -> new RuntimeException("User tidak ditemukan"));
 
-    // return "pages/admin/users/users-edit";
-    // }
+            // B. UPDATE DATA AKUN
+            user.setUsername(userDto.getUsername());
+            user.setEmail(userDto.getEmail());
+
+            // C. LOGIKA PASSWORD (Hanya update jika diisi)
+            // Jika kosong, berarti user tidak ingin mengganti password lama
+            if (userDto.getPassword() != null && !userDto.getPassword().isEmpty()) {
+                user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+            }
+
+            // D. UPDATE ROLE
+            if (userDto.getRoles() != null) {
+                Set<Role> newRoles = new HashSet<>();
+                for (String roleName : userDto.getRoles()) {
+                    roleRepository.findByName(roleName).ifPresent(newRoles::add);
+                }
+                user.setRoles(newRoles);
+            }
+
+            // E. UPDATE DATA PRIBADI & LAINNYA
+            // (Kita update juga agar sinkron dengan form edit yang mungkin diubah user)
+            user.setFullName(userDto.getFullName());
+            user.setBirthPlace(userDto.getBirthPlace());
+            user.setBirthDate(userDto.getBirthDate());
+            user.setGender(userDto.getGender());
+            user.setNik(userDto.getNik());
+            user.setPhoneNumber(userDto.getPhoneNumber());
+            user.setAddress(userDto.getAddress());
+            user.setPostalCode(userDto.getPostalCode());
+            user.setCitizenship(userDto.getCitizenship());
+            user.setNoMet(userDto.getNoMet());
+
+            user.setCompanyName(userDto.getCompanyName());
+            user.setPosition(userDto.getPosition());
+            user.setOfficePhone(userDto.getOfficePhone());
+            user.setOfficeEmail(userDto.getOfficeEmail());
+            user.setOfficeFax(userDto.getOfficeFax());
+            user.setOfficeAddress(userDto.getOfficeAddress());
+
+            // Relasi
+            if (userDto.getEducationId() != null) {
+                user.setEducationId(educationRepository.findById(userDto.getEducationId()).orElse(null));
+            }
+            if (userDto.getJobTypeId() != null) {
+                user.setJobTypeId(jobTypeRepository.findById(userDto.getJobTypeId()).orElse(null));
+            }
+
+            // Wilayah & Tanda Tangan
+            user.setProvinceId(userDto.getProvinceId());
+            user.setCityId(userDto.getCityId());
+            user.setDistrictId(userDto.getDistrictId());
+            user.setSubDistrictId(userDto.getSubDistrictId());
+
+            // Signature: Hanya update jika ada tanda tangan baru, jika kosong biarkan yang
+            // lama
+            if (userDto.getSignatureBase64() != null && !userDto.getSignatureBase64().isEmpty()) {
+                user.setSignatureBase64(userDto.getSignatureBase64());
+            }
+
+            // F. SIMPAN PERUBAHAN
+            userRepository.save(user);
+
+            attributes.addFlashAttribute("success", "Data pengguna berhasil diperbarui!");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            attributes.addFlashAttribute("error", "Gagal mengupdate data: " + e.getMessage());
+            return "redirect:/admin/users/users-edit/" + userDto.getId(); // Kembali ke form edit jika gagal
+        }
+
+        return "redirect:/admin/data-pengguna";
+    }
 
     @GetMapping("/data-pengguna/delete/{id}")
     public String deletePengguna(@PathVariable Long id, RedirectAttributes attributes) {

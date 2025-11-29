@@ -6,8 +6,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import com.lsptddi.silsp.model.User;
+
 import com.lsptddi.silsp.repository.RefEducationRepository;
 import com.lsptddi.silsp.repository.RefJobTypeRepository;
 import com.lsptddi.silsp.repository.RoleRepository;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.lsptddi.silsp.dto.UserDto;
@@ -30,7 +32,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.lsptddi.silsp.model.*;
-
 // Objek User tiruan untuk simulasi
 // class User {
 //     private String fullName;
@@ -216,6 +217,82 @@ public class AdminController {
     public String showAddPengguna(Model model) { // 1. Tambahkan Model sebagai parameter
 
         return "pages/admin/users/users-add";
+    }
+
+    @PostMapping("/data-pengguna/save")
+    @ResponseBody
+    public ResponseEntity<?> saveUser(@ModelAttribute UserDto userDto) {
+        // public String saveUser(@ModelAttribute UserDto userDto) {
+        User user = new User();
+
+        // 1. DATA AKUN DASAR
+        user.setUsername(userDto.getUsername());
+        user.setEmail(userDto.getEmail());
+
+        // Password Default (Harusnya di-encode)
+        user.setPassword(passwordEncoder.encode("12345678"));
+        // user.setPassword(passwordEncoder.encode("123456"));
+        // user.setPassword("{noop}123456"); // Contoh tanpa encoder sementara
+
+        // ==========================================
+        // PERBAIKAN: LOGIKA SIMPAN ROLE
+        // ==========================================
+        Set<Role> roles = new HashSet<>();
+
+        // Cek apakah user memilih role di form?
+        if (userDto.getRoles() != null && !userDto.getRoles().isEmpty()) {
+            for (String roleName : userDto.getRoles()) {
+                // Cari Role di database berdasarkan nama ("ADMIN", "ASESI", dll)
+                Role role = roleRepository.findByName(roleName).orElse(null);
+
+                if (role != null) {
+                    roles.add(role);
+                } else {
+                    // Opsional: Handle jika role tidak ditemukan di DB
+                    System.out.println("Role tidak ditemukan: " + roleName);
+                }
+            }
+        }
+        // Set Role ke Entity User
+        user.setRoles(roles);
+        // ==========================================
+
+        // 2. DATA PRIBADI & LAINNYA (Sama seperti sebelumnya)
+        user.setFullName(userDto.getFullName());
+        user.setBirthPlace(userDto.getBirthPlace());
+        user.setBirthDate(userDto.getBirthDate());
+        user.setGender(userDto.getGender());
+        user.setNik(userDto.getNik());
+        user.setPhoneNumber(userDto.getPhoneNumber());
+        user.setAddress(userDto.getAddress());
+        user.setPostalCode(userDto.getPostalCode());
+        user.setCitizenship(userDto.getCitizenship());
+        user.setNoMet(userDto.getNoMet());
+
+        user.setCompanyName(userDto.getCompanyName());
+        user.setPosition(userDto.getPosition());
+        user.setOfficePhone(userDto.getOfficePhone());
+        user.setOfficeEmail(userDto.getOfficeEmail());
+        user.setOfficeFax(userDto.getOfficeFax());
+        user.setOfficeAddress(userDto.getOfficeAddress());
+
+        // 3. RELASI 3NF (ID ke Object)
+        if (userDto.getEducationId() != null) {
+            user.setEducationId(educationRepository.findById(userDto.getEducationId()).orElse(null));
+        }
+        if (userDto.getJobTypeId() != null) {
+            user.setJobTypeId(jobTypeRepository.findById(userDto.getJobTypeId()).orElse(null));
+        }
+
+        // 4. WILAYAH & SIGNATURE
+        user.setProvinceId(userDto.getProvinceId());
+        user.setCityId(userDto.getCityId());
+        user.setDistrictId(userDto.getDistrictId());
+        user.setSubDistrictId(userDto.getSubDistrictId());
+        user.setSignatureBase64(userDto.getSignatureBase64());
+
+        userRepository.save(user);
+        return ResponseEntity.ok().body("{\"status\": \"success\", \"message\": \"Pengguna berhasil disimpan\"}");
     }
 
     @GetMapping("/data-pengguna/view-users/{id}")

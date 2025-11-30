@@ -1,64 +1,37 @@
-// =======================================================================
-// JAVASCRIPT UTAMA UNTUK MANAJEMEN PENGGUNA (ADD, EDIT, VIEW, LIST)
-// =======================================================================
-
 $(document).ready(function () {
   // ==========================================
-  // 1. KONFIGURASI GLOBAL & UTILS
+  // 1. KONFIGURASI GLOBAL
   // ==========================================
   const API_WILAYAH_URL = "https://www.emsifa.com/api-wilayah-indonesia/api";
 
-  // // Inisialisasi Select2
-  // $(".select2").select2({
-  //   theme: "bootstrap4",
-  // });
+  // Inisialisasi Select2
+  $(".select2").select2({ theme: "bootstrap4" });
 
-  // Override pesan error default jQuery Validate
+  // Custom Validasi jQuery: Regex Username
+  $.validator.addMethod(
+    "usernameRegex",
+    function (value, element) {
+      return this.optional(element) || /^[a-zA-Z0-9_]+$/.test(value);
+    },
+    "Username tidak boleh mengandung spasi atau karakter spesial."
+  );
+
+  // Override pesan default
   $.extend($.validator.messages, {
     required: "Isilah Form Ini!",
-    email: "Harap gunakan format email yang benar (contoh: user@domain.com)",
-    url: "Harap masukkan URL yang valid.",
-    date: "Harap masukkan tanggal yang valid.",
-    number: "Harap masukkan angka yang valid.",
-    digits: "Hanya boleh angka.",
+    email: "Format email tidak valid (contoh: user@domain.com)",
+    usernameRegex: "Username hanya boleh huruf dan angka (tanpa spasi).",
   });
 
-  // Validasi Real-time saat Select2 berubah
+  // Validasi Real-time Select2
   $(".select2").on("change", function () {
     $(this).valid();
   });
 
-  // CSS Inject untuk Border Merah Select2 saat Error
+  // Inject CSS Border Error
   $(
     "<style>.is-invalid-border { border-color: #dc3545 !important; }</style>"
   ).appendTo("head");
-
-  // ==========================================
-  // 2. LOGIKA DELETE (SWEETALERT)
-  // ==========================================
-  $(".delete-button").on("click", function (e) {
-    e.preventDefault();
-    var realLink = $(this).attr("href");
-
-    Swal.fire({
-      title: "Yakin Ingin Hapus?",
-      text: "Data yang dihapus tidak dapat dikembalikan!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Ya, Hapus Permanen!",
-      cancelButtonText: "Batal",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        window.location.href = realLink;
-      }
-    });
-  });
-
-  // ==========================================
-  // 3. LOGIKA ROLE & PEKERJAAN (SHOW/HIDE)
-  // ==========================================
 
   function checkRoleVisibility() {
     var selectedRoles = $("#roleSelect").val() || [];
@@ -75,8 +48,10 @@ $(document).ready(function () {
     if (selectedRoles.length > 0) {
       $("#wrapperDataPribadi").slideDown();
 
-      var isAsesi = selectedRoles.includes("Asesi") || selectedRoles.includes("ASESI");
-      var isAsesor = selectedRoles.includes("Asesor") || selectedRoles.includes("ASESOR");
+      var isAsesi =
+        selectedRoles.includes("Asesi") || selectedRoles.includes("ASESI");
+      var isAsesor =
+        selectedRoles.includes("Asesor") || selectedRoles.includes("ASESOR");
 
       if (isAsesi || isAsesor) {
         $(".group-asesi-asesor").show();
@@ -91,7 +66,7 @@ $(document).ready(function () {
   }
 
   function checkJobVisibility(isAsesi) {
-    var jobId = $("#selectPekerjaan").val() || $("#inputPekerjaan").val(); 
+    var jobId = $("#selectPekerjaan").val() || $("#inputPekerjaan").val();
 
     if (isAsesi && jobId && jobId != "1") {
       $("#wrapperDetailInstansi").slideDown();
@@ -106,15 +81,17 @@ $(document).ready(function () {
 
   $("#selectPekerjaan").on("change", function () {
     $("#inputPekerjaan").val($(this).val());
-    var isAsesi = ($("#roleSelect").val() || []).includes("Asesi") || ($("#roleSelect").val() || []).includes("ASESI");
+    var isAsesi =
+      ($("#roleSelect").val() || []).includes("Asesi") ||
+      ($("#roleSelect").val() || []).includes("ASESI");
     checkJobVisibility(isAsesi);
   });
 
   // ==========================================
-  // 4. LOAD DATA JSON STATIS
+  // 3. LOAD DATA JSON & API WILAYAH (ADD & EDIT)
   // ==========================================
 
-  // Load Pendidikan
+  // -- PENDIDIKAN --
   var savedEduId = $("#selectPendidikan").data("selected");
   fetch("/dist/js/education.json")
     .then((res) => res.json())
@@ -126,12 +103,11 @@ $(document).ready(function () {
       });
       $("#selectPendidikan").html(options);
     });
-
   $("#selectPendidikan").on("change", function () {
     $("#inputPendidikan").val($(this).val());
   });
 
-  // Load Pekerjaan
+  // -- PEKERJAAN --
   var savedJobId = $("#selectPekerjaan").data("selected");
   fetch("/dist/js/jobs.json")
     .then((res) => res.json())
@@ -142,14 +118,10 @@ $(document).ready(function () {
         options += `<option value="${item.id}" data-name="${item.name}" ${selected}>${item.name}</option>`;
       });
       $("#selectPekerjaan").html(options);
-      
-      setTimeout(checkRoleVisibility, 500); 
+      setTimeout(checkRoleVisibility, 500);
     });
 
-  // ==========================================
-  // 5. LOGIKA API WILAYAH
-  // ==========================================
-  
+  // -- WILAYAH (Helper Function) --
   function loadRegion(url, selectId, savedId, nextLoadCallback) {
     fetch(url)
       .then((res) => res.json())
@@ -164,165 +136,189 @@ $(document).ready(function () {
       });
   }
 
+  // Chain Load untuk Edit
   var savedProv = $("#selectProvinsi").data("selected");
   var savedCity = $("#selectKota").data("selected");
   var savedDist = $("#selectKecamatan").data("selected");
   var savedSubDist = $("#selectKelurahan").data("selected");
 
-  loadRegion(`${API_WILAYAH_URL}/provinces.json`, "#selectProvinsi", savedProv, function () {
-      loadRegion(`${API_WILAYAH_URL}/regencies/${savedProv}.json`, "#selectKota", savedCity, function () {
-          loadRegion(`${API_WILAYAH_URL}/districts/${savedCity}.json`, "#selectKecamatan", savedDist, function () {
-              loadRegion(`${API_WILAYAH_URL}/villages/${savedDist}.json`, "#selectKelurahan", savedSubDist, null);
-          });
-      });
-  });
+  loadRegion(
+    `${API_WILAYAH_URL}/provinces.json`,
+    "#selectProvinsi",
+    savedProv,
+    function () {
+      loadRegion(
+        `${API_WILAYAH_URL}/regencies/${savedProv}.json`,
+        "#selectKota",
+        savedCity,
+        function () {
+          loadRegion(
+            `${API_WILAYAH_URL}/districts/${savedCity}.json`,
+            "#selectKecamatan",
+            savedDist,
+            function () {
+              loadRegion(
+                `${API_WILAYAH_URL}/villages/${savedDist}.json`,
+                "#selectKelurahan",
+                savedSubDist,
+                null
+              );
+            }
+          );
+        }
+      );
+    }
+  );
 
+  // Event Listeners Wilayah
   $("#selectProvinsi").on("change", function () {
     let id = $(this).val();
     $("#inputProvinsi").val(id);
-    $("#selectKota").html('<option value="">Loading...</option>').prop("disabled", true);
-    $("#selectKecamatan").html('<option value="">Pilih Kecamatan...</option>').prop("disabled", true);
-    $("#selectKelurahan").html('<option value="">Pilih Kelurahan...</option>').prop("disabled", true);
-
-    if (id) {
-      loadRegion(`${API_WILAYAH_URL}/regencies/${id}.json`, "#selectKota", null, null);
-    }
+    $("#selectKota")
+      .html('<option value="">Loading...</option>')
+      .prop("disabled", true);
+    $("#selectKecamatan")
+      .html('<option value="">Pilih Kecamatan...</option>')
+      .prop("disabled", true);
+    $("#selectKelurahan")
+      .html('<option value="">Pilih Kelurahan...</option>')
+      .prop("disabled", true);
+    if (id)
+      loadRegion(
+        `${API_WILAYAH_URL}/regencies/${id}.json`,
+        "#selectKota",
+        null,
+        null
+      );
   });
 
   $("#selectKota").on("change", function () {
     let id = $(this).val();
     $("#inputKota").val(id);
-    $("#selectKecamatan").html('<option value="">Loading...</option>').prop("disabled", true);
-    $("#selectKelurahan").html('<option value="">Pilih Kelurahan...</option>').prop("disabled", true);
-
-    if (id) {
-      loadRegion(`${API_WILAYAH_URL}/districts/${id}.json`, "#selectKecamatan", null, null);
-    }
+    $("#selectKecamatan")
+      .html('<option value="">Loading...</option>')
+      .prop("disabled", true);
+    $("#selectKelurahan")
+      .html('<option value="">Pilih Kelurahan...</option>')
+      .prop("disabled", true);
+    if (id)
+      loadRegion(
+        `${API_WILAYAH_URL}/districts/${id}.json`,
+        "#selectKecamatan",
+        null,
+        null
+      );
   });
 
   $("#selectKecamatan").on("change", function () {
     let id = $(this).val();
     $("#inputKecamatan").val(id);
-    $("#selectKelurahan").html('<option value="">Loading...</option>').prop("disabled", true);
-
-    if (id) {
-      loadRegion(`${API_WILAYAH_URL}/villages/${id}.json`, "#selectKelurahan", null, null);
-    }
+    $("#selectKelurahan")
+      .html('<option value="">Loading...</option>')
+      .prop("disabled", true);
+    if (id)
+      loadRegion(
+        `${API_WILAYAH_URL}/villages/${id}.json`,
+        "#selectKelurahan",
+        null,
+        null
+      );
   });
 
   $("#selectKelurahan").on("change", function () {
     $("#inputKelurahan").val($(this).val());
   });
 
-
   // ==========================================
-  // 6. VALIDASI FORM & AJAX SUBMIT
+  // 4. VALIDASI FORM & AJAX SUBMIT
   // ==========================================
-  
-  function commonSubmitHandler(form, successTitle, successText) {
-    var formData = new FormData(form);
 
-    // --- VALIDASI TANDA TANGAN FINAL SEBELUM SUBMIT ---
-    var sigVal = $("#signatureInput").val();
-    if (!sigVal || sigVal.trim() === "") {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Isi tanda tangan terlebih dahulu', // Pesan sesuai request
-            confirmButtonColor: '#3085d6',
-        });
-        // Scroll ke tombol tanda tangan agar user sadar
-        $('html, body').animate({
-            scrollTop: $("#btnTriggerSignature").offset().top - 200
-        }, 500);
-        
-        // Munculkan error di bawah tombol juga
-        $("#signatureInput").valid(); 
-        return false; // Batalkan submit
-    }
-    // --------------------------------------------------
-
-    Swal.fire({
-      title: "Menyimpan Data...",
-      text: "Mohon tunggu sebentar",
-      allowOutsideClick: false,
-      didOpen: () => { Swal.showLoading(); },
-    });
-
-    $.ajax({
-      url: $(form).attr("action"),
-      type: "POST",
-      data: formData,
-      processData: false,
-      contentType: false,
-      success: function (response) {
-        Swal.fire({
-          title: successTitle,
-          text: successText,
-          icon: "success",
-          showCancelButton: true,
-          confirmButtonText: "OK (Lihat List)",
-          cancelButtonText: "Tetap Disini",
-          confirmButtonColor: "#3085d6",
-          cancelButtonColor: "#28a745",
-        }).then((result) => {
-          if (result.isConfirmed) {
-            window.location.href = "/admin/data-pengguna";
-          } else {
-            if ($(form).attr('id') === 'formTambahUser') {
-                form.reset();
-                $(".select2").val(null).trigger("change");
-                if(typeof signaturePad !== 'undefined') signaturePad.clear();
-                $("#signatureInput").val("");
-                $("#signaturePreview").hide();
-                $("#btnTriggerSignature")
-                    .removeClass("btn-success btn-outline-success btn-outline-danger")
-                    .addClass("btn-outline-primary")
-                    .html('<i class="fas fa-pen-nib"></i> Masukkan Tanda Tangan');
-                $("html, body").animate({ scrollTop: 0 }, "fast");
-            }
-          }
-        });
-      },
-      error: function (xhr) {
-        Swal.fire({
-          icon: "error",
-          title: "Gagal Menyimpan",
-          text: "Terjadi kesalahan pada server. Silakan coba lagi.",
-        });
-        console.error(xhr);
-      },
-    });
-    return false;
-  }
-
+  // Konfigurasi Validasi Universal
   var validationConfig = {
     ignore: function (index, element) {
       if ($(element).attr("id") === "signatureInput") return false; // Jangan ignore signature
+
+      // Khusus Select2: Cek visible container
       if ($(element).hasClass("select2-hidden-accessible")) {
         return $(element).next(".select2-container").is(":hidden");
       }
       return $(element).is(":hidden");
     },
+
+    // --- ATURAN VALIDASI ---
+    // --- ATURAN VALIDASI ---
     rules: {
-      email: { required: true, email: true },
-      username: { required: true },
+      email: {
+        required: true,
+        email: true,
+        // VALIDASI REAL-TIME SERVER
+        remote: {
+          url: "/admin/api/check-email",
+          type: "GET",
+          data: {
+            email: function () {
+              return $("input[name='email']").val();
+            },
+            id: function () {
+              return $("input[name='id']").val();
+            }, // Kirim ID untuk mode Edit
+          },
+        },
+      },
+      username: {
+        required: true,
+        usernameRegex: true,
+        // VALIDASI REAL-TIME SERVER
+        remote: {
+          url: "/admin/api/check-username",
+          type: "GET",
+          data: {
+            username: function () {
+              return $("input[name='username']").val();
+            },
+            id: function () {
+              return $("input[name='id']").val();
+            },
+          },
+        },
+      },
       fullName: { required: true },
-      province: { required: true },
-      city: { required: true },
-      district: { required: true },
-      subDistrict: { required: true },
-      jobType: { required: true },
-      // Signature WAJIB diisi baik Add maupun Edit
-      signatureBase64: { required: true }, 
+      provinceId: { required: true },
+      cityId: { required: true },
+      districtId: { required: true },
+      subDistrictId: { required: true },
+      jobTypeId: { required: true },
+      signatureBase64: { required: true },
     },
+
+    // --- PESAN ERROR KHUSUS ---
     messages: {
-        // Custom message khusus signature (Optional, bisa pakai default "Isilah form ini")
-        signatureBase64: "Isi tanda tangan terlebih dahulu" 
+      signatureBase64: "Isi tanda tangan terlebih dahulu",
+      username: {
+        remote: "Username sudah terdaftar", // Pesan merah yang muncul di bawah input
+      },
+      email: {
+        remote: "Email sudah terdaftar", // Pesan merah yang muncul di bawah input
+      },
+    },
+
+    // --- PESAN VALIDASI KHUSUS ---
+    messages: {
+      email: {
+        remote: "Email sudah terdaftar. Silakan gunakan email lain.",
+      },
+      username: {
+        remote: "Username sudah digunakan. Silakan pilih username lain.",
+      },
+      signatureBase64: "Isi tanda tangan terlebih dahulu",
     },
     errorElement: "span",
     errorPlacement: function (error, element) {
       error.addClass("invalid-feedback");
-      if (element.hasClass("select2") || element.hasClass("select2-hidden-accessible")) {
+      if (
+        element.hasClass("select2") ||
+        element.hasClass("select2-hidden-accessible")
+      ) {
         error.insertAfter(element.next(".select2"));
       } else if (element.attr("id") === "signatureInput") {
         error.insertAfter("#btnTriggerSignature");
@@ -334,160 +330,231 @@ $(document).ready(function () {
     highlight: function (element) {
       $(element).addClass("is-invalid").removeClass("is-valid");
       if ($(element).hasClass("select2-hidden-accessible")) {
-        $(element).next(".select2").find(".select2-selection").addClass("is-invalid-border");
+        $(element)
+          .next(".select2")
+          .find(".select2-selection")
+          .addClass("is-invalid-border");
       }
       if ($(element).attr("id") === "signatureInput") {
-        $("#btnTriggerSignature").addClass("btn-outline-danger").removeClass("btn-outline-primary btn-success");
+        $("#btnTriggerSignature")
+          .addClass("btn-outline-danger")
+          .removeClass("btn-outline-primary btn-success");
       }
     },
     unhighlight: function (element) {
       $(element).removeClass("is-invalid").addClass("is-valid");
       if ($(element).hasClass("select2-hidden-accessible")) {
-        $(element).next(".select2").find(".select2-selection").removeClass("is-invalid-border");
+        $(element)
+          .next(".select2")
+          .find(".select2-selection")
+          .removeClass("is-invalid-border");
       }
       if ($(element).attr("id") === "signatureInput") {
         $("#btnTriggerSignature").removeClass("btn-outline-danger");
       }
-    }
+    },
   };
 
-  // Terapkan Validasi Form Tambah
-  $("#formTambahUser").validate($.extend({}, validationConfig, {
-    submitHandler: function(form) {
-        commonSubmitHandler(form, "Berhasil!", "Pengguna Berhasil ditambahkan");
+  // Handler Submit
+  function commonSubmitHandler(form, successTitle) {
+    var formData = new FormData(form);
+
+    // --- VALIDASI MANUAL TANDA TANGAN ---
+    // Pastikan user tidak bypass
+    var sigVal = $("#signatureInput").val();
+    if (!sigVal || sigVal.trim() === "") {
+      // Scroll ke tombol
+      $("html, body").animate(
+        { scrollTop: $("#btnTriggerSignature").offset().top - 200 },
+        500
+      );
+
+      // PENTING: SWEETALERT ERROR SESUAI REQUEST (TIDAK TUTUP FORM)
+      Swal.fire({
+        icon: "warning",
+        title: "Isi Tanda Tangan Terlebih Dahulu",
+        confirmButtonColor: "#3085d6",
+        confirmButtonText: "Oke",
+      });
+
+      // Trigger error text merah di bawah tombol
+      $("#signatureInput").valid();
+      return false;
     }
-  }));
 
-  // Terapkan Validasi Form Edit
-  $("#formEditUser").validate($.extend({}, validationConfig, {
-    submitHandler: function(form) {
-        commonSubmitHandler(form, "Berhasil!", "Data Pengguna Berhasil diperbarui");
-    }
-  }));
+    Swal.fire({
+      title: "Menyimpan Data...",
+      text: "Mohon tunggu sebentar",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
 
+    $.ajax({
+      url: $(form).attr("action"),
+      type: "POST",
+      data: formData,
+      processData: false,
+      contentType: false,
+      success: function (response) {
+        // Parse JSON response dari Controller
+        var res =
+          typeof response === "string" ? JSON.parse(response) : response;
 
-  // ==========================================================
-  // 7. TANDA TANGAN LOGIKA
-  // ==========================================================
-  
+        Swal.fire({
+          title: "Berhasil!",
+          text: res.message,
+          icon: "success",
+          showDenyButton: true, // Tombol Tambahan (Lihat Detail)
+          showCancelButton: true, // Tombol Batal/Tetap
+          confirmButtonText: "OK (Lihat List)",
+          denyButtonText: "Lihat Detail",
+          cancelButtonText:
+            $(form).attr("id") === "formTambahUser" ? "Tambah" : "Kembali",
+          confirmButtonColor: "#3085d6", // Biru
+          denyButtonColor: "#17a2b8", // Teal/Info
+          cancelButtonColor: "#28a745", // Hijau
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // KLIK OK -> LIST
+            window.location.href = "/admin/data-pengguna";
+          } else if (result.isDenied) {
+            // KLIK LIHAT DETAIL -> Halaman Detail
+            // Kita gunakan ID yang dikirim dari controller
+            window.location.href = "/admin/data-pengguna/view-users/" + res.id;
+          } else {
+            if ($(form).attr("id") === "formTambahUser") {
+              form.reset();
+              $(".select2").val(null).trigger("change");
+              if (typeof signaturePad !== "undefined") signaturePad.clear();
+              $("#signatureInput").val("");
+              $("#signaturePreview").hide();
+              $("#btnTriggerSignature")
+                .removeClass(
+                  "btn-success btn-outline-success btn-outline-danger"
+                )
+                .addClass("btn-outline-primary")
+                .html('<i class="fas fa-pen-nib"></i> Masukkan Tanda Tangan');
+              $("html, body").animate({ scrollTop: 0 }, "fast");
+            }
+          }
+        });
+      },
+    });
+    return false;
+  }
+
+  $("#formTambahUser").validate(
+    $.extend({}, validationConfig, {
+      submitHandler: function (form) {
+        commonSubmitHandler(form, "Berhasil!");
+      },
+    })
+  );
+
+  $("#formEditUser").validate(
+    $.extend({}, validationConfig, {
+      submitHandler: function (form) {
+        commonSubmitHandler(form, "Berhasil!");
+      },
+    })
+  );
+
+  // ==========================================
+  // 5. TANDA TANGAN LOGIKA
+  // ==========================================
   var canvas = document.getElementById("signature-canvas");
-  
   if (canvas) {
-      var signaturePad = new SignaturePad(canvas, {
-        backgroundColor: "rgba(255, 255, 255, 0)",
-        penColor: "rgb(0, 0, 0)",
-      });
+    var signaturePad = new SignaturePad(canvas, {
+      backgroundColor: "rgba(255, 255, 255, 0)",
+      penColor: "rgb(0, 0, 0)",
+    });
 
-      function resizeCanvas() {
-        var ratio = Math.max(window.devicePixelRatio || 1, 1);
-        var data = signaturePad.toData();
-        canvas.width = canvas.offsetWidth * ratio;
-        canvas.height = canvas.offsetHeight * ratio;
-        canvas.getContext("2d").scale(ratio, ratio);
-        signaturePad.clear(); 
-        signaturePad.fromData(data);
-      }
-
-      $("#modalSignature").on("shown.bs.modal", function () {
-        resizeCanvas();
-        var existingSignature = $("#signatureInput").val();
-        if (existingSignature && existingSignature.trim() !== "") {
-          signaturePad.fromDataURL(existingSignature, { ratio: 1.5 });
-        }
-      });
-
-      $("#btnClear").on("click", function () {
-        signaturePad.clear();
-      });
-
-      $("#btnUpload").on("click", function () {
-        $("#uploadSigFile").click();
-      });
-
-      $("#uploadSigFile").on("change", function (e) {
-        var file = e.target.files[0];
-        if (!file) return;
-        if (file.type !== "image/png") {
-          Swal.fire({ icon: "error", title: "Hanya file format PNG yang diperbolehkan." });
-          this.value = "";
-          return;
-        }
-        var reader = new FileReader();
-        reader.onload = function (event) {
-          signaturePad.fromDataURL(event.target.result);
-        };
-        reader.readAsDataURL(file);
-      });
-
-      // TOMBOL SIMPAN DI MODAL
-      $("#btnSaveSignature").on("click", function () {
-        
-        // JIKA KOSONG (USER HAPUS CANVAS) -> TETAP SIMPAN KOSONG KE HIDDEN
-        // TAPI NANTI AKAN DICEGAH OLEH VALIDASI UTAMA SAAT SUBMIT FORM
-        if (signaturePad.isEmpty()) {
-          $("#signatureInput").val(""); 
-          $("#signaturePreview").hide();
-          $("#imgPreview").attr("src", "");
-          
-          var btnTrigger = $("#btnTriggerSignature");
-          btnTrigger
-            .removeClass("btn-success btn-outline-success")
-            .addClass("btn-outline-primary")
-            .html('<i class="fas fa-pen-nib"></i> Masukkan Tanda Tangan');
-        } 
-        else {
-          var dataURL = signaturePad.toDataURL("image/png");
-          $("#signatureInput").val(dataURL);
-
-          var btnTrigger = $("#btnTriggerSignature");
-          btnTrigger
-            .removeClass("btn-outline-primary btn-outline-danger")
-            .addClass("btn-outline-success")
-            .html('<i class="fas fa-eye"></i> Lihat Tanda Tangan');
-
-          $("#imgPreview").attr("src", dataURL);
-          $("#signaturePreview").show();
-        }
-
-        // TRIGGER VALIDASI SAAT ITU JUGA
-        // Agar jika user mengisi, error merah langsung hilang
-        $("#signatureInput").valid(); 
-        
-        // Tutup Modal
-        $("#modalSignature").find('[data-dismiss="modal"]').first().trigger("click");
-      });
-
-      window.addEventListener("resize", resizeCanvas);
-  }
-
-  // ==========================================================
-  // 8. LOGIKA HALAMAN VIEW
-  // ==========================================================
-  if ($("#viewProv").length) {
-    function setRegionName(url, elementId, fallbackId) {
-      if (!fallbackId) { $("#" + elementId).val("-"); return; }
-      $.ajax({
-        url: API_WILAYAH_URL + url,
-        method: "GET",
-        success: function (data) {
-          let found = data.find((item) => item.id == fallbackId);
-          $("#" + elementId).val(found ? found.name : fallbackId);
-        },
-        error: function () { $("#" + elementId).val("Error Loading"); },
-      });
+    function resizeCanvas() {
+      var ratio = Math.max(window.devicePixelRatio || 1, 1);
+      var data = signaturePad.toData();
+      canvas.width = canvas.offsetWidth * ratio;
+      canvas.height = canvas.offsetHeight * ratio;
+      canvas.getContext("2d").scale(ratio, ratio);
+      signaturePad.clear();
+      signaturePad.fromData(data);
     }
 
-    let provId = $("#viewProv").data("id");
-    setRegionName("/provinces.json", "viewProv", provId);
+    $("#modalSignature").on("shown.bs.modal", function () {
+      resizeCanvas();
+      var existingSignature = $("#signatureInput").val();
+      if (existingSignature && existingSignature.trim() !== "") {
+        signaturePad.fromDataURL(existingSignature, { ratio: 1.5 });
+      }
+    });
 
-    let cityId = $("#viewCity").data("id");
-    if (provId && cityId) setRegionName(`/regencies/${provId}.json`, "viewCity", cityId);
+    $("#btnClear").on("click", function () {
+      signaturePad.clear();
+    });
+    $("#btnUpload").on("click", function () {
+      $("#uploadSigFile").click();
+    });
 
-    let distId = $("#viewDist").data("id");
-    if (cityId && distId) setRegionName(`/districts/${cityId}.json`, "viewDist", distId);
+    $("#uploadSigFile").on("change", function (e) {
+      var file = e.target.files[0];
+      if (!file) return;
+      if (file.type !== "image/png") {
+        Swal.fire({ icon: "error", title: "Hanya format PNG diperbolehkan." });
+        this.value = "";
+        return;
+      }
+      var reader = new FileReader();
+      reader.onload = function (event) {
+        signaturePad.fromDataURL(event.target.result);
+      };
+      reader.readAsDataURL(file);
+    });
 
-    let subDistId = $("#viewSubDist").data("id");
-    if (distId && subDistId) setRegionName(`/villages/${distId}.json`, "viewSubDist", subDistId);
+    $("#btnSaveSignature").on("click", function () {
+      // JIKA KOSONG -> TETAP KOSONGKAN HIDDEN & SHOW ERROR ALERT
+      if (signaturePad.isEmpty()) {
+        $("#signatureInput").val("");
+        $("#signaturePreview").hide();
+
+        // Reset tombol
+        $("#btnTriggerSignature")
+          .removeClass("btn-success btn-outline-success")
+          .addClass("btn-outline-primary")
+          .html('<i class="fas fa-pen-nib"></i> Masukkan Tanda Tangan');
+
+        // ALERT SESUAI REQUEST (TIDAK TUTUP MODAL)
+        Swal.fire({
+          icon: "warning",
+          title: "Isi Tanda Tangan Terlebih Dahulu",
+          confirmButtonText: "Oke",
+          confirmButtonColor: "#3085d6",
+        });
+        // Modal tetap terbuka, user harus isi
+      } else {
+        // JIKA TERISI -> SIMPAN & TUTUP MODAL
+        var dataURL = signaturePad.toDataURL("image/png");
+        $("#signatureInput").val(dataURL);
+
+        $("#btnTriggerSignature")
+          .removeClass("btn-outline-primary btn-outline-danger")
+          .addClass("btn-outline-success")
+          .html('<i class="fas fa-eye"></i> Lihat Tanda Tangan');
+
+        $("#imgPreview").attr("src", dataURL);
+        $("#signaturePreview").show();
+
+        // Hapus error validasi jika ada
+        $("#signatureInput").valid();
+
+        // Tutup Modal
+        $("#modalSignature")
+          .find('[data-dismiss="modal"]')
+          .first()
+          .trigger("click");
+      }
+    });
+
+    window.addEventListener("resize", resizeCanvas);
   }
-
 });

@@ -33,6 +33,7 @@
                       class="form-control"
                       th:field="*{username}"
                       required
+                      autocomplete="off"
                     />
                   </div>
                 </div>
@@ -44,6 +45,7 @@
                       class="form-control"
                       th:field="*{email}"
                       required
+                     autocomplete="off"
                     />
                   </div>
                 </div>
@@ -184,7 +186,7 @@
                     </div>
                   </div>
 
-                  <div class="col-md-4 group-asesi-asesor">
+                  <div class="col-md-4">
                     <div class="form-group">
                       <label
                         >No Telepon<span class="text-danger">*</span></label
@@ -244,6 +246,7 @@
                       <select
                         class="form-control select2"
                         id="selectProvinsi"
+                        name="province"
                         th:data-selected="*{provinceId}"
                         required
                       ></select>
@@ -263,6 +266,7 @@
                       <select
                         class="form-control select2"
                         id="selectKota"
+                        name="city"
                         th:data-selected="*{cityId}"
                         disabled
                         required
@@ -275,7 +279,6 @@
                         type="hidden"
                         th:field="*{cityId}"
                         id="inputKota"
-                        required
                       />
                     </div>
                   </div>
@@ -286,6 +289,7 @@
                       <select
                         class="form-control select2"
                         id="selectKecamatan"
+                        name="district"
                         th:data-selected="*{districtId}"
                         disabled
                         required
@@ -434,8 +438,10 @@
                       <select
                         class="form-control select2"
                         id="selectPekerjaan"
+                        name="jobType"
                         th:data-selected="*{jobTypeId}"
                         style="width: 100%"
+                        required
                       >
                         <option value="">Pilih Pekerjaan...</option>
                       </select>
@@ -524,12 +530,12 @@
               </div>
             </div>
 
-            <div class="card-footer text-right">
+            <div class="card-footer">
               <a th:href="@{/admin/data-pengguna}" class="btn btn-default mr-2"
                 >Batal</a
               >
               <button type="submit" class="btn btn-warning">
-                <i class="fas fa-save"></i> Simpan Perubahan
+                <i class="fas fa-save"></i>Simpan
               </button>
             </div>
           </form>

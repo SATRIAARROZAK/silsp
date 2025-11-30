@@ -15,47 +15,57 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    @Query("SELECT new com.lsptddi.silsp.dto.UserRoleDto(u, r) " +
-            "FROM User u JOIN u.roles r WHERE " +
-            "(:role IS NULL OR :role = '' OR r.name = :role) AND " +
-            "(:keyword IS NULL OR :keyword = '' OR LOWER(u.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')))")
-    Page<UserRoleDto> searchUserRoles(@Param("keyword") String keyword,
-            @Param("role") String role,
-            Pageable pageable);
+        @Query("SELECT new com.lsptddi.silsp.dto.UserRoleDto(u, r) " +
+                        "FROM User u JOIN u.roles r WHERE " +
+                        "(:role IS NULL OR :role = '' OR r.name = :role) AND " +
+                        "(:keyword IS NULL OR :keyword = '' OR LOWER(u.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+        Page<UserRoleDto> searchUserRoles(@Param("keyword") String keyword,
+                        @Param("role") String role,
+                        Pageable pageable);
 
-    // @Query("SELECT DISTINCT u FROM User u JOIN u.roles r WHERE " +
-    //         "(:role IS NULL OR :role = '' OR r.name = :role) AND " +
-    //         "(:keyword IS NULL OR :keyword = '' OR LOWER(u.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')))")
-    // Page<User> searchUsers(@Param("keyword") String keyword, @Param("role") String role, Pageable pageable);
+        // @Query("SELECT DISTINCT u FROM User u JOIN u.roles r WHERE " +
+        // "(:role IS NULL OR :role = '' OR r.name = :role) AND " +
+        // "(:keyword IS NULL OR :keyword = '' OR LOWER(u.fullName) LIKE
+        // LOWER(CONCAT('%', :keyword, '%')))")
+        // Page<User> searchUsers(@Param("keyword") String keyword, @Param("role")
+        // String role, Pageable pageable);
 
-    // 1. METHOD BAWAAN (Otomatis ada, tidak perlu ditulis):
-    // - findAll() -> Mengambil semua user
-    // - findById(id) -> Mencari user berdasarkan ID
-    // - save(user) -> Menyimpan/Update user
-    // - deleteById(id) -> Menghapus user
+        // 1. METHOD BAWAAN (Otomatis ada, tidak perlu ditulis):
+        // - findAll() -> Mengambil semua user
+        // - findById(id) -> Mencari user berdasarkan ID
+        // - save(user) -> Menyimpan/Update user
+        // - deleteById(id) -> Menghapus user
 
-    // 2. CUSTOM METHOD (Tambahan yang sering dibutuhkan):
+        // 2. CUSTOM METHOD (Tambahan yang sering dibutuhkan):
 
-    /**
-     * Mencari user berdasarkan username.
-     * Penting untuk fitur LOGIN nanti (Spring Security).
-     */
-    Optional<User> findByUsername(String username);
+        /**
+         * Mencari user berdasarkan username.
+         * Penting untuk fitur LOGIN nanti (Spring Security).
+         */
+        Optional<User> findByUsername(String username);
 
-    /**
-     * Mencari user berdasarkan email.
-     * Berguna untuk validasi agar tidak ada email kembar saat registrasi.
-     */
-    Optional<User> findByEmail(String email);
+        /**
+         * Mencari user berdasarkan email.
+         * Berguna untuk validasi agar tidak ada email kembar saat registrasi.
+         */
 
-    /**
-     * Mengecek apakah username sudah ada di database?
-     * Return true jika ada, false jika belum.
-     */
-    boolean existsByUsername(String username);
+        Optional<User> findByEmail(String email);
 
-    /**
-     * Mengecek apakah email sudah ada di database?
-     */
-    boolean existsByEmail(String email);
+        /**
+         * Mengecek apakah username sudah ada di database?
+         * Return true jika ada, false jika belum.
+         */
+        // Cek Username untuk ADD (Baru)
+        boolean existsByUsername(String username);
+
+        // Cek Email untuk ADD (Baru)
+        boolean existsByEmail(String email);
+
+        // Cek Username untuk EDIT (Kecuali ID sendiri)
+        // "Cari user lain yang punya username ini, tapi ID-nya bukan ID saya"
+        boolean existsByUsernameAndIdNot(String username, Long id);
+
+        // Cek Email untuk EDIT (Kecuali ID sendiri)
+        boolean existsByEmailAndIdNot(String email, Long id);
+
 }

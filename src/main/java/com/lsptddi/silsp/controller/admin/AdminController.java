@@ -8,7 +8,10 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-
+import com.lsptddi.silsp.dto.UserDto;
+import com.lsptddi.silsp.model.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder; // Pastikan ada ini
 import com.lsptddi.silsp.repository.RefEducationRepository;
 import com.lsptddi.silsp.repository.RefJobTypeRepository;
 import com.lsptddi.silsp.repository.RoleRepository;
@@ -20,18 +23,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
-import com.lsptddi.silsp.dto.UserDto;
 import com.lsptddi.silsp.dto.UserRoleDto;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import com.lsptddi.silsp.model.*;
 // Objek User tiruan untuk simulasi
 // class User {
 //     private String fullName;
@@ -84,6 +80,30 @@ public class AdminController {
     public String index(Model model) {
 
         return "pages/admin/dashboard";
+    }
+
+    @GetMapping("/api/check-username")
+    @ResponseBody
+    public boolean checkUsername(@RequestParam String username, @RequestParam(required = false) Long id) {
+        // Logika: Return TRUE jika valid (tersedia), FALSE jika invalid (sudah ada)
+        if (id != null) {
+            // Mode EDIT: Cek duplikat selain punya sendiri
+            return !userRepository.existsByUsernameAndIdNot(username, id);
+        } else {
+            // Mode ADD: Cek duplikat biasa
+            return !userRepository.existsByUsername(username);
+        }
+    }
+
+    // API Cek Email
+    @GetMapping("/api/check-email")
+    @ResponseBody
+    public boolean checkEmail(@RequestParam String email, @RequestParam(required = false) Long id) {
+        if (id != null) {
+            return !userRepository.existsByEmailAndIdNot(email, id);
+        } else {
+            return !userRepository.existsByEmail(email);
+        }
     }
 
     // ==============================================
@@ -225,6 +245,29 @@ public class AdminController {
         // public String saveUser(@ModelAttribute UserDto userDto) {
         User user = new User();
 
+        // // 1. Validasi Duplikat (ADD)
+        // if (userRepository.existsByUsername(userDto.getUsername())) {
+        // return ResponseEntity.badRequest()
+        // .body("{\"status\": \"error\", \"message\": \"Username sudah digunakan!\"}");
+        // }
+        // if (userRepository.existsByEmail(userDto.getEmail())) {
+        // return ResponseEntity.badRequest().body("{\"status\": \"error\", \"message\":
+        // \"Email sudah digunakan!\"}");
+        // }
+
+        // Cek Duplikat Username
+        if (userRepository.existsByUsername(userDto.getUsername())) {
+            // Perhatikan key "field": "username"
+            return ResponseEntity.badRequest().body(
+                    "{\"status\": \"error\", \"field\": \"username\", \"message\": \"Username sudah terdaftar\"}");
+        }
+        // Cek Duplikat Email
+        if (userRepository.existsByEmail(userDto.getEmail())) {
+            // Perhatikan key "field": "email"
+            return ResponseEntity.badRequest()
+                    .body("{\"status\": \"error\", \"field\": \"email\", \"message\": \"Email sudah terdaftar\"}");
+        }
+
         // 1. DATA AKUN DASAR
         user.setUsername(userDto.getUsername());
         user.setEmail(userDto.getEmail());
@@ -292,7 +335,12 @@ public class AdminController {
         user.setSignatureBase64(userDto.getSignatureBase64());
 
         userRepository.save(user);
-        return ResponseEntity.ok().body("{\"status\": \"success\", \"message\": \"Pengguna berhasil disimpan\"}");
+        return ResponseEntity.ok().body(
+                "{\"status\": \"success\", \"message\": \"Pengguna berhasil disimpan\", \"id\": " + user.getId() + "}");
+
+        // userRepository.save(user);
+        // return ResponseEntity.ok().body("{\"status\": \"success\", \"message\":
+        // \"Pengguna berhasil disimpan\"}");
     }
 
     @GetMapping("/data-pengguna/view-users/{id}")
@@ -400,10 +448,41 @@ public class AdminController {
         return "pages/admin/users/users-edit"; // File HTML baru
     }
 
+    // ===========================
+    // UPDATE METHOD UPDATE (EDIT)
+    // ===========================
+
     // 2. PROSES UPDATE (POST)
     @PostMapping("/users/update")
-    public String updateUser(@ModelAttribute UserDto userDto, RedirectAttributes attributes) {
+    @ResponseBody
+    // public String updateUser(@ModelAttribute UserDto userDto, RedirectAttributes
+    // attributes) {
+    public ResponseEntity<?> updateUser(@ModelAttribute UserDto userDto) {
         try {
+
+            // // 1. Validasi Duplikat (EDIT - Kecuali diri sendiri)
+            // if (userRepository.existsByUsernameAndIdNot(userDto.getUsername(),
+            // userDto.getId())) {
+            // return ResponseEntity.badRequest()
+            // .body("{\"status\": \"error\", \"message\": \"Username sudah digunakan oleh
+            // pengguna lain!\"}");
+            // }
+            // if (userRepository.existsByEmailAndIdNot(userDto.getEmail(),
+            // userDto.getId())) {
+            // return ResponseEntity.badRequest()
+            // .body("{\"status\": \"error\", \"message\": \"Email sudah digunakan oleh
+            // pengguna lain!\"}");
+            // }
+
+            if (userRepository.existsByUsernameAndIdNot(userDto.getUsername(), userDto.getId())) {
+                return ResponseEntity.badRequest().body(
+                        "{\"status\": \"error\", \"field\": \"username\", \"message\": \"Username sudah terdaftar\"}");
+            }
+            // Cek Duplikat Email (Kecuali diri sendiri)
+            if (userRepository.existsByEmailAndIdNot(userDto.getEmail(), userDto.getId())) {
+                return ResponseEntity.badRequest()
+                        .body("{\"status\": \"error\", \"field\": \"email\", \"message\": \"Email sudah terdaftar\"}");
+            }
             // A. Ambil User Lama dari Database berdasarkan ID (Hidden Input)
             User user = userRepository.findById(userDto.getId())
                     .orElseThrow(() -> new RuntimeException("User tidak ditemukan"));
@@ -470,15 +549,36 @@ public class AdminController {
             // F. SIMPAN PERUBAHAN
             userRepository.save(user);
 
-            attributes.addFlashAttribute("success", "Data pengguna berhasil diperbarui!");
+            // attributes.addFlashAttribute("success", "Data pengguna berhasil
+            // diperbarui!");
+
+            // } catch (Exception e) {
+            // e.printStackTrace();
+            // attributes.addFlashAttribute("error", "Gagal mengupdate data: " +
+            // e.getMessage());
+            // return ResponseEntity.ok()
+            // .body("{\"status\": \"success\", \"message\": \"Data pengguna berhasil
+            // diperbarui!\"}");
+
+            // } catch (Exception e) {
+            // return ResponseEntity.badRequest()
+            // .body("{\"status\": \"error\", \"message\": \"Gagal update: " +
+            // e.getMessage() + "\"}");
+
+            // // return "redirect:/admin/users/users-edit/" + userDto.getId(); // Kembali
+            // ke
+            // // form edit jika gagal
+            // }
+
+            return ResponseEntity.ok()
+                    .body("{\"status\": \"success\", \"message\": \"Data berhasil diperbarui\", \"id\": " + user.getId()
+                            + "}");
 
         } catch (Exception e) {
-            e.printStackTrace();
-            attributes.addFlashAttribute("error", "Gagal mengupdate data: " + e.getMessage());
-            return "redirect:/admin/users/users-edit/" + userDto.getId(); // Kembali ke form edit jika gagal
+            return ResponseEntity.badRequest()
+                    .body("{\"status\": \"error\", \"message\": \"Gagal: " + e.getMessage() + "\"}");
         }
 
-        return "redirect:/admin/data-pengguna";
     }
 
     @GetMapping("/data-pengguna/delete/{id}")

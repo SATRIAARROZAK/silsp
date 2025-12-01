@@ -312,6 +312,48 @@ $(document).ready(function () {
       },
       signatureBase64: "Isi tanda tangan terlebih dahulu",
     },
+
+    invalidHandler: function (event, validator) {
+      // Cek jumlah error
+      var errors = validator.numberOfInvalids();
+
+      if (errors) {
+        // Munculkan SweetAlert Peringatan
+        Swal.fire({
+          icon: "warning",
+          title: "Perhatian!",
+          text: "Harap isi semua data dengan tanda (*)", // Pesan sesuai request
+          confirmButtonColor: "#3085d6",
+          confirmButtonText: "Oke",
+        }).then(() => {
+          // FITUR TAMBAHAN: Scroll otomatis ke field error pertama
+          // Agar user tidak bingung mencari mana yang kurang
+          if (validator.errorList.length > 0) {
+            var firstErrorElement = $(validator.errorList[0].element);
+
+            // Khusus Tanda Tangan (karena inputnya hidden)
+            if (firstErrorElement.attr("id") === "signatureInput") {
+              $("html, body").animate(
+                {
+                  scrollTop: $("#btnTriggerSignature").offset().top - 200,
+                },
+                500
+              );
+            } else {
+              // Input biasa
+              $("html, body").animate(
+                {
+                  scrollTop: firstErrorElement.offset().top - 150,
+                },
+                500
+              );
+              firstErrorElement.focus();
+            }
+          }
+        });
+      }
+    },
+
     errorElement: "span",
     errorPlacement: function (error, element) {
       error.addClass("invalid-feedback");

@@ -15,11 +15,12 @@ import java.util.Collection;
 public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+            Authentication authentication) throws IOException, ServletException {
+
         // Ambil list role user yang baru login
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-        
+
         // Logic Redirect
         String redirectUrl = null;
 
@@ -28,15 +29,20 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
             if (authority.getAuthority().equals("Admin")) {
                 redirectUrl = "/admin/dashboard";
                 break;
-            } 
+            }
             // Jika role-nya ASESI
             else if (authority.getAuthority().equals("Asesi")) {
                 redirectUrl = "/asesi/dashboard"; // Sesuaikan jika punya halaman khusus
                 break;
-            } 
+            }
             // Jika role-nya ASESOR
             else if (authority.getAuthority().equals("Asesor")) {
                 redirectUrl = "/asesor/dashboard";
+                break;
+            }
+            // --- TAMBAHAN BARU ---
+            else if (authority.getAuthority().equals("Direktur")) {
+                redirectUrl = "/direktur/dashboard"; // Atau "/admin/dashboard" jika sama
                 break;
             }
         }

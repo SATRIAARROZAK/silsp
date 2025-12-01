@@ -27,7 +27,7 @@
             <div class="text-center mb-3">
               <span
                 class="badge"
-                th:classappend="${viewRole == 'Admin' ? 'badge-danger' : (viewRole == 'Asesor' ? 'badge-info' : 'badge-success')}"
+                th:classappend="${viewRole == 'Admin' ? 'badge-danger' : (viewRole == 'Asesor' ? 'badge-info' : viewRole == 'Direktur' ? 'badge-warning' : 'badge-success')}"
                 style="font-size: 1.1rem; padding: 8px 15px"
               >
                 <i class="fas fa-user-tag"></i>

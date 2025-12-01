@@ -84,6 +84,32 @@ body {
   background-color: #fff;
 }
 
+/* 1. Sembunyikan Gambar Logo saat sidebar tertutup */
+    body.sidebar-collapse .brand-link .brand-image {
+        display: none !important;
+    }
+
+    /* 2. Paksa Teks Muncul saat sidebar tertutup */
+    body.sidebar-collapse .brand-link .brand-text {
+        display: inline-block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        width: 100% !important;
+        text-align: center; /* Agar tulisan SILSP ada di tengah */
+        margin-left: 0 !important;
+        font-weight: bold;
+        transition: none !important; /* Hilangkan efek transisi agar langsung berubah */
+    }
+    
+    /* Perbaikan padding agar pas di tengah */
+    body.sidebar-collapse .brand-link {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
 [tabindex="-1"]:focus:not(:focus-visible) {
   outline: 0 !important;
 }

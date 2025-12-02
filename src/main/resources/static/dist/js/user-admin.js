@@ -33,6 +33,26 @@ $(document).ready(function () {
     "<style>.is-invalid-border { border-color: #dc3545 !important; }</style>"
   ).appendTo("head");
 
+  $(".delete-button").on("click", function (e) {
+    e.preventDefault();
+    var realLink = $(this).attr("href");
+
+    Swal.fire({
+      title: "Yakin Ingin Hapus?",
+      text: "Data yang dihapus tidak dapat dikembalikan!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Ya, Hapus Permanen!",
+      cancelButtonText: "Batal",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.href = realLink;
+      }
+    });
+  });
+
   function checkRoleVisibility() {
     var selectedRoles = $("#roleSelect").val() || [];
 

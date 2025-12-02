@@ -32,7 +32,6 @@ import org.springframework.data.domain.Sort;
 import com.lsptddi.silsp.dto.UserRoleDto;
 
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -144,7 +143,23 @@ public class AdminController {
     // ==============================================
 
     @GetMapping("/skema")
-    public String showSkemaList(Model model) { // 1. Tambahkan Model sebagai parameter
+    public String showSkemaList(Model model, @RequestParam(value = "keyword", required = false) String keyword,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+
+        // Pagination & Sorting (Terbaru diatas)
+        PageRequest pageable = PageRequest.of(page, size, Sort.by("id").descending());
+
+        // Panggil Repository
+        Page<Schema> schemaPage = schemaRepository.searchSchema(keyword, pageable);
+
+        // Kirim Data ke View
+        model.addAttribute("listSkema", schemaPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", schemaPage.getTotalPages());
+        model.addAttribute("totalItems", schemaPage.getTotalElements());
+        model.addAttribute("keyword", keyword);
+
         return "pages/admin/skema/skema-list";
     }
 

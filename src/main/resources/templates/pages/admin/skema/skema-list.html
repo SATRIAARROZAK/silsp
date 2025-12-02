@@ -62,7 +62,6 @@
                 <th>No</th>
                 <th>Nama Skema</th>
                 <th>Jenis Skema</th>
-                <th>Nomer Dokumen</th>
                 <th>Level</th>
                 <th>File</th>
                 <th>Skema Unit</th>
@@ -72,93 +71,115 @@
             <!-- <tbody id="skemaTableBody"> -->
 
             <tbody>
-              <tr>
-                <td>1</td>
-                <td>Associate Data Science</td>
-                <td>Okupasi</td>
-                <td class="text-center">01/SKM/LSPTDDI/I/2025</td>
-                <td class="text-center">4</td>
-                <td class="text-center">
-                  <a th:href="@{/dist/doc/pedoman.pdf}" target="_blank">
-                    <i class="fas fa-file"></i>
-                  </a>
-                  <!-- <a
-                    href="#"
-                    class="btn btn-secondary btn-sm"
-                    data-toggle="modal"
-                    data-target="#previewModal"
-                    title="Lihat Dokumen"
-                  >
-                    
-                  </a> -->
+              <tr th:each="skema, iter : ${listSkema}">
+                <td
+                  class="text-center"
+                  th:text="${(currentPage * 10) + iter.count}"
+                >
+                  1
                 </td>
+
+                <td>
+                  <span class="font-weight-bold d-block" th:text="${skema.name}"
+                    >Nama Skema</span
+                  >
+                  <small class="text-muted" th:text="${skema.code}"
+                    >SKM-001</small
+                  >
+                </td>
+
+                <td
+                  class="text-center"
+                  th:text="${skema.schemaType?.name ?: '-'}"
+                >
+                  Jenis
+                </td>
+
+                <td class="text-center" th:text="${skema.level}">4</td>
+
                 <td class="text-center">
                   <a
+                    th:if="${skema.documentPath}"
+                    th:href="@{'/uploads/skema/' + ${skema.documentPath}}"
+                    class="btn btn-xs btn-outline-secondary"
+                    target="_blank"
+                    title="Download PDF"
+                  >
+                    <i class="fas fa-file-pdf fa-lg"></i>
+                  </a>
+                  <span th:unless="${skema.documentPath}">-</span>
+                </td>
+
+                <td class="text-center">
+                  <button
                     class="btn btn-primary btn-sm btn-expand"
-                    data-target="#skema-unit"
+                    type="button"
+                    data-toggle="collapse"
+                    th:data-target="'#collapseUnit-' + ${skema.id}"
+                    aria-expanded="false"
                   >
                     <i class="fas fa-folder-plus"></i>
-                  </a>
+                  </button>
                 </td>
-                <td class="align-middle">
-                  <div class="action-buttons">
+
+                <td class="text-center">
+                  <div class="btn-group">
                     <a
-                      class="btn btn-outline-primary btn-sm"
-                      th:href="@{/admin/skema/view-skema}"
-                      title="View"
-                    >
-                      <i class="fas fa-eye"> </i>
-                    </a>
+                      th:href="@{'/admin/skema/view/' + ${skema.id}}"
+                      class="btn btn-default btn-sm"
+                      title="Lihat"
+                      ><i class="fas fa-eye text-primary"></i
+                    ></a>
                     <a
-                      class="btn btn-outline-info btn-sm"
-                      th:href="@{/admin/skema/edit-skema}"
+                      th:href="@{'/admin/skema/edit/' + ${skema.id}}"
+                      class="btn btn-default btn-sm"
                       title="Edit"
-                    >
-                      <i class="fas fa-pencil-alt"> </i>
-                    </a>
+                      ><i class="fas fa-pencil-alt text-warning"></i
+                    ></a>
                     <a
-                      class="btn btn-outline-danger btn-sm"
-                      href="#"
-                      title="Delete"
-                    >
-                      <i class="fas fa-trash"> </i>
-                    </a>
+                      th:href="@{'/admin/skema/delete/' + ${skema.id}}"
+                      class="btn btn-default btn-sm delete-button"
+                      title="Hapus"
+                      ><i class="fas fa-trash text-danger"></i
+                    ></a>
                   </div>
                 </td>
               </tr>
-              <tr class="expandable-content-row" id="skema-unit">
-                <td colspan="8">
-                  <div class="expandable-content-wrapper">
-                    <h5>
-                      Daftar Unit Skema:
-                      <span th:text="(...)"></span>
-                    </h5>
-                    <div class="table-responsive">
-                      <table
-                        class="table table-valign-middle table-sm table-bordered nested-table"
-                      >
+              <tr class="collapse p-0" th:id="'collapseUnit-' + ${skema.id}">
+                <td colspan="8" class="bg-light p-3">
+                  <div class="card shadow-none border mb-0">
+                    <div class="card-header">
+                      <h6 class="card-title text-primary font-weight-bold">
+                        <i class="fas fa-list-ul mr-2"></i> Daftar Unit
+                        Kompetensi
+                      </h6>
+                    </div>
+                    <div class="card-body p-0 table-responsive">
+                      <table class="table table-sm table-valign-middle mb-0">
                         <thead class="thead-light">
                           <tr>
-                            <th>No</th>
-                            <th>Kode Unit</th>
+                            <th style="width: 10px">#</th>
+                            <th style="width: 200px">Kode Unit</th>
                             <th>Judul Unit</th>
-                            <th>Standar Kompetensi Kerja</th>
                           </tr>
                         </thead>
                         <tbody>
-                          <tr>
-                            <td>1</td>
-                            <td>J.620100.001.01</td>
-                            <td>Mengimplementasikan User Interface</td>
-                            <td rowspan="2" class="text-center">
-                              SKKNI No. (...) Tahun (...)
+                          <tr th:each="unit, uIter : ${skema.units}">
+                            <td th:text="${uIter.count}">1</td>
+                            <td>
+                              <code class="text-primary" th:text="${unit.code}"
+                                >CODE</code
+                              >
                             </td>
+                            <td th:text="${unit.title}">Judul Unit</td>
                           </tr>
-                          <tr>
-                            <td>2</td>
-                            <td>J.620100.002.01</td>
-                            <td>Membuat User Interface</td>
-                            <!-- <td>SKKNI</td> -->
+                          <tr th:if="${#lists.isEmpty(skema.units)}">
+                            <td
+                              colspan="3"
+                              class="text-center text-muted font-italic py-2"
+                            >
+                              Belum ada unit kompetensi.
+                            </td>
                           </tr>
                         </tbody>
                       </table>
@@ -169,62 +190,60 @@
             </tbody>
           </table>
         </div>
+        <div class="card-footer clearfix bg-white">
+          <div class="row">
+            <div class="col-sm-12 col-md-5">
+              <div class="dataTables_info" role="status" aria-live="polite">
+                Menampilkan <b th:text="${(currentPage * 10) + 1}">1</b> sampai
+                <b th:text="${(currentPage * 10) + listSkema.size()}">10</b>
+                dari <b th:text="${totalItems}">50</b> data
+              </div>
+            </div>
+            <div class="col-sm-12 col-md-7">
+              <ul
+                class="pagination pagination-sm m-0 float-right"
+                th:if="${totalPages > 0}"
+              >
+                <li
+                  class="page-item"
+                  th:classappend="${currentPage == 0} ? 'disabled'"
+                >
+                  <a
+                    class="page-link"
+                    th:href="@{/admin/skema(page=${currentPage - 1}, keyword=${keyword})}"
+                    >&laquo;</a
+                  >
+                </li>
 
-        <!-- /.card-body -->
-        <div class="card-footer clearfix">
-          <ul class="pagination pagination-sm m-0 float-right">
-            <li class="page-item"><a class="page-link" href="#">&laquo;</a></li>
-            <li class="page-item"><a class="page-link" href="#">1</a></li>
-            <li class="page-item"><a class="page-link" href="#">2</a></li>
-            <li class="page-item"><a class="page-link" href="#">3</a></li>
-            <li class="page-item"><a class="page-link" href="#">&raquo;</a></li>
-          </ul>
-        </div>
-      </div>
-      <!-- <div
-        class="modal fade"
-        id="previewModal"
-        tabindex="-1"
-        role="dialog"
-        aria-labelledby="previewModalLabel"
-        aria-hidden="true"
-      >
-        <div class="modal-dialog modal-xl" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="previewModalLabel">
-                Preview Dokumen Skema
-              </h5>
-              <button
-                type="button"
-                class="close"
-                data-dismiss="modal"
-                aria-label="Close"
-              >
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-              <iframe
-                id="pdf-viewer"
-                src="about:blank"
-                frameborder="0"
-                style="width: 100%; height: 75vh"
-              ></iframe>
-            </div>
-            <div class="modal-footer">
-              <button
-                type="button"
-                class="btn btn-secondary"
-                data-dismiss="modal"
-              >
-                Tutup
-              </button>
+                <li
+                  class="page-item"
+                  th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                  th:if="${i >= currentPage - 2 && i <= currentPage + 2}"
+                  th:classappend="${i == currentPage} ? 'active'"
+                >
+                  <a
+                    class="page-link"
+                    th:href="@{/admin/skema(page=${i}, keyword=${keyword})}"
+                    th:text="${i + 1}"
+                    >1</a
+                  >
+                </li>
+
+                <li
+                  class="page-item"
+                  th:classappend="${currentPage == totalPages - 1} ? 'disabled'"
+                >
+                  <a
+                    class="page-link"
+                    th:href="@{/admin/skema(page=${currentPage + 1}, keyword=${keyword})}"
+                    >&raquo;</a
+                  >
+                </li>
+              </ul>
             </div>
           </div>
         </div>
-      </div> -->
-      <!-- /.modal -->
+      </div>
     </div>
   </body>
 </html>

@@ -19,31 +19,51 @@ $(document).ready(function () {
     },
   });
 
+  $(".delete-button").on("click", function (e) {
+    e.preventDefault();
+    var realLink = $(this).attr("href");
+
+    Swal.fire({
+      title: "Yakin Hapus Skema?",
+      text: "Data unit dan persyaratan didalamnya juga akan terhapus permanen!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Ya, Hapus!",
+      cancelButtonText: "Batal",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.href = link;
+      }
+    });
+  });
+
   //  =======================================================
   // PDF PREVIEW MODAL
   //  =======================================================
   // PDF Preview in Modal
-  $(document).ready(function () {
-    // Event ini akan dijalankan SETIAP KALI modal #previewModal akan ditampilkan
-    $("#previewModal").on("show.bs.modal", function (event) {
-      // Dapatkan tombol yang memicu modal
-      var button = $(event.relatedTarget);
+  //   $(document).ready(function () {
+  //     // Event ini akan dijalankan SETIAP KALI modal #previewModal akan ditampilkan
+  //     $("#previewModal").on("show.bs.modal", function (event) {
+  //       // Dapatkan tombol yang memicu modal
+  //       var button = $(event.relatedTarget);
 
-      // Ekstrak path file dari atribut data-filepath
-      var filePath = button.data("filepath");
+  //       // Ekstrak path file dari atribut data-filepath
+  //       var filePath = button.data("filepath");
 
-      // Dapatkan elemen modal itu sendiri
-      var modal = $(this);
+  //       // Dapatkan elemen modal itu sendiri
+  //       var modal = $(this);
 
-      // Cari elemen iframe di dalam modal dan atur atribut 'src'-nya
-      modal.find("#pdf-viewer").attr("src", filePath);
-    });
+  //       // Cari elemen iframe di dalam modal dan atur atribut 'src'-nya
+  //       modal.find("#pdf-viewer").attr("src", filePath);
+  //     });
 
-    // (Opsional) Kosongkan src iframe saat modal ditutup agar tidak membebani browser
-    $("#previewModal").on("hidden.bs.modal", function () {
-      $(this).find("#pdf-viewer").attr("src", "");
-    });
-  });
+  //     // (Opsional) Kosongkan src iframe saat modal ditutup agar tidak membebani browser
+  //     $("#previewModal").on("hidden.bs.modal", function () {
+  //       $(this).find("#pdf-viewer").attr("src", "");
+  //     });
+  //   });
 
   // =======================================================
   // --- FUNGSI UNTUK LOCALSTORAGE ---
@@ -627,6 +647,31 @@ $(document).ready(function () {
       }
       Toast.fire({ icon: "error", title: "Harap lengkapi semua data wajib!" });
     }
+  });
+
+  // ========================================================
+  // LOGIKA ICON EXPAND/COLLAPSE UNIT SKEMA
+  // ========================================================
+
+  // Saat collapsible element mulai terbuka (Show)
+  $(document).on("show.bs.collapse", ".collapse", function () {
+    // Cari tombol pemicu yang menargetkan element ini
+    var id = $(this).attr("id");
+    var btn = $('button[data-target="#' + id + '"]');
+
+    // Ubah ikon jadi Folder Open / Minus
+    btn.find("i").removeClass("fa-folder-plus").addClass("fa-folder-minus");
+    btn.removeClass("btn-primary").addClass("btn-info"); // Ganti warna jadi info (biru muda)
+  });
+
+  // Saat collapsible element mulai tertutup (Hide)
+  $(document).on("hide.bs.collapse", ".collapse", function () {
+    var id = $(this).attr("id");
+    var btn = $('button[data-target="#' + id + '"]');
+
+    // Kembalikan ikon jadi Folder Plus
+    btn.find("i").removeClass("fa-folder-minus").addClass("fa-folder-plus");
+    btn.removeClass("btn-info").addClass("btn-primary"); // Kembalikan warna
   });
   // --- TOMBOL SIMPAN (SUBMIT FORM) ---
   //   $("#form-tambah-skema").on("submit", function (e) {

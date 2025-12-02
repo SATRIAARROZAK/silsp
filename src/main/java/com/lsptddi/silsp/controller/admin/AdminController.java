@@ -12,10 +12,6 @@ import com.lsptddi.silsp.dto.UserDto;
 import com.lsptddi.silsp.model.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder; // Pastikan ada ini
-import com.lsptddi.silsp.repository.RefEducationRepository;
-import com.lsptddi.silsp.repository.RefJobTypeRepository;
-import com.lsptddi.silsp.repository.RoleRepository;
-import com.lsptddi.silsp.repository.UserRepository;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -28,6 +24,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import com.lsptddi.silsp.dto.SchemaDto;
+// import com.lsptddi.silsp.model.*;
+import com.lsptddi.silsp.repository.*;
+// import org.springframework.beans.factory.annotation.Autowired;
+// import org.springframework.http.ResponseEntity;
+// import org.springframework.stereotype.Controller;
+// import org.springframework.ui.Model;
+// import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.nio.file.*;
+import java.util.UUID;
+
 // Objek User tiruan untuk simulasi
 // class User {
 //     private String fullName;
@@ -66,6 +76,15 @@ public class AdminController {
     // Jika Anda menggunakan Spring Security, inject PasswordEncoder
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private SchemaRepository schemaRepository;
+    @Autowired
+    private RefSchemaTypeRepository schemaTypeRepository;
+    @Autowired
+    private RefSchemaModeRepository schemaModeRepository;
+
+    private final String UPLOAD_DIR = "uploads/skema/"; // Pastikan folder ini ada
 
     // @ModelAttribute
     // public void addGlobalAttributes(Model model) {
@@ -116,9 +135,82 @@ public class AdminController {
     }
 
     @GetMapping("/skema/tambah-skema")
-    public String showSkemaTambahPage(Model model) { // 1. Tambahkan Model sebagai parameter
+    public String addSchema(Model model) {
+        // Load data referensi untuk dropdown
+        model.addAttribute("types", schemaTypeRepository.findAll());
+        model.addAttribute("modes", schemaModeRepository.findAll());
 
         return "pages/admin/skema/skema-add";
+    }
+
+    @PostMapping("/skema/save")
+    @ResponseBody
+    public ResponseEntity<?> saveSchema(@ModelAttribute SchemaDto dto) {
+        try {
+            Schema schema = new Schema();
+
+            // A. Mapping Data Dasar
+            schema.setName(dto.getNamaSkema());
+            schema.setCode(dto.getKodeSkema());
+            schema.setLevel(dto.getLevel());
+            schema.setNoSkkni(dto.getNoSkkni());
+            schema.setSkkniYear(dto.getTahunSkkni());
+            schema.setEstablishmentDate(dto.getTanggalPenetapan());
+
+            // B. Mapping Relasi (3NF)
+            if (dto.getJenisSkemaId() != null) {
+                schema.setSchemaType(schemaTypeRepository.findById(dto.getJenisSkemaId()).orElse(null));
+            }
+            if (dto.getModeSkemaId() != null) {
+                schema.setSchemaMode(schemaModeRepository.findById(dto.getModeSkemaId()).orElse(null));
+            }
+
+            // C. Upload File
+            if (dto.getFileSkema() != null && !dto.getFileSkema().isEmpty()) {
+                String fileName = saveFile(dto.getFileSkema());
+                schema.setDocumentPath(fileName);
+            }
+
+            // D. Mapping Unit Skema (Looping Array)
+            if (dto.getKodeUnit() != null) {
+                for (int i = 0; i < dto.getKodeUnit().size(); i++) {
+                    SchemaUnit unit = new SchemaUnit();
+                    unit.setCode(dto.getKodeUnit().get(i));
+                    unit.setTitle(dto.getJudulUnit().get(i));
+                    schema.addUnit(unit); // Helper method handles relationship
+                }
+            }
+
+            // E. Mapping Persyaratan (Looping Array)
+            if (dto.getPersyaratan() != null) {
+                for (String reqText : dto.getPersyaratan()) {
+                    if (reqText != null && !reqText.trim().isEmpty()) {
+                        SchemaRequirement req = new SchemaRequirement();
+                        req.setDescription(reqText);
+                        schema.addRequirement(req);
+                    }
+                }
+            }
+
+            // Simpan Parent (Cascade akan menyimpan Unit & Req)
+            schemaRepository.save(schema);
+
+            return ResponseEntity.ok().body("{\"status\": \"success\", \"message\": \"Skema berhasil disimpan!\"}");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest()
+                    .body("{\"status\": \"error\", \"message\": \"Gagal menyimpan: " + e.getMessage() + "\"}");
+        }
+    }
+
+    // Helper untuk simpan file
+    private String saveFile(MultipartFile file) throws IOException {
+        String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+        Path path = Paths.get(UPLOAD_DIR + fileName);
+        Files.createDirectories(path.getParent());
+        Files.write(path, file.getBytes());
+        return fileName;
     }
 
     @GetMapping("/skema/edit-skema")

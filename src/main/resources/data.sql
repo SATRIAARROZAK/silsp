@@ -107,3 +107,7 @@ INSERT INTO ref_job_types (id,  name) VALUES (89,'Lainny');
 INSERT INTO roles (id, name) VALUES (1, 'ADMIN');
 INSERT INTO roles (id, name) VALUES (2, 'ASESI');
 INSERT INTO roles (id, name) VALUES (3, 'ASESOR');
+
+-- DATA JENIS SKEMA DAN MODE SKEMA --
+INSERT INTO ref_schema_types (name) VALUES ('KKNI'), ('OKUPASI'), ('KLASTER');
+INSERT INTO ref_schema_modes (name) VALUES ('Mandiri'), ('Referensi BNSP');

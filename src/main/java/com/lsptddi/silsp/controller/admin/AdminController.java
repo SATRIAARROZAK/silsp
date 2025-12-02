@@ -7,11 +7,21 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import com.lsptddi.silsp.dto.SchemaDto;
 import com.lsptddi.silsp.dto.UserDto;
 import com.lsptddi.silsp.model.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder; // Pastikan ada ini
+import com.lsptddi.silsp.repository.RefEducationRepository;
+import com.lsptddi.silsp.repository.RefJobTypeRepository;
+import com.lsptddi.silsp.repository.RefSchemaModeRepository;
+import com.lsptddi.silsp.repository.RefSchemaTypeRepository;
+import com.lsptddi.silsp.repository.RoleRepository;
+import com.lsptddi.silsp.repository.SchemaRepository;
+import com.lsptddi.silsp.repository.UserRepository;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -20,24 +30,28 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import com.lsptddi.silsp.dto.UserRoleDto;
+
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
-import com.lsptddi.silsp.dto.SchemaDto;
+
+// import com.lsptddi.silsp.dto.SchemaDto;
 // import com.lsptddi.silsp.model.*;
-import com.lsptddi.silsp.repository.*;
+// import com.lsptddi.silsp.repository.*;
 // import org.springframework.beans.factory.annotation.Autowired;
 // import org.springframework.http.ResponseEntity;
 // import org.springframework.stereotype.Controller;
 // import org.springframework.ui.Model;
 // import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+// import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
+// import java.io.IOException;
 import java.nio.file.*;
-import java.util.UUID;
-
+// import java.util.UUID;
 // Objek User tiruan untuk simulasi
 // class User {
 //     private String fullName;
@@ -135,11 +149,11 @@ public class AdminController {
     }
 
     @GetMapping("/skema/tambah-skema")
-    public String addSchema(Model model) {
+    public String showSkemaTambahPage(Model model) { // 1. Tambahkan Model sebagai parameter
+
         // Load data referensi untuk dropdown
         model.addAttribute("types", schemaTypeRepository.findAll());
         model.addAttribute("modes", schemaModeRepository.findAll());
-
         return "pages/admin/skema/skema-add";
     }
 

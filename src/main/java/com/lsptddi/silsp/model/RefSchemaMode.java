@@ -1,3 +1,4 @@
+
 package com.lsptddi.silsp.model;
 
 import jakarta.persistence.*;

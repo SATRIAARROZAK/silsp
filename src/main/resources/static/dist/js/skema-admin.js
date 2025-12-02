@@ -499,46 +499,46 @@ $(document).ready(function () {
   });
 
   // --- TOMBOL NAVIGASI TAB ---
-  //   $(".next-tab").on("click", function () {
-  //     const currentTab = $(this).closest(".tab-pane");
-  //     const validationResult = validateTab(currentTab);
+  $(".next-tab").on("click", function () {
+    const currentTab = $(this).closest(".tab-pane");
+    const validationResult = validateTab(currentTab);
 
-  //     if (validationResult.isValid) {
-  //       const targetTabId = $(this).data("target-tab");
-  //       $("#" + targetTabId).tab("show");
-  //     } else {
-  //       // Validasi gagal: Tampilkan Toast dan fokus
-  //       Toast.fire({
-  //         icon: "error",
-  //         title: "Harap isi semua kolom yang wajib diisi.",
-  //       });
-  //       if (validationResult.firstInvalidElement) {
-  //         validationResult.firstInvalidElement.focus();
-  //         // Jika itu summernote, fokus secara spesifik
-  //         if (
-  //           validationResult.firstInvalidElement.hasClass(
-  //             "summernote-persyaratan"
-  //           )
-  //         ) {
-  //           validationResult.firstInvalidElement.summernote("focus");
-  //         }
-  //       }
-  //     }
-  //   });
+    if (validationResult.isValid) {
+      const targetTabId = $(this).data("target-tab");
+      $("#" + targetTabId).tab("show");
+    } else {
+      // Validasi gagal: Tampilkan Toast dan fokus
+      Toast.fire({
+        icon: "error",
+        title: "Harap isi semua kolom yang wajib diisi.",
+      });
+      if (validationResult.firstInvalidElement) {
+        validationResult.firstInvalidElement.focus();
+        // Jika itu summernote, fokus secara spesifik
+        if (
+          validationResult.firstInvalidElement.hasClass(
+            "summernote-persyaratan"
+          )
+        ) {
+          validationResult.firstInvalidElement.summernote("focus");
+        }
+      }
+    }
+  });
 
-  //   $(".prev-tab").on("click", function () {
-  //     const targetTabId = $(this).data("target-tab");
-  //     $("#" + targetTabId).tab("show");
-  //   });
+  $(".prev-tab").on("click", function () {
+    const targetTabId = $(this).data("target-tab");
+    $("#" + targetTabId).tab("show");
+  });
 
-  //   $(".card-tabs .nav-tabs .nav-link").on("click", function (e) {
-  //     e.preventDefault();
-  //     Toast.fire({
-  //       icon: "info",
-  //       title: 'Gunakan tombol "Selanjutnya" atau "Sebelumnya".',
-  //     });
-  //     return false;
-  //   });
+  $(".card-tabs .nav-tabs .nav-link").on("click", function (e) {
+    e.preventDefault();
+    Toast.fire({
+      icon: "info",
+      title: 'Gunakan tombol "Selanjutnya" atau "Sebelumnya".',
+    });
+    return false;
+  });
 
   // --- TOMBOL SIMPAN (SUBMIT FORM) ---
   $("#form-tambah-skema").on("submit", function (e) {

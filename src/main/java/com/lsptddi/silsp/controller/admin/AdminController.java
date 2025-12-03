@@ -254,6 +254,12 @@ public class AdminController {
         return "pages/admin/skema/skema-view";
     }
 
+    @GetMapping("/skema/delete/{id}")
+    public String deleteSkema(@PathVariable Long id, RedirectAttributes attributes) {
+
+        return "redirect:/admin/skema";
+    }
+
     @GetMapping("/tuk")
     public String showDataTuk(Model model) { // 1. Tambahkan Model sebagai parameter
 

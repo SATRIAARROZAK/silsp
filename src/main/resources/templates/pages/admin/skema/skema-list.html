@@ -24,7 +24,7 @@
             class="d-flex flex-column-reverse flex-md-row justify-content-md-between align-items-md-center gap-2 mb-3"
           >
             <form
-              th:action="@{/}"
+              th:action="@{/admin/skema}"
               method=""
               class="d-flex"
               style="width: 100%; max-width: 450px"
@@ -39,7 +39,7 @@
               />
               <button type="submit" class="btn btn-outline-info">Cari</button>
               <a
-                th:href="@{/}"
+                th:href="@{/admin/skema}"
                 class="btn btn-outline-danger ms-2"
                 title="Reset Pencarian"
                 >Reset</a
@@ -59,132 +59,156 @@
           <table class="table table-bordered table-hover table-responsive-md">
             <thead>
               <tr class="text-center">
-                <th>No</th>
+                <th style="width: 10px">No</th>
                 <th>Nama Skema</th>
-                <th>Jenis Skema</th>
+                <th>Jenis</th>
                 <th>Level</th>
                 <th>File</th>
-                <th>Skema Unit</th>
-                <th>Aksi</th>
+                <th>Unit</th>
+                <th style="width: 120px">Aksi</th>
               </tr>
             </thead>
-            <!-- <tbody id="skemaTableBody"> -->
-
             <tbody>
-              <tr th:each="skema, iter : ${listSkema}">
-                <td
-                  class="text-center"
-                  th:text="${(currentPage * 10) + iter.count}"
-                >
-                  1
-                </td>
-
-                <td>
-                  <span class="font-weight-bold d-block" th:text="${skema.name}"
-                    >Nama Skema</span
+              <th:block th:each="skema, iter : ${listSkema}">
+                <tr class="align-middle">
+                  <td
+                    class="text-center"
+                    th:text="${(currentPage * 10) + iter.count}"
                   >
-                  <small class="text-muted" th:text="${skema.code}"
-                    >SKM-001</small
+                    1
+                  </td>
+
+                  <td>
+                    <span
+                      class="font-weight-bold d-block"
+                      th:text="${skema.name}"
+                      >Nama Skema</span
+                    >
+                    <small class="text-muted" th:text="${skema.code}"
+                      >Kode</small
+                    >
+                  </td>
+
+                  <td
+                    class="text-center"
+                    th:text="${skema.schemaType?.name ?: '-'}"
                   >
-                </td>
+                    Jenis
+                  </td>
 
-                <td
-                  class="text-center"
-                  th:text="${skema.schemaType?.name ?: '-'}"
-                >
-                  Jenis
-                </td>
+                  <td class="text-center" th:text="${skema.level}">4</td>
 
-                <td class="text-center" th:text="${skema.level}">4</td>
-
-                <td class="text-center">
-                  <a
-                    th:if="${skema.documentPath}"
-                    th:href="@{'/uploads/skema/' + ${skema.documentPath}}"
-                    class="btn btn-xs btn-outline-secondary"
-                    target="_blank"
-                    title="Download PDF"
-                  >
-                    <i class="fas fa-file-pdf fa-lg"></i>
-                  </a>
-                  <span th:unless="${skema.documentPath}">-</span>
-                </td>
-
-                <td class="text-center">
-                  <button
-                    class="btn btn-primary btn-sm btn-expand"
-                    type="button"
-                    data-toggle="collapse"
-                    th:data-target="'#collapseUnit-' + ${skema.id}"
-                    aria-expanded="false"
-                  >
-                    <i class="fas fa-folder-plus"></i>
-                  </button>
-                </td>
-
-                <td class="text-center">
-                  <div class="btn-group">
+                  <td class="text-center">
                     <a
-                      th:href="@{'/admin/skema/view/' + ${skema.id}}"
-                      class="btn btn-default btn-sm"
-                      title="Lihat"
-                      ><i class="fas fa-eye text-primary"></i
-                    ></a>
-                    <a
-                      th:href="@{'/admin/skema/edit/' + ${skema.id}}"
-                      class="btn btn-default btn-sm"
-                      title="Edit"
-                      ><i class="fas fa-pencil-alt text-warning"></i
-                    ></a>
-                    <a
-                      th:href="@{'/admin/skema/delete/' + ${skema.id}}"
-                      class="btn btn-default btn-sm delete-button"
-                      title="Hapus"
-                      ><i class="fas fa-trash text-danger"></i
-                    ></a>
-                  </div>
-                </td>
-              </tr>
-              <tr class="collapse p-0" th:id="'collapseUnit-' + ${skema.id}">
-                <td colspan="8" class="bg-light p-3">
-                  <div class="card shadow-none border mb-0">
-                    <div class="card-header">
-                      <h6 class="card-title text-primary font-weight-bold">
-                        <i class="fas fa-list-ul mr-2"></i> Daftar Unit
-                        Kompetensi
-                      </h6>
+                      th:if="${skema.documentPath}"
+                      th:href="@{'/uploads/skema/' + ${skema.documentPath}}"
+                      target="_blank"
+                      class="btn btn-xs btn-outline-secondary"
+                      title="Download PDF"
+                    >
+                      <i class="fas fa-file-pdf fa-lg"></i>
+                    </a>
+                    <span th:unless="${skema.documentPath}">-</span>
+                  </td>
+
+                  <td class="text-center">
+                    <button
+                      class="btn btn-primary btn-sm btn-expand-unit"
+                      type="button"
+                      data-toggle="collapse"
+                      th:data-target="'#skema-unit-' + ${skema.id}"
+                      aria-expanded="false"
+                    >
+                      <i class="fas fa-folder-plus"></i>
+                    </button>
+                  </td>
+
+                  <td class="align-middle">
+                    <div class="action-buttons">
+                      <a
+                        th:href="@{'/admin/skema/view/' + ${skema.id}}"
+                        class="btn btn-sm btn-info"
+                        title="Lihat"
+                        ><i class="fas fa-eye"></i
+                      ></a>
+                      <a
+                        th:href="@{'/admin/skema/edit/' + ${skema.id}}"
+                        class="btn btn-sm btn-warning"
+                        title="Ubah"
+                        ><i class="fas fa-pencil-alt"></i
+                      ></a>
+                      <a
+                        th:href="@{'/admin/skema/delete/' + ${skema.id}}"
+                        class="btn btn-sm btn-default delete-button"
+                        title="Hapus"
+                        ><i class="fas fa-trash text-danger"></i
+                      ></a>
                     </div>
-                    <div class="card-body p-0 table-responsive">
-                      <table class="table table-sm table-valign-middle mb-0">
+                  </td>
+                </tr>
+
+                <tr
+                  class="collapse bg-light"
+                  th:id="'skema-unit-' + ${skema.id}"
+                >
+                  <td colspan="8" class="p-0">
+                    <div class="p-3">
+                      <h6 class="text-primary font-weight-bold mb-2">
+                        <i class="fas fa-layer-group mr-1"></i> Daftar Unit
+                        Skema:
+                        <span th:text="${skema.name}"></span>
+                      </h6>
+
+                      <table
+                        class="table table-sm table-bordered table-valign-middle bg-white"
+                      >
                         <thead class="thead-light">
                           <tr>
-                            <th style="width: 10px">#</th>
+                            <th style="width: 50px" class="text-center">No</th>
                             <th style="width: 200px">Kode Unit</th>
                             <th>Judul Unit</th>
+                            <th>Standar Kompetensi Kerja</th>
                           </tr>
                         </thead>
                         <tbody>
                           <tr th:each="unit, uIter : ${skema.units}">
-                            <td th:text="${uIter.count}">1</td>
-                            <td>
-                              <code class="text-primary" th:text="${unit.code}"
-                                >CODE</code
-                              >
+                            <td class="text-center" th:text="${uIter.count}">
+                              1
                             </td>
-                            <td th:text="${unit.title}">Judul Unit</td>
+                            <td class="font-weight-bold" th:text="${unit.code}">
+                              Kode
+                            </td>
+                            <td th:text="${unit.title}">Judul</td>
+                            <td
+                              class="text-center align-middle bg-white"
+                              th:if="${uIter.index == 0}"
+                              th:rowspan="${skema.units.size()}"
+                            >
+                              SKKNI No.<span th:text="${skema.noSkkni}"
+                                >No</span
+                              >
+                              Tahun
+                              <span th:text="${skema.skkniYear}">2020</span>
+                            </td>
                           </tr>
                           <tr th:if="${#lists.isEmpty(skema.units)}">
                             <td
                               colspan="3"
-                              class="text-center text-muted font-italic py-2"
+                              class="text-center text-muted py-2 font-italic"
                             >
-                              Belum ada unit kompetensi.
+                              Tidak ada unit kompetensi.
                             </td>
                           </tr>
                         </tbody>
                       </table>
                     </div>
-                  </div>
+                  </td>
+                </tr>
+              </th:block>
+
+              <tr th:if="${#lists.isEmpty(listSkema)}">
+                <td colspan="8" class="text-center py-4 text-muted">
+                  Belum ada data skema.
                 </td>
               </tr>
             </tbody>

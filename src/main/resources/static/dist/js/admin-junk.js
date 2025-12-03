@@ -682,3 +682,90 @@ $(document).ready(function () {
     "<style>.is-invalid-border { border-color: #dc3545 !important; }</style>"
   ).appendTo("head");
 });
+
+
+  // --- TOMBOL SIMPAN (SUBMIT FORM) ---
+  //   $("#form-tambah-skema").on("submit", function (e) {
+  //     e.preventDefault(); // Mencegah reload
+
+  //     let isAllTabsValid = true;
+  //     let firstInvalidTabId = null;
+  //     let elementToFocus = null;
+
+  //     // 1. VALIDASI TIAP TAB (Logic Anda yang sudah ada tetap dipakai)
+  //     $(".tab-pane").each(function () {
+  //       const tab = $(this);
+  //       const validationResult = validateTab(tab);
+  //       if (!validationResult.isValid && isAllTabsValid) {
+  //         isAllTabsValid = false;
+  //         firstInvalidTabId = tab.attr("id");
+  //         elementToFocus = validationResult.firstInvalidElement;
+  //       }
+  //     });
+
+  //     // 2. JIKA VALID, KIRIM VIA AJAX
+  //     if (isAllTabsValid) {
+  //       // Persiapkan FormData (Untuk File + Input Text + Array)
+  //       var formData = new FormData(this);
+
+  //       // SweetAlert Loading
+  //       Swal.fire({
+  //         title: "Menyimpan Data...",
+  //         text: "Mohon tunggu sebentar",
+  //         allowOutsideClick: false,
+  //         didOpen: () => {
+  //           Swal.showLoading();
+  //         },
+  //       });
+
+  //       // AJAX Request
+  //       $.ajax({
+  //         url: $(this).attr("action"), // Mengambil url dari th:action form
+  //         type: "POST",
+  //         data: formData,
+  //         processData: false, // Wajib false untuk FormData
+  //         contentType: false, // Wajib false untuk FormData
+  //         success: function (response) {
+  //           // Parse response jika string
+  //           var res =
+  //             typeof response === "string" ? JSON.parse(response) : response;
+
+  //           // Hapus localStorage
+  //           localStorage.removeItem("skemaFormData");
+
+  //           Swal.fire({
+  //             title: "Sukses!",
+  //             text: res.message,
+  //             icon: "success",
+  //           }).then(() => {
+  //             // Redirect ke halaman list skema
+  //             window.location.href = "/admin/skema";
+  //           });
+  //         },
+  //         error: function (xhr) {
+  //           var errorMsg = "Terjadi kesalahan server";
+  //           try {
+  //             var json = JSON.parse(xhr.responseText);
+  //             errorMsg = json.message;
+  //           } catch (e) {}
+
+  //           Swal.fire("Gagal", errorMsg, "error");
+  //         },
+  //       });
+  //     } else {
+  //       // Logic Fokus ke Tab yang Error (Sudah benar di kode Anda)
+  //       if (firstInvalidTabId) {
+  //         $('.nav-tabs a[href="#' + firstInvalidTabId + '"]').tab("show");
+  //         setTimeout(() => {
+  //           if (elementToFocus) {
+  //             if (elementToFocus.hasClass("summernote-persyaratan")) {
+  //               elementToFocus.summernote("focus");
+  //             } else {
+  //               elementToFocus.focus();
+  //             }
+  //           }
+  //         }, 250);
+  //       }
+  //       Toast.fire({ icon: "error", title: "Harap lengkapi semua data wajib!" });
+  //     }
+  //   });

@@ -248,8 +248,12 @@ public class AdminController {
         return "pages/admin/skema/skema-edit";
     }
 
-    @GetMapping("/skema/view-skema")
-    public String showSkemaViewPage(Model model) { // 1. Tambahkan Model sebagai parameter
+    @GetMapping("/skema/view/{id}")
+    public String viewSchema(@PathVariable Long id, Model model) {
+        Schema schema = schemaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Skema tidak ditemukan dengan ID: " + id));
+        
+        model.addAttribute("skema", schema);
 
         return "pages/admin/skema/skema-view";
     }

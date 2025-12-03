@@ -769,3 +769,313 @@ $(document).ready(function () {
   //       Toast.fire({ icon: "error", title: "Harap lengkapi semua data wajib!" });
   //     }
   //   });
+
+
+  <!DOCTYPE html>
+<html
+  lang="en"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/app}"
+>
+  <head th:replace="~{fragments/header :: header('Detail Skema')}"></head>
+
+  <body>
+    <div layout:fragment="content">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-12">
+            <div class="card card-secondary">
+              <div class="card-header">
+                <h3 class="card-title">1. Detail Skema Sertifikasi</h3>
+                <div class="card-tools">
+                  <button
+                    type="button"
+                    class="btn btn-tool"
+                    data-card-widget="collapse"
+                    title="Collapse"
+                  >
+                    <i class="fas fa-minus"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="card-body">
+                <div class="form-group">
+                  <label for="namaSkema">Nama Skema</label>
+                  <input
+                    type="text"
+                    class="form-control bg-white"
+                    th:value="${skema.name}"
+                    readonly
+                    disabled
+                  />
+                </div>
+                <div class="row">
+                  <div class="col-md-3">
+                    <div class="form-group">
+                      <label for="kodeSkema">Kode Skema</label>
+                      <input
+                        type="text"
+                        class="form-control bg-white"
+                        th:value="${skema.code}"
+                        readonly
+                        disabled
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="form-group">
+                      <label for="exampleInputLevel">Level</label>
+                      <input
+                        type="text"
+                        type="number"
+                        class="form-control bg-white"
+                        th:value="${skema.level}"
+                        readonly
+                        disabled
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="form-group">
+                      <label for="exampleInputLevel">No. SKKNI</label>
+                      <input
+                        type="text"
+                        class="form-control bg-white"
+                        th:value="${skema.noSkkni}"
+                        readonly
+                        disabled
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="form-group">
+                      <label for="exampleInputLevel">Tahun SKKNI</label>
+                      <input
+                        type="text"
+                        class="form-control bg-white"
+                        th:value="${skema.skkniYear}"
+                        readonly
+                        disabled
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label>Jenis Skema</label>
+                      <input
+                        type="text"
+                        class="form-control bg-white"
+                        th:value="${skema.schemaType?.name ?: '-'}"
+                        readonly
+                        disabled
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label>Mode Skema</label>
+                      <input
+                        type="text"
+                        class="form-control bg-white"
+                        th:value="${skema.schemaMode?.name ?: '-'}"
+                        readonly
+                        disabled
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label>Tanggal Penetapan</label>
+                      <input
+                        type="text"
+                        class="form-control bg-white"
+                        th:value="${#temporals.format(skema.establishmentDate, 'dd MMMM yyyy')}"
+                        readonly
+                        disabled
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label>File Dokumen</label>
+                      <ul class="list-unstyled mt-2">
+                        <li th:if="${skema.documentPath}">
+                          <a
+                            th:href="@{'/uploads/skema/' + ${skema.documentPath}}"
+                            target="_blank"
+                            class="btn-link text-primary font-weight-bold"
+                            th:download="${skema.name} + '.pdf'"
+                          >
+                            <i class="far fa-fw fa-file-pdf mr-1"></i>
+
+                            <span th:text="${skema.name} + '.pdf'"
+                              >NamaSkema.pdf</span
+                            >
+                          </a>
+                        </li>
+                        <li
+                          th:unless="${skema.documentPath}"
+                          class="text-muted font-italic"
+                        >
+                          Tidak ada file diupload.
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+
+            <div class="card card-secondary">
+              <div class="card-header">
+                <h3 class="card-title">2. Unit Skema</h3>
+                <div class="card-tools">
+                  <button
+                    type="button"
+                    class="btn btn-tool"
+                    data-card-widget="collapse"
+                    title="Collapse"
+                  >
+                    <i class="fas fa-minus"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="card-body">
+                <div class="row">
+                  <div class="table-responsive">
+                    <table
+                      class="table table-valign-middle table-sm table-bordered nested-table"
+                    >
+                      <thead class="thead-light">
+                        <tr class="text-center">
+                          <th>No</th>
+                          <th>Kode Unit</th>
+                          <th>Judul Unit</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr th:each="unit, iter : ${skema.units}">
+                          <td class="text-center" th:text="${iter.count}">1</td>
+                          <td
+                            class="text-center font-weight-bold text-dark"
+                            th:text="${unit.code}"
+                          >
+                            Kode
+                          </td>
+                          <td th:text="${unit.title}">Judul</td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(skema.units)}">
+                          <td
+                            colspan="3"
+                            class="text-center text-muted font-italic py-3"
+                          >
+                            Tidak ada unit kompetensi.
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+
+            <div class="card card-secondary">
+              <div class="card-header">
+                <h3 class="card-title">3. Persyaratan Dasar</h3>
+                <div class="card-tools">
+                  <button
+                    type="button"
+                    class="btn btn-tool"
+                    data-card-widget="collapse"
+                    title="Collapse"
+                  >
+                    <i class="fas fa-minus"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="card-body">
+                <div class="row">
+                  <div class="table-responsive">
+                    <table
+                      class="table table-valign-middle table-sm table-bordered nested-table"
+                    >
+                      <thead class="thead-light text-center">
+                        <tr>
+                          <th>No</th>
+                          <th>Daftar Persyaratan</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr th:each="req, iter : ${skema.requirements}">
+                          <td
+                            class="text-center align-middle"
+                            th:text="${iter.count}"
+                          >
+                            1
+                          </td>
+                          <td
+                            class="align-middle"
+                            th:utext="${req.description}"
+                          >
+                            Persyaratan
+                          </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(skema.requirements)}">
+                          <td
+                            colspan="2"
+                            class="text-center text-muted font-italic py-3"
+                          >
+                            Tidak ada persyaratan dasar.
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <!-- /.card-body -->
+            </div>
+            <!-- /.card -->
+            <div class="card-footer mt-3 text-left">
+              <a
+                th:href="@{'/admin/skema/edit/' + ${skema.id}}"
+                class="btn btn-warning px-4"
+              >
+                <i class="fas fa-edit mr-1"></i> Edit
+              </a>
+              <a th:href="@{/admin/skema}" class="btn btn-outline-info"
+                >Batal</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+
+
+<a
+                            th:href="@{'/uploads/skema/' + ${skema.documentPath}}"
+                            target="_blank"
+                            class="btn-link text-primary font-weight-bold"
+                            th:download="${skema.name} + '.pdf'"
+                          >
+                            <i class="far fa-fw fa-file-pdf mr-1"></i>
+
+                            <span th:text="${skema.name} + '.pdf'"
+                              >NamaSkema.pdf</span
+                            >
+                          </a>

@@ -7,6 +7,7 @@ import java.util.List;
 
 @Data
 public class SchemaDto {
+    private Long id;
     // Tab 1
     private String namaSkema;
     private String kodeSkema;

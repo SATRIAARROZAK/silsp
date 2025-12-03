@@ -242,17 +242,95 @@ public class AdminController {
         return fileName;
     }
 
-    @GetMapping("/skema/edit-skema")
-    public String showSkemaEditPage(Model model) { // 1. Tambahkan Model sebagai parameter
+    @GetMapping("/skema/edit/{id}")
+    public String editSchema(@PathVariable Long id, Model model) {
+        Schema schema = schemaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid schema Id:" + id));
+
+        // Kirim data Schema (Entity) langsung ke View
+        // Thymeleaf akan mengambil data dari Entity ini
+        model.addAttribute("skema", schema);
+
+        // Kirim Data Referensi untuk Dropdown
+        model.addAttribute("types", schemaTypeRepository.findAll());
+        model.addAttribute("modes", schemaModeRepository.findAll());
 
         return "pages/admin/skema/skema-edit";
+    }
+
+    // 6. PROSES UPDATE (POST AJAX)
+    @PostMapping("/skema/update")
+    @ResponseBody
+    public ResponseEntity<?> updateSchema(@ModelAttribute SchemaDto dto) {
+        try {
+            Schema schema = schemaRepository.findById(dto.getId())
+                    .orElseThrow(() -> new RuntimeException("Skema tidak ditemukan"));
+
+            // A. Update Data Dasar
+            schema.setName(dto.getNamaSkema());
+            schema.setCode(dto.getKodeSkema());
+            schema.setLevel(dto.getLevel());
+            schema.setNoSkkni(dto.getNoSkkni());
+            schema.setSkkniYear(dto.getTahunSkkni());
+            schema.setEstablishmentDate(dto.getTanggalPenetapan());
+
+            // B. Update Relasi Master (Jenis & Mode)
+            if (dto.getJenisSkemaId() != null) {
+                schema.setSchemaType(schemaTypeRepository.findById(dto.getJenisSkemaId()).orElse(null));
+            }
+            if (dto.getModeSkemaId() != null) {
+                schema.setSchemaMode(schemaModeRepository.findById(dto.getModeSkemaId()).orElse(null));
+            }
+
+            // C. Update File (Hanya jika ada upload baru)
+            if (dto.getFileSkema() != null && !dto.getFileSkema().isEmpty()) {
+                // Hapus file lama jika perlu (opsional)
+                // ... logic hapus file lama ...
+
+                String fileName = saveFile(dto.getFileSkema());
+                schema.setDocumentPath(fileName);
+            }
+
+            // D. Update Unit Skema (Strategi: Clear & Add All)
+            schema.getUnits().clear(); // Hapus unit lama
+            if (dto.getKodeUnit() != null) {
+                for (int i = 0; i < dto.getKodeUnit().size(); i++) {
+                    SchemaUnit unit = new SchemaUnit();
+                    unit.setCode(dto.getKodeUnit().get(i));
+                    unit.setTitle(dto.getJudulUnit().get(i));
+                    schema.addUnit(unit); // Tambahkan yang baru
+                }
+            }
+
+            // E. Update Persyaratan (Strategi: Clear & Add All)
+            schema.getRequirements().clear(); // Hapus req lama
+            if (dto.getPersyaratan() != null) {
+                for (String reqText : dto.getPersyaratan()) {
+                    if (reqText != null && !reqText.trim().isEmpty()) {
+                        SchemaRequirement req = new SchemaRequirement();
+                        req.setDescription(reqText);
+                        schema.addRequirement(req);
+                    }
+                }
+            }
+
+            schemaRepository.save(schema);
+
+            return ResponseEntity.ok()
+                    .body("{\"status\": \"success\", \"message\": \"Data skema berhasil diperbarui!\"}");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest()
+                    .body("{\"status\": \"error\", \"message\": \"Gagal update: " + e.getMessage() + "\"}");
+        }
     }
 
     @GetMapping("/skema/view/{id}")
     public String viewSchema(@PathVariable Long id, Model model) {
         Schema schema = schemaRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Skema tidak ditemukan dengan ID: " + id));
-        
+
         model.addAttribute("skema", schema);
 
         return "pages/admin/skema/skema-view";

@@ -472,6 +472,27 @@ public class AdminController {
         }
     }
 
+    @GetMapping("/tuk/delete/{id}")
+    public String deleteTuk(@PathVariable Long id, RedirectAttributes attributes) {
+        try {
+            // Cek apakah data ada
+            if (!tukRepository.existsById(id)) {
+                attributes.addFlashAttribute("error", "Data TUK tidak ditemukan!");
+            } else {
+                // Hapus data
+                tukRepository.deleteById(id);
+                attributes.addFlashAttribute("success", "Data TUK berhasil dihapus permanen!");
+            }
+        } catch (Exception e) {
+            // Menangani error jika TUK sedang dipakai (Relasi Foreign Key)
+            e.printStackTrace();
+            attributes.addFlashAttribute("error", "Gagal menghapus TUK. Data mungkin sedang digunakan.");
+        }
+
+        // Redirect kembali ke halaman list
+        return "redirect:pages/admin/tuk/tuk-list";
+    }
+
     @GetMapping("/jadwal-sertifikasi")
     public String showDataJadwalAsesmen(Model model) { // 1. Tambahkan Model sebagai parameter
 
@@ -559,16 +580,6 @@ public class AdminController {
     public ResponseEntity<?> saveUser(@ModelAttribute UserDto userDto) {
         // public String saveUser(@ModelAttribute UserDto userDto) {
         User user = new User();
-
-        // // 1. Validasi Duplikat (ADD)
-        // if (userRepository.existsByUsername(userDto.getUsername())) {
-        // return ResponseEntity.badRequest()
-        // .body("{\"status\": \"error\", \"message\": \"Username sudah digunakan!\"}");
-        // }
-        // if (userRepository.existsByEmail(userDto.getEmail())) {
-        // return ResponseEntity.badRequest().body("{\"status\": \"error\", \"message\":
-        // \"Email sudah digunakan!\"}");
-        // }
 
         // Cek Duplikat Username
         if (userRepository.existsByUsername(userDto.getUsername())) {

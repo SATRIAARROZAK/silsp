@@ -1,17 +1,22 @@
+// ========================================================
+// JAVASCRIPT UTAMA TUK ADMIN (LIST, ADD, EDIT, VIEW)
+// ========================================================
+
 $(document).ready(function () {
   // ==========================================
-  // 1. KONFIGURASI VALIDASI & STYLE
+  // 1. KONFIGURASI GLOBAL
   // ==========================================
+  const API_WILAYAH_URL = "https://www.emsifa.com/api-wilayah-indonesia/api";
 
   // Inisialisasi Select2
   $(".select2").select2({ theme: "bootstrap4" });
 
-  // CSS Inject untuk Border Merah Select2 saat Error (Sama seperti user-admin.js)
+  // CSS Inject untuk Border Merah Select2 saat Error
   $(
     "<style>.is-invalid-border { border-color: #dc3545 !important; }</style>"
   ).appendTo("head");
 
-  // Override pesan error default
+  // Override pesan error default jQuery Validate
   $.extend($.validator.messages, {
     required: "Isilah Form Ini!",
     email: "Format email tidak valid",
@@ -24,54 +29,174 @@ $(document).ready(function () {
   });
 
   // ==========================================
-  // 2. API WILAYAH (Provinsi -> Kota)
+  // 2. LOGIKA DELETE (LIST PAGE)
   // ==========================================
-  const API_WILAYAH_URL = "https://www.emsifa.com/api-wilayah-indonesia/api";
-
-  // Load Provinsi
-  fetch(`${API_WILAYAH_URL}/provinces.json`)
-    .then((res) => res.json())
-    .then((data) => {
-      let opts = '<option value="">Pilih Provinsi...</option>';
-      data.forEach(
-        (el) => (opts += `<option value="${el.id}">${el.name}</option>`)
-      );
-      $("#selectProvinsi").html(opts);
+  $(document).on("click", ".delete-button", function (e) {
+    e.preventDefault();
+    var link = $(this).attr("href");
+    Swal.fire({
+      title: "Yakin Hapus TUK?",
+      text: "Data tidak dapat dikembalikan!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Ya, Hapus!",
+    }).then((result) => {
+      if (result.isConfirmed) window.location.href = link;
     });
-
-  // Change Provinsi -> Load Kota
-  $("#selectProvinsi").on("change", function () {
-    let id = $(this).val();
-    $("#selectKota")
-      .html('<option value="">Loading...</option>')
-      .prop("disabled", true);
-
-    if (id) {
-      fetch(`${API_WILAYAH_URL}/regencies/${id}.json`)
-        .then((res) => res.json())
-        .then((data) => {
-          let opts = '<option value="">Pilih Kota/Kab...</option>';
-          data.forEach(
-            (el) => (opts += `<option value="${el.id}">${el.name}</option>`)
-          );
-          $("#selectKota").html(opts).prop("disabled", false);
-        });
-    }
   });
 
   // ==========================================
-  // 3. VALIDASI FORM & SUBMIT HANDLER (AJAX)
+  // 3. HELPER FORMAT NAMA WILAYAH
   // ==========================================
-  $("#form-tambah-tuk").validate({
-    // LOGIKA IGNORE: Jangan validasi elemen hidden, KECUALI Select2 yang terlihat
+  function formatRegionName(name) {
+    return name.replace(/\w\S*/g, function (txt) {
+      var exceptions = ["DKI", "DI", "NAD", "ADM"];
+      if (exceptions.includes(txt.toUpperCase())) return txt.toUpperCase();
+      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+    });
+  }
+
+  // ==========================================
+  // 4. LOGIKA WILAYAH (ADD & EDIT)
+  // ==========================================
+  // Hanya jalan jika ada dropdown provinsi
+  if ($("#selectProvinsi").length) {
+    var savedProvId = $("#selectProvinsi").data("selected");
+    var savedCityId = $("#selectKota").data("selected");
+
+    // Fungsi Helper Load Region
+    function loadRegion(url, selectElement, savedId, callback) {
+      fetch(url)
+        .then((res) => res.json())
+        .then((data) => {
+          let opts = '<option value="">Pilih...</option>';
+          data.forEach((el) => {
+            let selected = el.id == savedId ? "selected" : "";
+            opts += `<option value="${el.id}" ${selected}>${el.name}</option>`;
+          });
+          selectElement.html(opts).prop("disabled", false);
+
+          if (callback) callback();
+        });
+    }
+
+    // CHAIN LOADING: Provinsi -> Kota (Untuk Edit)
+    loadRegion(
+      `${API_WILAYAH_URL}/provinces.json`,
+      $("#selectProvinsi"),
+      savedProvId,
+      function () {
+        if (savedProvId) {
+          loadRegion(
+            `${API_WILAYAH_URL}/regencies/${savedProvId}.json`,
+            $("#selectKota"),
+            savedCityId
+          );
+        }
+      }
+    );
+
+    // EVENT LISTENER: GANTI PROVINSI
+    $("#selectProvinsi").on("change", function () {
+      let id = $(this).val();
+      $("#selectKota")
+        .html('<option value="">Loading...</option>')
+        .prop("disabled", true);
+      if (id) {
+        loadRegion(
+          `${API_WILAYAH_URL}/regencies/${id}.json`,
+          $("#selectKota"),
+          null
+        );
+      }
+    });
+  }
+
+  // ==========================================
+  // 5. LOGIKA HALAMAN VIEW (Detail TUK)
+  // ==========================================
+  if ($("#viewProv").length) {
+    function setViewRegionName(url, elementId, idToFind) {
+      if (!idToFind) {
+        $("#" + elementId).val("-");
+        return;
+      }
+      $.ajax({
+        url: API_WILAYAH_URL + url,
+        method: "GET",
+        success: function (data) {
+          let found = data.find((item) => item.id == idToFind);
+          if (found) {
+            $("#" + elementId).val(formatRegionName(found.name));
+          } else {
+            $("#" + elementId).val(idToFind);
+          }
+        },
+        error: function () {
+          $("#" + elementId).val("Error Loading");
+        },
+      });
+    }
+
+    let provId = $("#viewProv").data("id");
+    setViewRegionName("/provinces.json", "viewProv", provId);
+
+    let cityId = $("#viewCity").data("id");
+    if (provId && cityId)
+      setViewRegionName(`/regencies/${provId}.json`, "viewCity", cityId);
+    else $("#viewCity").val("-");
+  }
+
+  // ==========================================
+  // 6. LOGIKA HALAMAN LIST (Convert ID -> Nama)
+  // ==========================================
+  if ($('div[id^="wilayah-"]').length > 0) {
+    $('div[id^="wilayah-"]').each(function () {
+      var element = $(this);
+      var provId = element.data("prov");
+      var cityId = element.data("city");
+
+      if (provId) {
+        $.ajax({
+          url: API_WILAYAH_URL + "/provinces.json",
+          method: "GET",
+        }).then(function (data) {
+          let found = data.find((i) => i.id == provId);
+          if (found)
+            element.find(".prov-name").text(formatRegionName(found.name));
+        });
+      } else {
+        element.find(".prov-name").text("-");
+      }
+
+      if (provId && cityId) {
+        $.ajax({
+          url: API_WILAYAH_URL + `/regencies/${provId}.json`,
+          method: "GET",
+        }).then(function (data) {
+          let found = data.find((i) => i.id == cityId);
+          if (found)
+            element.find(".city-name").text(formatRegionName(found.name));
+        });
+      } else {
+        element.find(".city-name").text("-");
+      }
+    });
+  }
+
+  // ==========================================
+  // 7. VALIDASI & SUBMIT (ADD & EDIT)
+  // ==========================================
+  var validationConfig = {
     ignore: function (index, element) {
+      // Validasi Select2 yang visible
       if ($(element).hasClass("select2-hidden-accessible")) {
         return $(element).next(".select2-container").is(":hidden");
       }
       return $(element).is(":hidden");
     },
-
-    // ATURAN VALIDASI (Sesuai name di HTML)
     rules: {
       namaTuk: { required: true },
       jenisTukId: { required: true },
@@ -81,8 +206,6 @@ $(document).ready(function () {
       cityId: { required: true },
       alamat: { required: true },
     },
-
-    // PENEMPATAN PESAN ERROR (Sama seperti User Admin)
     errorElement: "span",
     errorPlacement: function (error, element) {
       error.addClass("invalid-feedback");
@@ -95,8 +218,6 @@ $(document).ready(function () {
         element.closest(".form-group").append(error);
       }
     },
-
-    // HIGHLIGHT (BORDER MERAH)
     highlight: function (element) {
       $(element).addClass("is-invalid").removeClass("is-valid");
       if ($(element).hasClass("select2-hidden-accessible")) {
@@ -106,8 +227,6 @@ $(document).ready(function () {
           .addClass("is-invalid-border");
       }
     },
-
-    // UNHIGHLIGHT (HAPUS BORDER MERAH)
     unhighlight: function (element) {
       $(element).removeClass("is-invalid").addClass("is-valid");
       if ($(element).hasClass("select2-hidden-accessible")) {
@@ -118,13 +237,42 @@ $(document).ready(function () {
       }
     },
 
-    // --- SUBMIT HANDLER (AJAX) ---
-    // Hanya dijalankan jika form VALID
+    // --- FITUR BARU: INVALID HANDLER (SCROLL KE ERROR) ---
+    invalidHandler: function (event, validator) {
+      var errors = validator.numberOfInvalids();
+      if (errors) {
+        Swal.fire({
+          icon: "warning",
+          title: "Perhatian!",
+          text: "Harap isi semua data dengan tanda (*)",
+          confirmButtonColor: "#3085d6",
+          confirmButtonText: "Oke",
+        }).then(() => {
+          if (validator.errorList.length > 0) {
+            var firstErrorElement = $(validator.errorList[0].element);
+
+            // Scroll ke elemen error pertama
+            $("html, body").animate(
+              {
+                scrollTop: firstErrorElement.offset().top - 150,
+              },
+              500
+            );
+
+            // Coba fokus
+            firstErrorElement.focus();
+          }
+        });
+      }
+    },
+
+    // Submit Handler
     submitHandler: function (form) {
       var formData = new FormData(form);
+      var isEdit = $(form).attr("id") === "form-edit-tuk";
 
       Swal.fire({
-        title: "Menyimpan...",
+        title: isEdit ? "Memperbarui..." : "Menyimpan...",
         text: "Mohon tunggu sebentar",
         allowOutsideClick: false,
         didOpen: () => Swal.showLoading(),
@@ -154,98 +302,11 @@ $(document).ready(function () {
           Swal.fire("Gagal", msg, "error");
         },
       });
-
-      return false; // Mencegah refresh halaman
+      return false;
     },
-  });
+  };
 
-  // ==========================================
-  // 4. LOGIKA LIST PAGE (CONVERT ID WILAYAH -> NAMA)
-  // ==========================================
-
-  // Cek apakah kita ada di halaman list (apakah ada elemen dengan ID wilayah-*)
-  if ($('div[id^="wilayah-"]').length > 0) {
-    const API_URL = "https://www.emsifa.com/api-wilayah-indonesia/api";
-
-    // Fungsi Helper untuk Fetch Nama
-    // Menggunakan Async/Await agar kode lebih bersih, atau Promise biasa
-    function getRegionName(url, idToFind) {
-      return $.ajax({
-        url: API_URL + url,
-        method: "GET",
-      }).then(function (data) {
-        let found = data.find((item) => item.id == idToFind);
-        return found ? found.name : "-";
-      });
-    }
-
-    // Loop setiap baris data TUK
-    $('div[id^="wilayah-"]').each(function () {
-      var element = $(this);
-      var provId = element.data("prov");
-      var cityId = element.data("city");
-
-      // 1. Ambil Nama Provinsi
-      if (provId) {
-        getRegionName("/provinces.json", provId).then(function (name) {
-          // --- PERBAIKAN LOGIKA FORMAT NAMA ---
-          var formattedName = name.replace(/\w\S*/g, function (txt) {
-            // Daftar singkatan yang HARUS KAPITAL (tambahkan jika ada lagi)
-            var exceptions = ["DKI", "DIY", "NAD"];
-
-            // Cek apakah kata ini ada di daftar exception?
-            // Jika ada, biarkan kapital semua. Jika tidak, Title Case.
-            if (exceptions.includes(txt.toUpperCase())) {
-              return txt.toUpperCase();
-            } else {
-              return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-            }
-          });
-          // ------------------------------------
-
-          element.find(".prov-name").text(formattedName);
-        });
-      } else {
-        element.find(".prov-name").text("-");
-      }
-
-      // 2. Ambil Nama Kota
-      if (provId && cityId) {
-        getRegionName(`/regencies/${provId}.json`, cityId).then(function (
-          name
-        ) {
-          // Gunakan logika yang sama untuk Kota
-          var formattedName = name.replace(/\w\S*/g, function (txt) {
-            var exceptions = ["DKI", "DIY", "NAD", "ADM"]; // ADM untuk Kepulauan Seribu
-            if (exceptions.includes(txt.toUpperCase())) {
-              return txt.toUpperCase();
-            } else {
-              return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-            }
-          });
-
-          element.find(".city-name").text(formattedName);
-        });
-      } else {
-        element.find(".city-name").text("-");
-      }
-    });
-  }
-
-  // (Jangan lupa tambahkan logika Delete SweetAlert juga disini jika belum ada)
-  $(document).on("click", ".delete-button", function (e) {
-    e.preventDefault();
-    var link = $(this).attr("href");
-    Swal.fire({
-      title: "Yakin Hapus TUK?",
-      text: "Data tidak dapat dikembalikan!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Ya, Hapus!",
-    }).then((result) => {
-      if (result.isConfirmed) window.location.href = link;
-    });
-  });
+  // Terapkan Validasi
+  $("#form-tambah-tuk").validate(validationConfig);
+  $("#form-edit-tuk").validate(validationConfig);
 });

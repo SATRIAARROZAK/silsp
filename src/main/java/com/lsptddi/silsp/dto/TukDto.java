@@ -3,7 +3,9 @@ import lombok.Data;
 
 @Data
 public class TukDto {
+    private Long id; // Tambahkan ini
     private String namaTuk;
+    private String kodeTuk;
     // Kode TUK digenerate di backend, tidak perlu dikirim dari form (atau bisa hidden)
     private Long jenisTukId; // ID RefTukType
     

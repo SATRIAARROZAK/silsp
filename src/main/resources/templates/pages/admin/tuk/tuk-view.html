@@ -9,51 +9,50 @@
 
   <body>
     <div layout:fragment="page-title">
-      <h1 class="m-0">Tambah TUK</h1>
+      <h1 class="m-0">Detail TUK</h1>
     </div>
     <div layout:fragment="content">
       <div class="container-fluid">
-        <!-- <form th:action="@{/}" method="" id="form-tambah-tuk" novalidate> -->
         <div class="row">
           <div class="col-12">
             <div class="card card-blue-dark">
               <div class="card-header">
                 <h3 class="card-title">1. Profile TUK</h3>
               </div>
-              <!-- /.card-header -->
-              <!-- form start -->
               <div class="card-body">
                 <div class="form-group">
                   <label>Nama TUK</label>
                   <input
                     type="text"
-                    class="form-control"
-                    value="Fakultas Ilmu Komputer Universitas Brawijaya"
+                    class="form-control bg-white"
+                    th:value="${tuk.name}"
                     disabled
                   />
                 </div>
                 <div class="row">
-                  <div class="col-6">
+                  <div class="col-md-6">
                     <div class="form-group">
                       <label>Kode TUK</label>
                       <input
-                        class="form-control"
-                        value="TUK-LSPTDDI-001"
+                        class="form-control bg-white"
+                        th:value="${tuk.code}"
                         disabled
                       />
                     </div>
                   </div>
-                  <div class="col-6">
+                  <div class="col-md-6">
                     <div class="form-group">
                       <label>Jenis TUK</label>
-                      <input class="form-control" value="Sewaktu" disabled />
+                      <input
+                        class="form-control bg-white"
+                        th:value="${tuk.tukType?.name ?: '-'}"
+                        disabled
+                      />
                     </div>
                   </div>
                 </div>
               </div>
-              <!-- /.card-body -->
             </div>
-            <!-- /.card -->
           </div>
         </div>
 
@@ -63,65 +62,79 @@
               <div class="card-header">
                 <h3 class="card-title">2. Detail TUK</h3>
               </div>
-              <!-- /.card-header -->
-              <!-- form start -->
               <div class="card-body">
                 <div class="row">
-                  <div class="col-6">
+                  <div class="col-md-6">
                     <div class="form-group">
                       <label>No. Telp</label>
                       <input
-                        class="form-control"
-                        value="085963152167"
+                        class="form-control bg-white"
+                        th:value="${tuk.phoneNumber}"
                         disabled
                       />
                     </div>
                   </div>
-                  <div class="col-6">
+                  <div class="col-md-6">
                     <div class="form-group">
                       <label>Email</label>
                       <input
-                        class="form-control"
-                        value="unbraw@gmail.com"
+                        class="form-control bg-white"
+                        th:value="${tuk.email}"
                         disabled
                       />
                     </div>
                   </div>
                 </div>
+
                 <div class="row">
-                  <div class="col-6">
-                    <label>Provinsi</label>
-                    <input class="form-control" value="Jawa Timur" disabled />
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label>Provinsi</label>
+                      <input
+                        id="viewProv"
+                        class="form-control bg-white"
+                        th:data-id="${tuk.provinceId}"
+                        value="Loading..."
+                        disabled
+                      />
+                    </div>
                   </div>
-                  <div class="col-6">
+                  <div class="col-md-6">
                     <div class="form-group">
                       <label>Kota/Kab</label>
-                      <input class="form-control" value="Malang" disabled />
+                      <input
+                        id="viewCity"
+                        class="form-control bg-white"
+                        th:data-id="${tuk.cityId}"
+                        value="Loading..."
+                        disabled
+                      />
                     </div>
                   </div>
                 </div>
+
                 <div class="form-group">
                   <label>Alamat</label>
-                  <input
-                    class="form-control"
-                    value="Jl. Kebon Sirih No.1, RT.1/RW.1, Gambir, Jakarta Pusat"
+                  <textarea
+                    class="form-control bg-white"
+                    rows="3"
+                    th:text="${tuk.address}"
                     disabled
-                  />
+                  ></textarea>
                 </div>
               </div>
-              <!-- /.card-body -->
             </div>
-            <!-- /.card -->
           </div>
         </div>
 
         <div class="card-footer mt-3 text-left">
-          <a th:href="@{/admin/tuk/edit-tuk}" class="btn btn-outline-warning"
+          <a
+            th:href="@{'/admin/tuk/edit/' + ${tuk.id}}"
+            class="btn btn-outline-warning"
             >Edit</a
           >
-          <a th:href="@{/admin/tuk}" class="btn btn-outline-info">Batal</a>
+          <a th:href="@{/admin/tuk}" class="btn btn-outline-info">Kembali</a>
         </div>
-        <!-- </form> -->
       </div>
     </div>
   </body>

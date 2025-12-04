@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.RequestMapping;
-
 import com.lsptddi.silsp.dto.SchemaDto;
 import com.lsptddi.silsp.dto.TukDto;
 import com.lsptddi.silsp.dto.UserDto;
@@ -26,7 +25,6 @@ import com.lsptddi.silsp.repository.SchemaRepository;
 import com.lsptddi.silsp.repository.TukRepository;
 import com.lsptddi.silsp.repository.UserRepository;
 import com.lsptddi.silsp.service.TukService;
-
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -35,18 +33,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import com.lsptddi.silsp.dto.UserRoleDto;
-
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-// import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import com.lsptddi.silsp.repository.*;
-import org.springframework.web.bind.annotation.*;
-
 import java.nio.file.*;
 
 @Controller
@@ -411,16 +403,73 @@ public class AdminController {
         }
     }
 
-    @GetMapping("/tuk/view-tuk")
-    public String showViewTuk(Model model) { // 1. Tambahkan Model sebagai parameter
+    @GetMapping("/tuk/view/{id}")
+    public String viewTuk(@PathVariable Long id, Model model) {
+        // Cari TUK berdasarkan ID
+        Tuk tuk = tukRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("TUK tidak ditemukan dengan ID: " + id));
 
+        // Kirim object 'tuk' ke HTML
+        model.addAttribute("tuk", tuk);
         return "pages/admin/tuk/tuk-view";
     }
 
-    @GetMapping("/tuk/edit-tuk")
-    public String showEditTuk(Model model) { // 1. Tambahkan Model sebagai parameter
+    @GetMapping("/tuk/edit/{id}")
+    public String editTuk(@PathVariable Long id, Model model) {
+        Tuk tuk = tukRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("TUK tidak ditemukan: " + id));
+
+        // Mapping Entity ke DTO
+        TukDto dto = new TukDto();
+        dto.setId(tuk.getId());
+        dto.setNamaTuk(tuk.getName());
+        dto.setKodeTuk(tuk.getCode());
+        dto.setNoTelp(tuk.getPhoneNumber());
+        dto.setEmail(tuk.getEmail());
+        dto.setAlamat(tuk.getAddress());
+        dto.setProvinceId(tuk.getProvinceId());
+        dto.setCityId(tuk.getCityId());
+
+        if (tuk.getTukType() != null) {
+            dto.setJenisTukId(tuk.getTukType().getId());
+        }
+
+        model.addAttribute("tukDto", dto);
+        model.addAttribute("types", tukTypeRepository.findAll()); // Untuk dropdown jenis
 
         return "pages/admin/tuk/tuk-edit";
+    }
+
+    // 4. PROSES UPDATE (POST AJAX)
+    @PostMapping("/tuk/update")
+    @ResponseBody
+    public ResponseEntity<?> updateTuk(@ModelAttribute TukDto dto) {
+        try {
+            Tuk tuk = tukRepository.findById(dto.getId())
+                    .orElseThrow(() -> new RuntimeException("TUK tidak ditemukan"));
+
+            // Update Data
+            tuk.setName(dto.getNamaTuk());
+            // Kode TUK biasanya tidak diubah (tetap), jadi tidak perlu setCode lagi
+
+            if (dto.getJenisTukId() != null) {
+                tuk.setTukType(tukTypeRepository.findById(dto.getJenisTukId()).orElse(null));
+            }
+
+            tuk.setPhoneNumber(dto.getNoTelp());
+            tuk.setEmail(dto.getEmail());
+            tuk.setAddress(dto.getAlamat());
+            tuk.setProvinceId(dto.getProvinceId());
+            tuk.setCityId(dto.getCityId());
+
+            tukRepository.save(tuk);
+
+            return ResponseEntity.ok()
+                    .body("{\"status\": \"success\", \"message\": \"Data TUK berhasil diperbarui!\"}");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body("{\"status\": \"error\", \"message\": \"Gagal update: " + e.getMessage() + "\"}");
+        }
     }
 
     @GetMapping("/jadwal-sertifikasi")

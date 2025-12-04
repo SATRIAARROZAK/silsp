@@ -24,7 +24,7 @@
             class="d-flex flex-column-reverse flex-md-row justify-content-md-between align-items-md-center gap-2 mb-3"
           >
             <form
-              th:action="@{/}"
+              th:action="@{/admin/tuk}"
               method="get"
               class="d-flex"
               style="width: 100%; max-width: 450px"
@@ -39,7 +39,7 @@
               />
               <button type="submit" class="btn btn-outline-info">Cari</button>
               <a
-                th:href="@{/}"
+                th:href="@{/admin/tuk}"
                 class="btn btn-outline-danger ms-2"
                 title="Reset Pencarian"
                 >Reset</a
@@ -56,66 +56,88 @@
         </div>
         <!-- /.card-header -->
         <div class="card-body responsive">
-          <table
-            id="example2"
-            class="table table-bordered table-hover table-responsive-md"
-          >
+          <table class="table table-bordered table-hover table-responsive-md">
             <thead>
               <tr class="text-center">
                 <th>No</th>
-                <!-- <th>Nama TUK</th>
-                <th>Kode TUK</th>
-                <th>Jenis TUK</th> -->
                 <th class="table-tuk col-profile">Profile TUK</th>
                 <th>Alamat</th>
                 <th>Aksi</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td class="align-middle text-center">1</td>
+              <tr th:if="${#lists.isEmpty(listTuk)}">
+                <td colspan="4" class="text-center text-muted py-4">
+                  Belum ada data TUK.
+                </td>
+              </tr>
+
+              <tr th:each="tuk, iter : ${listTuk}">
+                <td
+                  class="align-middle text-center"
+                  th:text="${(currentPage * 10) + iter.count}"
+                >
+                  1
+                </td>
 
                 <td class="align-middle">
                   <div class="tuk-profile">
                     <strong>Nama TUK</strong>
-                    <p class="mb-2">
-                      Fakultas Ilmu Komputer Universitas Brawijaya
-                    </p>
+                    <p class="mb-2" th:text="${tuk.name}">Nama TUK</p>
 
                     <div class="profile-details">
                       <div class="detail-item">
                         <strong>Kode TUK</strong>
-                        <span>TUK-LSPTDDI-001</span>
+                        <span th:text="${tuk.code}">KODE</span>
                       </div>
                       <div class="detail-item">
                         <strong>Jenis TUK</strong>
-                        <span>Sewaktu</span>
+                        <span th:text="${tuk.tukType?.name ?: '-'}">Jenis</span>
                       </div>
                     </div>
                   </div>
                 </td>
 
                 <td class="align-middle">
-                  Jl. Kebon Sirih No.1, RT.1/RW.1, Gambir, Jakarta Pusat
+                  <div
+                    class="mb-1 font-weight-bold"
+                    th:id="'wilayah-' + ${tuk.id}"
+                    th:data-prov="${tuk.provinceId}"
+                    th:data-city="${tuk.cityId}"
+                  >
+                    <span class="city-name">Loading Kota...</span>,
+                    <span class="prov-name">Loading Prov...</span>
+                  </div>
+
+                  <div th:text="${tuk.address}">Jl. Contoh No. 1</div>
+
+                  <small class="text-muted"
+                    >Telp.
+                    <span th:text="${tuk.phoneNumber}">08123</span></small
+                  >
                 </td>
 
-                <td class="align-middle">
+                <td class="align-middle text-center">
                   <div class="action-buttons">
                     <a
-                      th:href="@{/admin/tuk/view-tuk}"
+                      th:href="@{'/admin/tuk/view/' + ${tuk.id}}"
                       class="btn btn-info btn-sm"
                       title="Detail"
                     >
                       <i class="fas fa-eye"></i>
                     </a>
                     <a
-                      th:href="@{/admin/tuk/edit-tuk}"
+                      th:href="@{'/admin/tuk/edit/' + ${tuk.id}}"
                       class="btn btn-warning btn-sm"
                       title="Edit"
                     >
                       <i class="fas fa-edit"></i>
                     </a>
-                    <a href="#" class="btn btn-danger btn-sm" title="Hapus">
+                    <a
+                      th:href="@{'/admin/tuk/delete/' + ${tuk.id}}"
+                      class="btn btn-danger btn-sm delete-button"
+                      title="Hapus"
+                    >
                       <i class="fas fa-trash"></i>
                     </a>
                   </div>
@@ -124,16 +146,44 @@
             </tbody>
           </table>
         </div>
-        <!-- /.card-body -->
-        <div class="card-footer clearfix">
+
+        <div class="card-footer clearfix" th:if="${totalPages > 0}">
           <ul class="pagination pagination-sm m-0 float-right">
-            <li class="page-item"><a class="page-link" href="#">&laquo;</a></li>
-            <li class="page-item"><a class="page-link" href="#">1</a></li>
-            <li class="page-item"><a class="page-link" href="#">2</a></li>
-            <li class="page-item"><a class="page-link" href="#">3</a></li>
-            <li class="page-item"><a class="page-link" href="#">&raquo;</a></li>
+            <li
+              class="page-item"
+              th:classappend="${currentPage == 0} ? 'disabled'"
+            >
+              <a
+                class="page-link"
+                th:href="@{/admin/tuk(page=${currentPage - 1})}"
+                >&laquo;</a
+              >
+            </li>
+            <li
+              class="page-item"
+              th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+              th:classappend="${i == currentPage} ? 'active'"
+            >
+              <a
+                class="page-link"
+                th:href="@{/admin/tuk(page=${i})}"
+                th:text="${i + 1}"
+                >1</a
+              >
+            </li>
+            <li
+              class="page-item"
+              th:classappend="${currentPage == totalPages - 1} ? 'disabled'"
+            >
+              <a
+                class="page-link"
+                th:href="@{/admin/tuk(page=${currentPage + 1})}"
+                >&raquo;</a
+              >
+            </li>
           </ul>
         </div>
+        <!-- /.card-body -->
       </div>
     </div>
   </body>

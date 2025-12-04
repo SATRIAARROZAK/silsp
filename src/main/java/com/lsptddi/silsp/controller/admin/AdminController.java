@@ -44,7 +44,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 // import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.lsptddi.silsp.model.Tuk;
 import com.lsptddi.silsp.repository.*;
 import org.springframework.web.bind.annotation.*;
 
@@ -356,7 +355,19 @@ public class AdminController {
     // }
 
     @GetMapping("/tuk")
-    public String showDataTuk(Model model) { // 1. Tambahkan Model sebagai parameter
+    public String listTuk(Model model,
+            @RequestParam(value = "keyword", required = false) String keyword,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+
+        PageRequest pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        Page<Tuk> tukPage = tukRepository.searchTuk(keyword, pageable);
+
+        model.addAttribute("listTuk", tukPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", tukPage.getTotalPages());
+        model.addAttribute("totalItems", tukPage.getTotalElements());
+        model.addAttribute("keyword", keyword);
 
         return "pages/admin/tuk/tuk-list";
     }

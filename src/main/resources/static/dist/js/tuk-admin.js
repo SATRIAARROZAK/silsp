@@ -158,4 +158,94 @@ $(document).ready(function () {
       return false; // Mencegah refresh halaman
     },
   });
+
+  // ==========================================
+  // 4. LOGIKA LIST PAGE (CONVERT ID WILAYAH -> NAMA)
+  // ==========================================
+
+  // Cek apakah kita ada di halaman list (apakah ada elemen dengan ID wilayah-*)
+  if ($('div[id^="wilayah-"]').length > 0) {
+    const API_URL = "https://www.emsifa.com/api-wilayah-indonesia/api";
+
+    // Fungsi Helper untuk Fetch Nama
+    // Menggunakan Async/Await agar kode lebih bersih, atau Promise biasa
+    function getRegionName(url, idToFind) {
+      return $.ajax({
+        url: API_URL + url,
+        method: "GET",
+      }).then(function (data) {
+        let found = data.find((item) => item.id == idToFind);
+        return found ? found.name : "-";
+      });
+    }
+
+    // Loop setiap baris data TUK
+    $('div[id^="wilayah-"]').each(function () {
+      var element = $(this);
+      var provId = element.data("prov");
+      var cityId = element.data("city");
+
+      // 1. Ambil Nama Provinsi
+      if (provId) {
+        getRegionName("/provinces.json", provId).then(function (name) {
+          // --- PERBAIKAN LOGIKA FORMAT NAMA ---
+          var formattedName = name.replace(/\w\S*/g, function (txt) {
+            // Daftar singkatan yang HARUS KAPITAL (tambahkan jika ada lagi)
+            var exceptions = ["DKI", "DIY", "NAD"];
+
+            // Cek apakah kata ini ada di daftar exception?
+            // Jika ada, biarkan kapital semua. Jika tidak, Title Case.
+            if (exceptions.includes(txt.toUpperCase())) {
+              return txt.toUpperCase();
+            } else {
+              return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+            }
+          });
+          // ------------------------------------
+
+          element.find(".prov-name").text(formattedName);
+        });
+      } else {
+        element.find(".prov-name").text("-");
+      }
+
+      // 2. Ambil Nama Kota
+      if (provId && cityId) {
+        getRegionName(`/regencies/${provId}.json`, cityId).then(function (
+          name
+        ) {
+          // Gunakan logika yang sama untuk Kota
+          var formattedName = name.replace(/\w\S*/g, function (txt) {
+            var exceptions = ["DKI", "DIY", "NAD", "ADM"]; // ADM untuk Kepulauan Seribu
+            if (exceptions.includes(txt.toUpperCase())) {
+              return txt.toUpperCase();
+            } else {
+              return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+            }
+          });
+
+          element.find(".city-name").text(formattedName);
+        });
+      } else {
+        element.find(".city-name").text("-");
+      }
+    });
+  }
+
+  // (Jangan lupa tambahkan logika Delete SweetAlert juga disini jika belum ada)
+  $(document).on("click", ".delete-button", function (e) {
+    e.preventDefault();
+    var link = $(this).attr("href");
+    Swal.fire({
+      title: "Yakin Hapus TUK?",
+      text: "Data tidak dapat dikembalikan!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Ya, Hapus!",
+    }).then((result) => {
+      if (result.isConfirmed) window.location.href = link;
+    });
+  });
 });

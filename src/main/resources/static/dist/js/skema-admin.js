@@ -7,15 +7,45 @@ $(document).ready(function () {
   var activeSummernoteInstance = null;
   const formKey = "skemaFormData";
 
-  // --- PERBAIKAN: HANDLE UPLOAD FILE LABEL ---
+  // ==========================================
+  // HANDLE UPLOAD FILE: LABEL & PREVIEW
+  // ==========================================
   $(document).on("change", ".custom-file-input", function (event) {
-    var fileName = $(this).val().split("\\").pop(); // Ambil nama file
-    var label = $(this).next(".custom-file-label"); // Ambil label pasangannya
+    var input = $(this);
+    var fileName = input.val().split("\\").pop(); // Ambil nama file
+    var label = input.next(".custom-file-label"); // Label Bootstrap
+    var file = event.target.files[0]; // File object asli
 
+    // 1. Update Label dengan Nama File
     if (fileName) {
-      label.addClass("selected").html(fileName); // Update teks label
+      label.addClass("selected").html(fileName);
     } else {
-      label.html("Pilih file"); // Reset
+      label.html("Pilih file");
+    }
+
+    // 2. Buat Preview Link (Blob URL)
+    // Hapus tombol preview lama jika user mengganti file lagi
+    input.closest(".form-group").find(".preview-temp-link").remove();
+
+    if (file) {
+      // Pastikan file yang dipilih adalah PDF
+      if (file.type === "application/pdf") {
+        // Membuat URL sementara dari file lokal
+        var fileUrl = URL.createObjectURL(file);
+
+        // Membuat elemen tombol preview
+        var previewHtml = `
+            <div class="mt-2 preview-temp-link animate__animated animate__fadeIn">
+                <a href="${fileUrl}" target="_blank" class="btn btn-sm btn-outline-info">
+                    <i class="fas fa-file mr-1"></i> Lihat Dokument
+                </a>
+                <small class="d-block text-muted mt-1">*Klik tombol di atas untuk melihat preview dokumen sebelum disimpan.</small>
+            </div>
+        `;
+
+        // Menyelipkan tombol di bawah elemen input-group
+        input.closest(".input-group").after(previewHtml);
+      }
     }
   });
 
@@ -235,9 +265,9 @@ $(document).ready(function () {
         formData.jenisSkema = $("#jenisSkema").val();
         formData.modeSkema = $("#modeSkema").val();
         formData.tanggal_penetapan = $("#tanggal_penetapan").val();
-        // File nama saja (tidak bisa simpan file binary di localStorage)
-        if ($("#fileSkema").val())
-          formData.fileSkemaName = $("#fileSkema").val().split("\\").pop();
+        // // File nama saja (tidak bisa simpan file binary di localStorage)
+        // if ($("#fileSkema").val())
+        //   formData.fileSkemaName = $("#fileSkema").val().split("\\").pop();
 
         // TAB 2 (Unit)
         formData.unitSkema = [];
@@ -279,8 +309,13 @@ $(document).ready(function () {
           $("#jenisSkema").val(formData.jenisSkema).trigger("change");
         if (formData.modeSkema)
           $("#modeSkema").val(formData.modeSkema).trigger("change");
-        if (formData.fileSkemaName)
-          $('.custom-file-label[for="fileSkema"]').text(formData.fileSkemaName);
+        // if (formData.fileSkemaName)
+        //   $('.custom-file-label[for="fileSkema"]').text(formData.fileSkemaName);
+        // PERBAIKAN: RESET LABEL FILE KE DEFAULT
+        // Pastikan label selalu "Pilih file" saat refresh, karena input file pasti kosong
+        $('.custom-file-label[for="fileSkema"]')
+          .html("Pilih file")
+          .removeClass("selected");
 
         // Restore Tab 2 (Unit)
         if (formData.unitSkema && formData.unitSkema.length > 0) {

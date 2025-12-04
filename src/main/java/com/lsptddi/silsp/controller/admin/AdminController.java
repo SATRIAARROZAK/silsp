@@ -37,38 +37,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+// import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-// import com.lsptddi.silsp.dto.SchemaDto;
-// import com.lsptddi.silsp.model.*;
-// import com.lsptddi.silsp.repository.*;
-// import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.http.ResponseEntity;
-// import org.springframework.stereotype.Controller;
-// import org.springframework.ui.Model;
-// import org.springframework.web.bind.annotation.*;
-// import org.springframework.web.multipart.MultipartFile;
-
-// import java.io.IOException;
 import java.nio.file.*;
-// import java.util.UUID;
-// Objek User tiruan untuk simulasi
-// class User {
-//     private String fullName;
-//     private String role;
-
-//     public User(String fullName, String role) {
-//         this.fullName = fullName;
-//         this.role = role;
-//     }
-
-//     public String getFullName() {
-//         return fullName;
-//     }
-
-//     public String getRole() {
-//         return role;
-//     }
-// }
 
 @Controller
 @RequestMapping("/admin")
@@ -336,11 +307,37 @@ public class AdminController {
         return "pages/admin/skema/skema-view";
     }
 
+    // 7. HAPUS SKEMA (GET)
     @GetMapping("/skema/delete/{id}")
-    public String deleteSkema(@PathVariable Long id, RedirectAttributes attributes) {
+    public String deleteSchema(@PathVariable Long id, RedirectAttributes attributes) {
+        try {
+            // Cek apakah data ada
+            if (!schemaRepository.existsById(id)) {
+                attributes.addFlashAttribute("error", "Data skema tidak ditemukan!");
+                return "redirect:/admin/skema";
+            }
+
+            // HAPUS DATA
+            // Karena di Entity Schema sudah ada CascadeType.ALL pada 'units' dan
+            // 'requirements',
+            // maka data anak (Unit & Persyaratan) akan ikut terhapus otomatis.
+            schemaRepository.deleteById(id);
+
+            attributes.addFlashAttribute("success", "Skema beserta unit dan persyaratan berhasil dihapus.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            attributes.addFlashAttribute("error", "Gagal menghapus skema. Masalah: " + e.getMessage());
+        }
 
         return "redirect:/admin/skema";
     }
+
+    // @GetMapping("/skema/delete/{id}")
+    // public String deleteSkema(@PathVariable Long id, RedirectAttributes
+    // attributes) {
+
+    // return "redirect:/admin/skema";
+    // }
 
     @GetMapping("/tuk")
     public String showDataTuk(Model model) { // 1. Tambahkan Model sebagai parameter

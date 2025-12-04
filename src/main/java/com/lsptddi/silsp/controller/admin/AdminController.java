@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.lsptddi.silsp.dto.SchemaDto;
+import com.lsptddi.silsp.dto.TukDto;
 import com.lsptddi.silsp.dto.UserDto;
 import com.lsptddi.silsp.model.*;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +20,13 @@ import com.lsptddi.silsp.repository.RefEducationRepository;
 import com.lsptddi.silsp.repository.RefJobTypeRepository;
 import com.lsptddi.silsp.repository.RefSchemaModeRepository;
 import com.lsptddi.silsp.repository.RefSchemaTypeRepository;
+import com.lsptddi.silsp.repository.RefTukTypeRepository;
 import com.lsptddi.silsp.repository.RoleRepository;
 import com.lsptddi.silsp.repository.SchemaRepository;
+import com.lsptddi.silsp.repository.TukRepository;
 import com.lsptddi.silsp.repository.UserRepository;
+import com.lsptddi.silsp.service.TukService;
+
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -38,6 +43,10 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 // import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.lsptddi.silsp.model.Tuk;
+import com.lsptddi.silsp.repository.*;
+import org.springframework.web.bind.annotation.*;
 
 import java.nio.file.*;
 
@@ -69,6 +78,13 @@ public class AdminController {
     private RefSchemaModeRepository schemaModeRepository;
 
     private final String UPLOAD_DIR = "uploads/skema/"; // Pastikan folder ini ada
+
+    @Autowired
+    private TukRepository tukRepository;
+    @Autowired
+    private RefTukTypeRepository tukTypeRepository;
+    @Autowired
+    private TukService tukService;
 
     // @ModelAttribute
     // public void addGlobalAttributes(Model model) {
@@ -348,7 +364,40 @@ public class AdminController {
     @GetMapping("/tuk/tambah-tuk")
     public String showAddTuk(Model model) { // 1. Tambahkan Model sebagai parameter
 
+        model.addAttribute("types", tukTypeRepository.findAll());
+        // Kirim kode baru ke view (untuk ditampilkan di input readonly)
+        model.addAttribute("newCode", tukService.generateTukCode());
         return "pages/admin/tuk/tuk-add";
+    }
+
+    // SAVE (AJAX)
+    @PostMapping("/tuk/save")
+    @ResponseBody
+    public ResponseEntity<?> saveTuk(@ModelAttribute TukDto dto) {
+        try {
+            Tuk tuk = new Tuk();
+            tuk.setName(dto.getNamaTuk());
+
+            // Generate Kode di Server (Lebih Aman daripada kirim dari form)
+            tuk.setCode(tukService.generateTukCode());
+
+            if (dto.getJenisTukId() != null) {
+                tuk.setTukType(tukTypeRepository.findById(dto.getJenisTukId()).orElse(null));
+            }
+
+            tuk.setPhoneNumber(dto.getNoTelp());
+            tuk.setEmail(dto.getEmail());
+            tuk.setAddress(dto.getAlamat());
+            tuk.setProvinceId(dto.getProvinceId());
+            tuk.setCityId(dto.getCityId());
+
+            tukRepository.save(tuk);
+
+            return ResponseEntity.ok().body("{\"status\": \"success\", \"message\": \"TUK berhasil disimpan!\"}");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body("{\"status\": \"error\", \"message\": \"Gagal: " + e.getMessage() + "\"}");
+        }
     }
 
     @GetMapping("/tuk/view-tuk")

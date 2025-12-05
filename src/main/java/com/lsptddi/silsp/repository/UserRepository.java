@@ -42,7 +42,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
          * Mencari user berdasarkan username.
          * Penting untuk fitur LOGIN nanti (Spring Security).
          */
-        // Optional<User> findByUsername(String username);
+        Optional<User> findByUsername(String username);
 
         /**
          * Mencari user berdasarkan email.

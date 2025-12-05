@@ -18,6 +18,32 @@ import java.util.stream.Collectors;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
+    // @Autowired
+    // private UserRepository userRepository;
+
+    // @Override
+    // @Transactional
+    // public UserDetails loadUserByUsername(String input) throws
+    // UsernameNotFoundException {
+    // // LOGIKA BARU:
+    // // Input dari form login (bisa berupa username 'satria' atau email
+    // 'satria@gmail.com')
+    // // Kita kirim input yang sama ke kedua parameter.
+    // // Artinya: "Cari user yang username-nya 'input' ATAU email-nya 'input'"
+
+    // User user = userRepository.findByUsernameOrEmail(input, input)
+    // .orElseThrow(() -> new UsernameNotFoundException("Username atau Email tidak
+    // ditemukan: " + input));
+
+    // // Mapping User Database ke User Spring Security (Tetap sama)
+    // return new org.springframework.security.core.userdetails.User(
+    // user.getUsername(),
+    // user.getPassword(),
+    // user.getAuthorities() // Pastikan method getAuthorities() atau mapping role
+    // Anda sudah benar di sini
+    // );
+    // }
+
     @Autowired
     private UserRepository userRepository;
 
@@ -27,7 +53,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         // Cari User berdasarkan Username ATAU Email (input yang sama dikirim ke kedua
         // parameter)
         User user = userRepository.findByUsernameOrEmail(input, input)
-                .orElseThrow(() -> new UsernameNotFoundException("Username atau Email tidak ditemukan"));
+                .orElseThrow(() -> new UsernameNotFoundException("Username atau Email tidak ditemukan: " + input));
 
         // ... sisa kode mapping user ...
         return new org.springframework.security.core.userdetails.User(

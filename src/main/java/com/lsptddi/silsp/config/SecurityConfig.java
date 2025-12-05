@@ -5,6 +5,8 @@ import com.lsptddi.silsp.security.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -26,6 +28,19 @@ public class SecurityConfig {
         @Bean
         public static PasswordEncoder passwordEncoder() {
                 return new BCryptPasswordEncoder();
+        }
+
+        @Bean
+        public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+                AuthenticationManagerBuilder authenticationManagerBuilder = http
+                                .getSharedObject(AuthenticationManagerBuilder.class);
+
+                // PENTING: Set userDetailsService di sini
+                authenticationManagerBuilder
+                                .userDetailsService(userDetailsService)
+                                .passwordEncoder(passwordEncoder());
+
+                return authenticationManagerBuilder.build();
         }
 
         @Bean // Membuat sebuah "Bean" yang akan dikelola oleh Spring
@@ -51,12 +66,13 @@ public class SecurityConfig {
                                                 // Halaman khusus ASESI (Contoh)
                                                 .requestMatchers("/asesor/**").hasAuthority("Asesor")
 
-                                                // .requestMatchers("/admin/**").hasAnyAuthority("ADMIN", "DIREKTUR") // Jika
-                                                //                                                                    // Direktur
-                                                //                                                                    // boleh
-                                                //                                                                    // akses
-                                                //                                                                    // halaman
-                                                //                                                                    // Admin
+                                                // .requestMatchers("/admin/**").hasAnyAuthority("ADMIN", "DIREKTUR") //
+                                                // Jika
+                                                // // Direktur
+                                                // // boleh
+                                                // // akses
+                                                // // halaman
+                                                // // Admin
                                                 // // ATAU
                                                 .requestMatchers("/direktur/**").hasAuthority("Direktur") // Jika punya
                                                                                                           // halaman

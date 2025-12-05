@@ -157,7 +157,7 @@ body {
   background-color: var(--btn-regist);
   color: white;
   border: none;
-  padding: 5px;
+  padding: 8px;
   width: 100%;
   border-radius: 5px;
   font-size: 1.1rem;
@@ -174,7 +174,7 @@ body {
     background-color: white;
     color: #333;
     border: 1px solid #ddd;
-    padding: 5px;
+    padding: 8px;
     width: 100%;
     border-radius: 5px;
     font-size: 1rem;

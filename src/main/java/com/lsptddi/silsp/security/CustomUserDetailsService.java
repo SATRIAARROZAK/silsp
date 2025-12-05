@@ -22,18 +22,18 @@ public class CustomUserDetailsService implements UserDetailsService {
     private UserRepository userRepository;
 
     @Override
-    @Transactional // Penting agar bisa load Role (Lazy Loading)
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // 1. Cari User di Database
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Username atau Password salah"));
+    @Transactional
+    public UserDetails loadUserByUsername(String input) throws UsernameNotFoundException {
+        // Cari User berdasarkan Username ATAU Email (input yang sama dikirim ke kedua
+        // parameter)
+        User user = userRepository.findByUsernameOrEmail(input, input)
+                .orElseThrow(() -> new UsernameNotFoundException("Username atau Email tidak ditemukan"));
 
-        // 2. Mapping User Database ke User Spring Security
+        // ... sisa kode mapping user ...
         return new org.springframework.security.core.userdetails.User(
-                user.getUsername(),
+                user.getUsername(), // Spring Security tetap butuh username asli untuk session
                 user.getPassword(),
-                mapRolesToAuthorities(user.getRoles())
-        );
+                mapRolesToAuthorities(user.getRoles()));
     }
 
     // Konversi Role Database ke Authority Spring Security
@@ -42,4 +42,22 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .map(role -> new SimpleGrantedAuthority(role.getName())) // misal: "ADMIN"
                 .collect(Collectors.toList());
     }
+
+    // @Override
+    // @Transactional // Penting agar bisa load Role (Lazy Loading)
+    // public UserDetails loadUserByUsername(String username) throws
+    // UsernameNotFoundException {
+    // // 1. Cari User di Database
+    // User user = userRepository.findByUsername(username)
+    // .orElseThrow(() -> new UsernameNotFoundException("Username atau Password
+    // salah"));
+
+    // // 2. Mapping User Database ke User Spring Security
+    // return new org.springframework.security.core.userdetails.User(
+    // user.getUsername(),
+    // user.getPassword(),
+    // mapRolesToAuthorities(user.getRoles())
+    // );
+    // }
+
 }

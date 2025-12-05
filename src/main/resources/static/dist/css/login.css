@@ -1,9 +1,10 @@
 :root {
   --primary: #1f71c3;
-  --secondary: #cc636e;
+  --secondary: #cc636e; /* Merah Error */
   --third: #54a4ec;
   --body: #7e7e7e;
   --grey: #eaeaea;
+  --btn-regist: #20076c; /* Merah bata untuk tombol */
 }
 
 * {
@@ -13,157 +14,231 @@
   color: var(--body);
 }
 
+body {
+  font-family: 'Source Sans Pro', sans-serif;
+  background-color: #f4f6f9;
+}
+
 .container {
   width: 100%;
-  height: 100vh;
+  min-height: 100vh;
+  display: flex;
+  /* align-items: center; */
+  justify-content: center;
 }
 
 .row {
   display: flex;
-  flex-direction: column;
+  width: 100%;
+  max-width: 1100px;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(0,0,0,0.1);
+  margin: 20px;
 }
 
-.col {
-  flex: none;
-}
-
-.banner {
+/* --- BAGIAN KIRI --- */
+.col-left {
+  flex: 1;
+  background: linear-gradient(174deg, rgba(14, 31, 81, 1) 40%, rgba(121, 9, 9, 1) 86%);
   display: none;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  background: linear-gradient(
-    174deg,
-    rgba(14, 31, 81, 1) 40%,
-    rgba(121, 9, 9, 1) 86%
-  );
-}
-
-.banner img {
-  width: 80%;
-}
-
-
-.register-box{
-  display: flex;
   flex-direction: column;
-  justify-content: center;  /* Biarkan ini agar tetap center di layar besar */
-  align-items: center;
-  min-height: 80vh;        /* UBAH INI: dari height ke min-height */
-  padding: 3rem 0;          /* TAMBAHKAN INI: beri jarak atas & bawah */
+  padding: 150px;
+  color: white;
 }
 
-.login-box{
-  display: flex;
-  flex-direction: column;
-  justify-content: center;  /* Biarkan ini agar tetap center di layar besar */
-  align-items: center;
-  min-height: 100vh;        /* UBAH INI: dari height ke min-height */
-  padding: 3rem 0;          /* TAMBAHKAN INI: beri jarak atas & bawah */
+.col-left img {
+  width: 70%;
+  max-width: 300px;
+  margin-bottom: 20px;
 }
-/* 
-.login-box {
+
+.col-left h3 {
+  color: #fff;
+  text-align: center;
+  font-size: 1rem;
+}
+
+/* --- BAGIAN KANAN --- */
+.col-right {
+  flex: 1;
+  padding: 30px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
-  height: 100vh;
-} */
-
-.card {
-  width: 20rem;
-}
-
-.register-box .card-header {
-  margin-bottom: .5rem;
 }
 
 .card-header {
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
+  text-align: left;
 }
 
 .card-header h1 {
-  font-size: 3rem;
-  color: var(--primary);
-}
-
-.card-body {
-  margin-bottom: 3rem;
-}
-
-.register-box .form-group {
-  display: flex;
-  flex-direction: column;
-  gap: .2rem;
-  margin-bottom: 1rem;
-}
-
-.register-box .input {
-  outline: none;
-  border: .125rem solid var(--grey);
-  padding: 0.10rem .8rem;
-  border-radius: none;
+  font-size: 1.5rem;
+  color: #333;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
 }
 
 .form-group {
+  margin-bottom: 1.2rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #333;
+  font-weight: 600;
+}
+
+.text-danger {
+    color: var(--secondary);
+}
+
+/* --- INPUT GROUP STYLING (Seamless) --- */
+.input-group {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
+  align-items: stretch;
+  width: 100%;
+  border: 1px solid var(--grey);
+  border-radius: 5px;
+  overflow: hidden;
+  transition: border-color 0.3s;
+}
+
+.input-group-text {
+  background: transparent;
+  border: none;
+  padding: 0.8rem;
+  display: flex;
+  align-items: center;
+  color: #999;
 }
 
 .input {
+  flex: 1;
+  border: none;
   outline: none;
-  border: 0.125rem solid var(--grey);
-  padding: 0.8rem 1rem;
-  border-radius: 0.3rem;
+  padding: .8rem .5rem;
+  font-size: .8rem;
 }
 
-.input:focus {
+/* Fokus State */
+.input-group:focus-within {
   border-color: var(--primary);
 }
 
-.btn-login {
-  background-color: var(--primary);
-  border: none;
-  color: #fff;
-  padding: 0.8rem 1rem;
-  border-radius: 0.3rem;
-  font-weight: bold;
-  width: 100%;
-  cursor: pointer;
+/* --- VALIDASI ERROR STYLING --- */
+/* Class ini ditambahkan oleh JS ke .input-group */
+.input-group.is-invalid {
+  border-color: var(--secondary) !important;
 }
 
-.btn-login:hover {
-  background-color: var(--third);
-}
-
-.link {
-  color: var(--primary);
-  text-decoration: none;
-  font-weight: bold;
-}
-
-.link:visited {
+.input-group.is-invalid .input-group-text i {
   color: var(--secondary);
 }
 
-@media (min-width: 768px) {
-  .row {
-    flex-direction: row;
-  }
-
-  .col {
-    flex: 1;
-  }
-
-  .banner {
-    display: flex;
-  }
+.input-group.is-invalid .input {
+    color: var(--secondary);
 }
 
-@media (min-width: 1400px) {
-  html {
-    font-size: 18px;
+.invalid-feedback {
+  display: none;
+  color: var(--secondary);
+  font-size: 0.85rem;
+  /* margin-top: .5px; */
+}
+
+/* --- BUTTONS --- */
+.btn-login {
+  background-color: var(--btn-regist);
+  color: white;
+  border: none;
+  padding: 5px;
+  width: 100%;
+  border-radius: 5px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: opacity 0.3s;
+}
+
+.btn-login:hover {
+  opacity: 0.9;
+}
+
+.btn-register {
+    background-color: white;
+    color: #333;
+    border: 1px solid #ddd;
+    padding: 5px;
+    width: 100%;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.btn-register:hover {
+    background-color: #f8f9fa;
+}
+
+/* --- FOOTER LINKS (Remember Me & Forgot Pass) --- */
+.form-row-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.forgot-password a {
+    color: var(--third);
+    text-decoration: none;
+}
+
+.register-link {
+    display: block;
+    text-align: center;
+    margin-top: 1rem;
+    position: relative;
+}
+
+.register-link::before {
+    content: "Belum Mempunyai Akun?";
+    display: block;
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    background: #fff;
+    position: relative;
+    z-index: 1;
+}
+
+/* Line separator effect similar to image */
+.register-link::after {
+    content: "";
+    position: absolute;
+    top: 10px;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: #eee;
+    z-index: 0;
+}
+
+@media (min-width: 768px) {
+  .col-left {
+    display: flex;
   }
 }

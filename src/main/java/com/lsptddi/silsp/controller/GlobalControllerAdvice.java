@@ -61,9 +61,10 @@ public class GlobalControllerAdvice {
         if (auth != null && auth.isAuthenticated() && !auth.getPrincipal().equals("anonymousUser")) {
             
             String username = auth.getName();
+            String email    = auth.getName();
             
             // Ambil data lengkap user dari database
-            User user = userRepository.findByUsername(username).orElse(null);
+            User user = userRepository.findByUsernameOrEmail(username,email).orElse(null);
             
             if (user != null) {
                 // Masukkan object user ke Model global

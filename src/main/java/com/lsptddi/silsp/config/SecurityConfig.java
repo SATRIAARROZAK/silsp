@@ -1,11 +1,13 @@
 package com.lsptddi.silsp.config;
 
+import com.lsptddi.silsp.security.CustomAuthenticationFailureHandler;
 import com.lsptddi.silsp.security.CustomLoginSuccessHandler;
 import com.lsptddi.silsp.security.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -24,6 +26,8 @@ public class SecurityConfig {
 
         @Autowired
         private CustomLoginSuccessHandler successHandler; // Inject Handler Kita
+        @Autowired
+        private CustomAuthenticationFailureHandler failureHandler;
 
         @Bean
         public static PasswordEncoder passwordEncoder() {
@@ -41,6 +45,17 @@ public class SecurityConfig {
                                 .passwordEncoder(passwordEncoder());
 
                 return authenticationManagerBuilder.build();
+        }
+
+        @Bean
+        public DaoAuthenticationProvider authenticationProvider() {
+                DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+                authProvider.setUserDetailsService(userDetailsService);
+                authProvider.setPasswordEncoder(passwordEncoder());
+                // PENTING: Set ini ke false agar kita bisa membedakan error Username vs
+                // Password
+                authProvider.setHideUserNotFoundExceptions(false);
+                return authProvider;
         }
 
         @Bean // Membuat sebuah "Bean" yang akan dikelola oleh Spring
@@ -81,11 +96,13 @@ public class SecurityConfig {
 
                                                 .anyRequest().authenticated())
 
+                                .authenticationProvider(authenticationProvider()) //
                                 .formLogin((form) -> form
                                                 .loginPage("/login") // URL halaman login Anda
                                                 .loginProcessingUrl("/login") // URL post form (Spring Security
                                                                               // menangkap ini)
                                                 .successHandler(successHandler) // <--- GUNAKAN HANDLER KITA DISINI
+                                                .failureHandler(failureHandler) // <--- GUNAKAN CUSTOM FAILURE HANDLER
                                                 .permitAll())
                                 .logout((logout) -> logout
                                                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))

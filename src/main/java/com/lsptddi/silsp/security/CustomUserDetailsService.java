@@ -15,9 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
+
+    @Autowired
+    private UserRepository userRepository;
 
     // @Autowired
     // private UserRepository userRepository;
@@ -45,51 +47,48 @@ public class CustomUserDetailsService implements UserDetailsService {
     // );
     // }
 
-  
-    @Autowired
-    private UserRepository userRepository;
-
-      @Override
-    @Transactional
-    public UserDetails loadUserByUsername(String input) throws UsernameNotFoundException {
-        // LOGIKA KUNCI: Cari berdasarkan Username ATAU Email
-        // Pastikan method findByUsernameOrEmail ada di UserRepository
-        User user = userRepository.findByUsernameOrEmail(input, input)
-                .orElseThrow(() -> new UsernameNotFoundException("User tidak ditemukan"));
-
-        // Debugging (Opsional: Cek di console server apakah user ketemu)
-        // System.out.println("User ditemukan: " + user.getUsername());
-
-        return new org.springframework.security.core.userdetails.User(
-                user.getUsername(),
-                user.getPassword(),
-                user.getRoles().stream()
-                    .map(role -> new SimpleGrantedAuthority(role.getName()))
-                    .collect(Collectors.toList())
-        );
-    }
-
     // @Override
     // @Transactional
-    // public UserDetails loadUserByUsername(String input) throws UsernameNotFoundException {
-    //     // Cari User berdasarkan Username ATAU Email (input yang sama dikirim ke kedua
-    //     // parameter)
-    //     User user = userRepository.findByUsernameOrEmail(input, input)
-    //             .orElseThrow(() -> new UsernameNotFoundException("Username atau Email tidak ditemukan: " + input));
+    // public UserDetails loadUserByUsername(String input) throws
+    // UsernameNotFoundException {
+    // // LOGIKA KUNCI: Cari berdasarkan Username ATAU Email
+    // // Pastikan method findByUsernameOrEmail ada di UserRepository
+    // User user = userRepository.findByUsernameOrEmail(input, input)
+    // .orElseThrow(() -> new UsernameNotFoundException("User tidak ditemukan"));
 
-    //     // ... sisa kode mapping user ...
-    //     return new org.springframework.security.core.userdetails.User(
-    //             user.getUsername(), // Spring Security tetap butuh username asli untuk session
-    //             user.getPassword(),
-    //             mapRolesToAuthorities(user.getRoles()));
+    // // Debugging (Opsional: Cek di console server apakah user ketemu)
+    // // System.out.println("User ditemukan: " + user.getUsername());
+
+    // return new org.springframework.security.core.userdetails.User(
+    // user.getUsername(),
+    // user.getPassword(),
+    // user.getRoles().stream()
+    // .map(role -> new SimpleGrantedAuthority(role.getName()))
+    // .collect(Collectors.toList())
+    // );
     // }
 
-    // // Konversi Role Database ke Authority Spring Security
-    // private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
-    //     return roles.stream()
-    //             .map(role -> new SimpleGrantedAuthority(role.getName())) // misal: "ADMIN"
-    //             .collect(Collectors.toList());
-    // }
+    @Override
+    @Transactional
+    public UserDetails loadUserByUsername(String input) throws UsernameNotFoundException {
+        // Cari User berdasarkan Username ATAU Email (input yang sama dikirim ke kedua
+        // parameter)
+        User user = userRepository.findByUsernameOrEmail(input, input)
+                .orElseThrow(() -> new UsernameNotFoundException("Username atau Email tidak ditemukan: " + input));
+
+        // ... sisa kode mapping user ...
+        return new org.springframework.security.core.userdetails.User(
+                user.getUsername(), // Spring Security tetap butuh username asli untuk session
+                user.getPassword(),
+                mapRolesToAuthorities(user.getRoles()));
+    }
+
+    // Konversi Role Database ke Authority Spring Security
+    private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles) {
+        return roles.stream()
+                .map(role -> new SimpleGrantedAuthority(role.getName())) // misal: "ADMIN"
+                .collect(Collectors.toList());
+    }
 
     // @Override
     // @Transactional // Penting agar bisa load Role (Lazy Loading)

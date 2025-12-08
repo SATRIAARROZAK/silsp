@@ -34,10 +34,11 @@
           </div>
 
           <form th:action="@{/login}" method="post" id="loginForm" novalidate>
-            
             <div class="form-group">
-              <label for="username">Username atau Email<span class="text-danger">*</span></label>
-              
+              <label for="username"
+                >Username atau Email<span class="text-danger">*</span></label
+              >
+
               <div class="input-group">
                 <div class="input-group-prepend">
                   <span class="input-group-text">
@@ -54,14 +55,14 @@
                   autofocus
                 />
               </div>
-              <div class="invalid-feedback">
-                Isi Email atau Username!
-              </div>
+              <div class="invalid-feedback">Isi Email atau Username!</div>
             </div>
 
             <div class="form-group">
-              <label for="password">Kata Sandi<span class="text-danger">*</span></label>
-              
+              <label for="password"
+                >Kata Sandi<span class="text-danger">*</span></label
+              >
+
               <div class="input-group">
                 <div class="input-group-prepend">
                   <span class="input-group-text">
@@ -76,25 +77,27 @@
                   placeholder="password"
                   required
                 />
-                <div class="input-group-append" style="cursor: pointer;" onclick="togglePassword()">
+                <div
+                  class="input-group-append"
+                  style="cursor: pointer"
+                  onclick="togglePassword()"
+                >
                   <span class="input-group-text toggle-password">
                     <i id="eyeIcon" class="fas fa-eye-slash"></i>
                   </span>
                 </div>
               </div>
-              <div class="invalid-feedback">
-                Isi Kata Sandi!
-              </div>
+              <div class="invalid-feedback">Isi Kata Sandi!</div>
             </div>
 
             <div class="form-row-actions">
-                <div class="remember-me">
-                    <input type="checkbox" id="remember" name="remember-me">
-                    <label for="remember">Remember Me</label>
-                </div>
-                <div class="forgot-password">
-                    <a href="#">Lupa Kata Sandi ?</a>
-                </div>
+              <div class="remember-me">
+                <input type="checkbox" id="remember" name="remember-me" />
+                <label for="remember">Remember Me</label>
+              </div>
+              <div class="forgot-password">
+                <a href="#">Lupa Kata Sandi ?</a>
+              </div>
             </div>
 
             <div class="form-group" style="margin-top: 2rem">
@@ -102,13 +105,19 @@
             </div>
 
             <span class="register-link">
-              <button type="button" class="btn-register" onclick="window.location.href='/register'">Registrasi</button>
+              <button
+                type="button"
+                class="btn-register"
+                onclick="window.location.href='/register'"
+              >
+                Registrasi
+              </button>
             </span>
           </form>
         </div>
       </div>
     </div>
-    
+
     <script th:src="@{/plugins/jquery/jquery.min.js}"></script>
     <script th:src="@{/dist/js/login.js}"></script>
   </body>

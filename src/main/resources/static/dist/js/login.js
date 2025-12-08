@@ -164,19 +164,30 @@ $(document).ready(function () {
         }
       },
       error: function (xhr) {
-        // LOGIN GAGAL
         btn.text(originalText).prop("disabled", false);
 
-        var res = JSON.parse(xhr.responseText);
-
-        // Reset error dulu
+        // Reset error visual sebelumnya
         resetErrors();
 
-        showFieldError("username", res.message); // "Username atau Password salah"
-        showFieldError("password", res.message); // "Username atau Password salah"
+        try {
+          // Coba parsing JSON dari server
+          var res = JSON.parse(xhr.responseText);
 
-        // Kosongkan password agar user mengetik ulang (UX standard)
-        $("#password").val("");
+          // Tampilkan pesan error (Versi Aman/Generic)
+          showFieldError("username", res.message);
+          showFieldError("password", res.message);
+
+          // Kosongkan password
+          $("#password").val("");
+        } catch (e) {
+          // JIKA PARSING GAGAL (Biasanya karena error 403 Forbidden CSRF atau 500 HTML)
+          console.error("Respon bukan JSON:", xhr.responseText);
+
+          // Tampilkan pesan fallback
+          alert(
+            "Gagal Login. Kemungkinan sesi habis atau masalah server. Silakan refresh halaman."
+          );
+        }
       },
     });
   });

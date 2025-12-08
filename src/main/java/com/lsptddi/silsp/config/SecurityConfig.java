@@ -65,6 +65,7 @@ public class SecurityConfig {
                                 // .csrf(AbstractHttpConfigurer::disable)
                                 // .csrf(csrf -> csrf.disable())
 
+                                .authenticationProvider(authenticationProvider()) // PENTING!
                                 .authorizeHttpRequests((requests) -> requests
                                                 // Halaman yang boleh diakses SIAPA SAJA (Tanpa Login)
                                                 .requestMatchers("/dev/**").permitAll()
@@ -96,7 +97,7 @@ public class SecurityConfig {
 
                                                 .anyRequest().authenticated())
 
-                                .authenticationProvider(authenticationProvider()) //
+                                // .authenticationProvider(authenticationProvider()) //
                                 .formLogin((form) -> form
                                                 .loginPage("/login") // URL halaman login Anda
                                                 .loginProcessingUrl("/login") // URL post form (Spring Security

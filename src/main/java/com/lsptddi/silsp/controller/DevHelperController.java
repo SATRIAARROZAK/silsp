@@ -34,10 +34,10 @@ public class DevHelperController {
      * Contoh akses: http://localhost:8080/dev/login?user=admin
      */
     @GetMapping("/dev/login")
-    public void autoLogin(@RequestParam String user,@RequestParam String email, HttpServletRequest request, HttpServletResponse response) throws IOException, jakarta.servlet.ServletException {
+    public void autoLogin(@RequestParam String user, HttpServletRequest request, HttpServletResponse response) throws IOException, jakarta.servlet.ServletException {
         
         // 1. Cari User berdasarkan username (tanpa cek password)
-        User userDb = userRepository.findByUsernameOrEmail(user, email).orElse(null);
+        User userDb = userRepository.findByUsername(user).orElse(null);
 
         if (userDb == null) {
             response.getWriter().write("User '" + user + "' tidak ditemukan di database!");

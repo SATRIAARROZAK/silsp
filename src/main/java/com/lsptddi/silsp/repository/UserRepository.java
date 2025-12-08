@@ -49,7 +49,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
          * Berguna untuk validasi agar tidak ada email kembar saat registrasi.
          */
 
-        // Optional<User> findByEmail(String email);
+        Optional<User> findByEmail(String email);
 
         Optional<User> findByUsernameOrEmail(String username, String email);
 
@@ -62,6 +62,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
         // Cek Email untuk ADD (Baru)
         boolean existsByEmail(String email);
+
+        // boolean existsByNik(String nik);
 
         // Cek Username untuk EDIT (Kecuali ID sendiri)
         // "Cari user lain yang punya username ini, tapi ID-nya bukan ID saya"

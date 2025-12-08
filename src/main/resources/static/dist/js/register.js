@@ -1,109 +1,98 @@
 $(document).ready(function () {
-  // 1. LOGIKA GANTI ROLE (TAMPILKAN FORM KHUSUS)
-  $("#roleSelect").on("change", function () {
-    var role = $(this).val();
-
-    // Reset Tampilan
-    $("#section-asesi").slideUp();
-    $("#section-asesor").slideUp();
-
-    // Reset Requirement
-    $("#noMet").prop("required", false);
-
-    if (role === "Asesi") {
-      $("#section-asesi").slideDown();
-    } else if (role === "Asesor") {
-      $("#section-asesor").slideDown();
-      $("#noMet").prop("required", true); // Wajibkan No MET
-    }
-  });
-
-  // 2. HELPER ERROR
-  function setError(input, message) {
-    var group = $(input).closest(".input-group");
-    group.addClass("is-invalid");
-    group.parent().find(".invalid-feedback").text(message).show();
-  }
-
-  function resetError(input) {
-    var group = $(input).closest(".input-group");
-    group.removeClass("is-invalid");
-    group.parent().find(".invalid-feedback").hide();
-  }
-
-  // Hapus error saat mengetik
-  $("input, select").on("input change", function () {
-    resetError(this);
-  });
-
-  // 3. SUBMIT HANDLER
-  $("#registerForm").on("submit", function (e) {
-    e.preventDefault();
-    var isValid = true;
-
-    // A. Validasi Field Umum
-    $(this)
-      .find("input[required], select[required]")
-      .each(function () {
-        if ($(this).val().trim() === "") {
-          setError(this, "Kolom ini wajib diisi");
-          isValid = false;
-        }
-      });
-
-    // B. Validasi Password Length
-    var pass = $("#password").val();
-    if (pass.length < 6) {
-      setError($("#password"), "Password minimal 6 karakter");
-      isValid = false;
-    }
-
-    if (!isValid) return;
-
-    // C. AJAX POST
-    var btn = $(".btn-submit");
-    var originalText = btn.text();
-    btn.text("Memproses...").prop("disabled", true);
-
-    $.ajax({
-      url: $(this).attr("action"),
-      type: "POST",
-      data: $(this).serialize(),
-      success: function (response) {
-        var res =
-          typeof response === "string" ? JSON.parse(response) : response;
-
-        Swal.fire({
-          icon: "success",
-          title: "Berhasil!",
-          text: res.message,
-          confirmButtonText: "Ke Halaman Login",
-          confirmButtonColor: "#3085d6",
-        }).then((result) => {
-          if (result.isConfirmed) {
-            window.location.href = "/login";
-          }
-        });
-      },
-      error: function (xhr) {
-        btn.text(originalText).prop("disabled", false);
-        var res = { message: "Terjadi kesalahan server" };
-        try {
-          res = JSON.parse(xhr.responseText);
-        } catch (e) {}
-
-        if (res.field) {
-          // Jika error spesifik (username/email)
-          setError($("#" + res.field), res.message);
-          // Scroll ke error
-          $("html, body").animate(
-            { scrollTop: $("#" + res.field).offset().top - 100 },
-            500
-          );
-        } else {
-          Swal.fire("Gagal", res.message, "error");
-        }
-      },
+  // ==========================================
+  // 5. TANDA TANGAN LOGIKA
+  // ==========================================
+  var canvas = document.getElementById("signature-canvas");
+  if (canvas) {
+    var signaturePad = new SignaturePad(canvas, {
+      backgroundColor: "rgba(255, 255, 255, 0)",
+      penColor: "rgb(0, 0, 0)",
     });
-  });
+
+    function resizeCanvas() {
+      var ratio = Math.max(window.devicePixelRatio || 1, 1);
+      var data = signaturePad.toData();
+      canvas.width = canvas.offsetWidth * ratio;
+      canvas.height = canvas.offsetHeight * ratio;
+      canvas.getContext("2d").scale(ratio, ratio);
+      signaturePad.clear();
+      signaturePad.fromData(data);
+    }
+
+    $("#modalSignature").on("shown.bs.modal", function () {
+      resizeCanvas();
+      var existingSignature = $("#signatureInput").val();
+      if (existingSignature && existingSignature.trim() !== "") {
+        signaturePad.fromDataURL(existingSignature, { ratio: 1.5 });
+      }
+    });
+
+    $("#btnClear").on("click", function () {
+      signaturePad.clear();
+    });
+    $("#btnUpload").on("click", function () {
+      $("#uploadSigFile").click();
+    });
+
+    $("#uploadSigFile").on("change", function (e) {
+      var file = e.target.files[0];
+      if (!file) return;
+      if (file.type !== "image/png") {
+        Swal.fire({ icon: "error", title: "Hanya format PNG diperbolehkan." });
+        this.value = "";
+        return;
+      }
+      var reader = new FileReader();
+      reader.onload = function (event) {
+        signaturePad.fromDataURL(event.target.result);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    $("#btnSaveSignature").on("click", function () {
+      // JIKA KOSONG -> TETAP KOSONGKAN HIDDEN & SHOW ERROR ALERT
+      if (signaturePad.isEmpty()) {
+        $("#signatureInput").val("");
+        $("#signaturePreview").hide();
+
+        // Reset tombol
+        $("#btnTriggerSignature")
+          .removeClass("btn-success btn-outline-success")
+          .addClass("btn-outline-primary")
+          .html('<i class="fas fa-pen-nib"></i> Masukkan Tanda Tangan');
+
+        // ALERT SESUAI REQUEST (TIDAK TUTUP MODAL)
+        Swal.fire({
+          icon: "warning",
+          title: "Isi Tanda Tangan Terlebih Dahulu",
+          confirmButtonText: "Oke",
+          confirmButtonColor: "#3085d6",
+        });
+        // Modal tetap terbuka, user harus isi
+      } else {
+        // JIKA TERISI -> SIMPAN & TUTUP MODAL
+        var dataURL = signaturePad.toDataURL("image/png");
+        $("#signatureInput").val(dataURL);
+
+        $("#btnTriggerSignature")
+          .removeClass("btn-outline-primary btn-outline-danger")
+          .addClass("btn-outline-success")
+          .html('<i class="fas fa-eye"></i> Lihat Tanda Tangan');
+
+        $("#imgPreview").attr("src", dataURL);
+        $("#signaturePreview").show();
+
+        // Hapus error validasi jika ada
+        $("#signatureInput").valid();
+
+        // Tutup Modal
+        $("#modalSignature")
+          .find('[data-dismiss="modal"]')
+          .first()
+          .trigger("click");
+      }
+    });
+
+    window.addEventListener("resize", resizeCanvas);
+  }
 });

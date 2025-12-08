@@ -1,144 +1,3 @@
-<!-- <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SILSP | Registrasi Akun</title>
-    <link rel="stylesheet" th:href="@{/plugins/fontawesome-free/css/all.min.css}" />
-    <link rel="stylesheet" th:href="@{/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css}">
-    <link rel="stylesheet" th:href="@{/dist/css/register.css}" />
-  </head>
-  <body>
-    <div class="container">
-      <div class="row">
-        <div class="col-left">
-          <div class="banner">
-            <img th:src="@{/dist/img/LogoLSP.png}" alt="Logo LSP" />
-            <h3>LSP Teknologi Data Digital Indonesia</h3>
-            <p class="mt-3">Bergabunglah bersama kami untuk sertifikasi profesional.</p>
-          </div>
-        </div>
-
-        <div class="col-right">
-          <div class="header mb-4">
-            <h2 style="color: #333; font-weight: 700;">Buat Akun Baru</h2>
-            <p>Lengkapi formulir di bawah ini</p>
-          </div>
-
-          <form id="registerForm" th:action="@{/register}" method="post" novalidate>
-            
-            <div class="section-title">Data Akun</div>
-            
-            <div class="form-group">
-                <label>Pilih Peran (Role)<span class="text-danger">*</span></label>
-                <div class="input-group">
-                    <div class="input-group-text"><i class="fas fa-user-tag"></i></div>
-                    <select class="input" name="role" id="roleSelect" required>
-                        <option value="" disabled selected>-- Pilih Peran --</option>
-                        <option value="Asesi">Asesi</option>
-                        <option value="Asesor">Asesor</option>
-                    </select>
-                </div>
-                <div class="invalid-feedback">Pilih peran anda</div>
-            </div>
-
-            <div class="form-group">
-                <label>Username<span class="text-danger">*</span></label>
-                <div class="input-group">
-                    <div class="input-group-text"><i class="fas fa-user"></i></div>
-                    <input type="text" class="input" name="username" id="username" placeholder="Buat username unik" required>
-                </div>
-                <div class="invalid-feedback">Username wajib diisi</div>
-            </div>
-
-            <div class="form-group">
-                <label>Email<span class="text-danger">*</span></label>
-                <div class="input-group">
-                    <div class="input-group-text"><i class="fas fa-envelope"></i></div>
-                    <input type="email" class="input" name="email" id="email" placeholder="contoh@email.com" required>
-                </div>
-                <div class="invalid-feedback">Format email tidak valid</div>
-            </div>
-
-            <div class="form-group">
-                <label>Password<span class="text-danger">*</span></label>
-                <div class="input-group">
-                    <div class="input-group-text"><i class="fas fa-lock"></i></div>
-                    <input type="password" class="input" name="password" id="password" placeholder="Minimal 6 karakter" required>
-                </div>
-                <div class="invalid-feedback">Password minimal 6 karakter</div>
-            </div>
-
-            <div class="section-title">Data Pribadi</div>
-
-            <div class="form-group">
-                <label>Nama Lengkap<span class="text-danger">*</span></label>
-                <div class="input-group">
-                    <div class="input-group-text"><i class="fas fa-id-card"></i></div>
-                    <input type="text" class="input" name="fullName" id="fullName" placeholder="Sesuai KTP" required>
-                </div>
-                <div class="invalid-feedback">Nama lengkap wajib diisi</div>
-            </div>
-
-            <div class="form-group">
-                <label>No. Telepon / WA<span class="text-danger">*</span></label>
-                <div class="input-group">
-                    <div class="input-group-text"><i class="fas fa-phone"></i></div>
-                    <input type="number" class="input" name="phoneNumber" id="phoneNumber" placeholder="08..." required>
-                </div>
-                <div class="invalid-feedback">No Telepon wajib diisi</div>
-            </div>
-
-            <div id="section-asesi" style="display: none;">
-                <div class="section-title">Data Pekerjaan (Asesi)</div>
-                
-                <div class="form-group">
-                    <label>Nama Perusahaan / Instansi</label>
-                    <div class="input-group">
-                        <div class="input-group-text"><i class="fas fa-building"></i></div>
-                        <input type="text" class="input" name="companyName" id="companyName" placeholder="Opsional jika bekerja">
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label>Jabatan</label>
-                    <div class="input-group">
-                        <div class="input-group-text"><i class="fas fa-briefcase"></i></div>
-                        <input type="text" class="input" name="position" placeholder="Posisi saat ini">
-                    </div>
-                </div>
-            </div>
-
-            <div id="section-asesor" style="display: none;">
-                <div class="section-title">Data Asesor</div>
-                
-                <div class="form-group">
-                    <label>No. Registrasi MET<span class="text-danger">*</span></label>
-                    <div class="input-group">
-                        <div class="input-group-text"><i class="fas fa-certificate"></i></div>
-                        <input type="text" class="input" name="noMet" id="noMet" placeholder="Nomor MET BNSP">
-                    </div>
-                    <div class="invalid-feedback">No MET wajib diisi untuk Asesor</div>
-                </div>
-            </div>
-
-            <button type="submit" class="btn-submit">Daftar Sekarang</button>
-            
-            <p class="text-center mt-3" style="font-size: 0.9rem;">
-                Sudah punya akun? <a th:href="@{/login}" style="color: #1f71c3; font-weight: bold;">Masuk disini</a>
-            </p>
-
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <script th:src="@{/plugins/jquery/jquery.min.js}"></script>
-    <script th:src="@{/plugins/sweetalert2/sweetalert2.min.js}"></script>
-    <script th:src="@{/dist/js/register.js}"></script>
-  </body>
-</html> -->
-
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
   <head>
@@ -149,215 +8,609 @@
       rel="stylesheet"
       th:href="@{/plugins/fontawesome-free/css/all.min.css}"
     />
+    <link rel="stylesheet" th:href="@{/plugins/select2/css/select2.min.css}" />
+    <link
+      rel="stylesheet"
+      th:href="@{/plugins/select2-theme-bootstrap4/select2-bootstrap4.min.css}"
+    />
     <link
       rel="stylesheet"
       th:href="@{/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css}"
     />
     <link rel="stylesheet" th:href="@{/dist/css/register.css}" />
+    <link rel="stylesheet" th:href="@{/dist/css/adminlte.min.css}" />
   </head>
   <body>
     <div class="container">
-      <div class="row">
-        <div class="col-form">
-          <div class="header mb-4 text-center">
-            <img
-              th:src="@{/dist/img/LogoLSP2.png}"
-              alt="Logo LSP"
-              width="80"
-              class="mb-3"
-            />
-            <h2 style="color: #333; font-weight: 700">Buat Akun Baru</h2>
-            <p class="text-muted">
-              Lengkapi formulir di bawah ini untuk mendaftar
-            </p>
-          </div>
+      <div class="card-register">
+        <div class="header-register">
+          <img
+            th:src="@{/dist/img/LogoLSP2.png}"
+            alt="Logo LSP"
+            width="80"
+            class="mb-3"
+          />
+          <h2 style="color: #333; font-weight: 700">Buat Akun Baru</h2>
+          <p class="text-muted">Lengkapi formulir di bawah ini</p>
+        </div>
 
-          <form
-            id="registerForm"
-            th:action="@{/register}"
-            method="post"
-            novalidate
-          >
-            <div class="section-title">Data Akun</div>
+        <form
+          id="registerForm"
+          th:action="@{/register}"
+          method="post"
+          novalidate
+        >
+          <div class="section-title">Data Akun</div>
 
-            <div class="form-group">
-              <label
-                >Pilih Peran (Role)<span class="text-danger">*</span></label
-              >
-              <div class="input-group">
-                <!-- <div class="input-group-text">
-                  <i class="fas fa-user-tag"></i>
-                </div> -->
-                <select class="input" name="role" id="roleSelect" required>
-                  <option value="" disabled selected>-- Pilih Peran --</option>
-                  <option value="Asesi">Asesi</option>
-                  <option value="Asesor">Asesor</option>
-                </select>
-              </div>
-              <div class="invalid-feedback">Pilih peran anda</div>
-            </div>
-
-            <div class="form-group">
-              <label>Username<span class="text-danger">*</span></label>
-              <div class="input-group">
-                <div class="input-group-text"><i class="fas fa-user"></i></div>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Username <span class="text-danger">*</span></label>
                 <input
                   type="text"
-                  class="input"
+                  class="form-control"
                   name="username"
-                  id="username"
-                  placeholder="Buat username unik"
                   required
+                  autocomplete="off"
+                  autofocus
                 />
               </div>
-              <div class="invalid-feedback">Username wajib diisi</div>
             </div>
-
-            <div class="form-group">
-              <label>Email<span class="text-danger">*</span></label>
-              <div class="input-group">
-                <div class="input-group-text">
-                  <i class="fas fa-envelope"></i>
-                </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Email <span class="text-danger">*</span></label>
                 <input
                   type="email"
-                  class="input"
+                  class="form-control"
                   name="email"
-                  id="email"
-                  placeholder="contoh@email.com"
                   required
+                  autocomplete="off"
                 />
               </div>
-              <div class="invalid-feedback">Format email tidak valid</div>
             </div>
-
-            <div class="form-group">
-              <label>Password<span class="text-danger">*</span></label>
-              <div class="input-group">
-                <div class="input-group-text"><i class="fas fa-lock"></i></div>
-                <input
-                  type="password"
-                  class="input"
-                  name="password"
-                  id="password"
-                  placeholder="Minimal 6 karakter"
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Role <span class="text-danger">*</span></label>
+                <select
+                  class="select2"
+                  multiple="multiple"
+                  id="roleSelect"
+                  name="roles"
+                  data-placeholder="Pilih Role"
+                  style="width: 100%"
                   required
-                />
+                >
+                  <option value="Admin">Admin</option>
+                  <option value="Asesi">Asesi</option>
+                  <option value="Asesor">Asesor</option>
+                  <option value="Direktur">Direktur</option>
+                </select>
               </div>
-              <div class="invalid-feedback">Password minimal 6 karakter</div>
             </div>
+          </div>
 
-            <div class="section-title">Data Pribadi</div>
+          <div class="section-title">Data Pribadi</div>
 
-            <div class="form-group">
-              <label>Nama Lengkap<span class="text-danger">*</span></label>
-              <div class="input-group">
-                <div class="input-group-text">
-                  <i class="fas fa-id-card"></i>
+          <!-- <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>NIK<span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <div class="input-group-text">
+                    <i class="fas fa-id-card"></i>
+                  </div>
+                  <input
+                    type="number"
+                    class="input form-control"
+                    name="nik"
+                    id="nik"
+                    placeholder="16 Digit NIK"
+                    required
+                  />
                 </div>
+                <div class="invalid-feedback" id="feedback-nik">
+                  NIK wajib diisi
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Nama Lengkap<span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <div class="input-group-text">
+                    <i class="fas fa-user"></i>
+                  </div>
+                  <input
+                    type="text"
+                    class="input form-control"
+                    name="fullName"
+                    placeholder="Sesuai KTP"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Tempat Lahir<span class="text-danger">*</span></label>
                 <input
                   type="text"
-                  class="input"
-                  name="fullName"
-                  id="fullName"
-                  placeholder="Sesuai KTP"
+                  class="input form-control"
+                  name="birthPlace"
                   required
                 />
               </div>
-              <div class="invalid-feedback">Nama lengkap wajib diisi</div>
             </div>
-
-            <div class="form-group">
-              <label>No. Telepon / WA<span class="text-danger">*</span></label>
-              <div class="input-group">
-                <div class="input-group-text"><i class="fas fa-phone"></i></div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Tanggal Lahir<span class="text-danger">*</span></label>
                 <input
-                  type="number"
-                  class="input"
-                  name="phoneNumber"
-                  id="phoneNumber"
-                  placeholder="08..."
+                  type="date"
+                  class="input form-control"
+                  name="birthDate"
                   required
                 />
               </div>
-              <div class="invalid-feedback">No Telepon wajib diisi</div>
             </div>
+          </div>
 
-            <div id="section-asesi" style="display: none">
-              <div class="section-title">Data Pekerjaan (Asesi)</div>
-
+          <div class="row">
+            <div class="col-md-6">
               <div class="form-group">
-                <label>Nama Perusahaan / Instansi</label>
-                <div class="input-group">
-                  <div class="input-group-text">
-                    <i class="fas fa-building"></i>
-                  </div>
-                  <input
-                    type="text"
-                    class="input"
-                    name="companyName"
-                    id="companyName"
-                    placeholder="Opsional jika bekerja"
-                  />
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label>Jabatan</label>
-                <div class="input-group">
-                  <div class="input-group-text">
-                    <i class="fas fa-briefcase"></i>
-                  </div>
-                  <input
-                    type="text"
-                    class="input"
-                    name="position"
-                    placeholder="Posisi saat ini"
-                  />
-                </div>
+                <label>Jenis Kelamin<span class="text-danger">*</span></label>
+                <select class="input form-control" name="gender" required>
+                  <option value="L">Laki-laki</option>
+                  <option value="P">Perempuan</option>
+                </select>
               </div>
             </div>
-
-            <div id="section-asesor" style="display: none">
-              <div class="section-title">Data Asesor</div>
-
+            <div class="col-md-6">
               <div class="form-group">
                 <label
-                  >No. Registrasi MET<span class="text-danger">*</span></label
+                  >No. Telepon / WA<span class="text-danger">*</span></label
                 >
                 <div class="input-group">
                   <div class="input-group-text">
-                    <i class="fas fa-certificate"></i>
+                    <i>+62</i>
                   </div>
                   <input
+                    type="number"
+                    class="input form-control"
+                    name="phoneNumber"
+                    placeholder="08..."
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="section-asesi" style="display: none">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Kewarganegaraan</label>
+                  <input
                     type="text"
-                    class="input"
+                    class="input form-control"
+                    name="citizenship"
+                    value="Indonesia"
+                  />
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Pendidikan Terakhir</label>
+                  <select class="input form-control" name="lastEducationId">
+                    <option value="">Pilih Pendidikan</option>
+                    <option value="1">SMA/SMK</option>
+                    <option value="2">D3</option>
+                    <option value="3">S1/D4</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="section-asesor" style="display: none">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label
+                    >No. Registrasi MET<span class="text-danger">*</span></label
+                  >
+                  <input
+                    type="text"
+                    class="input form-control"
                     name="noMet"
                     id="noMet"
                     placeholder="Nomor MET BNSP"
                   />
                 </div>
-                <div class="invalid-feedback">
-                  No MET wajib diisi untuk Asesor
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Pekerjaan</label>
+                  <input
+                    type="text"
+                    class="input form-control"
+                    name="job"
+                    placeholder="Pekerjaan saat ini"
+                  />
                 </div>
               </div>
             </div>
+          </div>
 
-            <button type="submit" class="btn-submit">Daftar Sekarang</button>
+          <div class="form-group mt-4">
+            <label
+              >Tanda Tangan Digital<span class="text-danger">*</span></label
+            >
+            <input
+              type="hidden"
+              name="signatureBase64"
+              id="signatureInput"
+              required
+            />
 
-            <p class="text-center mt-3" style="font-size: 0.9rem">
-              Sudah punya akun?
-              <a th:href="@{/login}" style="color: #1f71c3; font-weight: bold"
-                >Masuk disini</a
+            <div id="signaturePreview" style="display: none">
+              <img id="imgPreview" src="" alt="Signature" />
+              <p class="small text-success m-0">
+                <i class="fas fa-check-circle"></i> Tanda tangan tersimpan
+              </p>
+            </div>
+
+            <button
+              type="button"
+              class="btn btn-outline-primary btn-block"
+              data-toggle="modal"
+              data-target="#modalSignature"
+              id="btnTriggerSignature"
+            >
+              <i class="fas fa-pen-nib"></i> Buat Tanda Tangan
+            </button>
+            <div
+              class="invalid-feedback d-block"
+              id="signatureFeedback"
+              style="display: none !important"
+            >
+              Tanda tangan wajib diisi
+            </div>
+          </div> -->
+
+          <div class="row">
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Nama Lengkap<span class="text-danger">*</span></label>
+                <input
+                  type="text"
+                  class="form-control"
+                  name="fullName"
+                  required
+                />
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Tempat Lahir<span class="text-danger">*</span></label>
+                <input
+                  type="text"
+                  class="form-control"
+                  name="birthPlace"
+                  required
+                />
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Tanggal Lahir<span class="text-danger">*</span></label>
+                <input
+                  type="date"
+                  class="form-control"
+                  name="birthDate"
+                  required
+                />
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Jenis Kelamin<span class="text-danger">*</span></label>
+                <select class="form-control" name="gender" required>
+                  <option value="" disabled selected>
+                    ---Pilih Jenis Kelamin---
+                  </option>
+                  <option value="L">Laki-laki</option>
+                  <option value="P">Perempuan</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>NIK<span class="text-danger">*</span></label>
+                <input type="text" class="form-control" name="nik" required />
+              </div>
+            </div>
+            <div class="col-md-4 group-asesi-only">
+              <div class="form-group">
+                <label>Kewarganegaraan<span class="text-danger">*</span></label>
+                <input
+                  type="text"
+                  class="form-control"
+                  name="citizenship"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="col-md-4 group-asesor-only">
+              <div class="form-group">
+                <label>No. MET<span class="text-danger">*</span></label>
+                <input type="text" class="form-control" name="noMet" required />
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>No Telepon<span class="text-danger">*</span></label>
+                <input
+                  type="text"
+                  class="form-control"
+                  name="phoneNumber"
+                  required
+                />
+              </div>
+            </div>
+            <div class="col-md-4 group-asesi-asesor">
+              <div class="form-group">
+                <label
+                  >Pendidikan Terakhir<span class="text-danger">*</span></label
+                >
+                <select
+                  class="form-control"
+                  name="lastEducation"
+                  style="width: 100%"
+                  id="selectPendidikan"
+                  required
+                >
+                  <option value="" disabled selected>
+                    ---Pilih Pendidikan Terakhir---
+                  </option>
+                </select>
+                <input type="hidden" name="educationId" id="inputPendidikan" />
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4 group-asesi-only">
+              <div class="form-group">
+                <label>Provinsi</label>
+                <select
+                  class="form-control select2"
+                  style="width: 100%"
+                  name="province"
+                  id="selectProvinsi"
+                  required
+                ></select>
+                <input type="hidden" name="provinceId" id="inputProvinsi" />
+              </div>
+            </div>
+
+            <div class="col-md-4 group-asesi-only">
+              <div class="form-group">
+                <label>Kota/Kabupaten</label>
+                <select
+                  class="form-control select2"
+                  style="width: 100%"
+                  name="city"
+                  id="selectKota"
+                  disabled
+                  required
+                ></select>
+                <input type="hidden" name="cityId" id="inputKota" />
+              </div>
+            </div>
+
+            <div class="col-md-4 group-asesi-only">
+              <div class="form-group">
+                <label>Kecamatan</label>
+                <select
+                  class="form-control select2"
+                  style="width: 100%"
+                  id="selectKecamatan"
+                  name="district"
+                  required
+                  disabled
+                ></select>
+                <input type="hidden" name="districtId" id="inputKecamatan" />
+              </div>
+            </div>
+
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>Alamat Jalan<span class="text-danger">*</span></label>
+                <textarea
+                  class="form-control"
+                  name="address"
+                  rows="2"
+                  required
+                ></textarea>
+              </div>
+            </div>
+          </div>
+          <div class="row mt-2">
+            <div class="col-md-4 group-asesi-only">
+              <div class="form-group">
+                <label>Kode Pos<span class="text-danger">*</span></label>
+                <input
+                  type="text"
+                  class="form-control"
+                  name="postalCode"
+                  required
+                />
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="form-group">
+                <label>Tanda Tangan<span class="text-danger">*</span></label>
+                <input
+                  type="hidden"
+                  name="signatureBase64"
+                  id="signatureInput"
+                  required
+                />
+
+                <div id="signaturePreview" class="mb-2" style="display: none">
+                  <img
+                    src=""
+                    id="imgPreview"
+                    style="max-height: 100px; border: 1px dashed #ccc"
+                  />
+                  <p class="text-success small">
+                    <i class="fas fa-check-circle"></i> Tanda tangan tersimpan
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  class="btn btn-outline-primary btn-block"
+                  id="btnTriggerSignature"
+                  data-toggle="modal"
+                  data-target="#modalSignature"
+                >
+                  <i class="fas fa-pen-nib"></i> Masukkan Tanda Tangan
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-submit">Daftar Sekarang</button>
+
+          <p class="text-center mt-3" style="font-size: 0.9rem">
+            Sudah punya akun?
+            <a th:href="@{/login}" style="color: #1f71c3; font-weight: bold"
+              >Masuk disini</a
+            >
+          </p>
+        </form>
+        <div
+          class="modal fade"
+          id="modalSignature"
+          tabindex="-1"
+          role="dialog"
+          aria-labelledby="modalSigLabel"
+          data-backdrop="static"
+        >
+          <div
+            class="modal-dialog modal-dialog-centered modal-lg"
+            role="document"
+          >
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="modalSigLabel">Tanda Tangan</h5>
+                <button
+                  type="button"
+                  class="close"
+                  data-dismiss="modal"
+                  aria-label="Close"
+                >
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body text-center">
+                <div class="signature-wrapper">
+                  <canvas
+                    id="signature-canvas"
+                    style="width: 100%; height: 100%; display: block"
+                  ></canvas>
+                  <div
+                    class="text-muted small text-center"
+                    style="
+                      position: absolute;
+                      bottom: 10px;
+                      width: 100%;
+                      pointer-events: none;
+                      opacity: 0.5;
+                    "
+                  >
+                    Area Tanda Tangan
+                  </div>
+                </div>
+
+                <input type="file" id="uploadSigFile" accept="image/png" />
+              </div>
+              <div class="modal-footer justify-content-center">
+                <button
+                  type="button"
+                  class="btn btn-default"
+                  data-dismiss="modal"
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline-danger"
+                  id="btnClear"
+                >
+                  Hapus Kanvas
+                </button>
+
+                <button type="button" class="btn btn-success" id="btnUpload">
+                  Upload Signature
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-danger"
+                  id="btnSaveSignature"
+                >
+                  Simpan
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal fade"
+      id="modalPassword"
+      tabindex="-1"
+      role="dialog"
+      data-backdrop="static"
+    >
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Atur Kata Sandi</h5>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label>Kata Sandi Baru</label>
+              <input type="password" class="form-control" id="modalPass1" />
+            </div>
+            <div class="form-group">
+              <label>Konfirmasi Kata Sandi</label>
+              <input type="password" class="form-control" id="modalPass2" />
+              <small class="text-danger" id="passMismatch" style="display: none"
+                >Kata sandi tidak cocok!</small
               >
-            </p>
-          </form>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" id="savePassword">
+              Simpan
+            </button>
+          </div>
         </div>
       </div>
     </div>
 
     <script th:src="@{/plugins/jquery/jquery.min.js}"></script>
+    <script th:src="@{/dist/js/adminlte.js}"></script>
+    <script th:src="@{/plugins/bootstrap/js/bootstrap.bundle.min.js}"></script>
     <script th:src="@{/plugins/sweetalert2/sweetalert2.min.js}"></script>
     <script th:src="@{/dist/js/register.js}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
   </body>
 </html>

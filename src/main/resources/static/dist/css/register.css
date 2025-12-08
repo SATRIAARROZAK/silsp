@@ -22,7 +22,7 @@ body {
 /* CARD CONTAINER */
 .card-register {
   width: 100%;
-  max-width: 900px; /* Lebar ditambah untuk 2 kolom */
+  max-width: 600px; /* Lebar ditambah untuk 2 kolom */
   background: white;
   border-radius: 10px;
   overflow: hidden; /* Hapus scrollbar internal */
@@ -30,6 +30,7 @@ body {
   margin: 0 auto;
   padding: 40px;
 }
+
 
 .header-register {
   text-align: center;

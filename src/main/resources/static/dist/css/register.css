@@ -1,74 +1,67 @@
 :root {
   --primary: #1f71c3;
-  --secondary: #cc636e; /* Merah Error */
-  --third: #54a4ec;
+  --secondary: #cc636e;
   --body: #7e7e7e;
   --grey: #eaeaea;
-  --btn-regist: #20076c; /* Merah bata untuk tombol */
-}
-
-* {
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
-  color: var(--body);
 }
 
 body {
   font-family: 'Source Sans Pro', sans-serif;
-  background-color: #f4f6f9;
+  background-color: #e9ecef; /* Warna background sedikit lebih gelap agar kartu menonjol */
 }
 
 .container {
   width: 100%;
-  min-height: 100vh;
+  min-height: auto;
   display: flex;
-  /* align-items: center; */
   justify-content: center;
+  align-items: center;
+  /* padding: 20px; */
 }
 
+/* CARD CONTAINER (TUNGGAL) */
 .row {
   display: flex;
   width: 100%;
-  max-width: 1100px;
+  max-width: 700px; /* Batasi lebar agar fokus */
   background: white;
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 0 20px rgba(0,0,0,0.1);
-  margin: 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08); /* Shadow halus */
+  margin: 0 auto;
 }
 
-.card-header {
-  margin-bottom: 2rem;
-  text-align: left;
+/* KOLOM FORM (FULL WIDTH) */
+.col-form {
+  width: 100%;
+  padding: 40px;
+  /* Scrollable jika layar pendek */
+  max-height: 150vh; 
+  /* overflow-y: auto;  */
 }
 
-.card-header h1 {
-  font-size: 1.5rem;
-  color: #333;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
+ /* Scrollbar Styling */
+.col-form::-webkit-scrollbar { width: 6px; }
+.col-form::-webkit-scrollbar-thumb { background-color: #adb5bd; border-radius: 4px; }
+.col-form::-webkit-scrollbar-track { background-color: #f1f1f1; }
+
+.section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin: 25px 0 15px 0;
+    padding-bottom: 5px;
+    border-bottom: 2px solid #f4f6f9;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.form-group {
-  margin-bottom: 1.2rem;
-}
+/* FORM ELEMENTS */
+.form-group { margin-bottom: 1.2rem; }
+.form-group label { font-weight: 600; color: #495057; margin-bottom: 0.5rem; display: block; font-size: 0.95rem; }
 
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  color: #333;
-  font-weight: 600;
-}
-
-.text-danger {
-    color: var(--secondary);
-}
-
-/* --- INPUT GROUP STYLING (Seamless) --- */
 .input-group {
   display: flex;
-  align-items: stretch;
   width: 100%;
   border: 1px solid var(--grey);
   border-radius: 5px;
@@ -76,136 +69,54 @@ body {
   transition: border-color 0.3s;
 }
 
+/* Fokus Effect */
+.input-group:focus-within {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(31, 113, 195, 0.1);
+}
+
 .input-group-text {
-  background: transparent;
+  background: #f8f9fa;
   border: none;
+  border-right: 1px solid var(--grey);
   padding: 0.8rem;
+  color: #6c757d;
+  width: 45px;
   display: flex;
+  justify-content: center;
   align-items: center;
-  color: #999;
 }
 
 .input {
   flex: 1;
   border: none;
+  padding: 0.8rem 1rem;
   outline: none;
-  padding: .8rem .5rem;
-  font-size: .8rem;
+  font-size: 1rem;
+  color: #333;
 }
 
-/* Fokus State */
-.input-group:focus-within {
-  border-color: var(--primary);
-}
+/* Validasi */
+.input-group.is-invalid { border-color: var(--secondary) !important; }
+.input-group.is-invalid .input-group-text i { color: var(--secondary); }
+.invalid-feedback { display: none; color: var(--secondary); font-size: 0.85rem; margin-top: 5px; }
 
-/* --- VALIDASI ERROR STYLING --- */
-/* Class ini ditambahkan oleh JS ke .input-group */
-.input-group.is-invalid {
-  border-color: var(--secondary) !important;
-}
-
-.input-group.is-invalid .input-group-text i {
-  color: var(--secondary);
-}
-
-.input-group.is-invalid .input {
-    color: var(--secondary);
-}
-
-.invalid-feedback {
-  display: none;
-  color: var(--secondary);
-  font-size: 0.85rem;
-  /* margin-top: .5px; */
-}
-
-/* --- BUTTONS --- */
-.btn-login {
-  background-color: var(--btn-regist);
+/* Buttons */
+.btn-submit {
+  background-color: #b86363;
   color: white;
   border: none;
-  padding: 8px;
+  padding: 12px;
   width: 100%;
   border-radius: 5px;
-  font-size: 1.1rem;
   font-weight: bold;
+  font-size: 1.1rem;
   cursor: pointer;
-  transition: opacity 0.3s;
+  margin-top: 30px;
+  transition: background 0.3s, transform 0.1s;
 }
+.btn-submit:hover { background-color: #a35555; }
+.btn-submit:active { transform: scale(0.99); }
 
-.btn-login:hover {
-  opacity: 0.9;
-}
-
-.btn-register {
-    background-color: white;
-    color: #333;
-    border: 1px solid #ddd;
-    padding: 8px;
-    width: 100%;
-    border-radius: 5px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    margin-top: 10px;
-}
-
-.btn-register:hover {
-    background-color: #f8f9fa;
-}
-
-/* --- FOOTER LINKS (Remember Me & Forgot Pass) --- */
-.form-row-actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    font-size: 0.9rem;
-}
-
-.remember-me {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.forgot-password a {
-    color: var(--third);
-    text-decoration: none;
-}
-
-.register-link {
-    display: block;
-    text-align: center;
-    margin-top: 1rem;
-    position: relative;
-}
-
-.register-link::before {
-    content: "Belum Mempunyai Akun?";
-    display: block;
-    color: #6c757d;
-    font-size: 0.9rem;
-    margin-bottom: 10px;
-    background: #fff;
-    position: relative;
-    z-index: 1;
-}
-
-/* Line separator effect similar to image */
-.register-link::after {
-    content: "";
-    position: absolute;
-    top: 10px;
-    left: 0;
-    width: 100%;
-    height: 1px;
-    background: #eee;
-    z-index: 0;
-}
-
-@media (min-width: 768px) {
-  .col-left {
-    display: flex;
-  }
-}
+/* Text Utility */
+.text-muted { color: #6c757d; font-size: 0.95rem; }

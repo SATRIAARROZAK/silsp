@@ -18,7 +18,10 @@ public class Schema {
     // --- TAB 1: Data Skema ---
     private String name;
     private String code;
+
+    // @Column(name = "level_skkni")
     private Integer level;
+    
     private String noSkkni;
     private String skkniYear; // Tahun SKKNI
     

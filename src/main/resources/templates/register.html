@@ -2,245 +2,362 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SILSP | Daftar Akun</title>
-
-    <link
-      rel="shortcut icon"
-      th:href="@{/dist/img/favicon2.ico}"
-      type="image/x-icon"
-    />
-    <link rel="stylesheet" th:href="@{/dist/css/login.css}" />
-
-    <style>
-      /* Menggunakan palet warna dari CSS Anda */
-      .form-group .invalid-feedback {
-        display: none; /* Sembunyikan default */
-        color: var(--secondary); /* Warna merah dari palet Anda */
-        font-size: 0.85rem;
-        margin-top: 4px;
-      }
-      .form-group .input.is-invalid {
-        border-color: var(--secondary);
-      }
-      .form-group .input.is-invalid + .invalid-feedback {
-        display: block; /* Tampilkan jika input invalid */
-      }
-    </style>
+    <title>SILSP | Registrasi Akun</title>
+    <link rel="stylesheet" th:href="@{/plugins/fontawesome-free/css/all.min.css}" />
+    <link rel="stylesheet" th:href="@{/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css}">
+    <link rel="stylesheet" th:href="@{/dist/css/register.css}" />
   </head>
   <body>
     <div class="container">
       <div class="row">
-        <div class="col">
+        <div class="col-left">
           <div class="banner">
-            <img th:src="@{/dist/img/LogoLSP.png}" alt="Banner" />
+            <img th:src="@{/dist/img/LogoLSP.png}" alt="Logo LSP" />
+            <h3>LSP Teknologi Data Digital Indonesia</h3>
+            <p class="mt-3">Bergabunglah bersama kami untuk sertifikasi profesional.</p>
           </div>
         </div>
 
-        <div class="col">
-          <div class="register-box">
-            <div class="card">
-              <div class="card-header">
-                <h1>Buat Akun</h1>
-                <p>Silakan daftar untuk melanjutkan</p>
-              </div>
-
-              <form
-                id="registerForm"
-                th:action="@{/register}"
-                method="post"
-                novalidate
-              >
-                <div class="card-body">
-                  <div class="form-group">
-                    <label for="username">Username</label>
-                    <input
-                      class="input"
-                      type="text"
-                      name="username"
-                      id="username"
-                      placeholder="Buat username unik"
-                      required
-                    />
-                    <div class="invalid-feedback">
-                      Username tidak boleh kosong.
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label for="email">Email</label>
-                    <input
-                      class="input"
-                      type="email"
-                      name="email"
-                      id="email"
-                      placeholder="contoh@email.com"
-                      required
-                    />
-                    <div class="invalid-feedback">
-                      Format email tidak valid.
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label for="password">Password</label>
-                    <input
-                      class="input"
-                      type="password"
-                      name="password"
-                      id="password"
-                      placeholder="Minimal 8 karakter"
-                      required
-                    />
-                    <div class="invalid-feedback">
-                      Password minimal 8 karakter.
-                    </div>
-                  </div>
-
-                  <div class="form-group">
-                    <label for="confirmPassword">Konfirmasi Password</label>
-                    <input
-                      class="input"
-                      type="password"
-                      id="confirmPassword"
-                      placeholder="Ulangi password"
-                      required
-                    />
-                    <div class="invalid-feedback">Password tidak cocok.</div>
-                  </div>
-
-                  <span
-                    >Sudah punya akun?
-                    <a class="link" th:href="@{/login}">Login di sini</a></span
-                  >
-                </div>
-                <div class="card-footer">
-                  <button type="submit" class="btn-login">Daftar</button>
-                </div>
-              </form>
-            </div>
+        <div class="col-right">
+          <div class="header mb-4">
+            <h2 style="color: #333; font-weight: 700;">Buat Akun Baru</h2>
+            <p>Lengkapi formulir di bawah ini</p>
           </div>
+
+          <form id="registerForm" th:action="@{/register}" method="post" novalidate>
+            
+            <div class="section-title">Data Akun</div>
+            
+            <div class="form-group">
+                <label>Pilih Peran (Role)<span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <div class="input-group-text"><i class="fas fa-user-tag"></i></div>
+                    <select class="input" name="role" id="roleSelect" required>
+                        <option value="" disabled selected>-- Pilih Peran --</option>
+                        <option value="Asesi">Asesi</option>
+                        <option value="Asesor">Asesor</option>
+                    </select>
+                </div>
+                <div class="invalid-feedback">Pilih peran anda</div>
+            </div>
+
+            <div class="form-group">
+                <label>Username<span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <div class="input-group-text"><i class="fas fa-user"></i></div>
+                    <input type="text" class="input" name="username" id="username" placeholder="Buat username unik" required>
+                </div>
+                <div class="invalid-feedback">Username wajib diisi</div>
+            </div>
+
+            <div class="form-group">
+                <label>Email<span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <div class="input-group-text"><i class="fas fa-envelope"></i></div>
+                    <input type="email" class="input" name="email" id="email" placeholder="contoh@email.com" required>
+                </div>
+                <div class="invalid-feedback">Format email tidak valid</div>
+            </div>
+
+            <div class="form-group">
+                <label>Password<span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <div class="input-group-text"><i class="fas fa-lock"></i></div>
+                    <input type="password" class="input" name="password" id="password" placeholder="Minimal 6 karakter" required>
+                </div>
+                <div class="invalid-feedback">Password minimal 6 karakter</div>
+            </div>
+
+            <div class="section-title">Data Pribadi</div>
+
+            <div class="form-group">
+                <label>Nama Lengkap<span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <div class="input-group-text"><i class="fas fa-id-card"></i></div>
+                    <input type="text" class="input" name="fullName" id="fullName" placeholder="Sesuai KTP" required>
+                </div>
+                <div class="invalid-feedback">Nama lengkap wajib diisi</div>
+            </div>
+
+            <div class="form-group">
+                <label>No. Telepon / WA<span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <div class="input-group-text"><i class="fas fa-phone"></i></div>
+                    <input type="number" class="input" name="phoneNumber" id="phoneNumber" placeholder="08..." required>
+                </div>
+                <div class="invalid-feedback">No Telepon wajib diisi</div>
+            </div>
+
+            <div id="section-asesi" style="display: none;">
+                <div class="section-title">Data Pekerjaan (Asesi)</div>
+                
+                <div class="form-group">
+                    <label>Nama Perusahaan / Instansi</label>
+                    <div class="input-group">
+                        <div class="input-group-text"><i class="fas fa-building"></i></div>
+                        <input type="text" class="input" name="companyName" id="companyName" placeholder="Opsional jika bekerja">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Jabatan</label>
+                    <div class="input-group">
+                        <div class="input-group-text"><i class="fas fa-briefcase"></i></div>
+                        <input type="text" class="input" name="position" placeholder="Posisi saat ini">
+                    </div>
+                </div>
+            </div>
+
+            <div id="section-asesor" style="display: none;">
+                <div class="section-title">Data Asesor</div>
+                
+                <div class="form-group">
+                    <label>No. Registrasi MET<span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <div class="input-group-text"><i class="fas fa-certificate"></i></div>
+                        <input type="text" class="input" name="noMet" id="noMet" placeholder="Nomor MET BNSP">
+                    </div>
+                    <div class="invalid-feedback">No MET wajib diisi untuk Asesor</div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit">Daftar Sekarang</button>
+            
+            <p class="text-center mt-3" style="font-size: 0.9rem;">
+                Sudah punya akun? <a th:href="@{/login}" style="color: #1f71c3; font-weight: bold;">Masuk disini</a>
+            </p>
+
+          </form>
         </div>
       </div>
     </div>
+
+    <script th:src="@{/plugins/jquery/jquery.min.js}"></script>
+    <script th:src="@{/plugins/sweetalert2/sweetalert2.min.js}"></script>
     <script th:src="@{/dist/js/register.js}"></script>
   </body>
-</html>  -->
-
+</html> -->
 
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SILSP | Masuk</title>
-
-    <link
-      rel="shortcut icon"
-      th:href="@{/dist/img/favicon2.ico}"
-      type="image/x-icon"
-    />
+    <title>SILSP | Registrasi Akun</title>
     <link
       rel="stylesheet"
       th:href="@{/plugins/fontawesome-free/css/all.min.css}"
+    />
+    <link
+      rel="stylesheet"
+      th:href="@{/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css}"
     />
     <link rel="stylesheet" th:href="@{/dist/css/register.css}" />
   </head>
   <body>
     <div class="container">
       <div class="row">
-        <!-- <div class="col-left">
-          <div class="banner">
-            <img th:src="@{/dist/img/LogoLSP.png}" alt="Banner" />
-            <h3>LSP Teknologi Data Digital Indonesia</h3>
+        <div class="col-form">
+          <div class="header mb-4 text-center">
+            <img
+              th:src="@{/dist/img/LogoLSP2.png}"
+              alt="Logo LSP"
+              width="80"
+              class="mb-3"
+            />
+            <h2 style="color: #333; font-weight: 700">Buat Akun Baru</h2>
+            <p class="text-muted">
+              Lengkapi formulir di bawah ini untuk mendaftar
+            </p>
           </div>
-        </div> -->
 
-        <!-- <div class="col-right"> -->
-          <div class="card-header">
-            <h1>Selamat Datang</h1>
-            <p>Silakan masuk ke akun Anda</p>
-          </div>
+          <form
+            id="registerForm"
+            th:action="@{/register}"
+            method="post"
+            novalidate
+          >
+            <div class="section-title">Data Akun</div>
 
-          <form th:action="@{/login}" method="post" id="loginForm" novalidate>
-            
             <div class="form-group">
-              <label for="username">Username atau Email<span class="text-danger">*</span></label>
-              
+              <label
+                >Pilih Peran (Role)<span class="text-danger">*</span></label
+              >
               <div class="input-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text">
-                    <i class="fas fa-envelope"></i>
-                  </span>
-                </div>
+                <!-- <div class="input-group-text">
+                  <i class="fas fa-user-tag"></i>
+                </div> -->
+                <select class="input" name="role" id="roleSelect" required>
+                  <option value="" disabled selected>-- Pilih Peran --</option>
+                  <option value="Asesi">Asesi</option>
+                  <option value="Asesor">Asesor</option>
+                </select>
+              </div>
+              <div class="invalid-feedback">Pilih peran anda</div>
+            </div>
+
+            <div class="form-group">
+              <label>Username<span class="text-danger">*</span></label>
+              <div class="input-group">
+                <div class="input-group-text"><i class="fas fa-user"></i></div>
                 <input
-                  class="input form-control"
                   type="text"
+                  class="input"
                   name="username"
                   id="username"
-                  placeholder="Username | Email"
+                  placeholder="Buat username unik"
                   required
-                  autofocus
                 />
               </div>
-              <div class="invalid-feedback">
-                Isi Email atau Username!
-              </div>
+              <div class="invalid-feedback">Username wajib diisi</div>
             </div>
 
             <div class="form-group">
-              <label for="password">Kata Sandi<span class="text-danger">*</span></label>
-              
+              <label>Email<span class="text-danger">*</span></label>
               <div class="input-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text">
-                    <i class="fas fa-lock"></i>
-                  </span>
+                <div class="input-group-text">
+                  <i class="fas fa-envelope"></i>
                 </div>
                 <input
-                  class="input form-control"
-                  type="password"
-                  name="password"
-                  id="password"
-                  placeholder="password"
+                  type="email"
+                  class="input"
+                  name="email"
+                  id="email"
+                  placeholder="contoh@email.com"
                   required
                 />
-                <div class="input-group-append" style="cursor: pointer;" onclick="togglePassword()">
-                  <span class="input-group-text toggle-password">
-                    <i id="eyeIcon" class="fas fa-eye-slash"></i>
-                  </span>
+              </div>
+              <div class="invalid-feedback">Format email tidak valid</div>
+            </div>
+
+            <div class="form-group">
+              <label>Password<span class="text-danger">*</span></label>
+              <div class="input-group">
+                <div class="input-group-text"><i class="fas fa-lock"></i></div>
+                <input
+                  type="password"
+                  class="input"
+                  name="password"
+                  id="password"
+                  placeholder="Minimal 6 karakter"
+                  required
+                />
+              </div>
+              <div class="invalid-feedback">Password minimal 6 karakter</div>
+            </div>
+
+            <div class="section-title">Data Pribadi</div>
+
+            <div class="form-group">
+              <label>Nama Lengkap<span class="text-danger">*</span></label>
+              <div class="input-group">
+                <div class="input-group-text">
+                  <i class="fas fa-id-card"></i>
+                </div>
+                <input
+                  type="text"
+                  class="input"
+                  name="fullName"
+                  id="fullName"
+                  placeholder="Sesuai KTP"
+                  required
+                />
+              </div>
+              <div class="invalid-feedback">Nama lengkap wajib diisi</div>
+            </div>
+
+            <div class="form-group">
+              <label>No. Telepon / WA<span class="text-danger">*</span></label>
+              <div class="input-group">
+                <div class="input-group-text"><i class="fas fa-phone"></i></div>
+                <input
+                  type="number"
+                  class="input"
+                  name="phoneNumber"
+                  id="phoneNumber"
+                  placeholder="08..."
+                  required
+                />
+              </div>
+              <div class="invalid-feedback">No Telepon wajib diisi</div>
+            </div>
+
+            <div id="section-asesi" style="display: none">
+              <div class="section-title">Data Pekerjaan (Asesi)</div>
+
+              <div class="form-group">
+                <label>Nama Perusahaan / Instansi</label>
+                <div class="input-group">
+                  <div class="input-group-text">
+                    <i class="fas fa-building"></i>
+                  </div>
+                  <input
+                    type="text"
+                    class="input"
+                    name="companyName"
+                    id="companyName"
+                    placeholder="Opsional jika bekerja"
+                  />
                 </div>
               </div>
-              <div class="invalid-feedback">
-                Isi Kata Sandi!
+
+              <div class="form-group">
+                <label>Jabatan</label>
+                <div class="input-group">
+                  <div class="input-group-text">
+                    <i class="fas fa-briefcase"></i>
+                  </div>
+                  <input
+                    type="text"
+                    class="input"
+                    name="position"
+                    placeholder="Posisi saat ini"
+                  />
+                </div>
               </div>
             </div>
 
-            <div class="form-row-actions">
-                <div class="remember-me">
-                    <input type="checkbox" id="remember" name="remember-me">
-                    <label for="remember">Remember Me</label>
+            <div id="section-asesor" style="display: none">
+              <div class="section-title">Data Asesor</div>
+
+              <div class="form-group">
+                <label
+                  >No. Registrasi MET<span class="text-danger">*</span></label
+                >
+                <div class="input-group">
+                  <div class="input-group-text">
+                    <i class="fas fa-certificate"></i>
+                  </div>
+                  <input
+                    type="text"
+                    class="input"
+                    name="noMet"
+                    id="noMet"
+                    placeholder="Nomor MET BNSP"
+                  />
                 </div>
-                <div class="forgot-password">
-                    <a href="#">Lupa Kata Sandi ?</a>
+                <div class="invalid-feedback">
+                  No MET wajib diisi untuk Asesor
                 </div>
+              </div>
             </div>
 
-            <div class="form-group" style="margin-top: 2rem">
-              <button type="submit" class="btn-login">Masuk</button>
-            </div>
+            <button type="submit" class="btn-submit">Daftar Sekarang</button>
 
-            <span class="register-link">
-              <button type="button" class="btn-register" onclick="window.location.href='/register'">Registrasi</button>
-            </span>
+            <p class="text-center mt-3" style="font-size: 0.9rem">
+              Sudah punya akun?
+              <a th:href="@{/login}" style="color: #1f71c3; font-weight: bold"
+                >Masuk disini</a
+              >
+            </p>
           </form>
-        <!-- </div> -->
+        </div>
       </div>
     </div>
-    
+
     <script th:src="@{/plugins/jquery/jquery.min.js}"></script>
-    <script th:src="@{/dist/js/login.js}"></script>
+    <script th:src="@{/plugins/sweetalert2/sweetalert2.min.js}"></script>
+    <script th:src="@{/dist/js/register.js}"></script>
   </body>
 </html>

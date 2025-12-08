@@ -12,5 +12,6 @@ public class RefSchemaType {
     private Long id;
 
     @Column(nullable = false, unique = true)
+    // @Column(name = "name_skema", nullable = false, unique = true) // Tambah nama kolom
     private String name; // Contoh: KKNI, OKUPASI, KLASTER
 }

@@ -72,6 +72,9 @@ public class LoginController {
     public ResponseEntity<?> registerProcess(@ModelAttribute RegisterDto dto) {
         try {
             // A. Validasi Server Side (Double Protection)
+            if (dto.getRoles() == null || dto.getRoles().isEmpty()) {
+                return ResponseEntity.badRequest().body("{\"status\":\"error\", \"message\":\"Role wajib dipilih!\"}");
+            }
             if (userRepository.existsByUsername(dto.getUsername())) {
                 return ResponseEntity.badRequest()
                         .body("{\"status\":\"error\", \"message\":\"Username sudah digunakan!\"}");
@@ -123,12 +126,18 @@ public class LoginController {
                 user.setNoMet("MET." + dto.getNoMet());
             }
 
-            // Relasi
-            if (user.getEducationId() != null) {
-                user.setEducationId(educationRepository.findById(dto.getEducationId()).orElse(null));
+            // A. Pendidikan Terakhir (Semua Role)
+            if (dto.getEducationId() != null) {
+                RefEducation edu = educationRepository.findById(dto.getEducationId())
+                        .orElse(null); // Jika ID tidak valid, set null atau throw error
+                user.setEducationId(edu);
             }
-            if (user.getJobTypeId() != null) {
-                user.setJobTypeId(jobTypeRepository.findById(dto.getJobTypeId()).orElse(null));
+
+            // B. Jenis Pekerjaan (Khusus Asesor)
+            if ("Asesor".equals(roleName) && dto.getJobTypeId() != null) {
+                RefJobType job = jobTypeRepository.findById(dto.getJobTypeId())
+                        .orElse(null);
+                user.setJobTypeId(job);
             }
 
             // Relasi (Pastikan repository dipanggil jika perlu logic ambil object)

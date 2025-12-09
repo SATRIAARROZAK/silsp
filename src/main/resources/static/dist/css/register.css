@@ -64,7 +64,7 @@ body {
   display: block;
   font-size: 0.9rem;
 }
-
+/* 
 .input-group {
   display: flex;
   width: 100%;
@@ -89,7 +89,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-}
+} */
 
 .input {
   flex: 1;

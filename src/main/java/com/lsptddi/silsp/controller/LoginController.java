@@ -1,10 +1,34 @@
 package com.lsptddi.silsp.controller;
 
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
+
+import com.lsptddi.silsp.dto.RegisterDto;
+import com.lsptddi.silsp.model.*;
+import com.lsptddi.silsp.repository.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
+// import org.springframework.stereotype.Controller;
+// import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Collections;
+import java.util.HashSet;
 
 @Controller
 public class LoginController {
+
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private RoleRepository roleRepository;
+    @Autowired
+    private RefEducationRepository educationRepository;
+    @Autowired
+    private RefJobTypeRepository jobTypeRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     /**
      * Menampilkan halaman login kustom.
@@ -27,7 +51,99 @@ public class LoginController {
     public String registerPage() {
         return "register";
     }
-    // ----------------------------
+
+    // 2. API CEK DUPLIKAT (Untuk Validasi Realtime JS)
+    @GetMapping("/api/check-duplicate")
+    @ResponseBody
+    public ResponseEntity<?> checkDuplicate(@RequestParam(required = false) String username,
+            @RequestParam(required = false) String email) {
+        if (username != null && userRepository.existsByUsername(username)) {
+            return ResponseEntity.ok(false); // Ada duplikat -> Invalid
+        }
+        if (email != null && userRepository.existsByEmail(email)) {
+            return ResponseEntity.ok(false); // Ada duplikat -> Invalid
+        }
+        return ResponseEntity.ok(true); // Aman -> Valid
+    }
+
+    // 3. PROSES REGISTRASI (POST)
+    @PostMapping("/register")
+    @ResponseBody
+    public ResponseEntity<?> registerProcess(@ModelAttribute RegisterDto dto) {
+        try {
+            // A. Validasi Server Side (Double Protection)
+            if (userRepository.existsByUsername(dto.getUsername())) {
+                return ResponseEntity.badRequest()
+                        .body("{\"status\":\"error\", \"message\":\"Username sudah digunakan!\"}");
+            }
+            if (userRepository.existsByEmail(dto.getEmail())) {
+                return ResponseEntity.badRequest()
+                        .body("{\"status\":\"error\", \"message\":\"Email sudah digunakan!\"}");
+            }
+
+            // B. Mapping DTO ke Entity User
+            User user = new User();
+            user.setUsername(dto.getUsername());
+            user.setEmail(dto.getEmail());
+            // Enkripsi Password (Super Aman)
+            user.setPassword(passwordEncoder.encode(dto.getPassword()));
+
+            // Set Role
+            Role userRole = roleRepository.findByName(dto.getRoles().toUpperCase())
+                    .orElseThrow(() -> new RuntimeException("Role tidak ditemukan"));
+            user.setRoles(new HashSet<>(Collections.singletonList(userRole)));
+
+            // Data Pribadi
+            user.setFullName(dto.getFullName());
+            user.setNik(dto.getNik());
+            user.setBirthPlace(dto.getBirthPlace());
+            user.setBirthDate(dto.getBirthDate());
+            user.setGender(dto.getGender());
+            user.setCitizenship(dto.getCitizenship());
+            user.setPhoneNumber(dto.getPhoneNumber());
+
+            // LOGIKA NO. MET (Khusus Asesor)
+            // Format: "MET." + Input User
+            if ("Asesor".equalsIgnoreCase(dto.getRoles()) && dto.getNoMet() != null) {
+                user.setNoMet("MET." + dto.getNoMet());
+            }
+
+            // Relasi
+            if (user.getEducationId() != null) {
+                user.setEducationId(educationRepository.findById(dto.getEducationId()).orElse(null));
+            }
+            if (user.getJobTypeId() != null) {
+                user.setJobTypeId(jobTypeRepository.findById(dto.getJobTypeId()).orElse(null));
+            }
+
+            // Relasi (Pastikan repository dipanggil jika perlu logic ambil object)
+            // Disini diasumsikan user entity menyimpan ID atau object relasi
+            // user.setLastEducation(...);
+            // user.setJobType(...);
+
+            // Wilayah
+            user.setProvinceId(dto.getProvinceId());
+            user.setCityId(dto.getCityId());
+            user.setDistrictId(dto.getDistrictId());
+            user.setSubDistrictId(dto.getSubDistrictId());
+            user.setPostalCode(dto.getPostalCode());
+            user.setAddress(dto.getAddress());
+
+            // Tanda Tangan
+            user.setSignatureBase64(dto.getSignatureBase64());
+
+            // Simpan
+            userRepository.save(user);
+
+            return ResponseEntity.ok()
+                    .body("{\"status\":\"success\", \"message\":\"Registrasi Berhasil! Silakan Login.\"}");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest()
+                    .body("{\"status\":\"error\", \"message\":\"Gagal Mendaftar: " + e.getMessage() + "\"}");
+        }
+    }
 
     /**
      * (Opsional) Mengarahkan halaman root ("/") ke halaman login.

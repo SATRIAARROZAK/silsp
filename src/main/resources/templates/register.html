@@ -8,17 +8,35 @@
       rel="stylesheet"
       th:href="@{/plugins/fontawesome-free/css/all.min.css}"
     />
-    <link rel="stylesheet" th:href="@{/plugins/select2/css/select2.min.css}" />
-    <link
-      rel="stylesheet"
-      th:href="@{/plugins/select2-theme-bootstrap4/select2-bootstrap4.min.css}"
-    />
     <link
       rel="stylesheet"
       th:href="@{/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css}"
     />
-    <link rel="stylesheet" th:href="@{/dist/css/register.css}" />
+
+    <!-- Select2 -->
+    <link rel="stylesheet" th:href="@{/plugins/select2/css/select2.min.css}" />
+    <link
+      rel="stylesheet"
+      th:href="@{/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css}"
+    />
     <link rel="stylesheet" th:href="@{/dist/css/adminlte.min.css}" />
+    <link rel="stylesheet" th:href="@{/dist/css/register.css}" />
+
+    <style>
+      .is-invalid-border {
+        border-color: #dc3545 !important;
+      }
+      .invalid-feedback {
+        display: none;
+        width: 100%;
+        margin-top: 0.25rem;
+        font-size: 80%;
+        color: #dc3545;
+      }
+      .is-invalid ~ .invalid-feedback {
+        display: block;
+      }
+    </style>
   </head>
   <body>
     <div class="container">
@@ -34,28 +52,21 @@
           <p class="text-muted">Lengkapi formulir di bawah ini</p>
         </div>
 
-        <form
-          id="registerForm"
-          th:action="@{/register}"
-          method="post"
-          novalidate
-        >
+        <form id="registerForm" th:action="@{/register}" method="post">
           <div class="separator">
             <span class="separator-text">Data Akun</span>
           </div>
           <div class="row">
             <div class="col-md-12">
               <div class="form-group">
-                <label>Role<span class="text-danger">*</span></label>
+                <label>Role <span class="text-danger">*</span></label>
                 <select
-                  class="form-control"
+                  class="form-control select2"
                   id="roleSelect"
                   name="roles"
-                  data-placeholder="Pilih Role"
                   style="width: 100%"
                   required
                 >
-                  <option value="" disabled selected>-- Pilih Peran --</option>
                   <option value="Asesi">Asesi</option>
                   <option value="Asesor">Asesor</option>
                 </select>
@@ -72,7 +83,6 @@
                   name="username"
                   required
                   autocomplete="off"
-                  autofocus
                 />
               </div>
             </div>
@@ -90,276 +100,302 @@
             </div>
           </div>
 
-          <div class="separator">
-            <span class="separator-text">Data Pribadi</span>
-          </div>
-          <div class="row">
-            <div class="col-md-12">
-              <div class="form-group">
-                <label>Nama Lengkap<span class="text-danger">*</span></label>
-                <input
-                  type="text"
-                  class="form-control"
-                  name="fullName"
-                  required
-                />
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label>NIK<span class="text-danger">*</span></label>
-                <input type="text" class="form-control" name="nik" required />
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label>Tempat Lahir<span class="text-danger">*</span></label>
-                <input
-                  type="text"
-                  class="form-control"
-                  name="birthPlace"
-                  required
-                />
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label>Tanggal Lahir<span class="text-danger">*</span></label>
-                <input
-                  type="date"
-                  class="form-control"
-                  name="birthDate"
-                  required
-                />
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label>Jenis Kelamin<span class="text-danger">*</span></label>
-                <select class="form-control" name="gender" required>
-                  <option value="" disabled selected>
-                    ---Pilih Jenis Kelamin---
-                  </option>
-                  <option value="L">Laki-laki</option>
-                  <option value="P">Perempuan</option>
-                </select>
-              </div>
+          <div id="wrapperDataPribadi">
+            <div class="separator">
+              <span class="separator-text">Data Pribadi</span>
             </div>
 
-            <div class="col-md-6">
-              <div class="form-group">
-                <label>Kewarganegaraan<span class="text-danger">*</span></label>
-                <input
-                  type="text"
-                  class="form-control"
-                  name="citizenship"
-                  required
-                />
-              </div>
-            </div>
-
-            <div class="col-md-6">
-              <div class="form-group">
-                <label>No. MET<span class="text-danger">*</span></label>
-                <div class="input-group">
-                  <div class="input-group-append">
-                    <span class="input-group-text">MET.</span>
-                  </div>
+            <div class="row">
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label>Nama Lengkap <span class="text-danger">*</span></label>
                   <input
                     type="text"
                     class="form-control"
-                    name="noMet"
+                    name="fullName"
                     required
                   />
                 </div>
               </div>
-            </div>
-
-            <div class="col-md-6">
-              <div class="form-group">
-                <label>No Telepon<span class="text-danger">*</span></label>
-                <input
-                  type="text"
-                  class="form-control"
-                  name="phoneNumber"
-                  required
-                />
-              </div>
-            </div>
-
-            <div class="col-md-6">
-              <div class="form-group">
-                <label
-                  >Pendidikan Terakhir<span class="text-danger">*</span></label
-                >
-                <select
-                  class="form-control"
-                  name="lastEducation"
-                  style="width: 100%"
-                  id="selectPendidikan"
-                  required
-                >
-                  <option value="" disabled selected>
-                    ---Pilih Pendidikan Terakhir---
-                  </option>
-                </select>
-                <input type="hidden" name="educationId" id="inputPendidikan" />
-              </div>
-            </div>
-
-            <div class="col-md-6">
-              <div class="form-group">
-                <label
-                  >Jenis Pekerjaan <span class="text-danger">*</span></label
-                >
-                <select
-                  class="form-control select2"
-                  id="selectPekerjaan"
-                  name="jobType"
-                  style="width: 100%"
-                  required
-                >
-                  <option value="" disabled selected>Pilih Pekerjaan...</option>
-                </select>
-                <input type="hidden" name="jobTypeId" id="inputPekerjaan" />
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group">
-                <label>Provinsi</label>
-                <select
-                  class="form-control select2"
-                  style="width: 100%"
-                  name="province"
-                  id="selectProvinsi"
-                  required
-                ></select>
-                <input type="hidden" name="provinceId" id="inputProvinsi" />
-              </div>
-            </div>
-
-            <div class="col-md-6">
-              <div class="form-group">
-                <label>Kota/Kabupaten</label>
-                <select
-                  class="form-control select2"
-                  style="width: 100%"
-                  name="city"
-                  id="selectKota"
-                  disabled
-                  required
-                ></select>
-                <input type="hidden" name="cityId" id="inputKota" />
-              </div>
-            </div>
-
-            <div class="col-md-6">
-              <div class="form-group">
-                <label>Kecamatan</label>
-                <select
-                  class="form-control select2"
-                  style="width: 100%"
-                  id="selectKecamatan"
-                  name="district"
-                  required
-                  disabled
-                ></select>
-                <input type="hidden" name="districtId" id="inputKecamatan" />
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label>Kode Pos<span class="text-danger">*</span></label>
-                <input
-                  type="text"
-                  class="form-control"
-                  name="postalCode"
-                  required
-                />
-              </div>
-            </div>
-
-            <div class="col-md-12">
-              <div class="form-group">
-                <label>Alamat Jalan<span class="text-danger">*</span></label>
-                <textarea
-                  class="form-control"
-                  name="address"
-                  rows="2"
-                  required
-                ></textarea>
-              </div>
-            </div>
-          </div>
-          <div class="row mt-2">
-            <div class="col-md-6">
-              <div class="form-group">
-                <label>Kata Sandi<span class="text-danger">*</span></label>
-                <button
-                  type="button"
-                  class="btn btn-outline-secondary btn-block"
-                  data-toggle="modal"
-                  data-target="#modalPassword"
-                >
-                  <i class="fas fa-lock mr-2"></i> Buat Kata Sandi
-                </button>
-                <input
-                  type="hidden"
-                  name="password"
-                  id="realPassword"
-                  required
-                />
-                <div
-                  class="invalid-feedback d-block"
-                  id="passwordFeedback"
-                  style="display: none !important"
-                >
-                  Kata sandi belum diatur
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>NIK <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" name="nik" required />
                 </div>
-                <small
-                  id="passwordStatus"
-                  class="text-success"
-                  style="display: none"
-                  ><i class="fas fa-check"></i> Kata sandi telah diatur</small
-                >
               </div>
-            </div>
-
-            <div class="col-md-6">
-              <div class="form-group">
-                <label>Tanda Tangan<span class="text-danger">*</span></label>
-                <input
-                  type="hidden"
-                  name="signatureBase64"
-                  id="signatureInput"
-                  required
-                />
-
-                <div id="signaturePreview" class="mb-2" style="display: none">
-                  <img
-                    src=""
-                    id="imgPreview"
-                    style="max-height: 100px; border: 1px dashed #ccc"
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Tempat Lahir <span class="text-danger">*</span></label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="birthPlace"
+                    required
                   />
-                  <p class="text-success small">
-                    <i class="fas fa-check-circle"></i> Tanda tangan tersimpan
-                  </p>
                 </div>
-                <button
-                  type="button"
-                  class="btn btn-outline-primary btn-block"
-                  id="btnTriggerSignature"
-                  data-toggle="modal"
-                  data-target="#modalSignature"
-                >
-                  <i class="fas fa-pen-nib"></i> Masukkan Tanda Tangan
-                </button>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label
+                    >Tanggal Lahir <span class="text-danger">*</span></label
+                  >
+                  <input
+                    type="date"
+                    class="form-control"
+                    name="birthDate"
+                    required
+                  />
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label
+                    >Jenis Kelamin <span class="text-danger">*</span></label
+                  >
+                  <select class="form-control" name="gender" required>
+                    <option value="" disabled selected>
+                      ---Pilih Jenis Kelamin---
+                    </option>
+                    <option value="L">Laki-laki</option>
+                    <option value="P">Perempuan</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-md-6 group-asesi" style="display: none">
+                <div class="form-group">
+                  <label
+                    >Kewarganegaraan <span class="text-danger">*</span></label
+                  >
+                  <input type="text" class="form-control" name="citizenship" />
+                </div>
+              </div>
+
+              <div class="col-md-6 group-asesor" style="display: none">
+                <div class="form-group">
+                  <label>No. MET<span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <div class="input-group-append">
+                      <span class="input-group-text">MET.</span>
+                    </div>
+                    <input
+                      type="text"
+                      class="form-control"
+                      name="noMet"
+                      placeholder="000.002591 2024"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- <div class="col-md-6 group-asesor" style="display: none">
+                <div class="form-group">
+                  <div class="input-group">
+                    <label>No. MET <span class="text-danger">*</span></label>
+                    <div class="input-group-prepend">
+                      <span class="input-group-text">MET.</span>
+                    </div>
+                    <input
+                      type="text"
+                      class="form-control"
+                      name="noMet"
+                      placeholder="000.002591 2024"
+                    />
+                  </div>
+                </div>
+              </div> -->
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>No Telepon <span class="text-danger">*</span></label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="phoneNumber"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label
+                    >Pendidikan Terakhir
+                    <span class="text-danger">*</span></label
+                  >
+
+                  <select
+                    class="form-control"
+                    id="selectPendidikan"
+                    name="educationId"
+                    style="width: 100%"
+                    required
+                  >
+                    <option value="" disabled selected>Loading...</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-md-6 group-asesor" style="display: none">
+                <div class="form-group">
+                  <label
+                    >Jenis Pekerjaan <span class="text-danger">*</span></label
+                  >
+                  <select
+                    class="form-control select2"
+                    id="selectPekerjaan"
+                    name="jobTypeId"
+                    style="width: 100%"
+                  >
+                    <option value="" disabled selected>
+                      Pilih Pekerjaan...
+                    </option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Provinsi <span class="text-danger">*</span></label>
+                  <select
+                    class="form-control select2"
+                    style="width: 100%"
+                    name="province"
+                    id="selectProvinsi"
+                    required
+                  ></select>
+                  <!-- <select class="form-control select2" id="selectProvinsi" name="province" style="width: 100%" required></select> -->
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label
+                    >Kota/Kabupaten <span class="text-danger">*</span></label
+                  >
+                  <select
+                    class="form-control select2"
+                    id="selectKota"
+                    name="cityId"
+                    style="width: 100%"
+                    disabled
+                    required
+                  ></select>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Kecamatan <span class="text-danger">*</span></label>
+                  <select
+                    class="form-control select2"
+                    id="selectKecamatan"
+                    name="districtId"
+                    style="width: 100%"
+                    disabled
+                    required
+                  ></select>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Kelurahan <span class="text-danger">*</span></label>
+                  <select
+                    class="form-control select2"
+                    id="selectKelurahan"
+                    name="subDistrictId"
+                    style="width: 100%"
+                    disabled
+                    required
+                  ></select>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Kode Pos <span class="text-danger">*</span></label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="postalCode"
+                    required
+                  />
+                </div>
+              </div>
+              <div class="col-md-12">
+                <div class="form-group">
+                  <label>Alamat Jalan <span class="text-danger">*</span></label>
+                  <textarea
+                    class="form-control"
+                    name="address"
+                    rows="2"
+                    required
+                  ></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="row mt-2">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Kata Sandi <span class="text-danger">*</span></label>
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary btn-block"
+                    data-toggle="modal"
+                    data-target="#modalPassword"
+                  >
+                    <i class="fas fa-lock mr-2"></i> Buat Kata Sandi
+                  </button>
+                  <input
+                    type="hidden"
+                    name="password"
+                    id="realPassword"
+                    required
+                  />
+                  <small id="passwordStatus" class="text-danger d-none"
+                    >Kata sandi belum diatur!</small
+                  >
+                  <small id="passwordSuccess" class="text-success d-none"
+                    ><i class="fas fa-check"></i> Kata sandi siap</small
+                  >
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Tanda Tangan <span class="text-danger">*</span></label>
+                  <input
+                    type="hidden"
+                    name="signatureBase64"
+                    id="signatureInput"
+                    required
+                  />
+
+                  <div id="signaturePreview" class="mb-2" style="display: none">
+                    <img
+                      src=""
+                      id="imgPreview"
+                      style="max-height: 100px; border: 1px dashed #ccc"
+                    />
+                    <p class="text-success small">
+                      <i class="fas fa-check-circle"></i> Tanda tangan tersimpan
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    class="btn btn-outline-primary btn-block"
+                    id="btnTriggerSignature"
+                    data-toggle="modal"
+                    data-target="#modalSignature"
+                  >
+                    <i class="fas fa-pen-nib"></i> Masukkan Tanda Tangan
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-
           <button type="submit" class="btn-submit">Daftar Sekarang</button>
 
           <p class="text-center mt-3" style="font-size: 0.9rem">
@@ -369,82 +405,6 @@
             >
           </p>
         </form>
-        <div
-          class="modal fade"
-          id="modalSignature"
-          tabindex="-1"
-          role="dialog"
-          aria-labelledby="modalSigLabel"
-          data-backdrop="static"
-        >
-          <div
-            class="modal-dialog modal-dialog-centered modal-lg"
-            role="document"
-          >
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="modalSigLabel">Tanda Tangan</h5>
-                <button
-                  type="button"
-                  class="close"
-                  data-dismiss="modal"
-                  aria-label="Close"
-                >
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <div class="modal-body text-center">
-                <div class="signature-wrapper">
-                  <canvas
-                    id="signature-canvas"
-                    style="width: 100%; height: 100%; display: block"
-                  ></canvas>
-                  <div
-                    class="text-muted small text-center"
-                    style="
-                      position: absolute;
-                      bottom: 10px;
-                      width: 100%;
-                      pointer-events: none;
-                      opacity: 0.5;
-                    "
-                  >
-                    Area Tanda Tangan
-                  </div>
-                </div>
-
-                <input type="file" id="uploadSigFile" accept="image/png" />
-              </div>
-              <div class="modal-footer justify-content-center">
-                <button
-                  type="button"
-                  class="btn btn-default"
-                  data-dismiss="modal"
-                >
-                  Batal
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-outline-danger"
-                  id="btnClear"
-                >
-                  Hapus Kanvas
-                </button>
-
-                <button type="button" class="btn btn-success" id="btnUpload">
-                  Upload Signature
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-danger"
-                  id="btnSaveSignature"
-                >
-                  Simpan
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -462,7 +422,7 @@
           </div>
           <div class="modal-body">
             <div class="form-group">
-              <label>Masukan Kata Sandi</label>
+              <label>Masukan Kata Sandi (Min. 8 Karakter)</label>
               <input type="password" class="form-control" id="modalPass1" />
             </div>
             <div class="form-group">
@@ -474,6 +434,13 @@
             </div>
           </div>
           <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              Batal
+            </button>
             <button type="button" class="btn btn-primary" id="savePassword">
               Simpan
             </button>
@@ -482,11 +449,61 @@
       </div>
     </div>
 
+    <div
+      class="modal fade"
+      id="modalSignature"
+      tabindex="-1"
+      role="dialog"
+      data-backdrop="static"
+    >
+      <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Tanda Tangan</h5>
+            <button type="button" class="close" data-dismiss="modal">
+              <span>&times;</span>
+            </button>
+          </div>
+          <div class="modal-body text-center">
+            <div class="signature-wrapper">
+              <canvas
+                id="signature-canvas"
+                style="width: 100%; height: 100%; display: block"
+              ></canvas>
+            </div>
+            <input
+              type="file"
+              id="uploadSigFile"
+              accept="image/png"
+              style="display: none"
+            />
+          </div>
+          <div class="modal-footer justify-content-center">
+            <button type="button" class="btn btn-default" data-dismiss="modal">
+              Batal
+            </button>
+            <button type="button" class="btn btn-outline-danger" id="btnClear">
+              Hapus
+            </button>
+            <button type="button" class="btn btn-success" id="btnUpload">
+              Upload PNG
+            </button>
+            <button type="button" class="btn btn-danger" id="btnSaveSignature">
+              Simpan
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script th:src="@{/plugins/jquery/jquery.min.js}"></script>
-    <script th:src="@{/dist/js/adminlte.js}"></script>
     <script th:src="@{/plugins/bootstrap/js/bootstrap.bundle.min.js}"></script>
+    <script th:src="@{/plugins/select2/js/select2.full.min.js}"></script>
     <script th:src="@{/plugins/sweetalert2/sweetalert2.min.js}"></script>
-    <script th:src="@{/dist/js/register.js}"></script>
+    <script
+      th:src="@{/plugins/jquery-validation/jquery.validate.min.js}"
+    ></script>
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+    <script th:src="@{/dist/js/register.js}"></script>
   </body>
 </html>

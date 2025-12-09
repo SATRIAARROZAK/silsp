@@ -88,10 +88,25 @@ public class LoginController {
             // Enkripsi Password (Super Aman)
             user.setPassword(passwordEncoder.encode(dto.getPassword()));
 
-            // Set Role
-            Role userRole = roleRepository.findByName(dto.getRoles().toUpperCase())
-                    .orElseThrow(() -> new RuntimeException("Role tidak ditemukan"));
+            // // Set Role
+            // Role userRole = roleRepository.findByName(dto.getRoles().toUpperCase())
+            // .orElseThrow(() -> new RuntimeException("Role tidak ditemukan"));
+            // user.setRoles(new HashSet<>(Collections.singletonList(userRole)));
+
+            // ------------------------------------------------------------------
+            // PERBAIKAN UTAMA: ROLE SENSITIVITY
+            // ------------------------------------------------------------------
+            // Hapus .toUpperCase(). Kita gunakan input mentah dari HTML ("Asesi"/"Asesor")
+            // Pastikan di database tabel 'roles' isinya: "Asesi" dan "Asesor" (bukan
+            // ASESI/ASESOR)
+            String roleName = dto.getRoles();
+
+            Role userRole = roleRepository.findByName(roleName)
+                    .orElseThrow(() -> new RuntimeException("Role '" + roleName
+                            + "' tidak ditemukan di Database. Pastikan Master Data Role sudah diisi dengan benar (Asesi/Asesor)."));
+
             user.setRoles(new HashSet<>(Collections.singletonList(userRole)));
+            // ------------------------------------------------------------------
 
             // Data Pribadi
             user.setFullName(dto.getFullName());

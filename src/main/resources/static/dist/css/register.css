@@ -7,7 +7,12 @@
 
 body {
   font-family: "Source Sans Pro", sans-serif;
-  background-color: #e9ecef;
+  /* background: #FF3E54; */
+  background: linear-gradient(
+    308deg,
+    rgba(255, 62, 84, 1) 32%,
+    rgba(14, 31, 81, 1) 65%
+  );
 }
 
 .container {
@@ -22,7 +27,7 @@ body {
 /* CARD CONTAINER */
 .card-register {
   width: 100%;
-  max-width: 600px; /* Lebar ditambah untuk 2 kolom */
+  max-width: 750px; /* Lebar ditambah untuk 2 kolom */
   background: white;
   border-radius: 10px;
   overflow: hidden; /* Hapus scrollbar internal */
@@ -30,7 +35,6 @@ body {
   margin: 0 auto;
   padding: 40px;
 }
-
 
 .header-register {
   text-align: center;
@@ -113,7 +117,7 @@ body {
 
 /* Buttons */
 .btn-submit {
-  background-color: #b86363;
+  background-color: #0E1F51;
   color: white;
   border: none;
   padding: 12px;
@@ -126,7 +130,7 @@ body {
   transition: background 0.3s;
 }
 .btn-submit:hover {
-  background-color: #a35555;
+  background-color: #FF3E54;
 }
 /* Wrapper canvas agar ukurannya pas dan responsive */
 .signature-wrapper {

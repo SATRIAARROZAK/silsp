@@ -154,7 +154,7 @@ body {
 
 /* --- BUTTONS --- */
 .btn-login {
-  background-color: var(--btn-regist);
+  background-color: #0E1F51;
   color: white;
   border: none;
   padding: 8px;
@@ -168,10 +168,11 @@ body {
 
 .btn-login:hover {
   opacity: 0.9;
+  background-color: #FF3E54;
 }
 
 .btn-register {
-    background-color: white;
+    background-color: #FF3E54;
     color: #333;
     border: 1px solid #ddd;
     padding: 8px;

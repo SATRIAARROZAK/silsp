@@ -216,10 +216,11 @@ public class LoginController {
             String subject = "Permintaan Reset Password - SILSP";
             String body = "Halo " + user.getFullName() + ",\n\n" +
                     "Kami menerima permintaan untuk mereset kata sandi akun Anda.\n" +
-                    "Silakan klik tautan di bawah ini untuk membuat kata sandi baru:\n\n" +
-                    resetLink + "\n\n" +
-                    "Tautan ini akan kedaluwarsa dalam 30 menit.\n" +
-                    "Jika Anda tidak meminta ini, abaikan email ini.";
+                    "Silakan klik tautan di bawah ini untuk membuat kata sandi baru:\n" +
+                    resetLink + "\n\n\n" +
+                    
+                    "Admin\n"+
+                    "LSP Teknologi Data Digital Indonesia";
 
             emailService.sendEmail(user.getEmail(), subject, body);
         }

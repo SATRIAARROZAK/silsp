@@ -56,7 +56,7 @@ public class SecurityConfig {
                                 .authorizeHttpRequests((requests) -> requests
                                                 // Halaman yang boleh diakses SIAPA SAJA (Tanpa Login)
                                                 .requestMatchers("/dev/**").permitAll()
-                                                .requestMatchers("/login", "/register", "/assets/**", "/plugins/**",
+                                                .requestMatchers("/login", "/register", "/reset-password","/forgot-password", "/assets/**", "/plugins/**",
                                                                 "/dist/**")
                                                 .permitAll()
 

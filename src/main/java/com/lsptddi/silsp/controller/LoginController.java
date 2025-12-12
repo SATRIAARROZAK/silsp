@@ -5,12 +5,16 @@ import org.springframework.stereotype.Controller;
 import com.lsptddi.silsp.dto.RegisterDto;
 import com.lsptddi.silsp.model.*;
 import com.lsptddi.silsp.repository.*;
+import com.lsptddi.silsp.repository.TokenResetPasswordRepository;
+import com.lsptddi.silsp.service.EmailService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-// import org.springframework.stereotype.Controller;
-// import org.springframework.ui.Model;
+import java.util.UUID;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.ui.Model;
+import com.lsptddi.silsp.model.TokenResetPassword;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -29,6 +33,11 @@ public class LoginController {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private TokenResetPasswordRepository tokenRepository;
+    @Autowired
+    private EmailService emailService;
 
     /**
      * Menampilkan halaman login kustom.
@@ -167,6 +176,99 @@ public class LoginController {
             return ResponseEntity.badRequest()
                     .body("{\"status\":\"error\", \"message\":\"Gagal Mendaftar: " + e.getMessage() + "\"}");
         }
+    }
+
+    // ==========================================
+    // 1. HALAMAN LUPA PASSWORD (GET)
+    // ==========================================
+    @GetMapping("/forgot-password")
+    public String forgotPasswordPage() {
+        return "forgot-password";
+    }
+
+    // ==========================================
+    // 2. PROSES KIRIM EMAIL (POST)
+    // ==========================================
+    @PostMapping("/forgot-password")
+    @ResponseBody // Kita pakai AJAX agar UX bagus
+    public ResponseEntity<?> processForgotPassword(@RequestParam String email, HttpServletRequest request) {
+        // Cari user by Email
+        User user = userRepository.findByEmail(email).orElse(null);
+
+        // SECURITY BEST PRACTICE:
+        // Jika user tidak ditemukan, TETAP return sukses.
+        // Jangan beri tahu hacker bahwa "Email tidak terdaftar".
+        // Tapi kirim email hanya jika user ada.
+
+        if (user != null) {
+            // 1. Buat Token Unik (UUID)
+            String token = UUID.randomUUID().toString();
+
+            // 2. Simpan Token ke Database
+            TokenResetPassword myToken = new TokenResetPassword(token, user);
+            tokenRepository.save(myToken);
+
+            // 3. Buat Link Reset
+            String appUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
+            String resetLink = appUrl + "/reset-password?token=" + token;
+
+            // 4. Kirim Email
+            String subject = "Permintaan Reset Password - SILSP";
+            String body = "Halo " + user.getFullName() + ",\n\n" +
+                    "Kami menerima permintaan untuk mereset kata sandi akun Anda.\n" +
+                    "Silakan klik tautan di bawah ini untuk membuat kata sandi baru:\n\n" +
+                    resetLink + "\n\n" +
+                    "Tautan ini akan kedaluwarsa dalam 30 menit.\n" +
+                    "Jika Anda tidak meminta ini, abaikan email ini.";
+
+            emailService.sendEmail(user.getEmail(), subject, body);
+        }
+
+        return ResponseEntity.ok()
+                .body("{\"status\":\"success\", \"message\":\"Jika email terdaftar, tautan reset telah dikirim.\"}");
+    }
+
+    // ==========================================
+    // 3. HALAMAN RESET PASSWORD (GET - DARI LINK EMAIL)
+    // ==========================================
+    @GetMapping("/reset-password")
+    public String resetPasswordPage(@RequestParam("token") String token, Model model) {
+        // Validasi Token
+        TokenResetPassword passToken = tokenRepository.findByToken(token).orElse(null);
+
+        if (passToken == null || passToken.isExpired()) {
+            model.addAttribute("error", "Token tidak valid atau sudah kedaluwarsa.");
+            return "forgot-password"; // Balik ke halaman lupa password
+        }
+
+        model.addAttribute("token", token);
+        return "reset-password";
+    }
+
+    // ==========================================
+    // 4. PROSES SIMPAN PASSWORD BARU (POST)
+    // ==========================================
+    @PostMapping("/reset-password")
+    @ResponseBody
+    public ResponseEntity<?> processResetPassword(@RequestParam("token") String token,
+            @RequestParam("password") String password) {
+
+        TokenResetPassword passToken = tokenRepository.findByToken(token)
+                .orElseThrow(() -> new RuntimeException("Token invalid"));
+
+        if (passToken.isExpired()) {
+            return ResponseEntity.badRequest().body("{\"status\":\"error\", \"message\":\"Token sudah kedaluwarsa!\"}");
+        }
+
+        // Update Password User
+        User user = passToken.getUser();
+        user.setPassword(passwordEncoder.encode(password));
+        userRepository.save(user);
+
+        // Hapus Token (Agar tidak bisa dipakai lagi - Super Aman)
+        tokenRepository.delete(passToken);
+
+        return ResponseEntity.ok().body("{\"status\":\"success\", \"message\":\"Kata sandi berhasil diubah!\"}");
     }
 
     /**

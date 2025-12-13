@@ -5,7 +5,6 @@ import org.springframework.stereotype.Controller;
 import com.lsptddi.silsp.dto.RegisterDto;
 import com.lsptddi.silsp.model.*;
 import com.lsptddi.silsp.repository.*;
-import com.lsptddi.silsp.repository.TokenResetPasswordRepository;
 import com.lsptddi.silsp.service.EmailService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.UUID;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
-import com.lsptddi.silsp.model.TokenResetPassword;
+import java.util.Optional;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -186,48 +185,82 @@ public class LoginController {
         return "forgot-password";
     }
 
-    // ==========================================
-    // 2. PROSES KIRIM EMAIL (POST)
-    // ==========================================
     @PostMapping("/forgot-password")
-    @ResponseBody // Kita pakai AJAX agar UX bagus
-    public ResponseEntity<?> processForgotPassword(@RequestParam String email, HttpServletRequest request) {
-        // Cari user by Email
+    @ResponseBody
+    public ResponseEntity<?> processForgotPassword(@RequestParam("email") String email, HttpServletRequest request) {
+        // 1. Cari user by Email
         User user = userRepository.findByEmail(email).orElse(null);
 
-        // SECURITY BEST PRACTICE:
-        // Jika user tidak ditemukan, TETAP return sukses.
-        // Jangan beri tahu hacker bahwa "Email tidak terdaftar".
-        // Tapi kirim email hanya jika user ada.
-
         if (user != null) {
-            // 1. Buat Token Unik (UUID)
-            String token = UUID.randomUUID().toString();
+            // FITUR BARU: HAPUS TOKEN LAMA JIKA ADA (Agar bisa request berkali-kali)
+            Optional<TokenResetPassword> oldToken = tokenRepository.findByUser(user);
+            if (oldToken.isPresent()) {
+                tokenRepository.delete(oldToken.get());
+            }
 
-            // 2. Simpan Token ke Database
+            // 2. Buat Token Baru
+            String token = UUID.randomUUID().toString();
             TokenResetPassword myToken = new TokenResetPassword(token, user);
             tokenRepository.save(myToken);
 
-            // 3. Buat Link Reset
+            // 3. Buat Link & Kirim Email
             String appUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
             String resetLink = appUrl + "/reset-password?token=" + token;
 
-            // 4. Kirim Email
             String subject = "Permintaan Reset Password - SILSP";
             String body = "Halo " + user.getFullName() + ",\n\n" +
                     "Kami menerima permintaan untuk mereset kata sandi akun Anda.\n" +
                     "Silakan klik tautan di bawah ini untuk membuat kata sandi baru:\n" +
                     resetLink + "\n\n\n" +
-                    
-                    "Admin\n"+
+
+                    "Admin\n" +
                     "LSP Teknologi Data Digital Indonesia";
 
             emailService.sendEmail(user.getEmail(), subject, body);
         }
 
+        // Response sukses (selalu sukses demi keamanan, tapi email hanya terkirim jika
+        // user valid)
         return ResponseEntity.ok()
-                .body("{\"status\":\"success\", \"message\":\"Jika email terdaftar, tautan reset telah dikirim.\"}");
+                .body("{\"status\":\"success\", \"message\":\"Tautan reset password telah dikirim ke email Anda.\"}");
     }
+
+    // // ==========================================
+    // // 2. PROSES KIRIM EMAIL (POST)
+    // // ==========================================
+    // @PostMapping("/forgot-password")
+    // @ResponseBody // Kita pakai AJAX agar UX bagus
+    // public ResponseEntity<?> processForgotPassword(@RequestParam String email,
+    // HttpServletRequest request) {
+    // // Cari user by Email
+    // User user = userRepository.findByEmail(email).orElse(null);
+
+    // // SECURITY BEST PRACTICE:
+    // // Jika user tidak ditemukan, TETAP return sukses.
+    // // Jangan beri tahu hacker bahwa "Email tidak terdaftar".
+    // // Tapi kirim email hanya jika user ada.
+
+    // if (user != null) {
+    // // 1. Buat Token Unik (UUID)
+    // String token = UUID.randomUUID().toString();
+
+    // // 2. Simpan Token ke Database
+    // TokenResetPassword myToken = new TokenResetPassword(token, user);
+    // tokenRepository.save(myToken);
+
+    // // 3. Buat Link Reset
+    // String appUrl = request.getScheme() + "://" + request.getServerName() + ":" +
+    // request.getServerPort();
+    // String resetLink = appUrl + "/reset-password?token=" + token;
+
+    // // 4. Kirim Email
+
+    // }
+
+    // return ResponseEntity.ok()
+    // .body("{\"status\":\"success\", \"message\":\"Jika email terdaftar, tautan
+    // reset telah dikirim.\"}");
+    // }
 
     // ==========================================
     // 3. HALAMAN RESET PASSWORD (GET - DARI LINK EMAIL)

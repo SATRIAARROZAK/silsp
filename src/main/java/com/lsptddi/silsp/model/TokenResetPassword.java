@@ -29,7 +29,7 @@ public class TokenResetPassword {
         this.token = token;
         this.user = user;
         // Token berlaku selama 30 menit
-        this.expiryDate = LocalDateTime.now().plusMinutes(2); 
+        this.expiryDate = LocalDateTime.now().plusMinutes(30); 
     }
 
     public boolean isExpired() {

@@ -117,7 +117,7 @@
 
         <th:block sec:authorize="hasAuthority('Asesi')">
           <li class="nav-item">
-            <a th:href="@{/asesi}" class="nav-link">
+            <a th:href="@{/asesi/dashboard}" class="nav-link">
               <i class="nav-icon fas fa-home"></i>
               <p>Dashboard</p>
             </a>
@@ -132,7 +132,7 @@
 
         <th:block sec:authorize="hasAuthority('Asesor')">
           <li class="nav-item">
-            <a th:href="@{/asesor}" class="nav-link">
+            <a th:href="@{/asesor/dashboard}" class="nav-link">
               <i class="nav-icon fas fa-home"></i>
               <p>Dashboard</p>
             </a>
@@ -149,6 +149,16 @@
               <p>Jadwal Asesmen</p>
             </a>
           </li>
+        </th:block>
+
+        <th:block sec:authorize="hasAuthority('Direktur')">
+          <li class="nav-item">
+            <a th:href="@{/direktur/dashboard}" class="nav-link">
+              <i class="nav-icon fas fa-home"></i>
+              <p>Dashboard</p>
+            </a>
+          </li>
+         
         </th:block>
       </ul>
     </nav>

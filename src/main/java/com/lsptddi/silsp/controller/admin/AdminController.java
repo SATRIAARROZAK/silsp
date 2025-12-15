@@ -77,15 +77,6 @@ public class AdminController {
     @Autowired
     private TukService tukService;
 
-    // @ModelAttribute
-    // public void addGlobalAttributes(Model model) {
-    // User loggedInUser = new User("Muhammad Satria Arrozak", "Admin");
-    // // Objek user tiruan
-    // // Di aplikasi nyata, data ini akan diambil dari user yang sedang login
-    // model.addAttribute("user", loggedInUser);
-
-    // }
-
     @GetMapping("/dashboard")
     public String index(Model model) {
 

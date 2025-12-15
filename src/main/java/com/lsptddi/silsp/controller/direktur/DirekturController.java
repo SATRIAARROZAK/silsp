@@ -1,4 +1,5 @@
-package com.lsptddi.silsp.controller.asesi;
+package com.lsptddi.silsp.controller.direktur;
+
 
 import com.lsptddi.silsp.model.User; // Import Model User Asli
 import com.lsptddi.silsp.repository.UserRepository; // Import Repo
@@ -12,10 +13,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.security.Principal;
 
 @Controller
-@RequestMapping("/asesi")
-public class AsesiController {
+@RequestMapping("/direktur")
+public class DirekturController {
 
-    @Autowired
+     @Autowired
     private UserRepository userRepository;
 
     // Method ini akan dijalankan sebelum setiap request di controller ini
@@ -35,11 +36,7 @@ public class AsesiController {
 
     @GetMapping("/dashboard")
     public String index() {
-        return "pages/asesi/dashboard";
+        return "pages/direktur/dashboard";
     }
-
-    @GetMapping("/daftar-sertifikasi")
-    public String showSertifikasiList() {
-        return "pages/asesi/sertifikasi/sertifikasi-list";
-    }
+    
 }

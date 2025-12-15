@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SILSP | Masuk</title>
+
+    <link rel="stylesheet" th:href="@{/dist/css/switch-role.css}" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col-left">
+          <div class="card-header">
+            <h1>Selamat Datang</h1>
+            <p>
+              Anda sudah terdaftar dengan lebih dari 1 role. Silahkan pilih role
+              yang akan Anda gunakan.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-right">
+          <div class="banner">
+            <img th:src="@{/dist/img/LogoLSP.png}" alt="Banner" />
+            <h3>LSP Teknologi Data Digital Indonesia</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

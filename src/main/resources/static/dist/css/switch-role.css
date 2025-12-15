@@ -1,0 +1,92 @@
+:root {
+  --primary: #1f71c3;
+  --secondary: #cc636e; /* Merah Error */
+  --third: #54a4ec;
+  --body: #7e7e7e;
+  --grey: #eaeaea;
+  --btn-regist: #20076c; /* Merah bata untuk tombol */
+}
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  color: var(--body);
+}
+
+body {
+  font-family: "Source Sans Pro", sans-serif;
+  background-color: #f4f6f9;
+}
+
+.container {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  /* align-items: center; */
+  justify-content: center;
+}
+
+.row {
+  display: flex;
+  width: 100%;
+  max-width: 1100px;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  margin: 20px;
+}
+
+.col-right {
+  flex: 1;
+  background: linear-gradient(
+    174deg,
+    rgba(14, 31, 81, 1) 40%,
+    rgba(121, 9, 9, 1) 86%
+  );
+  display: none;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding: 150px;
+  color: white;
+}
+
+.col-right img {
+  width: 70%;
+  max-width: 300px;
+  margin-bottom: 20px;
+}
+
+.col-right h3 {
+  color: #fff;
+  text-align: center;
+  font-size: 1rem;
+}
+
+.col-left {
+  flex: 1;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.card-header {
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+.card-header h1 {
+  font-size: 1.5rem;
+  color: #333;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+@media (min-width: 768px) {
+  .col-right {
+    display: flex;
+  }
+}

@@ -47,7 +47,7 @@ public class SecurityConfig {
                 http
                                 // // Menonaktifkan CSRF protection (untuk saat ini, agar API test mudah)
                                 // .csrf(AbstractHttpConfigurer::disable)
-                                // .csrf(csrf -> csrf.disable())
+                                .csrf(csrf -> csrf.disable())
 
                                 // .authenticationProvider(authenticationProvider()) // PENTING!
                                 .authorizeHttpRequests((requests) -> requests
@@ -98,6 +98,9 @@ public class SecurityConfig {
                                                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                                                 .logoutSuccessUrl("/login")
                                                 .permitAll());
+                                // 4. FITUR CEGAH UNDO/BACK (Disable Cache)
+                                // .headers(headers -> headers
+                                //                 .cacheControl(cache -> cache.disable()));
 
                 return http.build();
         }

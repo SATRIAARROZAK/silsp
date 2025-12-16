@@ -26,7 +26,7 @@
           <div class="d-flex flex-column gap-3">
             <a
               th:if="${#sets.contains(userRoles, 'Admin')}"
-              th:href="@{/admin/dashboard}"
+              th:href="@{/auth/select-role(targetRole='Admin')}"
               class="btn-role btn-admin"
             >
               <div class="icon"><i class="fas fa-user-shield"></i></div>
@@ -38,10 +38,10 @@
             </a>
             <a
               th:if="${#sets.contains(userRoles, 'Asesi')}"
-              th:href="@{/asesi/dashboard}"
+              th:href="@{/auth/select-role(targetRole='Asesi')}"
               class="btn-role btn-asesi"
             >
-              <div class="icon"><i class="fas fa-user-circle"></i></div>
+              <div class="icon"><i class="fas fa-user-graduate"></i></div>
               <div class="text">
                 <span>Masuk Sebagai</span>
                 <strong>ASESI</strong>
@@ -51,22 +51,22 @@
 
             <a
               th:if="${#sets.contains(userRoles, 'Asesor')}"
-              th:href="@{/asesor/dashboard}"
+              th:href="@{/auth/select-role(targetRole='Asesor')}"
               class="btn-role btn-asesor"
             >
-              <div class="icon"><i class="fas fa-user-circle"></i></div>
+              <div class="icon"><i class="fas fa-user-tie"></i></div>
               <div class="text">
                 <span>Masuk Sebagai</span>
                 <strong>ASESOR</strong>
               </div>
               <div class="arrow"><i class="fas fa-chevron-right"></i></div>
             </a>
-            <a
-              th:if="${#sets.contains(userRoles, 'Direktur')}"
-              th:href="@{/direktur/dashboard}"
-              class="btn-role btn-asesor"
+             <a
+             th:if="${#sets.contains(userRoles, 'Direktur')}"
+              th:href="@{/auth/select-role(targetRole='Direktur')}"
+              class="btn-role"
             >
-              <div class="icon"><i class="fas fa-user-circle"></i></div>
+              <div class="icon"><i class="fas fa-user-tie"></i></div>
               <div class="text">
                 <span>Masuk Sebagai</span>
                 <strong>Direktur</strong>

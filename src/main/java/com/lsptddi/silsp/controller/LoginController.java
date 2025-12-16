@@ -17,11 +17,18 @@ import java.util.Optional;
 
 import java.security.Principal;
 import java.util.stream.Collectors;
+
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
+import java.util.List;
 
 @Controller
 public class LoginController {
@@ -43,38 +50,90 @@ public class LoginController {
     @Autowired
     private EmailService emailService;
 
-    /**
-     * Menampilkan halaman login kustom.
-     * 
-     * @return String nama template login (login.html)
-     */
+    // MENCEGAH USER LOGGED-IN MENGAKSES HALAMAN LOGIN
     @GetMapping("/login")
-    public String loginPage() {
-        // Mengembalikan nama file HTML dari folder 'templates'
+    public String loginPage(Authentication authentication) {
+        if (authentication != null && authentication.isAuthenticated()) {
+            // Jika sudah login, redirect sesuai role yang aktif saat ini
+            Set<String> roles = authentication.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
+
+            // Logika redirect sederhana jika user nekat akses /login
+            if (roles.contains("Admin"))
+                return "redirect:/admin/dashboard";
+            if (roles.contains("Asesi"))
+                return "redirect:/asesi/dashboard";
+            if (roles.contains("Asesor"))
+                return "redirect:/asesor/dashboard";
+            if (roles.contains("Direktur"))
+                return "redirect:/direktur/dashboard";
+
+            return "redirect:/switch-role";
+        }
         return "login";
     }
 
+    // HALAMAN PILIH ROLE
     @GetMapping("/switch-role")
-    public String switchRolePage(Model model, Principal principal, Authentication authentication) {
-        if (principal == null) {
-            return "redirect:/login"; // Kick jika belum login
-        }
+    public String switchRolePage(Model model, Authentication authentication) {
+        if (authentication == null)
+            return "redirect:/login";
 
-        // Ambil Data User untuk ditampilkan namanya
-        String username = principal.getName();
-        User user = userRepository.findByUsername(username).orElse(null);
-        model.addAttribute("user", user);
-
-        // Ambil List Role yang dimiliki user saat ini (untuk logika tombol di HTML)
-        // Kita kirim sebagai Set<String> agar mudah dicek di Thymeleaf
-        // Contoh output: ["Asesi", "Asesor"]
-        var roles = authentication.getAuthorities().stream()
+        // Kirim list role yang dimiliki user ke HTML
+        Set<String> roles = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toSet());
 
         model.addAttribute("userRoles", roles);
+        // Ambil nama user (Principal biasanya berisi UserDetails atau username string)
+        model.addAttribute("username", authentication.getName());
 
-        return "switch-role"; // Pastikan nama file html sama
+        return "switch-role";
+    }
+
+    // 3. LOGIKA ISOLASI ROLE (CORE FEATURE)
+    @GetMapping("/auth/select-role")
+    public String selectRole(@RequestParam String targetRole, Authentication authentication) {
+        if (authentication == null)
+            return "redirect:/login";
+
+        // A. VERIFIKASI KEAMANAN
+        // Cek apakah user BENAR-BENAR punya role yang dipilih dalam list
+        // Authorities-nya saat ini?
+        boolean hasRole = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals(targetRole));
+
+        if (!hasRole) {
+            // Jika mencoba akses role yang tidak dimiliki -> Kick / Error
+            return "redirect:/switch-role?error=unauthorized";
+        }
+
+        // B. MODIFIKASI SECURITY CONTEXT (ISOLASI)
+        // Kita buat list authority baru yang HANYA berisi role yang dipilih
+        List<GrantedAuthority> newAuthorities = new ArrayList<>();
+        newAuthorities.add(new SimpleGrantedAuthority(targetRole));
+
+        // Buat token autentikasi baru dengan authority tunggal
+        Authentication newAuth = new UsernamePasswordAuthenticationToken(
+                authentication.getPrincipal(),
+                authentication.getCredentials(),
+                newAuthorities // Hanya role terpilih yang dimasukkan
+        );
+
+        // Set ke Context Holder (Global Session)
+        SecurityContextHolder.getContext().setAuthentication(newAuth);
+
+        // C. REDIRECT KE TUJUAN
+        if (targetRole.equals("Admin"))
+            return "redirect:/admin/dashboard";
+        if (targetRole.equals("Asesi"))
+            return "redirect:/asesi/dashboard";
+        if (targetRole.equals("Asesor"))
+            return "redirect:/asesor/dashboard";
+        if (targetRole.equals("Direktur"))
+            return "redirect:/direktur/dashboard";
+
+        return "redirect:/";
     }
 
     // --- TAMBAHKAN METODE INI ---

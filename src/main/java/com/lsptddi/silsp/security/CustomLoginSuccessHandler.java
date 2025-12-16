@@ -31,20 +31,39 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
             return;
         }
 
-        // Jika hanya 1 Role, lakukan auto-redirect seperti biasa
+        // Logic Redirect
         String redirectUrl = null;
-        if (roles.contains("Admin")) {
-            redirectUrl = "/admin/dashboard";
-        } else if (roles.contains("Asesi")) {
-            redirectUrl = "/asesi";
-        } else if (roles.contains("Asesor")) {
-            redirectUrl = "/asesor";
-        } else if (roles.contains("Direktur")) {
-            redirectUrl = "/admin/dashboard";
-        } else {
-            throw new IllegalStateException("Role tidak dikenali");
+
+        for (GrantedAuthority authority : authorities) {
+            // Jika role-nya ADMIN
+            if (authority.getAuthority().equals("Admin")) {
+                redirectUrl = "/admin/dashboard";
+                break;
+            }
+            // Jika role-nya ASESI
+            else if (authority.getAuthority().equals("Asesi")) {
+                redirectUrl = "/asesi/dashboard"; // Sesuaikan jika punya halaman khusus
+                break;
+            }
+            // Jika role-nya ASESOR
+            else if (authority.getAuthority().equals("Asesor")) {
+                redirectUrl = "/asesor/dashboard";
+                break;
+            }
+            // --- TAMBAHAN BARU ---
+            else if (authority.getAuthority().equals("Direktur")) {
+                redirectUrl = "/direktur/dashboard"; // Atau "/admin/dashboard" jika sama
+                break;
+            }
         }
 
+        // Default jika tidak ada role yang cocok (Atau user biasa)
+        if (redirectUrl == null) {
+            redirectUrl = "/home"; // Halaman umum
+
+        }
+
+        // Lakukan Redirect
         response.sendRedirect(redirectUrl);
     }
 

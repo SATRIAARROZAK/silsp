@@ -42,8 +42,6 @@ public class SecurityConfig {
                 return authenticationManagerBuilder.build();
         }
 
-     
-
         @Bean // Membuat sebuah "Bean" yang akan dikelola oleh Spring
         public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
                 http
@@ -55,9 +53,13 @@ public class SecurityConfig {
                                 .authorizeHttpRequests((requests) -> requests
                                                 // Halaman yang boleh diakses SIAPA SAJA (Tanpa Login)
                                                 .requestMatchers("/dev/**").permitAll()
-                                                .requestMatchers("/login", "/register", "/reset-password","/forgot-password", "/assets/**", "/plugins/**",
+                                                .requestMatchers("/login", "/register", "/reset-password",
+                                                                "/forgot-password", "/assets/**", "/plugins/**",
                                                                 "/dist/**")
                                                 .permitAll()
+
+                                                // IZINKAN AKSES KE SWITCH ROLE BAGI YANG SUDAH LOGIN
+                                                .requestMatchers("/switch-role").authenticated()
 
                                                 // Halaman khusus ADMIN
                                                 .requestMatchers("/admin/**").hasAuthority("Admin")
@@ -94,7 +96,7 @@ public class SecurityConfig {
                                                 .permitAll())
                                 .logout((logout) -> logout
                                                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                                                .logoutSuccessUrl("/login?logout")
+                                                .logoutSuccessUrl("/login")
                                                 .permitAll());
 
                 return http.build();

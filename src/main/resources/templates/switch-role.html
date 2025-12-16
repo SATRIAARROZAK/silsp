@@ -5,7 +5,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SILSP | Masuk</title>
-
+    <link
+      rel="stylesheet"
+      th:href="@{/plugins/fontawesome-free/css/all.min.css}"
+    />
     <link rel="stylesheet" th:href="@{/dist/css/switch-role.css}" />
   </head>
   <body>
@@ -18,6 +21,58 @@
               Anda sudah terdaftar dengan lebih dari 1 role. Silahkan pilih role
               yang akan Anda gunakan.
             </p>
+          </div>
+
+          <div class="d-flex flex-column gap-3">
+            <a
+              th:if="${#sets.contains(userRoles, 'Admin')}"
+              th:href="@{/admin/dashboard}"
+              class="btn-role btn-admin"
+            >
+              <div class="icon"><i class="fas fa-user-shield"></i></div>
+              <div class="text">
+                <span>Masuk Sebagai</span>
+                <strong>ADMIN</strong>
+              </div>
+              <div class="arrow"><i class="fas fa-chevron-right"></i></div>
+            </a>
+            <a
+              th:if="${#sets.contains(userRoles, 'Asesi')}"
+              th:href="@{/asesi/dashboard}"
+              class="btn-role btn-asesi"
+            >
+              <div class="icon"><i class="fas fa-user-circle"></i></div>
+              <div class="text">
+                <span>Masuk Sebagai</span>
+                <strong>ASESI</strong>
+              </div>
+              <div class="arrow"><i class="fas fa-chevron-right"></i></div>
+            </a>
+
+            <a
+              th:if="${#sets.contains(userRoles, 'Asesor')}"
+              th:href="@{/asesor/dashboard}"
+              class="btn-role btn-asesor"
+            >
+              <div class="icon"><i class="fas fa-user-circle"></i></div>
+              <div class="text">
+                <span>Masuk Sebagai</span>
+                <strong>ASESOR</strong>
+              </div>
+              <div class="arrow"><i class="fas fa-chevron-right"></i></div>
+            </a>
+            <a
+              th:if="${#sets.contains(userRoles, 'Direktur')}"
+              th:href="@{/direktur/dashboard}"
+              class="btn-role btn-asesor"
+            >
+              <div class="icon"><i class="fas fa-user-circle"></i></div>
+              <div class="text">
+                <span>Masuk Sebagai</span>
+                <strong>Direktur</strong>
+              </div>
+              <div class="arrow"><i class="fas fa-chevron-right"></i></div>
+            </a>
           </div>
         </div>
 

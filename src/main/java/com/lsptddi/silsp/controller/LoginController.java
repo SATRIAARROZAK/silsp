@@ -15,6 +15,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
 import java.util.Optional;
 
+import java.security.Principal;
+import java.util.stream.Collectors;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+
 import java.util.Collections;
 import java.util.HashSet;
 
@@ -47,6 +52,29 @@ public class LoginController {
     public String loginPage() {
         // Mengembalikan nama file HTML dari folder 'templates'
         return "login";
+    }
+
+    @GetMapping("/switch-role")
+    public String switchRolePage(Model model, Principal principal, Authentication authentication) {
+        if (principal == null) {
+            return "redirect:/login"; // Kick jika belum login
+        }
+
+        // Ambil Data User untuk ditampilkan namanya
+        String username = principal.getName();
+        User user = userRepository.findByUsername(username).orElse(null);
+        model.addAttribute("user", user);
+
+        // Ambil List Role yang dimiliki user saat ini (untuk logika tombol di HTML)
+        // Kita kirim sebagai Set<String> agar mudah dicek di Thymeleaf
+        // Contoh output: ["Asesi", "Asesor"]
+        var roles = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toSet());
+
+        model.addAttribute("userRoles", roles);
+
+        return "switch-role"; // Pastikan nama file html sama
     }
 
     // --- TAMBAHKAN METODE INI ---

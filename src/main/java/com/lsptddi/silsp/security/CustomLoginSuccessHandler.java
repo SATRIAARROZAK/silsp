@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
@@ -18,42 +20,32 @@ public class CustomLoginSuccessHandler implements AuthenticationSuccessHandler {
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
             Authentication authentication) throws IOException, ServletException {
 
-        // Ambil list role user yang baru login
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        Set<String> roles = authorities.stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toSet());
 
-        // Logic Redirect
+        // LOGIKA BARU: Jika user punya LEBIH DARI 1 Role, arahkan ke Switch Role Page
+        if (roles.size() > 1) {
+            response.sendRedirect("/switch-role");
+            return;
+        }
+
+        // Jika hanya 1 Role, lakukan auto-redirect seperti biasa
         String redirectUrl = null;
-
-        for (GrantedAuthority authority : authorities) {
-            // Jika role-nya ADMIN
-            if (authority.getAuthority().equals("Admin")) {
-                redirectUrl = "/admin/dashboard";
-                break;
-            }
-            // Jika role-nya ASESI
-            else if (authority.getAuthority().equals("Asesi")) {
-                redirectUrl = "/asesi/dashboard"; // Sesuaikan jika punya halaman khusus
-                break;
-            }
-            // Jika role-nya ASESOR
-            else if (authority.getAuthority().equals("Asesor")) {
-                redirectUrl = "/asesor/dashboard";
-                break;
-            }
-            // --- TAMBAHAN BARU ---
-            else if (authority.getAuthority().equals("Direktur")) {
-                redirectUrl = "/direktur/dashboard"; // Atau "/admin/dashboard" jika sama
-                break;
-            }
+        if (roles.contains("Admin")) {
+            redirectUrl = "/admin/dashboard";
+        } else if (roles.contains("Asesi")) {
+            redirectUrl = "/asesi";
+        } else if (roles.contains("Asesor")) {
+            redirectUrl = "/asesor";
+        } else if (roles.contains("Direktur")) {
+            redirectUrl = "/admin/dashboard";
+        } else {
+            throw new IllegalStateException("Role tidak dikenali");
         }
 
-        // Default jika tidak ada role yang cocok (Atau user biasa)
-        if (redirectUrl == null) {
-            redirectUrl = "/home"; // Halaman umum
-
-        }
-
-        // Lakukan Redirect
         response.sendRedirect(redirectUrl);
     }
+
 }

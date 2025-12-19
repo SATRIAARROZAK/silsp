@@ -30,7 +30,7 @@ public class RegisterDto {
     private String provinceId;
     private String cityId;
     private String districtId;
-    private String subDistrictId;
+    // private String subDistrictId;
     private String postalCode;
     private String address;
 

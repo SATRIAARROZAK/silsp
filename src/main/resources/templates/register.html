@@ -23,6 +23,7 @@
     <link rel="stylesheet" th:href="@{/dist/css/register.css}" />
 
     <style>
+      /* CSS Tambahan untuk Validasi */
       .is-invalid-border {
         border-color: #dc3545 !important;
       }
@@ -52,7 +53,13 @@
           <p class="text-muted">Lengkapi formulir di bawah ini</p>
         </div>
 
-        <form id="registerForm" th:action="@{/register}" method="post">
+        <form
+          enctype="multipart/form-data"
+          id="registerForm"
+          th:action="@{/register}"
+          method="post"
+          novalidate
+        >
           <div class="separator">
             <span class="separator-text">Data Akun</span>
           </div>
@@ -61,12 +68,13 @@
               <div class="form-group">
                 <label>Role <span class="text-danger">*</span></label>
                 <select
-                  class="form-control select2"
+                  class="form-control"
                   id="roleSelect"
                   name="roles"
                   style="width: 100%"
                   required
                 >
+                  <option value="" disabled selected>-- Pilih Peran --</option>
                   <option value="Asesi">Asesi</option>
                   <option value="Asesor">Asesor</option>
                 </select>
@@ -100,7 +108,7 @@
             </div>
           </div>
 
-          <div id="wrapperDataPribadi">
+          <div id="wrapperDataPribadi" style="display: none">
             <div class="separator">
               <span class="separator-text">Data Pribadi</span>
             </div>
@@ -162,7 +170,7 @@
                 </div>
               </div>
 
-              <div class="col-md-6 group-asesi" style="display: none">
+              <div class="col-md-6 group-asesi">
                 <div class="form-group">
                   <label
                     >Kewarganegaraan <span class="text-danger">*</span></label
@@ -173,26 +181,8 @@
 
               <div class="col-md-6 group-asesor" style="display: none">
                 <div class="form-group">
-                  <label>No. MET<span class="text-danger">*</span></label>
+                  <label>No. MET <span class="text-danger">*</span></label>
                   <div class="input-group">
-                    <div class="input-group-append">
-                      <span class="input-group-text">MET.</span>
-                    </div>
-                    <input
-                      type="text"
-                      class="form-control"
-                      name="noMet"
-                      placeholder="000.002591 2024"
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <!-- <div class="col-md-6 group-asesor" style="display: none">
-                <div class="form-group">
-                  <div class="input-group">
-                    <label>No. MET <span class="text-danger">*</span></label>
                     <div class="input-group-prepend">
                       <span class="input-group-text">MET.</span>
                     </div>
@@ -204,7 +194,7 @@
                     />
                   </div>
                 </div>
-              </div> -->
+              </div>
 
               <div class="col-md-6">
                 <div class="form-group">
@@ -224,9 +214,8 @@
                     >Pendidikan Terakhir
                     <span class="text-danger">*</span></label
                   >
-
                   <select
-                    class="form-control"
+                    class="form-control select2"
                     id="selectPendidikan"
                     name="educationId"
                     style="width: 100%"
@@ -262,12 +251,11 @@
                   <label>Provinsi <span class="text-danger">*</span></label>
                   <select
                     class="form-control select2"
-                    style="width: 100%"
-                    name="provinceId"
                     id="selectProvinsi"
+                    name="provinceId"
+                    style="width: 100%"
                     required
                   ></select>
-                  <!-- <select class="form-control select2" id="selectProvinsi" name="province" style="width: 100%" required></select> -->
                 </div>
               </div>
               <div class="col-md-6">

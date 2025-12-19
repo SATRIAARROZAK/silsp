@@ -244,7 +244,7 @@ public class LoginController {
             user.setProvinceId(dto.getProvinceId());
             user.setCityId(dto.getCityId());
             user.setDistrictId(dto.getDistrictId());
-            user.setSubDistrictId(dto.getSubDistrictId());
+            // user.setSubDistrictId(dto.getSubDistrictId());
             user.setPostalCode(dto.getPostalCode());
             user.setAddress(dto.getAddress());
 

@@ -1,203 +1,301 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-  layout:decorate="~{layouts/app}">
+<html
+  lang="en"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/app}"
+>
+  <head th:replace="~{fragments/header :: header('Data Pengguna')}"></head>
 
-<head th:replace="~{fragments/header :: header('Data Pengguna')}"></head>
+  <body>
+    <div layout:fragment="page-title">
+      <h1 class="m-0">Data Pengguna</h1>
+    </div>
+    <div layout:fragment="breadcrumb">
+      <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item"><a href="#">Home</a></li>
+        <li class="breadcrumb-item active">Data Pengguna</li>
+      </ol>
+    </div>
+    <div layout:fragment="content">
+      <div class="card">
+        <div class="card-header">
+          <div class="row mb-3"></div>
 
-<body>
-  <div layout:fragment="page-title">
-    <h1 class="m-0">Data Pengguna</h1>
-  </div>
-  <div layout:fragment="breadcrumb">
-    <ol class="breadcrumb float-sm-right">
-      <li class="breadcrumb-item"><a href="#">Home</a></li>
-      <li class="breadcrumb-item active">Data Pengguna</li>
-    </ol>
-  </div>
-  <div layout:fragment="content">
-    <div class="card">
-      <div class="card-header">
-        <div class="row mb-3"></div>
-
-        <form th:action="@{/admin/data-pengguna}" method="get">
-          <div class="row">
-            <div class="col-12 col-md-2 mb-2">
-              <div class="form-group mb-0">
-                <select class="form-control" name="role" onchange="this.form.submit()">
-                  <option value="" th:selected="${selectedRole == null || selectedRole == ''}">
-                    Pilih Role
-                  </option>
-                  <option value="Admin" th:selected="${selectedRole == 'Admin'}">
-                    Admin
-                  </option>
-                  <option value="Asesi" th:selected="${selectedRole == 'Asesi'}">
-                    Asesi
-                  </option>
-                  <option value="Asesor" th:selected="${selectedRole == 'Asesor'}">
-                    Asesor
-                  </option>
-                  <option value="Direktur" th:selected="${selectedRole == 'Direktur'}">
-                    Direktur
-                  </option>
-                </select>
+          <form th:action="@{/admin/data-pengguna}" method="get">
+            <div class="row">
+              <div class="col-12 col-md-2 mb-2">
+                <div class="form-group mb-0">
+                  <select
+                    class="form-control"
+                    name="role"
+                    onchange="this.form.submit()"
+                  >
+                    <option
+                      value=""
+                      th:selected="${selectedRole == null || selectedRole == ''}"
+                    >
+                      Pilih Role
+                    </option>
+                    <option
+                      value="Admin"
+                      th:selected="${selectedRole == 'Admin'}"
+                    >
+                      Admin
+                    </option>
+                    <option
+                      value="Asesi"
+                      th:selected="${selectedRole == 'Asesi'}"
+                    >
+                      Asesi
+                    </option>
+                    <option
+                      value="Asesor"
+                      th:selected="${selectedRole == 'Asesor'}"
+                    >
+                      Asesor
+                    </option>
+                    <option
+                      value="Direktur"
+                      th:selected="${selectedRole == 'Direktur'}"
+                    >
+                      Direktur
+                    </option>
+                  </select>
+                </div>
               </div>
-            </div>
 
-            <div class="col-12 col-md-4 mb-2">
-              <div class="form-group mb-0">
-                <div class="input-group">
-                  <input type="text" class="form-control" name="keyword" th:value="${keyword}"
-                    placeholder="Masukkan Nama Lengkap" />
-                  <div class="input-group-append">
-                    <button type="submit" class="btn btn-outline-info">
-                      <i class="fas fa-search"></i> Cari
-                    </button>
+              <div class="col-12 col-md-4 mb-2">
+                <div class="form-group mb-0">
+                  <div class="input-group">
+                    <input
+                      type="text"
+                      class="form-control"
+                      name="keyword"
+                      th:value="${keyword}"
+                      placeholder="Masukkan Nama Lengkap"
+                    />
+                    <div class="input-group-append">
+                      <button type="submit" class="btn btn-outline-info">
+                        <i class="fas fa-search"></i> Cari
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
+
+              <div class="col-12 col-md-3 mb-2 d-flex align-items-end">
+                <a
+                  th:href="@{/admin/data-pengguna}"
+                  class="btn btn-default btn-block"
+                >
+                  <i class="fas fa-sync-alt"></i> Reset Filter
+                </a>
+              </div>
+              <div
+                class="col-12 col-md-3 mb-2 d-flex align-items-end justify-content-end"
+              >
+                <a
+                  th:href="@{/admin/data-pengguna/tambah-users}"
+                  class="btn btn-primary"
+                >
+                  <i class="bi bi-person-fill-add"></i> Tambah
+                </a>
+              </div>
+            </div>
+          </form>
+        </div>
+        <!-- /.card-header -->
+        <div class="card-body responsive">
+          <table
+            id="tableUser"
+            class="table table-bordered table-hover table-responsive-md projects"
+          >
+            <thead>
+              <tr class="text-center">
+                <th>No</th>
+                <th>Nama Lengkap</th>
+                <th>Photo</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>No Telp</th>
+                <th>Role</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="item, iter : ${listPengguna}">
+                <td
+                  class="align-middle text-center"
+                  th:text="${(currentPage * size) + iter.count}"
+                ></td>
+
+                <td th:text="${item.user.fullName}">Nama Lengkap</td>
+                <td class="text-center">
+                  <ul class="list-inline">
+                    <li class="list-inline-item">
+                      <img
+                        alt="Avatar"
+                        class="table-avatar"
+                        th:src="@{/dist/img/photo.jpg}"
+                      />
+                    </li>
+                  </ul>
+                </td>
+                <td th:text="${item.user.username}">Username</td>
+                <td th:text="${item.user.email}">Email</td>
+                <td th:text="${item.user.phoneNumber}"></td>
+
+                <td class="align-middle text-center">
+                  <span
+                    th:classappend="${item.role.name == 'Admin' ? 'badge bg-danger' : item.role.name == 'Asesor' ? 'badge bg-info' : (item.role.name == 'Direktur' ? 'badge bg-warning' :'badge bg-success')}"
+                    th:text="${item.role.name}"
+                  >
+                    Role
+                  </span>
+                </td>
+
+                <td class="align-middle">
+                  <div class="action-buttons">
+                    <a
+                      th:href="@{/admin/data-pengguna/view-users/{id}(id=${item.user.id}, role=${item.role.name})}"
+                      class="btn btn-info btn-sm"
+                      title="Detail"
+                      ><i class="fas fa-eye"></i
+                    ></a>
+
+                    <a
+                      th:href="@{'/admin/data-pengguna/edit-users/' + ${item.user.id}}"
+                      class="btn btn-warning btn-sm"
+                      title="Edit"
+                      ><i class="fas fa-edit"></i
+                    ></a>
+
+                    <a
+                      th:href="@{/admin/data-pengguna/delete-role(userId=${item.user.id}, roleName=${item.role.name})}"
+                      class="btn btn-danger btn-sm delete-button-users"
+                      title="Hapus Role Ini"
+                    >
+                      <i class="fas fa-trash"></i>
+                    </a>
+                    <!-- 
+                    <a
+                      th:href="@{'/admin/data-pengguna/delete/' + ${item.user.id}}"
+                      class="btn btn-danger btn-sm delete-button"
+                      title="Hapus"
+                      ><i class="fas fa-trash"></i
+                    ></a> -->
+                  </div>
+                </td>
+              </tr>
+
+              <tr th:if="${#lists.isEmpty(listPengguna)}">
+                <td colspan="7" class="text-center">
+                  Belum ada data pengguna.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card-footer clearfix">
+          <div class="row align-items-center">
+            <div class="col-md-4 col-12 mb-2 mb-md-0">
+              <span class="text-muted small">
+                Menampilkan
+                <b th:text="${(currentPage * size) + 1}">1</b>
+                sampai
+                <b th:text="${(currentPage * size) + listPengguna.size()}"
+                  >10</b
+                >
+                dari
+                <b th:text="${totalItems}">54</b> data
+              </span>
             </div>
 
-            <div class="col-12 col-md-3 mb-2 d-flex align-items-end">
-              <a th:href="@{/admin/data-pengguna}" class="btn btn-default btn-block">
-                <i class="fas fa-sync-alt"></i> Reset Filter
-              </a>
-            </div>
-            <div class="col-12 col-md-3 mb-2 d-flex align-items-end justify-content-end">
-              <a th:href="@{/admin/data-pengguna/tambah-users}" class="btn btn-primary">
-                <i class="bi bi-person-fill-add"></i> Tambah
-              </a>
-            </div>
-          </div>
-        </form>
-      </div>
-      <!-- /.card-header -->
-      <div class="card-body responsive">
-        <table id="tableUser" class="table table-bordered table-hover table-responsive-md projects">
-          <thead>
-            <tr class="text-center">
-              <th>No</th>
-              <th>Nama Lengkap</th>
-              <th>Photo</th>
-              <th>Username</th>
-              <th>Email</th>
-              <th>No Telp</th>
-              <th>Role</th>
-              <th>Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr th:each="item, iter : ${listPengguna}">
-              <td class="align-middle text-center" th:text="${(currentPage * size) + iter.count}"></td>
+            <div
+              class="col-md-8 col-12 text-right d-flex justify-content-end align-items-center"
+            >
+              <nav
+                aria-label="Page navigation"
+                class="mr-3"
+                th:if="${totalPages > 0}"
+              >
+                <ul class="pagination pagination-sm m-0 float-right">
+                  <li
+                    class="page-item"
+                    th:classappend="${currentPage == 0} ? 'disabled'"
+                  >
+                    <a
+                      class="page-link"
+                      th:href="@{/admin/data-pengguna(page=${currentPage - 1}, size=${size}, keyword=${keyword}, role=${selectedRole})}"
+                    >
+                      &laquo;
+                    </a>
+                  </li>
 
-              <td th:text="${item.user.fullName}">Nama Lengkap</td>
-              <td class="text-center">
-                <ul class="list-inline">
-                  <li class="list-inline-item">
-                    <img alt="Avatar" class="table-avatar" th:src="@{/dist/img/photo.jpg}" />
+                  <li
+                    class="page-item"
+                    th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                    th:if="${i >= currentPage - 2 && i <= currentPage + 2}"
+                    th:classappend="${i == currentPage} ? 'active'"
+                  >
+                    <a
+                      class="page-link"
+                      th:href="@{/admin/data-pengguna(page=${i}, size=${size}, keyword=${keyword}, role=${selectedRole})}"
+                      th:text="${i + 1}"
+                      >1</a
+                    >
+                  </li>
+
+                  <li
+                    class="page-item"
+                    th:classappend="${currentPage == totalPages - 1} ? 'disabled'"
+                  >
+                    <a
+                      class="page-link"
+                      th:href="@{/admin/data-pengguna(page=${currentPage + 1}, size=${size}, keyword=${keyword}, role=${selectedRole})}"
+                    >
+                      &raquo;
+                    </a>
                   </li>
                 </ul>
-              </td>
-              <td th:text="${item.user.username}">Username</td>
-              <td th:text="${item.user.email}">Email</td>
-              <td th:text="${item.user.phoneNumber}"></td>
+              </nav>
 
-              <td class="align-middle text-center">
-                <span
-                  th:classappend="${item.role.name == 'Admin' ? 'badge bg-danger' : item.role.name == 'Asesor' ? 'badge bg-info' : (item.role.name == 'Direktur' ? 'badge bg-warning' :'badge bg-success')}"
-                  th:text="${item.role.name}">
-                  Role
-                </span>
-              </td>
-
-              <td class="align-middle">
-                <div class="action-buttons">
-
-                  <a th:href="@{/admin/data-pengguna/view-users/{id}(id=${item.user.id}, role=${item.role.name})}"
-                    class="btn btn-info btn-sm" title="Detail"><i class="fas fa-eye"></i></a>
-
-                  <a th:href="@{'/admin/data-pengguna/edit-users/' + ${item.user.id}}" class="btn btn-warning btn-sm"
-                    title="Edit"><i class="fas fa-edit"></i></a>
-
-                  <a th:href="@{'/admin/data-pengguna/delete/' + ${item.user.id}}"
-                    class="btn btn-danger btn-sm delete-button" title="Hapus"><i class="fas fa-trash"></i></a>
+              <form
+                th:action="@{/admin/data-pengguna}"
+                method="get"
+                id="formSize"
+              >
+                <input type="hidden" name="keyword" th:value="${keyword}" />
+                <input type="hidden" name="role" th:value="${selectedRole}" />
+                <input type="hidden" name="page" value="0" />
+                <div class="input-group input-group-sm">
+                  <select
+                    class="form-control custom-select"
+                    name="size"
+                    onchange="document.getElementById('formSize').submit()"
+                    style="width: 70px; border-radius: 4px"
+                  >
+                    <option value="5" th:selected="${size == 5}">5</option>
+                    <option value="10" th:selected="${size == 10}">10</option>
+                    <option value="20" th:selected="${size == 20}">20</option>
+                    <option value="50" th:selected="${size == 50}">50</option>
+                    <option value="100" th:selected="${size == 100}">
+                      100
+                    </option>
+                  </select>
+                  <div class="input-group-append">
+                    <span
+                      class="input-group-text bg-transparent border-0 small text-muted"
+                      >/ halaman</span
+                    >
+                  </div>
                 </div>
-              </td>
-
-            </tr>
-
-            <tr th:if="${#lists.isEmpty(listPengguna)}">
-              <td colspan="7" class="text-center">
-                Belum ada data pengguna.
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="card-footer clearfix">
-        <div class="row align-items-center">
-          <div class="col-md-4 col-12 mb-2 mb-md-0">
-            <span class="text-muted small">
-              Menampilkan
-              <b th:text="${(currentPage * size) + 1}">1</b>
-              sampai
-              <b th:text="${(currentPage * size) + listPengguna.size()}">10</b>
-              dari
-              <b th:text="${totalItems}">54</b> data
-            </span>
-          </div>
-
-          <div class="col-md-8 col-12 text-right d-flex justify-content-end align-items-center">
-            <nav aria-label="Page navigation" class="mr-3" th:if="${totalPages > 0}">
-              <ul class="pagination pagination-sm m-0 float-right">
-                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                  <a class="page-link"
-                    th:href="@{/admin/data-pengguna(page=${currentPage - 1}, size=${size}, keyword=${keyword}, role=${selectedRole})}">
-                    &laquo;
-                  </a>
-                </li>
-
-                <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
-                  th:if="${i >= currentPage - 2 && i <= currentPage + 2}"
-                  th:classappend="${i == currentPage} ? 'active'">
-                  <a class="page-link"
-                    th:href="@{/admin/data-pengguna(page=${i}, size=${size}, keyword=${keyword}, role=${selectedRole})}"
-                    th:text="${i + 1}">1</a>
-                </li>
-
-                <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
-                  <a class="page-link"
-                    th:href="@{/admin/data-pengguna(page=${currentPage + 1}, size=${size}, keyword=${keyword}, role=${selectedRole})}">
-                    &raquo;
-                  </a>
-                </li>
-              </ul>
-            </nav>
-
-            <form th:action="@{/admin/data-pengguna}" method="get" id="formSize">
-              <input type="hidden" name="keyword" th:value="${keyword}" />
-              <input type="hidden" name="role" th:value="${selectedRole}" />
-              <input type="hidden" name="page" value="0" />
-              <div class="input-group input-group-sm">
-                <select class="form-control custom-select" name="size"
-                  onchange="document.getElementById('formSize').submit()" style="width: 70px; border-radius: 4px">
-                  <option value="5" th:selected="${size == 5}">5</option>
-                  <option value="10" th:selected="${size == 10}">10</option>
-                  <option value="20" th:selected="${size == 20}">20</option>
-                  <option value="50" th:selected="${size == 50}">50</option>
-                  <option value="100" th:selected="${size == 100}">
-                    100
-                  </option>
-                </select>
-                <div class="input-group-append">
-                  <span class="input-group-text bg-transparent border-0 small text-muted">/ halaman</span>
-                </div>
-              </div>
-            </form>
+              </form>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-</body>
-
+  </body>
 </html>

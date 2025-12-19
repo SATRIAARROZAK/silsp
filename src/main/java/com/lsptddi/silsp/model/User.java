@@ -89,7 +89,7 @@ public class User {
     private String provinceId;
     private String cityId;
     private String districtId;
-    private String subDistrictId;
+    // private String subDistrictId;
 
     private String address;
     private String postalCode;

@@ -1,174 +1,345 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-  layout:decorate="~{layouts/app}">
+<html
+  lang="en"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/app}"
+>
+  <head th:replace="~{fragments/header :: header('Edit Pengguna')}"></head>
 
-<head th:replace="~{fragments/header :: header('Edit Pengguna')}"></head>
+  <body>
+    <div layout:fragment="content">
+      <div class="container-fluid">
+        <div class="card card-warning card-outline">
+          <form
+            th:action="@{/admin/users/update}"
+            th:object="${userDto}"
+            method="post"
+            id="formEditUser"
+          >
+            <div class="card-body">
+              <input type="hidden" th:field="*{id}" />
 
-<body>
-  <div layout:fragment="content">
-    <div class="container-fluid">
-      <div class="card card-warning card-outline">
-        <form th:action="@{/admin/users/update}" th:object="${userDto}" method="post" id="formEditUser">
-          <div class="card-body">
-            <input type="hidden" th:field="*{id}" />
-
-            <div class="separator">
-              <span class="separator-text">Data Akun</span>
-            </div>
-
-            <div class="row">
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label>Username <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" th:field="*{username}" required autocomplete="off" />
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label>Email <span class="text-danger">*</span></label>
-                  <input type="email" class="form-control" th:field="*{email}" required autocomplete="off" />
-                </div>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label>Password Baru
-                    <small class="text-muted">(Kosongkan jika tidak ingin mengubah)</small></label>
-                  <input type="password" class="form-control" th:field="*{password}" placeholder="********" />
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="form-group">
-                  <label>Role <span class="text-danger">*</span></label>
-                  <select class="select2" multiple="multiple" id="roleSelect" th:field="*{roles}" required
-                    style="width: 100%">
-                    <option value="Admin">Admin</option>
-                    <option value="Asesi">Asesi</option>
-                    <option value="Asesor">Asesor</option>
-                    <option value="Direktur">Direktur</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <div id="wrapperDataPribadi">
               <div class="separator">
-                <span class="separator-text">Data Pribadi</span>
+                <span class="separator-text">Data Akun</span>
               </div>
 
               <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-6">
                   <div class="form-group">
-                    <label>Nama Lengkap <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" th:field="*{fullName}" required />
+                    <label>Username <span class="text-danger">*</span></label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      th:field="*{username}"
+                      required
+                      autocomplete="off"
+                    />
                   </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
                   <div class="form-group">
-                    <label>Tempat Lahir <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" th:field="*{birthPlace}" required />
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label>Tanggal Lahir <span class="text-danger">*</span></label>
-                    <input type="date" class="form-control" th:field="*{birthDate}" required />
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label>Jenis Kelamin<span class="text-danger">*</span></label>
-                    <select class="form-control" th:field="*{gender}" required>
-                      <option value="L">Laki-laki</option>
-                      <option value="P">Perempuan</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label>NIK<span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" th:field="*{nik}" required />
-                  </div>
-                </div>
-                <div class="col-md-4 group-asesi-only">
-                  <div class="form-group">
-                    <label>Kewarganegaraan<span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" th:field="*{citizenship}" required />
-                  </div>
-                </div>
-
-                <div class="col-md-4 group-asesor-only">
-                  <div class="form-group">
-                    <label>No. MET<span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" th:field="*{noMet}" required />
-                  </div>
-                </div>
-
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label>No Telepon<span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" th:field="*{phoneNumber}" required />
-                  </div>
-                </div>
-
-                <div class="col-md-4 group-asesi-asesor">
-                  <div class="form-group">
-                    <label>Pendidikan Terakhir<span class="text-danger">*</span></label>
-                    <select class="form-control select2" id="selectPendidikan" th:data-selected="*{educationId}"
-                      style="width: 100%" required>
-                      <option value="" disabled selected></option>
-                    </select>
-                    <input type="hidden" th:field="*{educationId}" id="inputPendidikan" />
+                    <label>Email <span class="text-danger">*</span></label>
+                    <input
+                      type="email"
+                      class="form-control"
+                      th:field="*{email}"
+                      required
+                      autocomplete="off"
+                    />
                   </div>
                 </div>
               </div>
 
-              <div class="row mt-2">
-                <div class="col-md-12">
+              <div class="row">
+                <div class="col-md-6">
                   <div class="form-group">
-                    <label>Alamat Jalan<span class="text-danger">*</span></label>
-                    <textarea class="form-control" rows="2" th:field="*{address}" required></textarea>
+                    <label
+                      >Password Baru
+                      <small class="text-muted"
+                        >(Kosongkan jika tidak ingin mengubah)</small
+                      ></label
+                    >
+                    <input
+                      type="password"
+                      class="form-control"
+                      th:field="*{password}"
+                      placeholder="********"
+                    />
                   </div>
                 </div>
-
-                <div class="col-md-4">
+                <div class="col-md-6">
                   <div class="form-group">
-                    <label>Provinsi<span class="text-danger">*</span></label>
-                    <select class="form-control select2" id="selectProvinsi" name="province"
-                      th:data-selected="*{provinceId}" required></select>
-                    <input type="hidden" th:field="*{provinceId}" id="inputProvinsi" />
-                  </div>
-                </div>
-
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label>Kota/Kabupaten<span class="text-danger">*</span></label>
-                    <select class="form-control select2" id="selectKota" name="city" th:data-selected="*{cityId}"
-                      disabled required>
-                      <option value="" disabled selected>
-                        Pilih Kota/Kab...
-                      </option>
+                    <label>Role <span class="text-danger">*</span></label>
+                    <select
+                      class="select2"
+                      multiple="multiple"
+                      id="roleSelect"
+                      th:field="*{roles}"
+                      required
+                      style="width: 100%"
+                    >
+                      <option value="Admin">Admin</option>
+                      <option value="Asesi">Asesi</option>
+                      <option value="Asesor">Asesor</option>
+                      <option value="Direktur">Direktur</option>
                     </select>
-                    <input type="hidden" th:field="*{cityId}" id="inputKota" />
+                  </div>
+                </div>
+              </div>
+
+              <div id="wrapperDataPribadi">
+                <div class="separator">
+                  <span class="separator-text">Data Pribadi</span>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label
+                        >Nama Lengkap <span class="text-danger">*</span></label
+                      >
+                      <input
+                        type="text"
+                        class="form-control"
+                        th:field="*{fullName}"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label
+                        >Tempat Lahir <span class="text-danger">*</span></label
+                      >
+                      <input
+                        type="text"
+                        class="form-control"
+                        th:field="*{birthPlace}"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label
+                        >Tanggal Lahir <span class="text-danger">*</span></label
+                      >
+                      <input
+                        type="date"
+                        class="form-control"
+                        th:field="*{birthDate}"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label
+                        >Jenis Kelamin<span class="text-danger">*</span></label
+                      >
+                      <select
+                        class="form-control"
+                        th:field="*{gender}"
+                        required
+                      >
+                        <option value="L">Laki-laki</option>
+                        <option value="P">Perempuan</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label>NIK<span class="text-danger">*</span></label>
+                      <!-- <input
+                        type="text"
+                        class="form-control"
+                        th:field="*{nik}"
+                        required
+                      /> -->
+                      <input
+                        type="text"
+                        class="form-control mask-nik"
+                        th:field="*{nik}"
+                        required
+                      />
+                    </div>
+                    <div class="invalid-feedback"></div>
+                  </div>
+                  <div class="col-md-4 group-asesi-only">
+                    <div class="form-group">
+                      <label
+                        >Kewarganegaraan<span class="text-danger"
+                          >*</span
+                        ></label
+                      >
+                      <input
+                        type="text"
+                        class="form-control"
+                        th:field="*{citizenship}"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div class="col-md-4 group-asesor-only">
+                    <div class="form-group">
+                      <label>No. MET<span class="text-danger">*</span></label>
+                      <div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text">MET.</span>
+                        </div>
+                        <input
+                          type="text"
+                          class="form-control mask-met"
+                          name="noMet"
+                          th:field="*{noMet}"
+                          placeholder="000.xxxxxx.YEAR"
+                          required
+                        />
+                      </div>
+                      <!-- <input type="text" class="form-control" th:field="*{noMet}" required /> -->
+                    </div>
+                  </div>
+
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label
+                        >No Telepon<span class="text-danger">*</span></label
+                      >
+                      <!-- <input
+                        type="text"
+                        class="form-control"
+                        th:field="*{phoneNumber}"
+                        required
+                      /> -->
+                      <div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text">+62</span>
+                        </div>
+                        <input
+                          type="text"
+                          class="form-control input-phone"
+                          name="phoneNumber"
+                          placeholder="812xxxxxxx"
+                          th:field="*{phoneNumber}"
+                          required
+                        />
+                      </div>
+                      <div class="invalid-feedback">
+                        Minimal 10 digit angka.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-md-4 group-asesi-asesor">
+                    <div class="form-group">
+                      <label
+                        >Pendidikan Terakhir<span class="text-danger"
+                          >*</span
+                        ></label
+                      >
+                      <select
+                        class="form-control select2"
+                        id="selectPendidikan"
+                        th:data-selected="*{educationId}"
+                        style="width: 100%"
+                        required
+                      >
+                        <option value="" disabled selected></option>
+                      </select>
+                      <input
+                        type="hidden"
+                        th:field="*{educationId}"
+                        id="inputPendidikan"
+                      />
+                    </div>
                   </div>
                 </div>
 
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label>Kecamatan<span class="text-danger">*</span></label>
-                    <select class="form-control select2" id="selectKecamatan" name="district"
-                      th:data-selected="*{districtId}" disabled required>
-                      <option value="" disabled selected>
-                        Pilih Kecamatan...
-                      </option>
-                    </select>
-                    <input type="hidden" th:field="*{districtId}" id="inputKecamatan" required />
+                <div class="row mt-2">
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label
+                        >Alamat Jalan<span class="text-danger">*</span></label
+                      >
+                      <textarea
+                        class="form-control"
+                        rows="2"
+                        th:field="*{address}"
+                        required
+                      ></textarea>
+                    </div>
                   </div>
-                </div>
 
-                <!-- <div class="col-md-3 group-asesi-only">
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label>Provinsi<span class="text-danger">*</span></label>
+                      <select
+                        class="form-control select2"
+                        id="selectProvinsi"
+                        name="province"
+                        th:data-selected="*{provinceId}"
+                        required
+                      ></select>
+                      <input
+                        type="hidden"
+                        th:field="*{provinceId}"
+                        id="inputProvinsi"
+                      />
+                    </div>
+                  </div>
+
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label
+                        >Kota/Kabupaten<span class="text-danger">*</span></label
+                      >
+                      <select
+                        class="form-control select2"
+                        id="selectKota"
+                        name="city"
+                        th:data-selected="*{cityId}"
+                        disabled
+                        required
+                      >
+                        <option value="" disabled selected>
+                          Pilih Kota/Kab...
+                        </option>
+                      </select>
+                      <input
+                        type="hidden"
+                        th:field="*{cityId}"
+                        id="inputKota"
+                      />
+                    </div>
+                  </div>
+
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label>Kecamatan<span class="text-danger">*</span></label>
+                      <select
+                        class="form-control select2"
+                        id="selectKecamatan"
+                        name="district"
+                        th:data-selected="*{districtId}"
+                        disabled
+                        required
+                      >
+                        <option value="" disabled selected>
+                          Pilih Kecamatan...
+                        </option>
+                      </select>
+                      <input
+                        type="hidden"
+                        th:field="*{districtId}"
+                        id="inputKecamatan"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <!-- <div class="col-md-3 group-asesi-only">
                     <div class="form-group">
                       <label>Kelurahan<span class="text-danger">*</span></label>
                       <select
@@ -186,164 +357,261 @@
                       />
                     </div>
                   </div> -->
-              </div>
-
-              <div class="row mt-3">
-                <div class="col-md-4 group-asesi-only">
-                  <div class="form-group">
-                    <label>Kode Pos<span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" th:field="*{postalCode}" required />
-                  </div>
                 </div>
 
-                <div class="col-md-4">
-
-                  <div class="form-group">
-                    <label>Tanda Tangan<span class="text-danger">*</span></label>
-
-                    <input type="hidden" th:field="*{signatureBase64}" id="signatureInput" />
-
-                    <div id="signaturePreview" class="mb-2"
-                      th:style="${userDto.signatureBase64 != null} ? 'display:block' : 'display:none'">
-                      <img th:src="*{signatureBase64}" id="imgPreview"
-                        style="max-height: 100px; border: 1px dashed #ccc" />
-
-                      <p class="text-success small">
-                        <i class="fas fa-check-circle"></i> Tanda tangan
-                        tersimpan
-                      </p>
-                    </div>
-
-                    <button type="button" class="btn btn-outline-primary btn-block" id="btnTriggerSignature"
-                      data-toggle="modal" data-target="#modalSignature">
-                      <i class="fas fa-pen-nib"></i>
-                      <span
-                        th:text="${userDto.signatureBase64 != null} ? 'Ubah Tanda Tangan' : 'Masukkan Tanda Tangan'"></span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div id="sectionDataPekerjaan">
-              <div class="separator">
-                <span class="separator-text">Data Pekerjaan</span>
-              </div>
-
-              <div class="row">
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label>Jenis Pekerjaan
-                      <span class="text-danger">*</span></label>
-                    <select class="form-control select2" id="selectPekerjaan" name="jobType"
-                      th:data-selected="*{jobTypeId}" style="width: 100%" required>
-                      <option value="">Pilih Pekerjaan...</option>
-                    </select>
-                    <input type="hidden" th:field="*{jobTypeId}" id="inputPekerjaan" />
-                  </div>
-                </div>
-              </div>
-
-              <div id="wrapperDetailInstansi">
-                <div class="row">
-                  <div class="col-md-6">
+                <div class="row mt-3">
+                  <div class="col-md-4 group-asesi-only">
                     <div class="form-group">
-                      <label>Nama Instansi/Perusahaan
-                        <span class="text-danger">*</span></label>
-                      <input type="text" class="form-control" th:field="*{companyName}" id="inputCompanyName"
-                        required />
+                      <label>Kode Pos<span class="text-danger">*</span></label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        th:field="*{postalCode}"
+                        required
+                      />
                     </div>
                   </div>
-                  <div class="col-md-6">
-                    <div class="form-group">
-                      <label>Jabatan</label>
-                      <input type="text" class="form-control" th:field="*{position}" />
-                    </div>
-                  </div>
-                </div>
-                <div class="row">
+
                   <div class="col-md-4">
                     <div class="form-group">
-                      <label>Telp Kantor</label><input type="text" class="form-control" th:field="*{officePhone}" />
-                    </div>
-                  </div>
-                  <div class="col-md-4">
-                    <div class="form-group">
-                      <label>Email Kantor</label><input type="text" class="form-control" th:field="*{officeEmail}" />
-                    </div>
-                  </div>
-                  <div class="col-md-4">
-                    <div class="form-group">
-                      <label>Fax</label><input type="text" class="form-control" th:field="*{officeFax}" />
+                      <label
+                        >Tanda Tangan<span class="text-danger">*</span></label
+                      >
+
+                      <input
+                        type="hidden"
+                        th:field="*{signatureBase64}"
+                        id="signatureInput"
+                      />
+
+                      <div
+                        id="signaturePreview"
+                        class="mb-2"
+                        th:style="${userDto.signatureBase64 != null} ? 'display:block' : 'display:none'"
+                      >
+                        <img
+                          th:src="*{signatureBase64}"
+                          id="imgPreview"
+                          style="max-height: 100px; border: 1px dashed #ccc"
+                        />
+
+                        <p class="text-success small">
+                          <i class="fas fa-check-circle"></i> Tanda tangan
+                          tersimpan
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        class="btn btn-outline-primary btn-block"
+                        id="btnTriggerSignature"
+                        data-toggle="modal"
+                        data-target="#modalSignature"
+                      >
+                        <i class="fas fa-pen-nib"></i>
+                        <span
+                          th:text="${userDto.signatureBase64 != null} ? 'Ubah Tanda Tangan' : 'Masukkan Tanda Tangan'"
+                        ></span>
+                      </button>
                     </div>
                   </div>
                 </div>
+              </div>
+
+              <div id="sectionDataPekerjaan">
+                <div class="separator">
+                  <span class="separator-text">Data Pekerjaan</span>
+                </div>
+
                 <div class="row">
                   <div class="col-md-12">
                     <div class="form-group">
-                      <label>Alamat Kantor</label><textarea class="form-control" rows="1"
-                        th:field="*{officeAddress}"></textarea>
+                      <label
+                        >Jenis Pekerjaan
+                        <span class="text-danger">*</span></label
+                      >
+                      <select
+                        class="form-control select2"
+                        id="selectPekerjaan"
+                        name="jobType"
+                        th:data-selected="*{jobTypeId}"
+                        style="width: 100%"
+                        required
+                      >
+                        <option value="">Pilih Pekerjaan...</option>
+                      </select>
+                      <input
+                        type="hidden"
+                        th:field="*{jobTypeId}"
+                        id="inputPekerjaan"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div id="wrapperDetailInstansi">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label
+                          >Nama Instansi/Perusahaan
+                          <span class="text-danger">*</span></label
+                        >
+                        <input
+                          type="text"
+                          class="form-control"
+                          th:field="*{companyName}"
+                          id="inputCompanyName"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label>Jabatan</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          th:field="*{position}"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label>Telp Kantor</label
+                        ><input
+                          type="text"
+                          class="form-control"
+                          th:field="*{officePhone}"
+                        />
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label>Email Kantor</label
+                        ><input
+                          type="text"
+                          class="form-control"
+                          th:field="*{officeEmail}"
+                        />
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label>Fax</label
+                        ><input
+                          type="text"
+                          class="form-control"
+                          th:field="*{officeFax}"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label>Alamat Kantor</label
+                        ><textarea
+                          class="form-control"
+                          rows="1"
+                          th:field="*{officeAddress}"
+                        ></textarea>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div class="card-footer">
-            <a th:href="@{/admin/data-pengguna}" class="btn btn-default mr-2">Batal</a>
-            <button type="submit" class="btn btn-warning">
-              <i class="fas fa-save"></i>Simpan
-            </button>
-          </div>
-        </form>
-        <div class="modal fade" id="modalSignature" tabindex="-1" role="dialog" aria-labelledby="modalSigLabel"
-          data-backdrop="static">
-          <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="modalSigLabel">Tanda Tangan</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <div class="modal-body text-center">
-                <div class="signature-wrapper">
-                  <canvas id="signature-canvas" style="width: 100%; height: 100%; display: block"></canvas>
-                  <div class="text-muted small text-center" style="
+            <div class="card-footer">
+              <a th:href="@{/admin/data-pengguna}" class="btn btn-default mr-2"
+                >Batal</a
+              >
+              <button type="submit" class="btn btn-warning">
+                <i class="fas fa-save"></i>Simpan
+              </button>
+            </div>
+          </form>
+          <div
+            class="modal fade"
+            id="modalSignature"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="modalSigLabel"
+            data-backdrop="static"
+          >
+            <div
+              class="modal-dialog modal-dialog-centered modal-lg"
+              role="document"
+            >
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="modalSigLabel">Tanda Tangan</h5>
+                  <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                  >
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body text-center">
+                  <div class="signature-wrapper">
+                    <canvas
+                      id="signature-canvas"
+                      style="width: 100%; height: 100%; display: block"
+                    ></canvas>
+                    <div
+                      class="text-muted small text-center"
+                      style="
                         position: absolute;
                         bottom: 10px;
                         width: 100%;
                         pointer-events: none;
                         opacity: 0.5;
-                      ">
-                    Area Tanda Tangan
+                      "
+                    >
+                      Area Tanda Tangan
+                    </div>
                   </div>
+
+                  <input type="file" id="uploadSigFile" accept="image/png" />
                 </div>
+                <div class="modal-footer justify-content-center">
+                  <button
+                    type="button"
+                    class="btn btn-default"
+                    data-dismiss="modal"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-outline-danger"
+                    id="btnClear"
+                  >
+                    Hapus Kanvas
+                  </button>
 
-                <input type="file" id="uploadSigFile" accept="image/png" />
-              </div>
-              <div class="modal-footer justify-content-center">
-                <button type="button" class="btn btn-default" data-dismiss="modal">
-                  Batal
-                </button>
-                <button type="button" class="btn btn-outline-danger" id="btnClear">
-                  Hapus Kanvas
-                </button>
-
-                <button type="button" class="btn btn-success" id="btnUpload">
-                  Upload Signature
-                </button>
-                <button type="button" class="btn btn-danger" id="btnSaveSignature">
-                  Simpan
-                </button>
+                  <button type="button" class="btn btn-success" id="btnUpload">
+                    Upload Signature
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-danger"
+                    id="btnSaveSignature"
+                  >
+                    Simpan
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-</body>
-
+  </body>
 </html>

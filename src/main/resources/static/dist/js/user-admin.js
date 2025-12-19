@@ -16,24 +16,24 @@ $(document).ready(function () {
     "Username tidak boleh mengandung spasi atau karakter spesial."
   );
 
-  // Override pesan default
-  $.extend($.validator.messages, {
-    required: "Isilah Form Ini!",
-    email: "Format email tidak valid (contoh: user@domain.com)",
-    usernameRegex: "Username hanya boleh huruf dan angka (tanpa spasi).",
-  });
+  // // Override pesan default
+  // $.extend($.validator.messages, {
+  //   // required: "Isilah Form Ini!",
+  //   email: "Format email tidak valid (contoh: user@domain.com)",
+  //   usernameRegex: "Username hanya boleh huruf dan angka (tanpa spasi).",
+  // });
 
-  // Validasi Real-time Select2
-  $(".select2").on("change", function () {
-    $(this).valid();
-  });
+  // // Validasi Real-time Select2
+  // $(".select2").on("change", function () {
+  //   $(this).valid();
+  // });
 
   // Inject CSS Border Error
   $(
     "<style>.is-invalid-border { border-color: #dc3545 !important; }</style>"
   ).appendTo("head");
 
-  $(".delete-button").on("click", function (e) {
+  $(".delete-button-users").on("click", function (e) {
     e.preventDefault();
     var realLink = $(this).attr("href");
 
@@ -250,6 +250,85 @@ $(document).ready(function () {
   });
 
   // ==========================================
+  // 5. INPUT MASKING & FORMATTING (FITUR BARU)
+  // ==========================================
+
+  // A. FORMAT NIK: 32.73.28.580491.0291
+  // Menggunakan Inputmask (Pastikan script inputmask diload di html)
+  if ($(".mask-nik").length) {
+    $(".mask-nik").inputmask({
+      mask: "99.99.99.999999.9999",
+      placeholder: "", // Jangan tampilkan underscore
+      removeMaskOnSubmit: false, // Kita handle manual di backend cleaningnya
+      showMaskOnHover: false,
+    });
+
+    // Validasi Realtime Panjang NIK
+    $(".mask-nik").on("keyup blur", function () {
+      var val = $(this).inputmask("unmaskedvalue"); // Ambil nilai asli angka saja
+      var isValid = val.length === 16;
+
+      if (!isValid && val.length > 0) {
+        $(this).addClass("is-invalid");
+        // Cari atau buat pesan error
+        var feedback = $(this).next(".invalid-feedback");
+        if (feedback.length === 0) {
+          $(this).after(
+            '<div class="invalid-feedback">NIK harus terdiri dari 16 digit angka.</div>'
+          );
+        } else {
+          feedback.text("NIK harus terdiri dari 16 digit angka.");
+        }
+      } else {
+        $(this).removeClass("is-invalid");
+      }
+    });
+  }
+
+  // B. FORMAT NO MET: 000.xxxxxx.YEAR (contoh: 123.456789.2024)
+  if ($(".mask-met").length) {
+    $(".mask-met").inputmask({
+      mask: "000.999999.9999",
+      placeholder: "000.xxxxxx.xxxx",
+      showMaskOnHover: false,
+    });
+  }
+
+  // C. FORMAT NO TELP: Hapus '0' di depan + Min 10 Digit
+  $(".input-phone").on("input keyup", function () {
+    var val = $(this).val();
+
+    // 1. Hapus karakter non-angka
+    val = val.replace(/[^0-9]/g, "");
+
+    // 2. Hapus '0' di awal jika ada
+    if (val.startsWith("0")) {
+      val = val.substring(1);
+    }
+
+    $(this).val(val); // Update nilai di form
+
+    // 3. Validasi Min 10 Digit
+    if (val.length > 0 && val.length < 10) {
+      $(this).addClass("is-invalid");
+      var feedback = $(this).parent().next(".invalid-feedback"); // Karena ada input-group
+      if (feedback.length === 0) {
+        // Jika input group, error harus diluar input-group
+        $(this)
+          .closest(".input-group")
+          .after(
+            '<div class="invalid-feedback" style="display:block">Minimal 10 digit angka.</div>'
+          );
+      } else {
+        feedback.show().text("Minimal 10 digit angka.");
+      }
+    } else {
+      $(this).removeClass("is-invalid");
+      $(this).closest(".input-group").next(".invalid-feedback").hide();
+    }
+  });
+
+  // ==========================================
   // 4. VALIDASI FORM & AJAX SUBMIT
   // ==========================================
 
@@ -301,6 +380,19 @@ $(document).ready(function () {
             },
           },
         },
+      },
+      nik: {
+        required: true,
+        // Custom rule cek panjang unmasked value
+        normalizer: function (value) {
+          return $(".mask-nik").inputmask("unmaskedvalue");
+        },
+        minlength: 16,
+        maxlength: 16,
+      },
+      phoneNumber: {
+        required: true,
+        minlength: 10,
       },
       fullName: { required: true },
       provinceId: { required: true },

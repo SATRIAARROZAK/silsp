@@ -568,97 +568,205 @@ public class AdminController {
 
     @PostMapping("/data-pengguna/save")
     @ResponseBody
-    public ResponseEntity<?> saveUser(@ModelAttribute UserDto userDto) {
-        // public String saveUser(@ModelAttribute UserDto userDto) {
-        User user = new User();
-
-        // Cek Duplikat Username
-        if (userRepository.existsByUsername(userDto.getUsername())) {
-            // Perhatikan key "field": "username"
-            return ResponseEntity.badRequest().body(
-                    "{\"status\": \"error\", \"field\": \"username\", \"message\": \"Username sudah terdaftar\"}");
-        }
-        // Cek Duplikat Email
-        if (userRepository.existsByEmail(userDto.getEmail())) {
-            // Perhatikan key "field": "email"
-            return ResponseEntity.badRequest()
-                    .body("{\"status\": \"error\", \"field\": \"email\", \"message\": \"Email sudah terdaftar\"}");
-        }
-
-        // 1. DATA AKUN DASAR
-        user.setUsername(userDto.getUsername());
-        user.setEmail(userDto.getEmail());
-
-        // Password Default (Harusnya di-encode)
-        user.setPassword(passwordEncoder.encode("12345678"));
-        // user.setPassword(passwordEncoder.encode("123456"));
-        // user.setPassword("{noop}123456"); // Contoh tanpa encoder sementara
-
-        // ==========================================
-        // PERBAIKAN: LOGIKA SIMPAN ROLE
-        // ==========================================
-        Set<Role> roles = new HashSet<>();
-
-        // Cek apakah user memilih role di form?
-        if (userDto.getRoles() != null && !userDto.getRoles().isEmpty()) {
-            for (String roleName : userDto.getRoles()) {
-                // Cari Role di database berdasarkan nama ("ADMIN", "ASESI", dll)
-                Role role = roleRepository.findByName(roleName).orElse(null);
-
-                if (role != null) {
-                    roles.add(role);
-                } else {
-                    // Opsional: Handle jika role tidak ditemukan di DB
-                    System.out.println("Role tidak ditemukan: " + roleName);
-                }
+    public ResponseEntity<?> saveUser(@ModelAttribute UserDto userDto,
+            @RequestParam("roles") List<String> roles,
+            RedirectAttributes redirectAttributes) {
+        try {
+            User user = new User();
+            // Cek Duplikat Username
+            if (userRepository.existsByUsername(userDto.getUsername())) {
+                // Perhatikan key "field": "username"
+                return ResponseEntity.badRequest().body(
+                        "{\"status\": \"error\", \"field\": \"username\", \"message\": \"Username sudah terdaftar\"}");
             }
+            // Cek Duplikat Email
+            if (userRepository.existsByEmail(userDto.getEmail())) {
+                // Perhatikan key "field": "email"
+                return ResponseEntity.badRequest()
+                        .body("{\"status\": \"error\", \"field\": \"email\", \"message\": \"Email sudah terdaftar\"}");
+            }
+            user.setUsername(userDto.getUsername());
+            user.setEmail(userDto.getEmail());
+            user.setPassword(passwordEncoder.encode("12345678")); // Default password
+
+            // --- LOGIKA BARU: BERSIHKAN FORMAT SEBELUM SIMPAN ---
+
+            // 1. NIK: Hapus titik, simpan angka saja (32.73... -> 3273...)
+            if (userDto.getNik() != null) {
+                user.setNik(userDto.getNik().replaceAll("[^0-9]", ""));
+            }
+
+            // 2. NO TELP: Tambahkan '0' di depan (811... -> 0811...)
+            if (userDto.getPhoneNumber() != null) {
+                String rawPhone = userDto.getPhoneNumber().replaceAll("[^0-9]", ""); // Pastikan angka saja
+                // Jika user iseng nulis 0 di depan, hapus dulu baru tambah 0 (biar ga double)
+                if (rawPhone.startsWith("0"))
+                    rawPhone = rawPhone.substring(1);
+                user.setPhoneNumber("0" + rawPhone);
+            }
+
+            // 3. DATA PRIBADI LAIN
+            user.setFullName(userDto.getFullName());
+            user.setBirthPlace(userDto.getBirthPlace());
+            user.setBirthDate(userDto.getBirthDate());
+            user.setGender(userDto.getGender());
+            user.setAddress(userDto.getAddress());
+            user.setPostalCode(userDto.getPostalCode());
+            user.setCitizenship(userDto.getCitizenship());
+            user.setCompanyName(userDto.getCompanyName());
+            user.setPosition(userDto.getPosition());
+            user.setOfficePhone(userDto.getOfficePhone());
+            user.setOfficeEmail(userDto.getOfficeEmail());
+            user.setOfficeFax(userDto.getOfficeFax());
+            user.setOfficeAddress(userDto.getOfficeAddress());
+
+            // 3. RELASI 3NF (ID ke Object)
+            if (userDto.getEducationId() != null) {
+                user.setEducationId(educationRepository.findById(userDto.getEducationId()).orElse(null));
+            }
+            if (userDto.getJobTypeId() != null) {
+                user.setJobTypeId(jobTypeRepository.findById(userDto.getJobTypeId()).orElse(null));
+            }
+
+            // ... (Set Wilayah ID seperti kode sebelumnya) ...
+            user.setProvinceId(userDto.getProvinceId());
+            user.setCityId(userDto.getCityId());
+            user.setDistrictId(userDto.getDistrictId());
+            // user.setSubDistrictId(userDto.getSubDistrictId());
+            user.setSignatureBase64(userDto.getSignatureBase64());
+
+            // --- LOGIKA ROLE & DATA SPESIFIK ---
+            Set<Role> roleSet = new HashSet<>();
+            for (String roleName : roles) {
+                Role role = roleRepository.findByName(roleName)
+                        .orElseThrow(() -> new RuntimeException("Role not found"));
+                roleSet.add(role);
+
+                // 4. KHUSUS ASESOR: NO MET
+                // Format Input: 000.123456.2024 -> DB: MET.000.123456.2024
+                if (roleName.equalsIgnoreCase("Asesor")) {
+                    if (userDto.getNoMet() != null) {
+                        user.setNoMet("MET." + userDto.getNoMet());
+                    }
+                    // ... (Set JobType) ...
+                }
+                // ... (Logic Asesi Citizenship) ...
+            }
+            user.setRoles(roleSet);
+
+            userRepository.save(user);
+            // redirectAttributes.addFlashAttribute("success", "Pengguna berhasil
+            // ditambahkan!");
+            return ResponseEntity.ok()
+                    .body("{\"status\": \"success\", \"message\": \"Data berhasil ditambahkan\", \"id\": "
+                            + user.getId()
+                            + "}");
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body("{\"status\": \"error\", \"message\": \"Gagal: " + e.getMessage() + "\"}");
         }
-        // Set Role ke Entity User
-        user.setRoles(roles);
-        // ==========================================
 
-        // 2. DATA PRIBADI & LAINNYA (Sama seperti sebelumnya)
-        user.setFullName(userDto.getFullName());
-        user.setBirthPlace(userDto.getBirthPlace());
-        user.setBirthDate(userDto.getBirthDate());
-        user.setGender(userDto.getGender());
-        user.setNik(userDto.getNik());
-        user.setPhoneNumber(userDto.getPhoneNumber());
-        user.setAddress(userDto.getAddress());
-        user.setPostalCode(userDto.getPostalCode());
-        user.setCitizenship(userDto.getCitizenship());
-        user.setNoMet(userDto.getNoMet());
-
-        user.setCompanyName(userDto.getCompanyName());
-        user.setPosition(userDto.getPosition());
-        user.setOfficePhone(userDto.getOfficePhone());
-        user.setOfficeEmail(userDto.getOfficeEmail());
-        user.setOfficeFax(userDto.getOfficeFax());
-        user.setOfficeAddress(userDto.getOfficeAddress());
-
-        // 3. RELASI 3NF (ID ke Object)
-        if (userDto.getEducationId() != null) {
-            user.setEducationId(educationRepository.findById(userDto.getEducationId()).orElse(null));
-        }
-        if (userDto.getJobTypeId() != null) {
-            user.setJobTypeId(jobTypeRepository.findById(userDto.getJobTypeId()).orElse(null));
-        }
-
-        // 4. WILAYAH & SIGNATURE
-        user.setProvinceId(userDto.getProvinceId());
-        user.setCityId(userDto.getCityId());
-        user.setDistrictId(userDto.getDistrictId());
-        user.setSubDistrictId(userDto.getSubDistrictId());
-        user.setSignatureBase64(userDto.getSignatureBase64());
-
-        userRepository.save(user);
-        return ResponseEntity.ok().body(
-                "{\"status\": \"success\", \"message\": \"Pengguna berhasil disimpan\", \"id\": " + user.getId() + "}");
-
-        // userRepository.save(user);
-        // return ResponseEntity.ok().body("{\"status\": \"success\", \"message\":
-        // \"Pengguna berhasil disimpan\"}");
+        // e.printStackTrace();
+        // redirectAttributes.addFlashAttribute("error", "Gagal menyimpan: " +
+        // e.getMessage());
+        // }
+        // return "redirect:/admin/data-pengguna";
     }
+    // public ResponseEntity<?> saveUser(@ModelAttribute UserDto userDto) {
+    // // public String saveUser(@ModelAttribute UserDto userDto) {
+    // User user = new User();
+
+    // // Cek Duplikat Username
+    // if (userRepository.existsByUsername(userDto.getUsername())) {
+    // // Perhatikan key "field": "username"
+    // return ResponseEntity.badRequest().body(
+    // "{\"status\": \"error\", \"field\": \"username\", \"message\": \"Username
+    // sudah terdaftar\"}");
+    // }
+    // // Cek Duplikat Email
+    // if (userRepository.existsByEmail(userDto.getEmail())) {
+    // // Perhatikan key "field": "email"
+    // return ResponseEntity.badRequest()
+    // .body("{\"status\": \"error\", \"field\": \"email\", \"message\": \"Email
+    // sudah terdaftar\"}");
+    // }
+
+    // // 1. DATA AKUN DASAR
+    // user.setUsername(userDto.getUsername());
+    // user.setEmail(userDto.getEmail());
+
+    // // Password Default (Harusnya di-encode)
+    // user.setPassword(passwordEncoder.encode("12345678"));
+    // // user.setPassword(passwordEncoder.encode("123456"));
+    // // user.setPassword("{noop}123456"); // Contoh tanpa encoder sementara
+
+    // // ==========================================
+    // // PERBAIKAN: LOGIKA SIMPAN ROLE
+    // // ==========================================
+    // Set<Role> roles = new HashSet<>();
+
+    // // Cek apakah user memilih role di form?
+    // if (userDto.getRoles() != null && !userDto.getRoles().isEmpty()) {
+    // for (String roleName : userDto.getRoles()) {
+    // // Cari Role di database berdasarkan nama ("ADMIN", "ASESI", dll)
+    // Role role = roleRepository.findByName(roleName).orElse(null);
+
+    // if (role != null) {
+    // roles.add(role);
+    // } else {
+    // // Opsional: Handle jika role tidak ditemukan di DB
+    // System.out.println("Role tidak ditemukan: " + roleName);
+    // }
+    // }
+    // }
+    // // Set Role ke Entity User
+    // user.setRoles(roles);
+    // // ==========================================
+
+    // // 2. DATA PRIBADI & LAINNYA (Sama seperti sebelumnya)
+    // user.setFullName(userDto.getFullName());
+    // user.setBirthPlace(userDto.getBirthPlace());
+    // user.setBirthDate(userDto.getBirthDate());
+    // user.setGender(userDto.getGender());
+    // user.setNik(userDto.getNik());
+    // user.setPhoneNumber(userDto.getPhoneNumber());
+    // user.setAddress(userDto.getAddress());
+    // user.setPostalCode(userDto.getPostalCode());
+    // user.setCitizenship(userDto.getCitizenship());
+    // user.setNoMet(userDto.getNoMet());
+
+    // user.setCompanyName(userDto.getCompanyName());
+    // user.setPosition(userDto.getPosition());
+    // user.setOfficePhone(userDto.getOfficePhone());
+    // user.setOfficeEmail(userDto.getOfficeEmail());
+    // user.setOfficeFax(userDto.getOfficeFax());
+    // user.setOfficeAddress(userDto.getOfficeAddress());
+
+    // // 3. RELASI 3NF (ID ke Object)
+    // if (userDto.getEducationId() != null) {
+    // user.setEducationId(educationRepository.findById(userDto.getEducationId()).orElse(null));
+    // }
+    // if (userDto.getJobTypeId() != null) {
+    // user.setJobTypeId(jobTypeRepository.findById(userDto.getJobTypeId()).orElse(null));
+    // }
+
+    // // 4. WILAYAH & SIGNATURE
+    // user.setProvinceId(userDto.getProvinceId());
+    // user.setCityId(userDto.getCityId());
+    // user.setDistrictId(userDto.getDistrictId());
+    // user.setSubDistrictId(userDto.getSubDistrictId());
+    // user.setSignatureBase64(userDto.getSignatureBase64());
+
+    // userRepository.save(user);
+    // return ResponseEntity.ok().body(
+    // "{\"status\": \"success\", \"message\": \"Pengguna berhasil
+    // disimpan\",\"id\": " + user.getId() + "}");
+
+    // // userRepository.save(user);
+    // // return ResponseEntity.ok().body("{\"status\": \"success\", \"message\":
+    // // \"Pengguna berhasil disimpan\"}");
+    // }
 
     @GetMapping("/data-pengguna/view-users/{id}")
 
@@ -732,11 +840,23 @@ public class AdminController {
         userDto.setBirthDate(user.getBirthDate());
         userDto.setGender(user.getGender());
         userDto.setNik(user.getNik());
-        userDto.setPhoneNumber(user.getPhoneNumber());
+        // userDto.setPhoneNumber(user.getPhoneNumber());
         userDto.setAddress(user.getAddress());
         userDto.setPostalCode(user.getPostalCode());
         userDto.setCitizenship(user.getCitizenship());
-        userDto.setNoMet(user.getNoMet());
+        // userDto.setNoMet(user.getNoMet());
+
+        // 2. NO TELP: Hapus '0' di depan agar di form jadi (811...)
+        if (user.getPhoneNumber() != null && user.getPhoneNumber().startsWith("0")) {
+            userDto.setPhoneNumber(user.getPhoneNumber().substring(1));
+        } else {
+            userDto.setPhoneNumber(user.getPhoneNumber());
+        }
+
+        // 3. NO MET: Hapus "MET." di depan
+        if (user.getNoMet() != null) {
+            userDto.setNoMet(user.getNoMet().replace("MET.", "").trim());
+        }
 
         userDto.setCompanyName(user.getCompanyName());
         userDto.setPosition(user.getPosition());
@@ -755,7 +875,7 @@ public class AdminController {
         userDto.setProvinceId(user.getProvinceId());
         userDto.setCityId(user.getCityId());
         userDto.setDistrictId(user.getDistrictId());
-        userDto.setSubDistrictId(user.getSubDistrictId());
+        // userDto.setSubDistrictId(user.getSubDistrictId());
 
         userDto.setSignatureBase64(user.getSignatureBase64());
 
@@ -774,7 +894,10 @@ public class AdminController {
     @ResponseBody
     // public String updateUser(@ModelAttribute UserDto userDto, RedirectAttributes
     // attributes) {
-    public ResponseEntity<?> updateUser(@ModelAttribute UserDto userDto) {
+    // public ResponseEntity<?> updateUser(@ModelAttribute UserDto userDto) {
+    public ResponseEntity<?> updateUser(@ModelAttribute UserDto userDto,
+            @RequestParam("roles") List<String> roles,
+            RedirectAttributes redirectAttributes) {
         try {
 
             // // 1. Validasi Duplikat (EDIT - Kecuali diri sendiri)
@@ -823,18 +946,33 @@ public class AdminController {
                 user.setRoles(newRoles);
             }
 
+            // 1. NIK: Bersihkan titik lagi sebelum simpan update
+            if (userDto.getNik() != null) {
+                user.setNik(userDto.getNik().replaceAll("[^0-9]", ""));
+            }
+
+            // 2. NO TELP: Tambahkan '0' lagi
+            if (userDto.getPhoneNumber() != null) {
+                String rawPhone = userDto.getPhoneNumber().replaceAll("[^0-9]", "");
+                if (rawPhone.startsWith("0"))
+                    rawPhone = rawPhone.substring(1);
+                user.setPhoneNumber("0" + rawPhone);
+            }
+
             // E. UPDATE DATA PRIBADI & LAINNYA
             // (Kita update juga agar sinkron dengan form edit yang mungkin diubah user)
             user.setFullName(userDto.getFullName());
             user.setBirthPlace(userDto.getBirthPlace());
             user.setBirthDate(userDto.getBirthDate());
             user.setGender(userDto.getGender());
-            user.setNik(userDto.getNik());
-            user.setPhoneNumber(userDto.getPhoneNumber());
+            // user.setNik(userDto.getNik());
+            // user.setPhoneNumber(userDto.getPhoneNumber());
             user.setAddress(userDto.getAddress());
             user.setPostalCode(userDto.getPostalCode());
             user.setCitizenship(userDto.getCitizenship());
-            user.setNoMet(userDto.getNoMet());
+            // user.setNoMet(userDto.getNoMet());
+            // 3. NO MET (Di dalam loop role Asesor)
+            user.setNoMet("MET." + userDto.getNoMet());
 
             user.setCompanyName(userDto.getCompanyName());
             user.setPosition(userDto.getPosition());
@@ -855,7 +993,7 @@ public class AdminController {
             user.setProvinceId(userDto.getProvinceId());
             user.setCityId(userDto.getCityId());
             user.setDistrictId(userDto.getDistrictId());
-            user.setSubDistrictId(userDto.getSubDistrictId());
+            // user.setSubDistrictId(userDto.getSubDistrictId());
 
             // Signature: Hanya update jika ada tanda tangan baru, jika kosong biarkan yang
             // lama
@@ -898,26 +1036,99 @@ public class AdminController {
 
     }
 
-    @GetMapping("/data-pengguna/delete/{id}")
-    public String deletePengguna(@PathVariable Long id, RedirectAttributes attributes) {
+    // @GetMapping("/data-pengguna/delete/{id}")
+    // public String deletePengguna(@PathVariable Long id, RedirectAttributes
+    // attributes) {
 
+    // try {
+    // // Cek apakah user ada sebelum dihapus (Opsional, tapi bagus)
+    // if (!userRepository.existsById(id)) {
+    // attributes.addFlashAttribute("error", "Data pengguna tidak ditemukan!");
+    // return "redirect:/admin/data-pengguna";
+    // }
+
+    // // Lakukan penghapusan data
+    // userRepository.deleteById(id);
+
+    // // Kirim pesan sukses
+    // attributes.addFlashAttribute("success", "Data pengguna berhasil dihapus
+    // secara permanen!");
+    // } catch (Exception e) {
+    // // Tangani error, misal Foreign Key Constraint
+    // attributes.addFlashAttribute("error",
+    // "Gagal menghapus pengguna. Pastikan data terkait (misal: data registrasi)
+    // sudah dihapus.");
+    // }
+    // return "redirect:/admin/data-pengguna";
+    // }
+
+    // FITUR BARU: HAPUS ROLE SPESIFIK
+    @GetMapping("/data-pengguna/delete-role")
+    public String deleteUserRole(@RequestParam("userId") Long userId,
+            @RequestParam("roleName") String roleName,
+            RedirectAttributes attributes) {
         try {
-            // Cek apakah user ada sebelum dihapus (Opsional, tapi bagus)
-            if (!userRepository.existsById(id)) {
-                attributes.addFlashAttribute("error", "Data pengguna tidak ditemukan!");
-                return "redirect:/admin/data-pengguna";
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User tidak ditemukan"));
+
+            // 1. Cari Role yang mau dihapus
+            Role roleToRemove = roleRepository.findByName(roleName)
+                    .orElseThrow(() -> new RuntimeException("Role tidak ditemukan"));
+
+            // 2. Hapus Role dari Set roles user
+            if (user.getRoles().contains(roleToRemove)) {
+                user.getRoles().remove(roleToRemove);
+                // ============================================================
+                // FITUR BARU: PEMBERSIHAN DATA (DATA CLEANUP)
+                // ============================================================
+                // Jika Role yang dihapus adalah ASESOR, hapus data spesifik Asesor
+                if (roleName.equalsIgnoreCase("Asesor")) {
+                    user.setNoMet(null); // Hapus No MET
+                    user.setJobTypeId(null); // Hapus Jenis Pekerjaan (Relasi)
+                }
+                // Jika Role yang dihapus adalah ASESI, hapus data spesifik Asesi
+                else if (roleName.equalsIgnoreCase("Asesi")) {
+                    user.setCitizenship(null); // Hapus Kewarganegaraan
+                    user.setCompanyName(null);
+                    user.setPosition(null);
+                    user.setOfficePhone(null);
+                    user.setOfficeEmail(null);
+                    user.setOfficeFax(null);
+                    user.setOfficeAddress(null);
+                    // Data umum (Tgl Lahir, NIK, dll) biasanya tetap dipertahankan
+                    // karena melekat pada orangnya, bukan hanya rolenya.
+                    // Tapi jika ingin dihapus juga, tambahkan disini:
+                    // user.setNik(null);
+                }
+                // user.setFullName(user.getFullName());
+                // user.setBirthPlace(null);
+                // user.setBirthDate(null);
+                // user.setGender(null);
+                // user.setNik(null);
+                // user.setPhoneNumber(null);
+                // user.setAddress(null);
+                // user.setPostalCode(null);
+                // user.setCitizenship(null);
+                // user.setNoMet(null);
+
             }
 
-            // Lakukan penghapusan data
-            userRepository.deleteById(id);
+            // 3. Cek sisa role
+            if (user.getRoles().isEmpty()) {
+                // Jika tidak punya role lagi, hapus user permanen
+                userRepository.delete(user);
+                attributes.addFlashAttribute("success", "Akun pengguna dihapus karena tidak memiliki role lagi.");
+            } else {
+                // Jika masih punya role lain, simpan perubahannya saja
+                userRepository.save(user);
+                attributes.addFlashAttribute("success", "Role " + roleName + " berhasil dicabut dari pengguna.");
+            }
 
-            // Kirim pesan sukses
-            attributes.addFlashAttribute("success", "Data pengguna berhasil dihapus secara permanen!");
         } catch (Exception e) {
-            // Tangani error, misal Foreign Key Constraint
-            attributes.addFlashAttribute("error",
-                    "Gagal menghapus pengguna. Pastikan data terkait (misal: data registrasi) sudah dihapus.");
+            e.printStackTrace();
+            attributes.addFlashAttribute("error", "Gagal menghapus role: " + e.getMessage());
         }
+
         return "redirect:/admin/data-pengguna";
     }
 

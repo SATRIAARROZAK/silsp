@@ -4339,6 +4339,71 @@ $(function () {
   });
 });
 
+// ========================================================
+// JAVASCRIPT UTAMA TUK ADMIN (LIST, ADD, EDIT, VIEW)
+// ========================================================
+
+$(document).ready(function () {
+  // Override pesan error default jQuery Validate
+  $.extend($.validator.messages, {
+    required: "Isilah Form Ini!",
+    email: "Format email tidak valid",
+    number: "Harus berupa angka",
+  });
+
+  // Validasi Real-time saat Select2 berubah
+  $(".select2").on("change", function () {
+    $(this).valid();
+  });
+
+  // =========================================================
+  // USER VIEW ADMIN SCRIPTS
+  // =========================================================
+  if ($("#viewProv").length) {
+    const apiBaseUrl = "https://www.emsifa.com/api-wilayah-indonesia/api";
+
+    // Fungsi Fetch yang lebih sederhana & kuat
+    function setRegionName(url, elementId, fallbackId) {
+      if (!fallbackId) {
+        $("#" + elementId).val("-");
+        return;
+      }
+      $.ajax({
+        url: apiBaseUrl + url,
+        method: "GET",
+        success: function (data) {
+          // Cari ID yang cocok (pakai == agar string "11" cocok dengan int 11)
+          let found = data.find((item) => item.id == fallbackId);
+          if (found) {
+            $("#" + elementId).val(found.name);
+          } else {
+            $("#" + elementId).val(fallbackId); // Jika tidak ketemu, tampilkan ID
+          }
+        },
+        error: function () {
+          $("#" + elementId).val("Error Loading");
+        },
+      });
+    }
+
+    // Eksekusi Berurutan
+    let provId = $("#viewProv").data("id");
+    setRegionName("/provinces.json", "viewProv", provId);
+
+    let cityId = $("#viewCity").data("id");
+    if (provId && cityId)
+      setRegionName(`/regencies/${provId}.json`, "viewCity", cityId);
+
+    let distId = $("#viewDist").data("id");
+    if (cityId && distId)
+      setRegionName(`/districts/${cityId}.json`, "viewDist", distId);
+
+    let subDistId = $("#viewSubDist").data("id");
+    if (distId && subDistId)
+      setRegionName(`/villages/${distId}.json`, "viewSubDist", subDistId);
+  }
+});
+
 // // =======================================================
 // // TABLE ROW EXPANDABLE
 // // =======================================================
@@ -4377,5 +4442,3 @@ $(function () {
 //     });
 //   });
 // });
-
-

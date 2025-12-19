@@ -1,322 +1,576 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-  layout:decorate="~{layouts/app}">
+<html
+  lang="en"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/app}"
+>
+  <head th:replace="~{fragments/header :: header('Tambah Pengguna')}"> </head>
 
-<head th:replace="~{fragments/header :: header('Tambah Pengguna')}"> </head>
-
-<body>
-  <div layout:fragment="content">
-    <div class="container-fluid">
-      <div class="card card-blue-dark">
-        <div class="card-header">
-          <h3 class="card-title">Form Tambah Pengguna</h3>
-        </div>
-        <form th:action="@{/admin/data-pengguna/save}" method="post" enctype="multipart/form-data" id="formTambahUser"
-          novalidate>
-          <div class="card-body">
-            <div class="separator">
-              <span class="separator-text">Data Akun</span>
-            </div>
-            <div class="row">
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label>Username <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" name="username" required autocomplete="off" autofocus />
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label>Email <span class="text-danger">*</span></label>
-                  <input type="email" class="form-control" name="email" required autocomplete="off" />
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label>Role <span class="text-danger">*</span></label>
-                  <select class="select2" multiple="multiple" id="roleSelect" name="roles" data-placeholder="Pilih Role"
-                    style="width: 100%" required>
-                    <option value="Admin">Admin</option>
-                    <option value="Asesi">Asesi</option>
-                    <option value="Asesor">Asesor</option>
-                    <option value="Direktur">Direktur</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <div id="wrapperDataPribadi">
-              <div class="separator">
-                <span class="separator-text">Data Pribadi</span>
-              </div>
-
-              <div class="row">
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label>Nama Lengkap<span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="fullName" required />
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label>Tempat Lahir<span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="birthPlace" required />
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label>Tanggal Lahir<span class="text-danger">*</span></label>
-                    <input type="date" class="form-control" name="birthDate" required />
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label>Jenis Kelamin<span class="text-danger">*</span></label>
-                    <select class="form-control" name="gender" required>
-                      <option value="" disabled selected>
-                        ---Pilih Jenis Kelamin---
-                      </option>
-                      <option value="L">Laki-laki</option>
-                      <option value="P">Perempuan</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label>NIK<span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="nik" required />
-                  </div>
-                </div>
-                <div class="col-md-4 group-asesi-only">
-                  <div class="form-group">
-                    <label>Kewarganegaraan<span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="citizenship" required />
-                  </div>
-                </div>
-
-                <div class="col-md-4 group-asesor-only">
-                  <div class="form-group">
-                    <label>No. MET<span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="noMet" required />
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label>No Telepon<span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="phoneNumber" required />
-                  </div>
-                </div>
-                <div class="col-md-4 group-asesi-asesor">
-                  <div class="form-group">
-                    <label>Pendidikan Terakhir<span class="text-danger">*</span></label>
-                    <select class="form-control" name="lastEducation" style="width: 100%" id="selectPendidikan"
-                      required>
-                      <option value="" disabled selected>
-                        ---Pilih Pendidikan Terakhir---
-                      </option>
-                    </select>
-                    <input type="hidden" name="educationId" id="inputPendidikan" />
-                  </div>
-                </div>
-              </div>
-
-              <div class="row">
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label>Provinsi</label>
-                    <select class="form-control select2" style="width: 100%" name="province" id="selectProvinsi"
-                      required></select>
-                    <input type="hidden" name="provinceId" id="inputProvinsi" />
-                  </div>
-                </div>
-
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label>Kota/Kabupaten</label>
-                    <select class="form-control select2" style="width: 100%" name="city" id="selectKota" disabled
-                      required></select>
-                    <input type="hidden" name="cityId" id="inputKota" />
-                  </div>
-                </div>
-
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label>Kecamatan</label>
-                    <select class="form-control select2" style="width: 100%" id="selectKecamatan" name="district"
-                      required disabled></select>
-                    <input type="hidden" name="districtId" id="inputKecamatan" />
-                  </div>
-                </div>
-
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label>Alamat Jalan<span class="text-danger">*</span></label>
-                    <textarea class="form-control" name="address" rows="2" required></textarea>
-                  </div>
-                </div>
-              </div>
-
-              <div class="row mt-2">
-                <div class="col-md-4 group-asesi-only">
-                  <div class="form-group">
-                    <label>Kode Pos<span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="postalCode" required />
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="form-group">
-                    <label>Tanda Tangan<span class="text-danger">*</span></label>
-                    <input type="hidden" name="signatureBase64" id="signatureInput" required />
-
-                    <div id="signaturePreview" class="mb-2" style="display: none">
-                      <img src="" id="imgPreview" style="max-height: 100px; border: 1px dashed #ccc" />
-                      <p class="text-success small">
-                        <i class="fas fa-check-circle"></i> Tanda tangan
-                        tersimpan
-                      </p>
-                    </div>
-                    <button type="button" class="btn btn-outline-primary btn-block" id="btnTriggerSignature"
-                      data-toggle="modal" data-target="#modalSignature">
-                      <i class="fas fa-pen-nib"></i> Masukkan Tanda Tangan
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div id="sectionDataPekerjaan" style="display: none">
-              <div class="separator">
-                <span class="separator-text">Data Pekerjaan</span>
-              </div>
-
-              <div class="row">
-                <div class="col-md-12">
-                  <div class="form-group">
-                    <label>Jenis Pekerjaan
-                      <span class="text-danger">*</span></label>
-                    <select class="form-control select2" id="selectPekerjaan" name="jobType" style="width: 100%"
-                      required>
-                      <option value="" disabled selected>
-                        Pilih Pekerjaan...
-                      </option>
-                    </select>
-                    <input type="hidden" name="jobTypeId" id="inputPekerjaan" />
-                  </div>
-                </div>
-              </div>
-
-              <div id="wrapperDetailInstansi">
-                <div class="row">
-                  <div class="col-md-6">
-                    <div class="form-group">
-                      <label>Nama Instansi/Perusahaan
-                        <span class="text-danger">*</span></label>
-                      <input type="text" class="form-control" name="companyName" id="inputCompanyName" required />
-                    </div>
-                  </div>
-
-                  <div class="col-md-6">
-                    <div class="form-group">
-                      <label>Jabatan</label>
-                      <input type="text" class="form-control" name="position" />
-                    </div>
-                  </div>
-                </div>
-
-                <div class="row">
-                  <div class="col-md-4">
-                    <div class="form-group">
-                      <label>No. Telp Kantor</label>
-                      <input type="text" class="form-control" name="officePhone" />
-                    </div>
-                  </div>
-
-                  <div class="col-md-4">
-                    <div class="form-group">
-                      <label>Email Kantor</label>
-                      <input type="text" class="form-control" name="officeEmail" />
-                    </div>
-                  </div>
-
-                  <div class="col-md-4">
-                    <div class="form-group">
-                      <label>No. Fax</label>
-                      <input type="text" class="form-control" name="officeFax" />
-                    </div>
-                  </div>
-                </div>
-
-                <div class="row">
-                  <div class="col-md-4">
-                    <div class="form-group">
-                      <label>Kode Pos</label>
-                      <input type="text" class="form-control" name="officePostalCode" />
-                    </div>
-                  </div>
-
-                  <div class="col-md-8">
-                    <div class="form-group">
-                      <label>Alamat Kantor</label>
-                      <textarea class="form-control" name="officeAddress" rows="1"></textarea>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+  <body>
+    <div layout:fragment="content">
+      <div class="container-fluid">
+        <div class="card card-blue-dark">
+          <div class="card-header">
+            <h3 class="card-title">Form Tambah Pengguna</h3>
           </div>
-          <div class="card-footer mt-3 text-left">
-            <button type="submit" class="btn btn-outline-warning">
-              Simpan
-            </button>
-            <a th:href="@{/admin/data-pengguna}" class="btn btn-outline-info">Batal</a>
-          </div>
-        </form>
-        <div class="modal fade" id="modalSignature" tabindex="-1" role="dialog" aria-labelledby="modalSigLabel"
-          data-backdrop="static">
-          <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="modalSigLabel">Tanda Tangan</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
+          <form
+            th:action="@{/admin/data-pengguna/save}"
+            method="post"
+            enctype="multipart/form-data"
+            id="formTambahUser"
+            novalidate
+          >
+            <div class="card-body">
+              <div class="separator">
+                <span class="separator-text">Data Akun</span>
               </div>
-              <div class="modal-body text-center">
-                <div class="signature-wrapper">
-                  <canvas id="signature-canvas" style="width: 100%; height: 100%; display: block"></canvas>
-                  <div class="text-muted small text-center" style="
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Username <span class="text-danger">*</span></label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      name="username"
+                      required
+                      autocomplete="off"
+                      autofocus
+                    />
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Email <span class="text-danger">*</span></label>
+                    <input
+                      type="email"
+                      class="form-control"
+                      name="email"
+                      required
+                      autocomplete="off"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Role <span class="text-danger">*</span></label>
+                    <select
+                      class="select2"
+                      multiple="multiple"
+                      id="roleSelect"
+                      name="roles"
+                      data-placeholder="Pilih Role"
+                      style="width: 100%"
+                      required
+                    >
+                      <option value="Admin">Admin</option>
+                      <option value="Asesi">Asesi</option>
+                      <option value="Asesor">Asesor</option>
+                      <option value="Direktur">Direktur</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div id="wrapperDataPribadi">
+                <div class="separator">
+                  <span class="separator-text">Data Pribadi</span>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label
+                        >Nama Lengkap<span class="text-danger">*</span></label
+                      >
+                      <input
+                        type="text"
+                        class="form-control"
+                        name="fullName"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label
+                        >Tempat Lahir<span class="text-danger">*</span></label
+                      >
+                      <input
+                        type="text"
+                        class="form-control"
+                        name="birthPlace"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label
+                        >Tanggal Lahir<span class="text-danger">*</span></label
+                      >
+                      <input
+                        type="date"
+                        class="form-control"
+                        name="birthDate"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label
+                        >Jenis Kelamin<span class="text-danger">*</span></label
+                      >
+                      <select class="form-control" name="gender" required>
+                        <option value="" disabled selected>
+                          ---Pilih Jenis Kelamin---
+                        </option>
+                        <option value="L">Laki-laki</option>
+                        <option value="P">Perempuan</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label>NIK<span class="text-danger">*</span></label>
+                      <!-- <input
+                        type="text"
+                        class="form-control"
+                        name="nik"
+                        required
+                      /> -->
+                      <input
+                        type="text"
+                        class="form-control mask-nik"
+                        name="nik"
+                        required
+                      />
+                      <!-- <div class="invalid-feedback">
+                        NIK harus 16 digit angka.
+                      </div> -->
+                    </div>
+                  </div>
+                  <div class="col-md-4 group-asesi-only">
+                    <div class="form-group">
+                      <label
+                        >Kewarganegaraan<span class="text-danger"
+                          >*</span
+                        ></label
+                      >
+                      <input
+                        type="text"
+                        class="form-control"
+                        name="citizenship"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div class="col-md-4 group-asesor-only">
+                    <div class="form-group">
+                      <label>No. MET<span class="text-danger">*</span></label>
+                      <div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text">MET.</span>
+                        </div>
+                        <input
+                          type="text"
+                          class="form-control mask-met"
+                          name="noMet"
+                          placeholder="000.xxxxxx.xxxx"
+                          required
+                        />
+                      </div>
+                      <!-- <input type="text" class="form-control" name="noMet" required /> -->
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label
+                        >No Telepon<span class="text-danger">*</span></label
+                      >
+                      <!-- <input
+                        type="text"
+                        class="form-control"
+                        name="phoneNumber"
+                        required
+                      /> -->
+                      <div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text">+62</span>
+                        </div>
+                        <input
+                          type="text"
+                          class="form-control input-phone"
+                          name="phoneNumber"
+                          placeholder="812xxxxxxx"
+                          required
+                        />
+                      </div>
+                      <div class="invalid-feedback">
+                        Minimal 10 digit angka.
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-4 group-asesi-asesor">
+                    <div class="form-group">
+                      <label
+                        >Pendidikan Terakhir<span class="text-danger"
+                          >*</span
+                        ></label
+                      >
+                      <select
+                        class="form-control"
+                        name="lastEducation"
+                        style="width: 100%"
+                        id="selectPendidikan"
+                        required
+                      >
+                        <option value="" disabled selected>
+                          ---Pilih Pendidikan Terakhir---
+                        </option>
+                      </select>
+                      <input
+                        type="hidden"
+                        name="educationId"
+                        id="inputPendidikan"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label>Provinsi</label>
+                      <select
+                        class="form-control select2"
+                        style="width: 100%"
+                        name="province"
+                        id="selectProvinsi"
+                        required
+                      ></select>
+                      <input
+                        type="hidden"
+                        name="provinceId"
+                        id="inputProvinsi"
+                      />
+                    </div>
+                  </div>
+
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label>Kota/Kabupaten</label>
+                      <select
+                        class="form-control select2"
+                        style="width: 100%"
+                        name="city"
+                        id="selectKota"
+                        disabled
+                        required
+                      ></select>
+                      <input type="hidden" name="cityId" id="inputKota" />
+                    </div>
+                  </div>
+
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label>Kecamatan</label>
+                      <select
+                        class="form-control select2"
+                        style="width: 100%"
+                        id="selectKecamatan"
+                        name="district"
+                        required
+                        disabled
+                      ></select>
+                      <input
+                        type="hidden"
+                        name="districtId"
+                        id="inputKecamatan"
+                      />
+                    </div>
+                  </div>
+
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label
+                        >Alamat Jalan<span class="text-danger">*</span></label
+                      >
+                      <textarea
+                        class="form-control"
+                        name="address"
+                        rows="2"
+                        required
+                      ></textarea>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row mt-2">
+                  <div class="col-md-4 group-asesi-only">
+                    <div class="form-group">
+                      <label>Kode Pos<span class="text-danger">*</span></label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        name="postalCode"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-group">
+                      <label
+                        >Tanda Tangan<span class="text-danger">*</span></label
+                      >
+                      <input
+                        type="hidden"
+                        name="signatureBase64"
+                        id="signatureInput"
+                        required
+                      />
+
+                      <div
+                        id="signaturePreview"
+                        class="mb-2"
+                        style="display: none"
+                      >
+                        <img
+                          src=""
+                          id="imgPreview"
+                          style="max-height: 100px; border: 1px dashed #ccc"
+                        />
+                        <p class="text-success small">
+                          <i class="fas fa-check-circle"></i> Tanda tangan
+                          tersimpan
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        class="btn btn-outline-primary btn-block"
+                        id="btnTriggerSignature"
+                        data-toggle="modal"
+                        data-target="#modalSignature"
+                      >
+                        <i class="fas fa-pen-nib"></i> Masukkan Tanda Tangan
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div id="sectionDataPekerjaan" style="display: none">
+                <div class="separator">
+                  <span class="separator-text">Data Pekerjaan</span>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-12">
+                    <div class="form-group">
+                      <label
+                        >Jenis Pekerjaan
+                        <span class="text-danger">*</span></label
+                      >
+                      <select
+                        class="form-control select2"
+                        id="selectPekerjaan"
+                        name="jobType"
+                        style="width: 100%"
+                        required
+                      >
+                        <option value="" disabled selected>
+                          Pilih Pekerjaan...
+                        </option>
+                      </select>
+                      <input
+                        type="hidden"
+                        name="jobTypeId"
+                        id="inputPekerjaan"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div id="wrapperDetailInstansi">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label
+                          >Nama Instansi/Perusahaan
+                          <span class="text-danger">*</span></label
+                        >
+                        <input
+                          type="text"
+                          class="form-control"
+                          name="companyName"
+                          id="inputCompanyName"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label>Jabatan</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          name="position"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label>No. Telp Kantor</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          name="officePhone"
+                        />
+                      </div>
+                    </div>
+
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label>Email Kantor</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          name="officeEmail"
+                        />
+                      </div>
+                    </div>
+
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label>No. Fax</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          name="officeFax"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label>Kode Pos</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          name="officePostalCode"
+                        />
+                      </div>
+                    </div>
+
+                    <div class="col-md-8">
+                      <div class="form-group">
+                        <label>Alamat Kantor</label>
+                        <textarea
+                          class="form-control"
+                          name="officeAddress"
+                          rows="1"
+                        ></textarea>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer mt-3 text-left">
+              <button type="submit" class="btn btn-outline-warning">
+                Simpan
+              </button>
+              <a th:href="@{/admin/data-pengguna}" class="btn btn-outline-info"
+                >Batal</a
+              >
+            </div>
+          </form>
+          <div
+            class="modal fade"
+            id="modalSignature"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="modalSigLabel"
+            data-backdrop="static"
+          >
+            <div
+              class="modal-dialog modal-dialog-centered modal-lg"
+              role="document"
+            >
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="modalSigLabel">Tanda Tangan</h5>
+                  <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                  >
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body text-center">
+                  <div class="signature-wrapper">
+                    <canvas
+                      id="signature-canvas"
+                      style="width: 100%; height: 100%; display: block"
+                    ></canvas>
+                    <div
+                      class="text-muted small text-center"
+                      style="
                         position: absolute;
                         bottom: 10px;
                         width: 100%;
                         pointer-events: none;
                         opacity: 0.5;
-                      ">
-                    Area Tanda Tangan
+                      "
+                    >
+                      Area Tanda Tangan
+                    </div>
                   </div>
+
+                  <input type="file" id="uploadSigFile" accept="image/png" />
                 </div>
+                <div class="modal-footer justify-content-center">
+                  <button
+                    type="button"
+                    class="btn btn-default"
+                    data-dismiss="modal"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-outline-danger"
+                    id="btnClear"
+                  >
+                    Hapus Kanvas
+                  </button>
 
-                <input type="file" id="uploadSigFile" accept="image/png" />
-              </div>
-              <div class="modal-footer justify-content-center">
-                <button type="button" class="btn btn-default" data-dismiss="modal">
-                  Batal
-                </button>
-                <button type="button" class="btn btn-outline-danger" id="btnClear">
-                  Hapus Kanvas
-                </button>
-
-                <button type="button" class="btn btn-success" id="btnUpload">
-                  Upload Signature
-                </button>
-                <button type="button" class="btn btn-danger" id="btnSaveSignature">
-                  Simpan
-                </button>
+                  <button type="button" class="btn btn-success" id="btnUpload">
+                    Upload Signature
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-danger"
+                    id="btnSaveSignature"
+                  >
+                    Simpan
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-</body>
-
+  </body>
 </html>

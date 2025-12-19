@@ -16,22 +16,12 @@ $(document).ready(function () {
     "<style>.is-invalid-border { border-color: #dc3545 !important; }</style>"
   ).appendTo("head");
 
-  // Override pesan error default jQuery Validate
-  $.extend($.validator.messages, {
-    required: "Isilah Form Ini!",
-    email: "Format email tidak valid",
-    number: "Harus berupa angka",
-  });
-
-  // Validasi Real-time saat Select2 berubah
-  $(".select2").on("change", function () {
-    $(this).valid();
-  });
+  
 
   // ==========================================
   // 2. LOGIKA DELETE (LIST PAGE)
   // ==========================================
-  $(document).on("click", ".delete-button", function (e) {
+  $(".delete-button").on("click", function (e) {
     e.preventDefault();
     var link = $(this).attr("href");
     Swal.fire({

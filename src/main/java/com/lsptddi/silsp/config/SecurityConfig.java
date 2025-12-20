@@ -54,6 +54,7 @@ public class SecurityConfig {
                                                 // Halaman yang boleh diakses SIAPA SAJA (Tanpa Login)
                                                 .requestMatchers("/dev/**").permitAll()
                                                 .requestMatchers("/login", "/register", "/reset-password",
+                                                                "/api/check-duplicate",
                                                                 "/forgot-password", "/assets/**", "/plugins/**",
                                                                 "/dist/**")
                                                 .permitAll()
@@ -98,9 +99,9 @@ public class SecurityConfig {
                                                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                                                 .logoutSuccessUrl("/login")
                                                 .permitAll());
-                                // 4. FITUR CEGAH UNDO/BACK (Disable Cache)
-                                // .headers(headers -> headers
-                                //                 .cacheControl(cache -> cache.disable()));
+                // 4. FITUR CEGAH UNDO/BACK (Disable Cache)
+                // .headers(headers -> headers
+                // .cacheControl(cache -> cache.disable()));
 
                 return http.build();
         }

@@ -246,12 +246,26 @@ public class AuthController {
 
             // 3. Data Pribadi
             user.setFullName(dto.getFullName());
-            user.setNik(dto.getNik());
+            // user.setNik(dto.getNik());
             user.setBirthPlace(dto.getBirthPlace());
             user.setBirthDate(dto.getBirthDate());
             user.setGender(dto.getGender());
             user.setCitizenship(dto.getCitizenship());
-            user.setPhoneNumber(dto.getPhoneNumber());
+            // user.setPhoneNumber(dto.getPhoneNumber());
+
+            // 1. NIK: Hapus titik, simpan angka saja (32.73... -> 3273...)
+            if (dto.getNik() != null) {
+                user.setNik(dto.getNik().replaceAll("[^0-9]", ""));
+            }
+
+            // 2. NO TELP: Tambahkan '0' di depan (811... -> 0811...)
+            if (dto.getPhoneNumber() != null) {
+                String rawPhone = dto.getPhoneNumber().replaceAll("[^0-9]", ""); // Pastikan angka saja
+                // Jika user iseng nulis 0 di depan, hapus dulu baru tambah 0 (biar ga double)
+                if (rawPhone.startsWith("0"))
+                    rawPhone = rawPhone.substring(1);
+                user.setPhoneNumber("0" + rawPhone);
+            }
 
             // // 4. Data Asesor (No MET)
             // if ("Asesor".equals(roleName) && dto.getNoMet() != null) {

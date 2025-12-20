@@ -1104,22 +1104,121 @@ $(document).ready(function () {
     });
   }
 
+  if ($(".mask-nik").length) {
+    $(".mask-nik").inputmask({
+      mask: "99.99.99.999999.9999",
+      placeholder: "", // Jangan tampilkan underscore
+      removeMaskOnSubmit: false, // Kita handle manual di backend cleaningnya
+      showMaskOnHover: false,
+    });
+
+    // Validasi Realtime Panjang NIK
+    $(".mask-nik").on("keyup blur", function () {
+      var val = $(this).inputmask("unmaskedvalue"); // Ambil nilai asli angka saja
+      var isValid = val.length === 16;
+
+      if (!isValid && val.length > 0) {
+        $(this).addClass("is-invalid");
+        // Cari atau buat pesan error
+        var feedback = $(this).next(".invalid-feedback");
+        if (feedback.length === 0) {
+          $(this).after(
+            '<div class="invalid-feedback">NIK harus terdiri dari 16 digit angka.</div>'
+          );
+        } else {
+          feedback.text("NIK harus terdiri dari 16 digit angka.");
+        }
+      } else {
+        $(this).removeClass("is-invalid");
+      }
+    });
+  }
+
+  // B. FORMAT NO MET: 000.xxxxxx.YEAR (contoh: 123.456789.2024)
+  if ($(".mask-met").length) {
+    $(".mask-met").inputmask({
+      mask: "000.999999.9999",
+      placeholder: "000.xxxxxx.xxxx",
+      showMaskOnHover: false,
+    });
+  }
+
+  // C. FORMAT NO TELP: Hapus '0' di depan + Min 10 Digit
+  $(".input-phone").on("input keyup", function () {
+    var val = $(this).val();
+
+    // 1. Hapus karakter non-angka
+    val = val.replace(/[^0-9]/g, "");
+
+    // 2. Hapus '0' di awal jika ada
+    if (val.startsWith("0")) {
+      val = val.substring(1);
+    }
+
+    $(this).val(val); // Update nilai di form
+
+    // 3. Validasi Min 10 Digit
+    if (val.length > 0 && val.length < 10) {
+      $(this).addClass("is-invalid");
+      var feedback = $(this).parent().next(".invalid-feedback"); // Karena ada input-group
+      if (feedback.length === 0) {
+        // Jika input group, error harus diluar input-group
+        $(this)
+          .closest(".input-group")
+          .after(
+            '<div class="invalid-feedback" style="display:block">Minimal 10 digit angka.</div>'
+          );
+      } else {
+        feedback.show().text("Minimal 10 digit angka.");
+      }
+    } else {
+      $(this).removeClass("is-invalid");
+      $(this).closest(".input-group").next(".invalid-feedback").hide();
+    }
+  });
+
   // ==========================================
   // 7. VALIDASI FORM & SUBMIT (SUPER AMAN)
   // ==========================================
+  // ==========================================
+  // 7. VALIDASI FORM & SUBMIT (FIXED)
+  // ==========================================
   $("#registerForm").validate({
-    ignore: ":hidden:not(#realPassword, #signatureInput)", // Validasi hidden password & signature
+    // Validasi field hidden (penting untuk password & signature)
+    ignore: ":hidden:not(#realPassword, #signatureInput)",
+
+    // Mode validasi
+    onkeyup: function (element) {
+      // Jangan validasi remote saat ngetik (boros request), validasi basic saja
+      var element_id = $(element).attr("name");
+      if (this.settings.rules[element_id].onkeyup !== false) {
+        $.validator.defaults.onkeyup.apply(this, arguments);
+      }
+    },
+    onfocusout: function (element) {
+      $(element).valid(); // Trigger validasi (termasuk remote) saat pindah kursor
+    },
+
     rules: {
       username: {
         required: true,
         minlength: 3,
+        // Validasi Remote (Cek Database)
         remote: {
           url: "/api/check-duplicate",
           type: "GET",
+          cache: false, // Matikan cache agar cek selalu fresh
           data: {
             username: function () {
               return $("[name='username']").val();
             },
+          },
+          // Tampilkan loading kecil jika perlu (opsional)
+          beforeSend: function () {
+            // Bisa tambah indikator loading
+          },
+          complete: function () {
+            // Selesai cek
           },
         },
       },
@@ -1129,6 +1228,7 @@ $(document).ready(function () {
         remote: {
           url: "/api/check-duplicate",
           type: "GET",
+          cache: false,
           data: {
             email: function () {
               return $("[name='email']").val();
@@ -1138,24 +1238,45 @@ $(document).ready(function () {
       },
       roles: { required: true },
       fullName: { required: true },
-      nik: { required: true, number: true, minlength: 16 },
-      // ... rules lain disesuaikan ...
+      // nik: { required: true, number: true, minlength: 16 },
+      nik: {
+        required: true,
+        // Custom rule cek panjang unmasked value
+        normalizer: function (value) {
+          return $(".mask-nik").inputmask("unmaskedvalue");
+        },
+        minlength: 16,
+        maxlength: 16,
+      },
+      phoneNumber: {
+        required: true,
+        minlength: 10,
+      },
+
+      // Pastikan rule ini sesuai dengan hidden input ID Anda
       password: { required: true },
       signatureBase64: { required: true },
     },
+
     messages: {
-      username: { remote: "Username sudah digunakan!" },
-      email: { remote: "Email sudah terdaftar!" },
-      password: { required: "Silakan buat kata sandi dulu" },
+      username: {
+        remote: "Username ini sudah terdaftar, silakan ganti!",
+      },
+      email: {
+        remote: "Email ini sudah terdaftar, gunakan yang lain!",
+      },
+      roles: { required: "Silakan Pilih Role" },
+      password: { required: "Silakan buat kata sandi terlebih dahulu" },
       signatureBase64: { required: "Tanda tangan wajib diisi" },
     },
+
     errorElement: "span",
     errorPlacement: function (error, element) {
       error.addClass("invalid-feedback");
       if (element.hasClass("select2-hidden-accessible")) {
         error.insertAfter(element.next(".select2"));
       } else if (element.attr("name") == "password") {
-        error.insertAfter("#passwordStatus"); // Taruh dibawah status
+        error.insertAfter("#passwordStatus");
         error.css("display", "block");
       } else if (element.attr("name") == "signatureBase64") {
         error.insertAfter("#btnTriggerSignature");
@@ -1164,6 +1285,7 @@ $(document).ready(function () {
         element.closest(".form-group").append(error);
       }
     },
+
     highlight: function (element) {
       $(element).addClass("is-invalid");
       if ($(element).hasClass("select2-hidden-accessible")) {
@@ -1173,6 +1295,7 @@ $(document).ready(function () {
           .addClass("is-invalid-border");
       }
     },
+
     unhighlight: function (element) {
       $(element).removeClass("is-invalid");
       if ($(element).hasClass("select2-hidden-accessible")) {
@@ -1182,33 +1305,34 @@ $(document).ready(function () {
           .removeClass("is-invalid-border");
       }
     },
-    // SCROLL TO ERROR
+
+    // Handler jika tombol daftar diklik TAPI masih ada yang salah
     invalidHandler: function (event, validator) {
-      var errors = validator.numberOfInvalids();
-      if (errors) {
-        Swal.fire({
-          icon: "error",
-          title: "Data Belum Lengkap",
-          text: "Mohon periksa kembali form yang berwarna merah.",
-          confirmButtonColor: "#d33",
-        }).then(() => {
-          if (validator.errorList.length > 0) {
-            $("html, body").animate(
-              {
-                scrollTop: $(validator.errorList[0].element).offset().top - 100,
-              },
-              500
-            );
-          }
-        });
-      }
+      Swal.fire({
+        icon: "error",
+        title: "Data Belum Lengkap",
+        text: "Mohon lengkapi semua kolom yang berwarna merah.",
+        confirmButtonColor: "#d33",
+      }).then(() => {
+        // Scroll ke error pertama
+        if (validator.errorList.length > 0) {
+          $("html, body").animate(
+            {
+              scrollTop: $(validator.errorList[0].element).offset().top - 100,
+            },
+            500
+          );
+        }
+      });
     },
-    // SUBMIT AJAX
+
+    // HANYA JALAN JIKA FORM SUDAH VALID 100% (Termasuk Remote Check Sukses)
     submitHandler: function (form) {
       var formData = new FormData(form);
 
       Swal.fire({
         title: "Mendaftarkan Akun...",
+        text: "Mohon tunggu sebentar",
         allowOutsideClick: false,
         didOpen: () => Swal.showLoading(),
       });
@@ -1220,14 +1344,17 @@ $(document).ready(function () {
         processData: false,
         contentType: false,
         success: function (response) {
+          // Parsing response jika string
           var res =
             typeof response === "string" ? JSON.parse(response) : response;
+
           Swal.fire({
             icon: "success",
-            title: "Berhasil!",
+            title: "Pendaftaran Berhasil!",
             text: res.message,
             confirmButtonText: "Login Sekarang",
             confirmButtonColor: "#28a745",
+            allowOutsideClick: false,
           }).then((result) => {
             if (result.isConfirmed) {
               window.location.href = "/login";
@@ -1237,11 +1364,15 @@ $(document).ready(function () {
         error: function (xhr) {
           var msg = "Terjadi kesalahan server";
           try {
-            msg = JSON.parse(xhr.responseText).message;
+            var err = JSON.parse(xhr.responseText);
+            if (err.message) msg = err.message;
           } catch (e) {}
+
           Swal.fire("Gagal!", msg, "error");
         },
       });
+
+      return false; // PENTING: Mencegah submit form bawaan browser
     },
   });
 });

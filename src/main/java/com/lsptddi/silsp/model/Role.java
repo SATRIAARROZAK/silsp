@@ -7,9 +7,10 @@ import jakarta.persistence.*;
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_role")
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(name = "nama_role", unique = true, nullable = false)
     private String name;
 
     // Constructor, Getter, Setter

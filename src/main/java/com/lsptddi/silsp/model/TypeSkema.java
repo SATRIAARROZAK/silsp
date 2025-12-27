@@ -4,14 +4,15 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
-@Table(name = "ref_schema_types")
+@Table(name = "type_skema")
 @Data
-public class RefSchemaType {
+public class TypeSkema {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_jenis_skema")
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    // @Column(name = "name_skema", nullable = false, unique = true) // Tambah nama kolom
+    // @Column(nullable = false, unique = true)
+    @Column(name = "nama_jenis_skema", nullable = false, unique = true) // Tambah nama kolom
     private String name; // Contoh: KKNI, OKUPASI, KLASTER
 }

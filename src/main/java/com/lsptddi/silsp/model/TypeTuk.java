@@ -4,13 +4,14 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
-@Table(name = "ref_tuk_types")
+@Table(name = "type_tuk")
 @Data
-public class RefTukType {
+public class TypeTuk {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_jenis_tuk")
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "jenis_tuk", nullable = false, unique = true)
     private String name; // Mandiri, Sewaktu, Tempat Kerja
 }

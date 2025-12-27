@@ -5,13 +5,14 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
-@Table(name = "ref_schema_modes")
+@Table(name = "type_skema_pengajuan")
 @Data
-public class RefSchemaMode {
+public class TypeSkemaPengajuan {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_pengajuan_skema")
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "nama_pengajuan_skema", nullable = false, unique = true)
     private String name; // Contoh: MANDIRI, REFERENSI_BNSP
 }

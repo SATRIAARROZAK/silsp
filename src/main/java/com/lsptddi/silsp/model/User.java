@@ -13,30 +13,41 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_user")
     private Long id;
 
     // --- DATA AKUN ---
-    @Column(nullable = false, unique = true)
+    @Column(name = "username", nullable = false, unique = true)
     private String username;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
+    @Column(name = "password")
     private String password;
 
     // Relasi ke Role (Anggap Anda sudah punya entity Role)
     @ManyToMany(fetch = FetchType.EAGER)
     // @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL) // <---
     // PASTIKAN ADA cascade = CascadeType.ALL
-    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "id_user"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
     // --- DATA PRIBADI ---
+    @Column(name = "nama_lengkap")
     private String fullName;
+    
+    @Column(name = "tempat_lahir")  
     private String birthPlace;
+    
+    @Column(name = "tanggal_lahir")
     private LocalDate birthDate; // Gunakan LocalDate
+
+    @Column(name = "jenis_kelamin")
     private String gender;
+    @Column(name = "nik")
     private String nik;
+    @Column(name = "no_telepon")
     private String phoneNumber;
 
     // --- RELASI 3NF (UBAH BAGIAN INI) ---
@@ -46,15 +57,15 @@ public class User {
     // private RefEducation educationId;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "education_id") // Ini nama kolom di database (MySQL)
-    private RefEducation educationId;
+    @JoinColumn(name = "id_jenis_pendidikan") // Ini nama kolom di database (MySQL)
+    private TypeEducation educationId;
 
     // ... getter setter ...
-    public RefEducation getEducationId() {
+    public TypeEducation getEducationId() {
         return educationId;
     }
 
-    public void setEducationId(RefEducation educationId) {
+    public void setEducationId(TypeEducation educationId) {
         this.educationId = educationId;
     }
 
@@ -73,40 +84,54 @@ public class User {
 
     // Menyimpan ID Pekerjaan (Relasi ke tabel ref_job_types)
     @ManyToOne
-    @JoinColumn(name = "job_type_id")
-    private RefJobType jobTypeId;
+    @JoinColumn(name = "id_jenis_pekerjaan")
+    private TypePekerjaan jobTypeId;
 
     // ... getter setter ...
-    public RefJobType getJobTypeId() {
+    public TypePekerjaan getJobTypeId() {
         return jobTypeId;
     }
-    public void setJobTypeId(RefJobType jobTypeId) {
+    public void setJobTypeId(TypePekerjaan jobTypeId) {
         this.jobTypeId = jobTypeId;
     }
     
 
     // --- WILAYAH (Disimpan String ID-nya saja) ---
+    @Column(name = "id_provinsi")
     private String provinceId;
+    @Column(name = "id_kota")
     private String cityId;
+    @Column(name = "id_kecamatan")
     private String districtId;
     // private String subDistrictId;
 
+    // --- DETAIL ALAMAT ---
+    @Column(name = "alamat")
     private String address;
+    @Column(name = "kode_pos")
     private String postalCode;
+    @Column(name = "kewarganegaraan")
     private String citizenship;
+    @Column(name = "no_met")
     private String noMet;
 
     // --- DETAIL PEKERJAAN ---
+    @Column(name = "nama_tempat_kerja")
     private String companyName;
+    @Column(name = "jabatan")
     private String position;
+    @Column(name = "telepon_kantor")
     private String officePhone;
+    @Column(name = "email_kantor")
     private String officeEmail;
+    @Column(name = "fax_kantor")
     private String officeFax;
+    @Column(name = "alamat_kantor")
     private String officeAddress;
 
     // --- TANDA TANGAN ---
     @Lob
-    @Column(columnDefinition = "TEXT") // Agar muat string panjang
+    @Column(name = "tanda_tangan", columnDefinition = "TEXT") // Agar muat string panjang
     private String signatureBase64;
 
 }

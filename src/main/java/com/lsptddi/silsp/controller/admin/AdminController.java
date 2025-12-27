@@ -9,19 +9,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.RequestMapping;
-import com.lsptddi.silsp.dto.SchemaDto;
+import com.lsptddi.silsp.dto.SkemaDto;
 import com.lsptddi.silsp.dto.TukDto;
 import com.lsptddi.silsp.dto.UserDto;
 import com.lsptddi.silsp.model.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder; // Pastikan ada ini
-import com.lsptddi.silsp.repository.RefEducationRepository;
-import com.lsptddi.silsp.repository.RefJobTypeRepository;
-import com.lsptddi.silsp.repository.RefSchemaModeRepository;
-import com.lsptddi.silsp.repository.RefSchemaTypeRepository;
-import com.lsptddi.silsp.repository.RefTukTypeRepository;
+import com.lsptddi.silsp.repository.TypeEducationRepository;
+import com.lsptddi.silsp.repository.TypePekerjaanRepository;
+import com.lsptddi.silsp.repository.TypePengajuanSkemaRepository;
+import com.lsptddi.silsp.repository.TypeSkemaRepository;
+import com.lsptddi.silsp.repository.TypeTukRepository;
 import com.lsptddi.silsp.repository.RoleRepository;
-import com.lsptddi.silsp.repository.SchemaRepository;
+import com.lsptddi.silsp.repository.SkemaRepository;
 import com.lsptddi.silsp.repository.TukRepository;
 import com.lsptddi.silsp.repository.UserRepository;
 import com.lsptddi.silsp.service.TukService;
@@ -53,27 +53,27 @@ public class AdminController {
     @Autowired
     private RoleRepository roleRepository; // <--- WAJIB DI-INJECT
     @Autowired
-    private RefEducationRepository educationRepository;
+    private TypeEducationRepository educationRepository;
     @Autowired
-    private RefJobTypeRepository jobTypeRepository;
+    private TypePekerjaanRepository jobTypeRepository;
 
     // Jika Anda menggunakan Spring Security, inject PasswordEncoder
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private SchemaRepository schemaRepository;
+    private SkemaRepository schemaRepository;
     @Autowired
-    private RefSchemaTypeRepository schemaTypeRepository;
+    private TypeSkemaRepository schemaTypeRepository;
     @Autowired
-    private RefSchemaModeRepository schemaModeRepository;
+    private TypePengajuanSkemaRepository schemaModeRepository;
 
     private final String UPLOAD_DIR = "uploads/skema/"; // Pastikan folder ini ada
 
     @Autowired
     private TukRepository tukRepository;
     @Autowired
-    private RefTukTypeRepository tukTypeRepository;
+    private TypeTukRepository tukTypeRepository;
     @Autowired
     private TukService tukService;
 
@@ -120,7 +120,7 @@ public class AdminController {
         PageRequest pageable = PageRequest.of(page, size, Sort.by("id").descending());
 
         // Panggil Repository
-        Page<Schema> schemaPage = schemaRepository.searchSchema(keyword, pageable);
+        Page<Skema> schemaPage = schemaRepository.searchSchema(keyword, pageable);
 
         // Kirim Data ke View
         model.addAttribute("listSkema", schemaPage.getContent());
@@ -143,9 +143,9 @@ public class AdminController {
 
     @PostMapping("/skema/save")
     @ResponseBody
-    public ResponseEntity<?> saveSchema(@ModelAttribute SchemaDto dto) {
+    public ResponseEntity<?> saveSchema(@ModelAttribute SkemaDto dto) {
         try {
-            Schema schema = new Schema();
+            Skema schema = new Skema();
 
             // A. Mapping Data Dasar
             schema.setName(dto.getNamaSkema());
@@ -172,7 +172,7 @@ public class AdminController {
             // D. Mapping Unit Skema (Looping Array)
             if (dto.getKodeUnit() != null) {
                 for (int i = 0; i < dto.getKodeUnit().size(); i++) {
-                    SchemaUnit unit = new SchemaUnit();
+                    UnitSkema unit = new UnitSkema();
                     unit.setCode(dto.getKodeUnit().get(i));
                     unit.setTitle(dto.getJudulUnit().get(i));
                     schema.addUnit(unit); // Helper method handles relationship
@@ -183,7 +183,7 @@ public class AdminController {
             if (dto.getPersyaratan() != null) {
                 for (String reqText : dto.getPersyaratan()) {
                     if (reqText != null && !reqText.trim().isEmpty()) {
-                        SchemaRequirement req = new SchemaRequirement();
+                        PersyaratanSkema req = new PersyaratanSkema();
                         req.setDescription(reqText);
                         schema.addRequirement(req);
                     }
@@ -213,7 +213,7 @@ public class AdminController {
 
     @GetMapping("/skema/edit/{id}")
     public String editSchema(@PathVariable Long id, Model model) {
-        Schema schema = schemaRepository.findById(id)
+        Skema schema = schemaRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid schema Id:" + id));
 
         // Kirim data Schema (Entity) langsung ke View
@@ -230,9 +230,9 @@ public class AdminController {
     // 6. PROSES UPDATE (POST AJAX)
     @PostMapping("/skema/update")
     @ResponseBody
-    public ResponseEntity<?> updateSchema(@ModelAttribute SchemaDto dto) {
+    public ResponseEntity<?> updateSchema(@ModelAttribute SkemaDto dto) {
         try {
-            Schema schema = schemaRepository.findById(dto.getId())
+            Skema schema = schemaRepository.findById(dto.getId())
                     .orElseThrow(() -> new RuntimeException("Skema tidak ditemukan"));
 
             // A. Update Data Dasar
@@ -264,7 +264,7 @@ public class AdminController {
             schema.getUnits().clear(); // Hapus unit lama
             if (dto.getKodeUnit() != null) {
                 for (int i = 0; i < dto.getKodeUnit().size(); i++) {
-                    SchemaUnit unit = new SchemaUnit();
+                    UnitSkema unit = new UnitSkema();
                     unit.setCode(dto.getKodeUnit().get(i));
                     unit.setTitle(dto.getJudulUnit().get(i));
                     schema.addUnit(unit); // Tambahkan yang baru
@@ -276,7 +276,7 @@ public class AdminController {
             if (dto.getPersyaratan() != null) {
                 for (String reqText : dto.getPersyaratan()) {
                     if (reqText != null && !reqText.trim().isEmpty()) {
-                        SchemaRequirement req = new SchemaRequirement();
+                        PersyaratanSkema req = new PersyaratanSkema();
                         req.setDescription(reqText);
                         schema.addRequirement(req);
                     }
@@ -297,7 +297,7 @@ public class AdminController {
 
     @GetMapping("/skema/view/{id}")
     public String viewSchema(@PathVariable Long id, Model model) {
-        Schema schema = schemaRepository.findById(id)
+        Skema schema = schemaRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Skema tidak ditemukan dengan ID: " + id));
 
         model.addAttribute("skema", schema);

@@ -4,17 +4,18 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
-@Table(name = "schema_requirements")
+@Table(name = "persyaratan_skema")
 @Data
-public class SchemaRequirement {
+public class PersyaratanSkema {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_persyaratan_skema")
     private Long id;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "deskripsi", columnDefinition = "TEXT")
     private String description; // Isi Summernote
 
     @ManyToOne
-    @JoinColumn(name = "schema_id")
-    private Schema schema;
+    @JoinColumn(name = "id_skema")
+    private Skema skema;
 }

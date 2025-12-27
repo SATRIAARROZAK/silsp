@@ -1044,6 +1044,66 @@ $(document).ready(function () {
   // ==========================================
   // 6. TANDA TANGAN (FIX MODAL CLOSE)
   // ==========================================
+  // var canvas = document.getElementById("signature-canvas");
+  // if (canvas) {
+  //   var signaturePad = new SignaturePad(canvas, {
+  //     backgroundColor: "rgba(255, 255, 255, 0)",
+  //     penColor: "rgb(0, 0, 0)",
+  //   });
+
+  //   function resizeCanvas() {
+  //     var ratio = Math.max(window.devicePixelRatio || 1, 1);
+  //     canvas.width = canvas.offsetWidth * ratio;
+  //     canvas.height = canvas.offsetHeight * ratio;
+  //     canvas.getContext("2d").scale(ratio, ratio);
+  //     signaturePad.clear();
+  //   }
+
+  //   $("#modalSignature").on("shown.bs.modal", function () {
+  //     resizeCanvas();
+  //   });
+  //   $("#btnClear").on("click", function () {
+  //     signaturePad.clear();
+  //   });
+  //   $("#btnUpload").on("click", function () {
+  //     $("#uploadSigFile").click();
+  //   });
+
+  //   $("#uploadSigFile").on("change", function (e) {
+  //     var file = e.target.files[0];
+  //     if (!file) return;
+  //     var reader = new FileReader();
+  //     reader.onload = function (event) {
+  //       signaturePad.fromDataURL(event.target.result);
+  //     };
+  //     reader.readAsDataURL(file);
+  //   });
+
+  //   $("#btnSaveSignature").on("click", function () {
+  //     if (signaturePad.isEmpty()) {
+  //       Swal.fire({ icon: "warning", title: "Tanda tangan masih kosong!" });
+  //     } else {
+  //       var dataURL = signaturePad.toDataURL("image/png");
+  //       $("#signatureInput").val(dataURL);
+
+  //       // Update Tampilan Tombol
+  //       $("#btnTriggerSignature")
+  //         .removeClass("btn-outline-primary")
+  //         .addClass("btn-outline-success")
+  //         .html('<i class="fas fa-eye"></i> Lihat Tanda Tangan');
+
+  //       $("#imgPreview").attr("src", dataURL);
+  //       $("#signaturePreview").show();
+
+  //       // PERBAIKAN: Tutup modal secara eksplisit
+  //       $("#modalSignature").modal("hide");
+
+  //       // Trigger validasi
+  //       $("#signatureInput").valid();
+  //     }
+  //   });
+  // }
+
   var canvas = document.getElementById("signature-canvas");
   if (canvas) {
     var signaturePad = new SignaturePad(canvas, {
@@ -1053,15 +1113,22 @@ $(document).ready(function () {
 
     function resizeCanvas() {
       var ratio = Math.max(window.devicePixelRatio || 1, 1);
+      var data = signaturePad.toData();
       canvas.width = canvas.offsetWidth * ratio;
       canvas.height = canvas.offsetHeight * ratio;
       canvas.getContext("2d").scale(ratio, ratio);
       signaturePad.clear();
+      signaturePad.fromData(data);
     }
 
     $("#modalSignature").on("shown.bs.modal", function () {
       resizeCanvas();
+      var existingSignature = $("#signatureInput").val();
+      if (existingSignature && existingSignature.trim() !== "") {
+        signaturePad.fromDataURL(existingSignature, { ratio: 1.5 });
+      }
     });
+
     $("#btnClear").on("click", function () {
       signaturePad.clear();
     });
@@ -1072,6 +1139,11 @@ $(document).ready(function () {
     $("#uploadSigFile").on("change", function (e) {
       var file = e.target.files[0];
       if (!file) return;
+      if (file.type !== "image/png") {
+        Swal.fire({ icon: "error", title: "Hanya format PNG diperbolehkan." });
+        this.value = "";
+        return;
+      }
       var reader = new FileReader();
       reader.onload = function (event) {
         signaturePad.fromDataURL(event.target.result);
@@ -1080,28 +1152,50 @@ $(document).ready(function () {
     });
 
     $("#btnSaveSignature").on("click", function () {
+      // JIKA KOSONG -> TETAP KOSONGKAN HIDDEN & SHOW ERROR ALERT
       if (signaturePad.isEmpty()) {
-        Swal.fire({ icon: "warning", title: "Tanda tangan masih kosong!" });
+        $("#signatureInput").val("");
+        $("#signaturePreview").hide();
+
+        // Reset tombol
+        $("#btnTriggerSignature")
+          .removeClass("btn-success btn-outline-success")
+          .addClass("btn-outline-primary")
+          .html('<i class="fas fa-pen-nib"></i> Masukkan Tanda Tangan');
+
+        // ALERT SESUAI REQUEST (TIDAK TUTUP MODAL)
+        Swal.fire({
+          icon: "warning",
+          title: "Isi Tanda Tangan Terlebih Dahulu",
+          confirmButtonText: "Oke",
+          confirmButtonColor: "#3085d6",
+        });
+        // Modal tetap terbuka, user harus isi
       } else {
+        // JIKA TERISI -> SIMPAN & TUTUP MODAL
         var dataURL = signaturePad.toDataURL("image/png");
         $("#signatureInput").val(dataURL);
 
-        // Update Tampilan Tombol
         $("#btnTriggerSignature")
-          .removeClass("btn-outline-primary")
+          .removeClass("btn-outline-primary btn-outline-danger")
           .addClass("btn-outline-success")
           .html('<i class="fas fa-eye"></i> Lihat Tanda Tangan');
 
         $("#imgPreview").attr("src", dataURL);
         $("#signaturePreview").show();
 
-        // PERBAIKAN: Tutup modal secara eksplisit
-        $("#modalSignature").modal("hide");
-
-        // Trigger validasi
+        // Hapus error validasi jika ada
         $("#signatureInput").valid();
+
+        // Tutup Modal
+        $("#modalSignature")
+          .find('[data-dismiss="modal"]')
+          .first()
+          .trigger("click");
       }
     });
+
+    window.addEventListener("resize", resizeCanvas);
   }
 
   if ($(".mask-nik").length) {
@@ -1177,6 +1271,14 @@ $(document).ready(function () {
     }
   });
 
+  $("[name='postalCode']").on("input", function () {
+    this.value = this.value.replace(/[^0-9]/g, "").substring(0, 5);
+  });
+
+  // // NIK: Hanya Angka (jaga-jaga)
+  // $("[name='nik']").on('input', function() {
+  //     this.value = this.value.replace(/[^0-9]/g, '');
+  // });
   // ==========================================
   // 7. VALIDASI FORM & SUBMIT (SUPER AMAN)
   // ==========================================
@@ -1185,7 +1287,8 @@ $(document).ready(function () {
   // ==========================================
   $("#registerForm").validate({
     // Validasi field hidden (penting untuk password & signature)
-    ignore: ":hidden:not(#realPassword, #signatureInput)",
+    // ignore: ":hidden:not(#realPassword, #signatureInput)",
+    ignore: ":hidden:not(#signatureInput)",
 
     // Mode validasi
     onkeyup: function (element) {
@@ -1236,25 +1339,35 @@ $(document).ready(function () {
           },
         },
       },
-      roles: { required: true },
-      fullName: { required: true },
-      // nik: { required: true, number: true, minlength: 16 },
+
       nik: {
         required: true,
-        // Custom rule cek panjang unmasked value
+        maxlength: 16,
+        minlength: 16,
+
         normalizer: function (value) {
           return $(".mask-nik").inputmask("unmaskedvalue");
         },
-        minlength: 16,
-        maxlength: 16,
       },
+
+      roles: { required: true },
+      fullName: { required: true },
+      // nik: { required: true, number: true, minlength: 16 },
+
       phoneNumber: {
         required: true,
         minlength: 10,
       },
 
+      postalCode: {
+        required: true,
+        digits: true,
+        minlength: 5,
+        maxlength: 5,
+      },
+
       // Pastikan rule ini sesuai dengan hidden input ID Anda
-      password: { required: true },
+      // password: { required: true },
       signatureBase64: { required: true },
     },
 
@@ -1266,8 +1379,18 @@ $(document).ready(function () {
         remote: "Email ini sudah terdaftar, gunakan yang lain!",
       },
       roles: { required: "Silakan Pilih Role" },
-      password: { required: "Silakan buat kata sandi terlebih dahulu" },
+      // password: { required: "Silakan buat kata sandi terlebih dahulu" },
       signatureBase64: { required: "Tanda tangan wajib diisi" },
+
+      nik: {
+        remote: "NIK ini sudah terdaftar di sistem!",
+      },
+      postalCode: {
+        required: "Kode pos wajib diisi",
+        digits: "Hanya boleh angka",
+        minlength: "Kode pos harus 5 digit",
+        maxlength: "Kode pos harus 5 digit",
+      },
     },
 
     errorElement: "span",
@@ -1275,9 +1398,6 @@ $(document).ready(function () {
       error.addClass("invalid-feedback");
       if (element.hasClass("select2-hidden-accessible")) {
         error.insertAfter(element.next(".select2"));
-      } else if (element.attr("name") == "password") {
-        error.insertAfter("#passwordStatus");
-        error.css("display", "block");
       } else if (element.attr("name") == "signatureBase64") {
         error.insertAfter("#btnTriggerSignature");
         error.css("display", "block");
@@ -1285,7 +1405,6 @@ $(document).ready(function () {
         element.closest(".form-group").append(error);
       }
     },
-
     highlight: function (element) {
       $(element).addClass("is-invalid");
       if ($(element).hasClass("select2-hidden-accessible")) {
@@ -1294,8 +1413,12 @@ $(document).ready(function () {
           .find(".select2-selection")
           .addClass("is-invalid-border");
       }
+      if ($(element).attr("id") === "signatureInput") {
+        $("#btnTriggerSignature")
+          .addClass("btn-outline-danger")
+          .removeClass("btn-outline-primary btn-success");
+      }
     },
-
     unhighlight: function (element) {
       $(element).removeClass("is-invalid");
       if ($(element).hasClass("select2-hidden-accessible")) {
@@ -1305,6 +1428,42 @@ $(document).ready(function () {
           .removeClass("is-invalid-border");
       }
     },
+
+    // errorElement: "span",
+    // errorPlacement: function (error, element) {
+    //   error.addClass("invalid-feedback");
+    //   if (element.hasClass("select2-hidden-accessible")) {
+    //     error.insertAfter(element.next(".select2"));
+    //   } else if (element.attr("name") == "password") {
+    //     error.insertAfter("#passwordStatus");
+    //     error.css("display", "block");
+    //   } else if (element.attr("name") == "signatureBase64") {
+    //     error.insertAfter("#btnTriggerSignature");
+    //     error.css("display", "block");
+    //   } else {
+    //     element.closest(".form-group").append(error);
+    //   }
+    // },
+
+    // highlight: function (element) {
+    //   $(element).addClass("is-invalid");
+    //   if ($(element).hasClass("select2-hidden-accessible")) {
+    //     $(element)
+    //       .next(".select2")
+    //       .find(".select2-selection")
+    //       .addClass("is-invalid-border");
+    //   }
+    // },
+
+    // unhighlight: function (element) {
+    //   $(element).removeClass("is-invalid");
+    //   if ($(element).hasClass("select2-hidden-accessible")) {
+    //     $(element)
+    //       .next(".select2")
+    //       .find(".select2-selection")
+    //       .removeClass("is-invalid-border");
+    //   }
+    // },
 
     // Handler jika tombol daftar diklik TAPI masih ada yang salah
     invalidHandler: function (event, validator) {
@@ -1327,12 +1486,61 @@ $(document).ready(function () {
     },
 
     // HANYA JALAN JIKA FORM SUDAH VALID 100% (Termasuk Remote Check Sukses)
+    //   submitHandler: function (form) {
+    //     var formData = new FormData(form);
+
+    //     Swal.fire({
+    //       title: "Mendaftarkan Akun...",
+    //       text: "Mohon tunggu sebentar",
+    //       allowOutsideClick: false,
+    //       didOpen: () => Swal.showLoading(),
+    //     });
+
+    //     $.ajax({
+    //       url: $(form).attr("action"),
+    //       type: "POST",
+    //       data: formData,
+    //       processData: false,
+    //       contentType: false,
+    //       success: function (response) {
+    //         // Parsing response jika string
+    //         var res =
+    //           typeof response === "string" ? JSON.parse(response) : response;
+
+    //         Swal.fire({
+    //           icon: "success",
+    //           title: "Pendaftaran Berhasil!",
+    //           text: res.message,
+    //           confirmButtonText: "Login Sekarang",
+    //           confirmButtonColor: "#28a745",
+    //           allowOutsideClick: false,
+    //         }).then((result) => {
+    //           if (result.isConfirmed) {
+    //             window.location.href = "/login";
+    //           }
+    //         });
+    //       },
+    //       error: function (xhr) {
+    //         var msg = "Terjadi kesalahan server";
+    //         try {
+    //           var err = JSON.parse(xhr.responseText);
+    //           if (err.message) msg = err.message;
+    //         } catch (e) {}
+
+    //         Swal.fire("Gagal!", msg, "error");
+    //       },
+    //     });
+
+    //     return false; // PENTING: Mencegah submit form bawaan browser
+    //   },
+    // });
+    // SUBMIT HANDLER (UPDATE PESAN SUKSES)
     submitHandler: function (form) {
       var formData = new FormData(form);
 
       Swal.fire({
         title: "Mendaftarkan Akun...",
-        text: "Mohon tunggu sebentar",
+        text: "Sistem sedang mengirimkan email konfirmasi...",
         allowOutsideClick: false,
         didOpen: () => Swal.showLoading(),
       });
@@ -1344,16 +1552,15 @@ $(document).ready(function () {
         processData: false,
         contentType: false,
         success: function (response) {
-          // Parsing response jika string
           var res =
             typeof response === "string" ? JSON.parse(response) : response;
 
           Swal.fire({
             icon: "success",
-            title: "Pendaftaran Berhasil!",
-            text: res.message,
-            confirmButtonText: "Login Sekarang",
-            confirmButtonColor: "#28a745",
+            title: "Registrasi Berhasil!",
+            html: res.message, // Gunakan HTML agar bisa bold pesan emailnya
+            confirmButtonText: "Tutup",
+            confirmButtonColor: "#f70303ff",
             allowOutsideClick: false,
           }).then((result) => {
             if (result.isConfirmed) {
@@ -1371,8 +1578,7 @@ $(document).ready(function () {
           Swal.fire("Gagal!", msg, "error");
         },
       });
-
-      return false; // PENTING: Mencegah submit form bawaan browser
+      return false;
     },
   });
 });

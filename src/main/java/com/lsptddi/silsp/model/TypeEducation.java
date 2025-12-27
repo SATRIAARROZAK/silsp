@@ -6,14 +6,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "ref_educations")
-public class RefEducation {
+@Table(name = "type_pendidikan")
+public class TypeEducation {
     @Id
     // Kita tidak pakai @GeneratedValue karena kita mau ID sesuai JSON (1, 2, 3,
     // 10...)
+    @Column(name = "id_jenis_pendidikan")
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "jenis_pendidikan", nullable = false)
     private String name;
 
     // Getters & Setters

@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Data
-public class SchemaDto {
+public class SkemaDto {
     private Long id;
     // Tab 1
     private String namaSkema;

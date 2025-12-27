@@ -156,6 +156,9 @@ package com.lsptddi.silsp.controller;
 import com.lsptddi.silsp.dto.RegisterDto;
 import com.lsptddi.silsp.model.*;
 import com.lsptddi.silsp.repository.*;
+import com.lsptddi.silsp.service.EmailService;
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -163,8 +166,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
 import java.util.HashSet;
+import java.util.UUID;
+
+import java.util.Collections;
 
 @Controller
 public class AuthController {
@@ -174,11 +179,16 @@ public class AuthController {
     @Autowired
     private RoleRepository roleRepository;
 
+    @Autowired
+    private TokenResetPasswordRepository tokenRepository;
+    @Autowired
+    private EmailService emailService;
+
     // --- TAMBAHAN REPOSITORY BARU ---
     @Autowired
-    private RefEducationRepository educationRepository;
+    private TypeEducationRepository educationRepository;
     @Autowired
-    private RefJobTypeRepository jobTypeRepository;
+    private TypePekerjaanRepository jobTypeRepository;
     // --------------------------------
 
     @Autowired
@@ -192,17 +202,26 @@ public class AuthController {
     @GetMapping("/api/check-duplicate")
     @ResponseBody
     public ResponseEntity<?> checkDuplicate(@RequestParam(required = false) String username,
-            @RequestParam(required = false) String email) {
+            @RequestParam(required = false) String email, @RequestParam(required = false) String nik) { // Tambah
+                                                                                                        // parameter
+                                                                                                        // nik) {
         if (username != null && userRepository.existsByUsername(username))
             return ResponseEntity.ok(false);
         if (email != null && userRepository.existsByEmail(email))
+            return ResponseEntity.ok(false);
+        // if (nik != null && !nik.trim().isEmpty()) {
+        // if (userRepository.existsByNik(nik))
+        // return ResponseEntity.ok(false);
+        // }
+        if (nik != null && userRepository.existsByNik(nik))
             return ResponseEntity.ok(false);
         return ResponseEntity.ok(true);
     }
 
     @PostMapping("/register")
     @ResponseBody
-    public ResponseEntity<?> registerProcess(@ModelAttribute RegisterDto dto) {
+    public ResponseEntity<?> registerProcess(@ModelAttribute RegisterDto dto, HttpServletRequest request) {
+        // public ResponseEntity<?> registerProcess(@ModelAttribute RegisterDto dto) {
         try {
             // 1. Validasi Awal
             if (dto.getRoles() == null || dto.getRoles().isEmpty()) {
@@ -216,12 +235,19 @@ public class AuthController {
                 return ResponseEntity.badRequest()
                         .body("{\"status\":\"error\", \"message\":\"Email sudah digunakan!\"}");
             }
+            if (userRepository.existsByNik(dto.getNik())) {
+                return ResponseEntity.badRequest()
+                        .body("{\"status\":\"error\", \"message\":\"NIK telah terdaftar!\"}");
+            }
 
             // 2. Setup User
             User user = new User();
             user.setUsername(dto.getUsername());
             user.setEmail(dto.getEmail());
-            user.setPassword(passwordEncoder.encode(dto.getPassword()));
+            // user.setPassword(passwordEncoder.encode(dto.getPassword()));
+            // SET PASSWORD SEMENTARA (RANDOM & KUAT)
+            // User tidak akan tahu password ini, mereka wajib reset via email
+            user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
 
             // PERBAIKAN UTAMA: ROLE SENSITIVITY
             // ------------------------------------------------------------------
@@ -298,14 +324,14 @@ public class AuthController {
 
             // A. Pendidikan Terakhir (Semua Role)
             if (dto.getEducationId() != null) {
-                RefEducation edu = educationRepository.findById(dto.getEducationId())
+                TypeEducation edu = educationRepository.findById(dto.getEducationId())
                         .orElse(null); // Jika ID tidak valid, set null atau throw error
                 user.setEducationId(edu);
             }
 
             // B. Jenis Pekerjaan (Khusus Asesor)
             if ("Asesor".equals(roleName) && dto.getJobTypeId() != null) {
-                RefJobType job = jobTypeRepository.findById(dto.getJobTypeId())
+                TypePekerjaan job = jobTypeRepository.findById(dto.getJobTypeId())
                         .orElse(null);
                 user.setJobTypeId(job);
             }
@@ -325,8 +351,37 @@ public class AuthController {
 
             userRepository.save(user);
 
+            // ============================================================
+            // 3. PROSES AKTIVASI EMAIL (BUAT TOKEN & KIRIM EMAIL)
+            // ============================================================
+
+            // A. Buat Token
+            String token = UUID.randomUUID().toString();
+            TokenResetPassword myToken = new TokenResetPassword(token, user);
+            tokenRepository.save(myToken);
+
+            // B. Buat Link Reset
+            String appUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
+            String activationLink = appUrl + "/reset-password?token=" + token;
+
+            // C. Kirim Email
+            String subject = "Registrasi Anda Berhasil - SILSP";
+            String body = "Selamat Datang " + user.getFullName() + ",\n\n" +
+                    "Pendaftaran akun Anda berhasil!\n" +
+                    "Langkah terakhir, silakan klik tautan di bawah ini untuk membuat kata sandi Anda:\n" +
+                    activationLink + "\n\n\n" +
+
+                    "Admin\n" +
+                    "LSP Teknologi Data Digital Indonesia";
+            emailService.sendEmail(user.getEmail(), subject, body);
+
             return ResponseEntity.ok()
-                    .body("{\"status\":\"success\", \"message\":\"Registrasi Berhasil! Silakan Login.\"}");
+                    .body("{\"status\":\"success\", \"message\":\"Registrasi Berhasil!<br>Silakan cek email <b>"
+                            + dto.getEmail() + "</b> untuk membuat kata sandi.\"}");
+
+            // return ResponseEntity.ok()
+            // .body("{\"status\":\"success\", \"message\":\"Registrasi Berhasil! Silakan
+            // Login.\"}");
 
         } catch (Exception e) {
             e.printStackTrace();

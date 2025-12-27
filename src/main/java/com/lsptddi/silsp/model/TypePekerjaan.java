@@ -6,12 +6,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "ref_job_types")
-public class RefJobType {
+@Table(name = "type_pekerjaan")
+public class TypePekerjaan {
     @Id
+    @Column(name = "id_jenis_pekerjaan")
     private Long id; // ID Manual (1 - 89 sesuai JSON)
 
-    @Column(nullable = false)
+    @Column(name = "jenis_pekerjaan", nullable = false)
     private String name;
 
     // Getters & Setters

@@ -104,9 +104,10 @@ INSERT INTO ref_job_types (id,  name) VALUES (87,'Biarawati');
 INSERT INTO ref_job_types (id,  name) VALUES (88,'Wiraswasta');
 INSERT INTO ref_job_types (id,  name) VALUES (89,'Lainny');
 -- Pastikan nama role SAMA dengan value di HTML option value="ADMIN"
-INSERT INTO roles (id, name) VALUES (1, 'ADMIN');
-INSERT INTO roles (id, name) VALUES (2, 'ASESI');
-INSERT INTO roles (id, name) VALUES (3, 'ASESOR');
+INSERT INTO roles (id, name) VALUES (1, 'Admin');
+INSERT INTO roles (id, name) VALUES (2, 'Asesi');
+INSERT INTO roles (id, name) VALUES (3, 'Asesor');
+INSERT INTO roles (id, name) VALUES (4, 'Direktur');
 
 -- DATA JENIS SKEMA DAN MODE SKEMA --
 INSERT INTO ref_schema_types (name) VALUES ('KKNI'), ('OKUPASI'), ('KLASTER');

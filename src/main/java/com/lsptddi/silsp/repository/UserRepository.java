@@ -63,6 +63,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
         // Cek Email untuk ADD (Baru)
         boolean existsByEmail(String email);
 
+        boolean existsByNik(String nik);
+
         // boolean existsByNik(String nik);
 
         // Cek Username untuk EDIT (Kecuali ID sendiri)

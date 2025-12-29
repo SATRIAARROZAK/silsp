@@ -972,7 +972,15 @@ public class AdminController {
             user.setCitizenship(userDto.getCitizenship());
             // user.setNoMet(userDto.getNoMet());
             // 3. NO MET (Di dalam loop role Asesor)
-            user.setNoMet("MET." + userDto.getNoMet());
+            // user.setNoMet("MET." + userDto.getNoMet());
+            if (roles.contains("Asesor")) {
+                if (userDto.getNoMet() != null) {
+                    user.setNoMet("MET." + userDto.getNoMet());
+                }
+            } else {
+                // Jika bukan Asesor, bersihkan No MET
+                user.setNoMet(null);
+            }
 
             user.setCompanyName(userDto.getCompanyName());
             user.setPosition(userDto.getPosition());

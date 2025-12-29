@@ -100,8 +100,7 @@ public class SecurityConfig {
                                                 .logoutSuccessUrl("/login")
                                                 .permitAll());
                 // 4. FITUR CEGAH UNDO/BACK (Disable Cache)
-                // .headers(headers -> headers
-                // .cacheControl(cache -> cache.disable()));
+                // .headers(headers -> headers .cacheControl(cache -> cache.disable()));
 
                 return http.build();
         }

@@ -331,7 +331,7 @@
                       <input
                         type="text"
                         class="form-control"
-                        th:value="${user.officeEmail != null ? user.position : '-'}"
+                        th:value="${user.officeEmail != null ? user.officeEmail : '-'}"
                         disabled
                       />
                     </div>
@@ -342,7 +342,7 @@
                       <input
                         type="text"
                         class="form-control"
-                        th:value="${user.officePhone != null ? user.position : '-'}"
+                        th:value="${user.officePhone != null ? user.officePhone : '-'}"
                         disabled
                       />
                     </div>
@@ -353,7 +353,7 @@
                       <input
                         type="text"
                         class="form-control"
-                        th:value="${user.officeFax != null ? user.position : '-'}"
+                        th:value="${user.officeFax != null ? user.officeFax : '-'}"
                         disabled
                       />
                     </div>
@@ -365,7 +365,7 @@
                         class="form-control"
                         rows="2"
                         disabled
-                        th:text="${user.officeAddress != null ? user.position : '-'}"
+                        th:text="${user.officeAddress != null ? user.officeAddress : '-'}"
                       ></textarea>
                     </div>
                   </div>

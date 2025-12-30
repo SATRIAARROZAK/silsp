@@ -56428,7 +56428,7 @@ a.text-muted:hover {
 .tuk-profile .profile-details {
   display: flex;
   /* Membuat item sejajar horizontal (default) */
-  gap: 2rem;
+  gap: .5rem;
   /* Memberi jarak antar item (Kode TUK & Jenis TUK) */
   flex-wrap: wrap;
   /* Izinkan wrap jika layar terlalu kecil */
@@ -56443,6 +56443,11 @@ a.text-muted:hover {
 .tuk-profile strong {
   font-weight: 600;
   /* Menebalkan tulisan title */
+}
+
+.detail-item span{
+  font-size: 14px;
+  /* Ukuran font untuk value */
 }
 
 /* 3. Styling untuk tombol aksi */

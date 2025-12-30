@@ -1,5 +1,6 @@
 package com.lsptddi.silsp.controller.asesi;
 
+import com.lsptddi.silsp.dto.UserProfileDto;
 import com.lsptddi.silsp.model.User; // Import Model User Asli
 import com.lsptddi.silsp.repository.UserRepository; // Import Repo
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,32 @@ public class AsesiController {
     @GetMapping("/dashboard")
     public String index() {
         return "pages/asesi/dashboard";
+    }
+
+    @GetMapping("/profile")
+    public String showProfile(Model model, Principal principal) {
+        User user = userRepository.findByUsername(principal.getName()).orElseThrow();
+
+        // Mapping ke DTO untuk ditampilkan di form
+        UserProfileDto dto = new UserProfileDto();
+        dto.setId(user.getId());
+        dto.setUsername(user.getUsername());
+        dto.setEmail(user.getEmail());
+        dto.setFullName(user.getFullName());
+        dto.setNoTelp(user.getPhoneNumber());
+        dto.setAddress(user.getAddress());
+        dto.setBirthPlace(user.getBirthPlace());
+        dto.setBirthDate(user.getBirthDate());
+        dto.setGender(user.getGender());
+        dto.setNik(user.getNik());
+        dto.setSignatureBase64(user.getSignatureBase64());
+
+        dto.setProvinceId(user.getProvinceId());
+        dto.setCityId(user.getCityId());
+        dto.setDistrictId(user.getDistrictId());
+
+        model.addAttribute("userDto", dto);
+        return "pages/asesi/profile"; // Mengarah ke file HTML shared
     }
 
     @GetMapping("/daftar-sertifikasi")

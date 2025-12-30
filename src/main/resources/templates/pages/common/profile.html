@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html
+  lang="en"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/app}"
+>
+  <head th:replace="~{fragments/header :: header('Profil Pengguna')}"></head>
+  <body>
+    <div layout:fragment="page-title">
+      <h1 class="m-0">Profil Saya</h1>
+    </div>
+
+    <div layout:fragment="content">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-md-3">
+            <div class="card card-primary card-outline">
+              <div class="card-body box-profile">
+                <div class="text-center">
+                  <img
+                    class="profile-user-img img-fluid img-circle"
+                    th:src="@{/dist/img/avatar5.png}"
+                    alt="User profile picture"
+                  />
+                </div>
+                <h3
+                  class="profile-username text-center"
+                  th:text="${userDto.fullName}"
+                >
+                  Nama User
+                </h3>
+                <p class="text-muted text-center" th:text="${currentRole}">
+                  Role
+                </p>
+
+                <ul class="list-group list-group-unbordered mb-3">
+                  <li class="list-group-item">
+                    <b>Username</b>
+                    <a class="float-right" th:text="${userDto.username}"
+                      >user123</a
+                    >
+                  </li>
+                  <li class="list-group-item">
+                    <b>Email</b>
+                    <a class="float-right" th:text="${userDto.email}"
+                      >email@mail.com</a
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-9">
+            <div class="card">
+              <div class="card-header p-2">
+                <ul class="nav nav-pills">
+                  <li class="nav-item">
+                    <a
+                      class="nav-link active"
+                      href="#settings"
+                      data-toggle="tab"
+                      >Pengaturan</a
+                    >
+                  </li>
+                </ul>
+              </div>
+              <div class="card-body">
+                <div class="tab-content">
+                  <div class="active tab-pane" id="settings">
+                    <form
+                      class="form-horizontal"
+                      id="formUpdateProfile"
+                      th:action="@{/profile/update}"
+                      method="post"
+                    >
+                      <div class="form-group row">
+                        <label class="col-sm-2 col-form-label"
+                          >Nama Lengkap</label
+                        >
+                        <div class="col-sm-10">
+                          <input
+                            type="text"
+                            class="form-control"
+                            name="fullName"
+                            th:value="${userDto.fullName}"
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div class="form-group row">
+                        <label class="col-sm-2 col-form-label">Email</label>
+                        <div class="col-sm-10">
+                          <input
+                            type="email"
+                            class="form-control"
+                            name="email"
+                            th:value="${userDto.email}"
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div class="form-group row">
+                        <label class="col-sm-2 col-form-label"
+                          >No. Telepon</label
+                        >
+                        <div class="col-sm-10">
+                          <input
+                            type="text"
+                            class="form-control input-phone"
+                            name="noTelp"
+                            th:value="${userDto.noTelp}"
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div class="dropdown-divider my-4"></div>
+                      <h5 class="mb-3 text-muted">
+                        <i class="fas fa-lock mr-2"></i>Ganti Kata Sandi
+                        (Opsional)
+                      </h5>
+
+                      <div class="form-group row">
+                        <label class="col-sm-2 col-form-label"
+                          >Password Lama</label
+                        >
+                        <div class="col-sm-10">
+                          <input
+                            type="password"
+                            class="form-control"
+                            name="currentPassword"
+                            placeholder="Isi jika ingin mengganti password"
+                          />
+                        </div>
+                      </div>
+                      <div class="form-group row">
+                        <label class="col-sm-2 col-form-label"
+                          >Password Baru</label
+                        >
+                        <div class="col-sm-10">
+                          <input
+                            type="password"
+                            class="form-control"
+                            name="newPassword"
+                            id="newPassword"
+                            placeholder="Minimal 8 karakter"
+                          />
+                        </div>
+                      </div>
+                      <div class="form-group row">
+                        <label class="col-sm-2 col-form-label"
+                          >Konfirmasi</label
+                        >
+                        <div class="col-sm-10">
+                          <input
+                            type="password"
+                            class="form-control"
+                            name="confirmPassword"
+                            placeholder="Ulangi password baru"
+                          />
+                        </div>
+                      </div>
+
+                      <div class="form-group row">
+                        <div class="offset-sm-2 col-sm-10">
+                          <button type="submit" class="btn btn-danger">
+                            Simpan Perubahan
+                          </button>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div layout:fragment="scripts">
+      <script>
+        $(document).ready(function () {
+          // Submit Handler
+          $("#formUpdateProfile").validate({
+            rules: {
+              fullName: { required: true },
+              email: { required: true, email: true },
+              noTelp: { required: true },
+              newPassword: { minlength: 8 },
+              confirmPassword: { equalTo: "#newPassword" },
+            },
+            messages: {
+              confirmPassword: { equalTo: "Password tidak cocok!" },
+            },
+            errorElement: "span",
+            errorPlacement: function (error, element) {
+              error.addClass("invalid-feedback");
+              element.closest(".col-sm-10").append(error);
+            },
+            highlight: function (element, errorClass, validClass) {
+              $(element).addClass("is-invalid");
+            },
+            unhighlight: function (element, errorClass, validClass) {
+              $(element).removeClass("is-invalid");
+            },
+            submitHandler: function (form) {
+              var formData = new FormData(form);
+
+              // Cek jika password diisi, maka password lama wajib diisi
+              if (
+                $("[name='newPassword']").val() &&
+                !$("[name='currentPassword']").val()
+              ) {
+                Swal.fire(
+                  "Gagal",
+                  "Harap isi password lama untuk verifikasi keamanan!",
+                  "warning"
+                );
+                return false;
+              }
+
+              Swal.fire({
+                title: "Menyimpan...",
+                didOpen: () => Swal.showLoading(),
+              });
+
+              $.ajax({
+                url: $(form).attr("action"),
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (res) {
+                  var response =
+                    typeof res === "string" ? JSON.parse(res) : res;
+                  Swal.fire("Berhasil", response.message, "success").then(
+                    () => {
+                      location.reload();
+                    }
+                  );
+                },
+                error: function (xhr) {
+                  var msg = "Terjadi kesalahan";
+                  try {
+                    msg = JSON.parse(xhr.responseText).message;
+                  } catch (e) {}
+                  Swal.fire("Gagal", msg, "error");
+                },
+              });
+              return false;
+            },
+          });
+        });
+      </script>
+    </div>
+  </body>
+</html>

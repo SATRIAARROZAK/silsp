@@ -1,8 +1,10 @@
 package com.lsptddi.silsp.service;
 
+import com.lsptddi.silsp.model.Tuk;
 import com.lsptddi.silsp.repository.TukRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.util.Optional;
 
 @Service
 public class TukService {
@@ -11,7 +13,8 @@ public class TukService {
     private TukRepository tukRepository;
 
     public String generateTukCode() {
-        String lastCode = tukRepository.findLastCode();
+        Optional<Tuk> lastTuk = tukRepository.findTopByOrderByIdDesc();
+        String lastCode = lastTuk.isPresent() ? lastTuk.get().getCode() : null;
         // Format: TUK-LSPTDDI-001
         
         if (lastCode == null) {

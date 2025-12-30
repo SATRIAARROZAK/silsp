@@ -104,15 +104,43 @@
         >
           Guest
         </span>
-        
       </a>
+
       <ul class="custom-user-dropdown" id="userDropdownMenu">
-        <li>
-          <a href="#" class="dropdown-item">
+        <li class="nav-item">
+          <a
+            th:if="${currentRole == 'Admin'}"
+            th:href="@{/admin/profile}"
+            class="dropdown-item"
+          >
+            <span class="material-symbols-outlined">account_circle</span> Profil
+            Saya
+          </a>
+
+          <a
+            th:if="${currentRole == 'Asesi'}"
+            th:href="@{/asesi/profile}"
+            class="dropdown-item"
+          >
+            <span class="material-symbols-outlined">account_circle</span> Profil
+            Saya
+          </a>
+
+          <a
+            th:if="${currentRole == 'Asesor'}"
+            th:href="@{/asesor/profile}"
+            class="dropdown-item"
+          >
+            <span class="material-symbols-outlined">account_circle</span> Profil
+            Saya
+          </a>
+        </li>
+        <!-- <li>
+          <a href="@{/profile}" class="dropdown-item">
             <span class="material-symbols-outlined">account_circle</span>
             Profile
           </a>
-        </li>
+        </li> -->
         <!-- <li>
           <a href="#" class="dropdown-item">
             <span class="material-symbols-outlined">settings</span> Settings

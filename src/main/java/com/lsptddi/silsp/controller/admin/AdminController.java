@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.lsptddi.silsp.dto.SkemaDto;
 import com.lsptddi.silsp.dto.TukDto;
 import com.lsptddi.silsp.dto.UserDto;
+import com.lsptddi.silsp.dto.UserProfileDto;
 import com.lsptddi.silsp.model.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder; // Pastikan ada ini
@@ -84,6 +85,32 @@ public class AdminController {
     public String index(Model model) {
 
         return "pages/admin/dashboard";
+    }
+
+    @GetMapping("/profile")
+    public String showProfile(Model model, Principal principal) {
+        User user = userRepository.findByUsername(principal.getName()).orElseThrow();
+
+        // Mapping ke DTO untuk ditampilkan di form
+        UserProfileDto dto = new UserProfileDto();
+        dto.setId(user.getId());
+        dto.setUsername(user.getUsername());
+        dto.setEmail(user.getEmail());
+        dto.setFullName(user.getFullName());
+        dto.setNoTelp(user.getPhoneNumber());
+        dto.setAddress(user.getAddress());
+        dto.setBirthPlace(user.getBirthPlace());
+        dto.setBirthDate(user.getBirthDate());
+        dto.setGender(user.getGender());
+        dto.setNik(user.getNik());
+        dto.setSignatureBase64(user.getSignatureBase64());
+
+        dto.setProvinceId(user.getProvinceId());
+        dto.setCityId(user.getCityId());
+        dto.setDistrictId(user.getDistrictId());
+
+        model.addAttribute("userDto", dto);
+        return "pages/admin/profile"; // Mengarah ke file HTML shared
     }
 
     @ModelAttribute
@@ -497,13 +524,19 @@ public class AdminController {
         }
 
         // Redirect kembali ke halaman list
-        return "redirect:pages/admin/tuk/tuk-list";
+        return "redirect:/admin/tuk";
     }
 
     @GetMapping("/jadwal-sertifikasi")
     public String showDataJadwalAsesmen(Model model) { // 1. Tambahkan Model sebagai parameter
 
         return "pages/admin/jadwal/sertifikasi-list";
+    }
+
+    @GetMapping("/jadwal-sertifikasi/detail")
+    public String showDetailJadwalAsesmen(Model model) { // 1. Tambahkan Model sebagai parameter
+
+        return "pages/admin/jadwal/sertifikasi-detail";
     }
 
     @GetMapping("/jadwal-sertifikasi/jadwal-tambah")

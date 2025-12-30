@@ -21,7 +21,7 @@ $(document).ready(function () {
   // ==========================================
   // 2. LOGIKA DELETE (LIST PAGE)
   // ==========================================
-  $(".delete-button").on("click", function (e) {
+  $(".delete-button-tuk").on("click", function (e) {
     e.preventDefault();
     var link = $(this).attr("href");
     Swal.fire({

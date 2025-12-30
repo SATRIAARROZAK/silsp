@@ -110,5 +110,6 @@ INSERT INTO roles (id_role, nama_role) VALUES (3, 'Asesor');
 INSERT INTO roles (id_role, nama_role) VALUES (4, 'Direktur');
 
 -- DATA JENIS SKEMA DAN MODE SKEMA --
-INSERT INTO ref_schema_types (name) VALUES ('KKNI'), ('OKUPASI'), ('KLASTER');
-INSERT INTO ref_schema_modes (name) VALUES ('Mandiri'), ('Referensi BNSP');
+INSERT INTO type_skema (nama_jenis_skema) VALUES ('KKNI'), ('OKUPASI'), ('KLASTER');
+INSERT INTO type_skema_pengajuan (jenis_skema_pengajuan) VALUES ('Mandiri'), ('Referensi BNSP');
+INSERT INTO type_tuk (jenis_skema_pengajuan) VALUES ('Mandiri'), ('Referensi BNSP');

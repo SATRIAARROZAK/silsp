@@ -24,6 +24,7 @@ public class AsesorController {
             String username = principal.getName();
             User user = userRepository.findByUsername(username).orElse(null);
             model.addAttribute("user", user);
+            model.addAttribute("currentRole", "Asesor");
         }
     }
 

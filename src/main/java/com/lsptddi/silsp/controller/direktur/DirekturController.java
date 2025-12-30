@@ -31,6 +31,7 @@ public class DirekturController {
             // Masukkan object User asli ke Thymeleaf
             // Jadi di HTML bisa panggil ${user.fullName}, ${user.email}, dll
             model.addAttribute("user", user); 
+            model.addAttribute("currentRole", "Direktur");
         }
     }
 

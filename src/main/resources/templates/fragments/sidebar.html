@@ -1,58 +1,51 @@
-<aside class="main-sidebar main-sidebar-custom sidebar-dark-dark elevation-4" th:fragment="sidebar">
-
+<aside
+  class="main-sidebar main-sidebar-custom sidebar-dark-dark elevation-4"
+  th:fragment="sidebar"
+>
   <a href="#" class="brand-link text-bg-blue-dark d-flex align-items-center">
-    <img th:src="@{/dist/img/logoLSP.png}" alt="AdminLTE Logo" class="brand-image" style="opacity: 1" />
+    <img
+      th:src="@{/dist/img/logoLSP.png}"
+      alt="AdminLTE Logo"
+      class="brand-image"
+      style="opacity: 1"
+    />
     <span class="brand-text font-bold-light">SILSP</span>
   </a>
-
-  <!-- <a href="#" class="brand-link">
-    <img th:src="@{/dist/img/logoLSP.png}" alt="LSP Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
-    
-    <span class="brand-text font-weight-light">SILSP</span>
-</a> -->
 
   <div class="sidebar">
     <div class="user-panel mt-3 pb-3 mb-3 d-flex">
       <div class="image">
-        <img th:src="@{/dist/img/user2-160x160.jpg}" class="img-circle elevation-2" alt="User Image" />
+        <img
+          th:src="@{/dist/img/avatar5.png}"
+          class="img-circle elevation-2"
+          alt="User Image"
+        />
       </div>
-      <!-- <div class="info">
-        <a
-          href="#"
-          class="d-block"
-          th:text="${user != null ? user.role : 'No Role'}"
-          >Nama Pengguna - Role
-        </a>
-      </div> -->
-
       <div class="info">
-        <!-- <a
-          href="#"
-          class="d-block"
-          th:text="${loggedInUser != null ? loggedInUser.fullName : 'Guest'}"
-          >Guest</a
-        > -->
-
-        <a th:href="@{/admin/dashboard}" class="d-block" th:text="${currentRole != null ? currentRole : '-'}">Guest</a>
-
-        <!-- <small
-          class="text-muted"
-          th:text="${currentRole != null ? currentRole : '-'}"
-        ></small> -->
-      </div>
-      <!-- <div class="info">
         <a
           href="#"
           class="d-block"
-          th:text="${user != null ? user.fullName + ' - ' + user.role : 'Guest - No Role'}"
-          >Nama Pengguna - Role
-        </a>
-      </div> -->
+          th:text="${user != null ? user.fullName : 'Guest'}"
+          >Nama User</a
+        >
+
+        <a
+          href="#"
+          class="d-block badge badge-success mt-1"
+          th:text="${currentRole}"
+          >Role Aktif</a
+        >
+      </div>
     </div>
 
     <nav class="mt-2">
-      <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-        <th:block sec:authorize="hasAuthority('Admin')">
+      <ul
+        class="nav nav-pills nav-sidebar flex-column"
+        data-widget="treeview"
+        role="menu"
+        data-accordion="false"
+      >
+        <th:block th:if="${currentRole == 'Admin'}">
           <li class="nav-item">
             <a th:href="@{/admin/dashboard}" class="nav-link">
               <i class="nav-icon fas fa-home"></i>
@@ -115,7 +108,8 @@
           </li>
         </th:block>
 
-        <th:block sec:authorize="hasAuthority('Asesi')">
+        <th:block th:if="${currentRole == 'Asesi'}">
+          <li class="nav-header">ASESI</li>
           <li class="nav-item">
             <a th:href="@{/asesi/dashboard}" class="nav-link">
               <i class="nav-icon fas fa-home"></i>
@@ -124,13 +118,14 @@
           </li>
           <li class="nav-item">
             <a th:href="@{/asesi/daftar-sertifikasi}" class="nav-link">
-              <i class="nav-icon fas fa-home"></i>
+              <i class="nav-icon fas fa-file-signature"></i>
               <p>Daftar Sertifikasi</p>
             </a>
           </li>
         </th:block>
 
-        <th:block sec:authorize="hasAuthority('Asesor')">
+        <th:block th:if="${currentRole == 'Asesor'}">
+          <li class="nav-header">ASESOR</li>
           <li class="nav-item">
             <a th:href="@{/asesor/dashboard}" class="nav-link">
               <i class="nav-icon fas fa-home"></i>
@@ -139,27 +134,32 @@
           </li>
           <li class="nav-item">
             <a th:href="@{/asesor/surat-tugas}" class="nav-link">
-              <i class="nav-icon fas fa-home"></i>
-              <p>Daftar Surat Tugas</p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a th:href="@{/asesor/surat-tugas}" class="nav-link">
-              <i class="nav-icon fas fa-home"></i>
-              <p>Jadwal Asesmen</p>
+              <i class="nav-icon fas fa-envelope-open-text"></i>
+              <p>Surat Tugas</p>
             </a>
           </li>
         </th:block>
 
-        <th:block sec:authorize="hasAuthority('Direktur')">
-          <li class="nav-item">
-            <a th:href="@{/direktur/dashboard}" class="nav-link">
-              <i class="nav-icon fas fa-home"></i>
-              <p>Dashboard</p>
-            </a>
-          </li>
-         
-        </th:block>
+        <!-- <li class="nav-header">PENGATURAN</li>
+
+        <li class="nav-item">
+          <a th:href="@{/switch-role}" class="nav-link bg-warning text-dark">
+            <i class="nav-icon fas fa-exchange-alt"></i>
+            <p>Ganti Peran / Role</p>
+          </a>
+        </li> -->
+
+        <li class="nav-item">
+          <form th:action="@{/logout}" method="post" class="d-inline">
+            <button
+              type="submit"
+              class="nav-link btn btn-link text-left text-danger"
+            >
+              <i class="nav-icon fas fa-sign-out-alt"></i>
+              <p>Keluar</p>
+            </button>
+          </form>
+        </li>
       </ul>
     </nav>
   </div>

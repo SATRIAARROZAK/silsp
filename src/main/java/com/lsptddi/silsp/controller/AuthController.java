@@ -165,6 +165,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
 
 import java.util.HashSet;
 import java.util.UUID;
@@ -195,7 +196,11 @@ public class AuthController {
     private PasswordEncoder passwordEncoder;
 
     @GetMapping("/register")
-    public String registerPage(Model model) {
+    public String registerPage(Authentication authentication) {
+        // CEGAH USER LOGIN MASUK KE REGISTER
+        if (authentication != null && authentication.isAuthenticated()) {
+            return "redirect:/switch-role";
+        }
         return "register";
     }
 

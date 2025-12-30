@@ -40,6 +40,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.nio.file.*;
+import java.security.Principal;
 
 @Controller
 @RequestMapping("/admin")
@@ -77,10 +78,25 @@ public class AdminController {
     @Autowired
     private TukService tukService;
 
+    // Di dalam class AsesiController
+
     @GetMapping("/dashboard")
     public String index(Model model) {
 
         return "pages/admin/dashboard";
+    }
+
+    @ModelAttribute
+    public void addGlobalAttributes(Model model, Principal principal) {
+        if (principal != null) {
+            String username = principal.getName();
+            User user = userRepository.findByUsername(username).orElse(null);
+            model.addAttribute("user", user);
+
+            // --- TAMBAHAN PENTING ---
+            // Ini kuncinya: Kirim sinyal bahwa halaman ini adalah konteks ADMIN
+            model.addAttribute("currentRole", "Admin");
+        }
     }
 
     @GetMapping("/api/check-username")

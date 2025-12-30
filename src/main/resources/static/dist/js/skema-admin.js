@@ -67,7 +67,7 @@ $(document).ready(function () {
   // ========================================================
 
   // Konfirmasi Delete
-  $(".delete-button").on("click",  function (e) {
+  $(".delete-button-skema").on("click",  function (e) {
     e.preventDefault();
     var link = $(this).attr("href");
 

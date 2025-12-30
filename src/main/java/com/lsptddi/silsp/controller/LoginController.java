@@ -6,6 +6,8 @@ import com.lsptddi.silsp.model.*;
 import com.lsptddi.silsp.repository.*;
 import com.lsptddi.silsp.service.EmailService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -64,7 +66,7 @@ public class LoginController {
             if (roles.contains("Direktur"))
                 return "redirect:/direktur/dashboard";
 
-            return "redirect:/switch-role";
+            // return "redirect:/switch-role";
         }
         return "login";
     }
@@ -87,50 +89,75 @@ public class LoginController {
         return "switch-role";
     }
 
-    // 3. LOGIKA ISOLASI ROLE (CORE FEATURE)
-    @GetMapping("/auth/select-role")
-    public String selectRole(@RequestParam String targetRole, Authentication authentication) {
-        if (authentication == null)
-            return "redirect:/login";
-
-        // A. VERIFIKASI KEAMANAN
-        // Cek apakah user BENAR-BENAR punya role yang dipilih dalam list
-        // Authorities-nya saat ini?
-        boolean hasRole = authentication.getAuthorities().stream()
+    @GetMapping("/select-role")
+    public String selectRole(@RequestParam("target") String targetRole, 
+                             HttpServletRequest request, 
+                             Authentication authentication) {
+        
+        // 1. Validasi Keamanan: Pastikan user BENAR-BENAR punya role tersebut di Database
+        boolean hasAuthority = authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals(targetRole));
 
-        if (!hasRole) {
-            // Jika mencoba akses role yang tidak dimiliki -> Kick / Error
-            return "redirect:/switch-role?error=unauthorized";
+        if (!hasAuthority) {
+            return "redirect:/switch-role?error=unauthorized"; // Jangan coba-coba hack
         }
 
-        // B. MODIFIKASI SECURITY CONTEXT (ISOLASI)
-        // Kita buat list authority baru yang HANYA berisi role yang dipilih
-        List<GrantedAuthority> newAuthorities = new ArrayList<>();
-        newAuthorities.add(new SimpleGrantedAuthority(targetRole));
+        // 2. KUNCI ROLE DI SESSION
+        HttpSession session = request.getSession();
+        session.setAttribute("activeRole", targetRole);
 
-        // Buat token autentikasi baru dengan authority tunggal
-        Authentication newAuth = new UsernamePasswordAuthenticationToken(
-                authentication.getPrincipal(),
-                authentication.getCredentials(),
-                newAuthorities // Hanya role terpilih yang dimasukkan
-        );
-
-        // Set ke Context Holder (Global Session)
-        SecurityContextHolder.getContext().setAuthentication(newAuth);
-
-        // C. REDIRECT KE TUJUAN
-        if (targetRole.equals("Admin"))
-            return "redirect:/admin/dashboard";
-        if (targetRole.equals("Asesi"))
-            return "redirect:/asesi/dashboard";
-        if (targetRole.equals("Asesor"))
-            return "redirect:/asesor/dashboard";
-        if (targetRole.equals("Direktur"))
-            return "redirect:/direktur/dashboard";
-
-        return "redirect:/";
+        // 3. Redirect ke Dashboard yang sesuai
+        if ("Admin".equals(targetRole)) return "redirect:/admin/dashboard";
+        if ("Asesi".equals(targetRole)) return "redirect:/asesi/dashboard";
+        if ("Asesor".equals(targetRole)) return "redirect:/asesor/dashboard";
+        
+        return "redirect:/switch-role";
     }
+
+    // 3. LOGIKA ISOLASI ROLE (CORE FEATURE)
+    // @GetMapping("/auth/select-role")
+    // public String selectRole(@RequestParam String targetRole, Authentication authentication) {
+    //     if (authentication == null)
+    //         return "redirect:/login";
+
+    //     // A. VERIFIKASI KEAMANAN
+    //     // Cek apakah user BENAR-BENAR punya role yang dipilih dalam list
+    //     // Authorities-nya saat ini?
+    //     boolean hasRole = authentication.getAuthorities().stream()
+    //             .anyMatch(a -> a.getAuthority().equals(targetRole));
+
+    //     if (!hasRole) {
+    //         // Jika mencoba akses role yang tidak dimiliki -> Kick / Error
+    //         return "redirect:/switch-role?error=unauthorized";
+    //     }
+
+    //     // B. MODIFIKASI SECURITY CONTEXT (ISOLASI)
+    //     // Kita buat list authority baru yang HANYA berisi role yang dipilih
+    //     List<GrantedAuthority> newAuthorities = new ArrayList<>();
+    //     newAuthorities.add(new SimpleGrantedAuthority(targetRole));
+
+    //     // Buat token autentikasi baru dengan authority tunggal
+    //     Authentication newAuth = new UsernamePasswordAuthenticationToken(
+    //             authentication.getPrincipal(),
+    //             authentication.getCredentials(),
+    //             newAuthorities // Hanya role terpilih yang dimasukkan
+    //     );
+
+    //     // Set ke Context Holder (Global Session)
+    //     SecurityContextHolder.getContext().setAuthentication(newAuth);
+
+    //     // C. REDIRECT KE TUJUAN
+    //     if (targetRole.equals("Admin"))
+    //         return "redirect:/admin/dashboard";
+    //     if (targetRole.equals("Asesi"))
+    //         return "redirect:/asesi/dashboard";
+    //     if (targetRole.equals("Asesor"))
+    //         return "redirect:/asesor/dashboard";
+    //     if (targetRole.equals("Direktur"))
+    //         return "redirect:/direktur/dashboard";
+
+    //     return "redirect:/";
+    // }
 
     // @GetMapping("/register")
     // public String registerPage() {

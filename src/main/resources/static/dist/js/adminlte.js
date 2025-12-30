@@ -4339,6 +4339,10 @@ $(function () {
   });
 });
 
+history.pushState(null, null, location.href);
+window.onpopstate = function () {
+  history.go(1);
+};
 // ========================================================
 // JAVASCRIPT UTAMA TUK ADMIN (LIST, ADD, EDIT, VIEW)
 // ========================================================

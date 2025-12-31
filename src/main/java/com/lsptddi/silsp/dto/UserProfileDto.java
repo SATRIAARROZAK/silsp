@@ -1,26 +1,24 @@
 package com.lsptddi.silsp.dto;
 
 import lombok.Data;
-
-import java.time.LocalDate;
-import java.util.List;
-
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
+import java.time.LocalDate;
 
 @Data
 public class UserProfileDto {
     private Long id;
     private String username;
     private String email;
-    private String roles; // List Nama Role (ADMIN, ASESI, dll)
     private String fullName;
     private String birthPlace;
+    
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthDate;
+    
     private String gender;
     private String nik;
-    private String phoneNumber;
+    private String phoneNumber; // Mapping ke phoneNumber di Entity
     private String address;
 
     // Khusus Ganti Password
@@ -28,23 +26,25 @@ public class UserProfileDto {
     private String newPassword;
     private String confirmPassword;
 
-    // Tanda Tangan & Foto (Opsional)
+    // Tanda Tangan & Foto
     private String signatureBase64;
-    private MultipartFile avatar; // Jika ingin fitur ganti foto profil
+    private MultipartFile avatar; 
 
-    // --- YANG DITANGKAP DARI FORM ADALAH ID (Angka/String) ---
+    // Relasi (Dropdown)
     private Long educationId;
     private Long jobTypeId;
 
+    // Wilayah
     private String provinceId;
     private String cityId;
     private String districtId;
-    // private String subDistrictId;
-
     private String postalCode;
-    private String citizenship;
-    private String noMet;
 
+    // Data Khusus Asesi/Asesor
+    private String citizenship; // Kewarganegaraan
+    private String noMet;       // Khusus Asesor
+
+    // Detail Pekerjaan (Khusus Asesi)
     private String companyName;
     private String position;
     private String officePhone;

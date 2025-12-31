@@ -13,11 +13,22 @@
         <div class="card card-primary card-outline">
           <div class="card-body box-profile">
             <div class="text-center">
-              <img
+              <!-- <img
                 class="profile-user-img img-fluid img-circle"
                 th:src="@{/dist/img/user2-160x160.jpg}"
                 alt="User profile picture"
                 style="width: 100px"
+              /> -->
+              <img
+                th:src="@{userDto.avatar != null ? '/avatar' + userDto.avatar : '/dist/img/avatar5.png'}"
+                class="profile-user-img img-fluid img-circle"
+                style="
+                  width: 180px;
+                  height: 220px;
+                  object-fit: cover;
+                  border: 3px solid #adb5bd;
+                "
+                alt="User profile picture"
               />
             </div>
             <h3 class="profile-username text-center" th:text="${user.fullName}">

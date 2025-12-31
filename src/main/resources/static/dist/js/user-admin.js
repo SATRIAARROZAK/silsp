@@ -328,6 +328,10 @@ $(document).ready(function () {
     }
   });
 
+  $("[name='postalCode']").on("input", function () {
+    this.value = this.value.replace(/[^0-9]/g, "").substring(0, 5);
+  });
+
   // ==========================================
   // 4. VALIDASI FORM & AJAX SUBMIT
   // ==========================================
@@ -390,10 +394,19 @@ $(document).ready(function () {
         minlength: 16,
         maxlength: 16,
       },
+
+      postalCode: {
+        required: true,
+        digits: true,
+        minlength: 5,
+        maxlength: 5,
+      },
+
       phoneNumber: {
         required: true,
         minlength: 10,
       },
+
       fullName: { required: true },
       provinceId: { required: true },
       cityId: { required: true },
@@ -422,6 +435,14 @@ $(document).ready(function () {
       username: {
         remote: "Username sudah digunakan. Silakan pilih username lain.",
       },
+
+      postalCode: {
+        required: "Kode pos wajib diisi",
+        digits: "Hanya boleh angka",
+        minlength: "Kode pos harus 5 digit",
+        maxlength: "Kode pos harus 5 digit",
+      },
+
       signatureBase64: "Isi tanda tangan terlebih dahulu",
     },
 

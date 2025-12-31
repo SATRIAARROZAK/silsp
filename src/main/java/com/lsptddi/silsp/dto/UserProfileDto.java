@@ -13,6 +13,7 @@ public class UserProfileDto {
     private Long id;
     private String username;
     private String email;
+    private String roles; // List Nama Role (ADMIN, ASESI, dll)
     private String fullName;
     private String birthPlace;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -20,7 +21,6 @@ public class UserProfileDto {
     private String gender;
     private String nik;
     private String phoneNumber;
-    private String noTelp;
     private String address;
 
     // Khusus Ganti Password

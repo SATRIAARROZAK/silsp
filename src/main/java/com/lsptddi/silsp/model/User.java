@@ -36,10 +36,10 @@ public class User {
     // --- DATA PRIBADI ---
     @Column(name = "nama_lengkap")
     private String fullName;
-    
-    @Column(name = "tempat_lahir")  
+
+    @Column(name = "tempat_lahir")
     private String birthPlace;
-    
+
     @Column(name = "tanggal_lahir")
     private LocalDate birthDate; // Gunakan LocalDate
 
@@ -49,6 +49,9 @@ public class User {
     private String nik;
     @Column(name = "no_telepon")
     private String phoneNumber;
+
+    @Column(name = "avatar")
+    private String avatar;
 
     // --- RELASI 3NF (UBAH BAGIAN INI) ---
     // Menyimpan ID Pendidikan (Relasi ke tabel ref_educations)
@@ -91,10 +94,10 @@ public class User {
     public TypePekerjaan getJobTypeId() {
         return jobTypeId;
     }
+
     public void setJobTypeId(TypePekerjaan jobTypeId) {
         this.jobTypeId = jobTypeId;
     }
-    
 
     // --- WILAYAH (Disimpan String ID-nya saja) ---
     @Column(name = "id_provinsi")
@@ -133,5 +136,21 @@ public class User {
     @Lob
     @Column(name = "tanda_tangan", columnDefinition = "TEXT") // Agar muat string panjang
     private String signatureBase64;
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
 }

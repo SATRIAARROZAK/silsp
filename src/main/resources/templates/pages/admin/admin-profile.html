@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html
+  lang="en"
+  xmlns:th="http://www.thymeleaf.org"
+  layout:decorate="~{layouts/app}"
+>
+  <head th:replace="~{fragments/header :: header('Profil Pengguna')}"></head>
+
+  <body>
+    <div layout:fragment="content">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="card card-primary card-outline">
+              <div class="card-header">
+                <h3 class="card-title">Edit Profil</h3>
+              </div>
+
+              <form
+                id="formProfile"
+                th:action="@{/profile/update}"
+                th:object="${userDto}"
+                method="post"
+                enctype="multipart/form-data"
+              >
+                <input type="hidden" th:field="*{id}" />
+
+                <div class="card-body">
+                  <div class="text-center mb-4">
+                    <div class="position-relative d-inline-block">
+                      <img
+                        id="avatarPreview"
+                        th:src="${userDto.avatar != null ? '/avatar' + userDto.avatar : '/dist/img/avatar5.png'}"
+                        class="profile-user-img img-fluid img-circle"
+                        style="
+                          width: 180px;
+                          height: 220px;
+                          object-fit: cover;
+                          border: 3px solid #adb5bd;
+                        "
+                        alt="User profile picture"
+                      />
+
+                      <label
+                        for="avatarInput"
+                        class="btn btn-sm btn-primary position-absolute"
+                        style="bottom: 0; right: 0; border-radius: 50%"
+                      >
+                        <i class="fas fa-camera"></i>
+                      </label>
+                    </div>
+                    <input
+                      type="file"
+                      id="avatarInput"
+                      name="avatar"
+                      class="d-none"
+                      accept="image/*"
+                    />
+                    <p class="text-muted small mt-1">
+                      Klik kamera untuk ubah foto (Max 2MB)
+                    </p>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label>Email <span class="text-danger">*</span></label>
+                        <input
+                          type="email"
+                          class="form-control"
+                          th:field="*{email}"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label>Username</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          th:field="*{username}"
+                          readonly
+                          disabled
+                        />
+                        <small class="text-muted"
+                          >Username tidak dapat diubah</small
+                        >
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label
+                          >No Telp <span class="text-danger">*</span></label
+                        >
+                        <div class="input-group">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text">+62</span>
+                          </div>
+                          <input
+                            type="text"
+                            class="form-control input-phone"
+                            name="phoneNumber"
+                            placeholder="812xxxxxxx"
+                            th:field="*{phoneNumber}"
+                            required
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label
+                          >Nama Lengkap
+                          <span class="text-danger">*</span></label
+                        >
+                        <input
+                          type="text"
+                          class="form-control"
+                          th:field="*{fullName}"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label
+                          >Tempat Lahir
+                          <span class="text-danger">*</span></label
+                        >
+                        <input
+                          type="text"
+                          class="form-control"
+                          th:field="*{birthPlace}"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label
+                          >Tanggal Lahir
+                          <span class="text-danger">*</span></label
+                        >
+                        <input
+                          type="date"
+                          class="form-control"
+                          th:field="*{birthDate}"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label
+                          >Jenis Kelamin<span class="text-danger"
+                            >*</span
+                          ></label
+                        >
+                        <select
+                          class="form-control"
+                          th:field="*{gender}"
+                          required
+                        >
+                          <option value="L">Laki-laki</option>
+                          <option value="P">Perempuan</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label>NIK<span class="text-danger">*</span></label>
+                        <!-- <input
+                        type="text"
+                        class="form-control"
+                        th:field="*{nik}"
+                        required
+                      /> -->
+                        <input
+                          type="text"
+                          class="form-control mask-nik"
+                          th:field="*{nik}"
+                          required
+                        />
+                      </div>
+                      <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label
+                          >Kode Pos<span class="text-danger">*</span></label
+                        >
+                        <input
+                          type="text"
+                          class="form-control"
+                          th:field="*{postalCode}"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label
+                          >Provinsi<span class="text-danger">*</span></label
+                        >
+                        <select
+                          class="form-control select2"
+                          id="selectProvinsi"
+                          name="province"
+                          th:data-selected="*{provinceId}"
+                          required
+                        ></select>
+                        <input
+                          type="hidden"
+                          th:field="*{provinceId}"
+                          id="inputProvinsi"
+                        />
+                      </div>
+                    </div>
+
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label
+                          >Kota/Kabupaten<span class="text-danger"
+                            >*</span
+                          ></label
+                        >
+                        <select
+                          class="form-control select2"
+                          id="selectKota"
+                          name="city"
+                          th:data-selected="*{cityId}"
+                          disabled
+                          required
+                        >
+                          <option value="" disabled selected>
+                            Pilih Kota/Kab...
+                          </option>
+                        </select>
+                        <input
+                          type="hidden"
+                          th:field="*{cityId}"
+                          id="inputKota"
+                        />
+                      </div>
+                    </div>
+
+                    <div class="col-md-4">
+                      <div class="form-group">
+                        <label
+                          >Kecamatan<span class="text-danger">*</span></label
+                        >
+                        <select
+                          class="form-control select2"
+                          id="selectKecamatan"
+                          name="district"
+                          th:data-selected="*{districtId}"
+                          disabled
+                          required
+                        >
+                          <option value="" disabled selected>
+                            Pilih Kecamatan...
+                          </option>
+                        </select>
+                        <input
+                          type="hidden"
+                          th:field="*{districtId}"
+                          id="inputKecamatan"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label
+                          >Alamat Jalan<span class="text-danger">*</span></label
+                        >
+                        <textarea
+                          class="form-control"
+                          rows="2"
+                          th:field="*{address}"
+                          required
+                        ></textarea>
+                      </div>
+                    </div>
+
+                    <div class="col-md-12 mt-3">
+                      <div class="row">
+                        <div class="col-md-4 mb-2">
+                          <button
+                            type="button"
+                            class="btn btn-outline-warning btn-block"
+                            data-toggle="modal"
+                            data-target="#modalChangePassword"
+                          >
+                            <i class="fas fa-key"></i> Ganti Password
+                          </button>
+                          <input
+                            type="hidden"
+                            id="h_current"
+                            name="currentPassword"
+                          />
+                          <input type="hidden" id="h_new" name="newPassword" />
+                          <input
+                            type="hidden"
+                            id="h_confirm"
+                            name="confirmPassword"
+                          />
+                        </div>
+                        <!-- <div class="col-md-6 mb-2">
+                          <button
+                            type="button"
+                            class="btn btn-outline-info btn-block"
+                            data-toggle="modal"
+                            data-target="#modalSignature"
+                          >
+                            <i class="fas fa-pen-nib"></i> Update Tanda Tangan
+                          </button>
+                          <input
+                            type="hidden"
+                            th:field="*{signatureBase64}"
+                            id="signatureInput"
+                          />
+                          <div
+                            class="mt-2 text-center"
+                            id="sigPreviewContainer"
+                            th:style="${userDto.signatureBase64 == null ? 'display:none' : ''}"
+                          >
+                            <img
+                              id="smallSigPreview"
+                              th:src="*{signatureBase64}"
+                              height="40"
+                              style="border: 1px solid #ddd"
+                            />
+                          </div>
+                        </div> -->
+                        <div class="col-md-4">
+                          <div class="form-group">
+                            <!-- <label
+                              >Tanda Tangan<span class="text-danger"
+                                >*</span
+                              ></label
+                            > -->
+
+                            <input
+                              type="hidden"
+                              th:field="*{signatureBase64}"
+                              id="signatureInput"
+                            />
+
+                            <!-- <div
+                              id="signaturePreview"
+                              class="mb-2"
+                              th:style="${userDto.signatureBase64 != null} ? 'display:block' : 'display:none'"
+                            >
+                              <img
+                                th:src="*{signatureBase64}"
+                                id="imgPreview"
+                                style="
+                                  max-height: 100px;
+                                  border: 1px dashed #ccc;
+                                "
+                              />
+
+                              <p class="text-success small">
+                                <i class="fas fa-check-circle"></i> Tanda tangan
+                                tersimpan
+                              </p>
+                            </div> -->
+
+                            <button
+                              type="button"
+                              class="btn btn-outline-primary btn-block"
+                              id="btnTriggerSignature"
+                              data-toggle="modal"
+                              data-target="#modalSignature"
+                            >
+                              <i class="fas fa-pen-nib"></i>
+                              <span
+                                th:text="${userDto.signatureBase64 != null} ? 'Ubah Tanda Tangan' : 'Masukkan Tanda Tangan'"
+                              ></span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card-footer">
+                  <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Simpan Perubahan
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="modal fade"
+        id="modalChangePassword"
+        tabindex="-1"
+        role="dialog"
+      >
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header bg-warning">
+              <h5 class="modal-title">Ganti Kata Sandi</h5>
+              <button type="button" class="close" data-dismiss="modal">
+                <span>&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <form id="formPassModal">
+                <div class="form-group">
+                  <label>Password Lama</label>
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="m_current"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label>Password Baru (Min 8 Karakter)</label>
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="m_new"
+                    required
+                    minlength="8"
+                  />
+                </div>
+                <div class="form-group">
+                  <label>Konfirmasi Password Baru</label>
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="m_confirm"
+                    required
+                  />
+                  <small class="text-danger d-none" id="passMsg"
+                    >Password tidak cocok</small
+                  >
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-dismiss="modal"
+              >
+                Batal
+              </button>
+              <button type="button" class="btn btn-primary" id="btnApplyPass">
+                Terapkan
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="modal fade"
+        id="modalSignature"
+        tabindex="-1"
+        role="dialog"
+        aria-labelledby="modalSigLabel"
+        data-backdrop="static"
+      >
+        <div
+          class="modal-dialog modal-dialog-centered modal-lg"
+          role="document"
+        >
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="modalSigLabel">Tanda Tangan</h5>
+              <button
+                type="button"
+                class="close"
+                data-dismiss="modal"
+                aria-label="Close"
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body text-center">
+              <div class="signature-wrapper">
+                <canvas
+                  id="signature-canvas"
+                  style="width: 100%; height: 100%; display: block"
+                ></canvas>
+                <div
+                  class="text-muted small text-center"
+                  style="
+                    position: absolute;
+                    bottom: 10px;
+                    width: 100%;
+                    pointer-events: none;
+                    opacity: 0.5;
+                  "
+                >
+                  Area Tanda Tangan
+                </div>
+              </div>
+
+              <input type="file" id="uploadSigFile" accept="image/png" />
+            </div>
+            <div class="modal-footer justify-content-center">
+              <button
+                type="button"
+                class="btn btn-default"
+                data-dismiss="modal"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-danger"
+                id="btnClear"
+              >
+                Hapus Kanvas
+              </button>
+
+              <button type="button" class="btn btn-success" id="btnUpload">
+                Upload Signature
+              </button>
+              <button
+                type="button"
+                class="btn btn-danger"
+                id="btnSaveSignature"
+              >
+                Simpan
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

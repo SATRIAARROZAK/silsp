@@ -97,12 +97,22 @@ public class AdminController {
         dto.setUsername(user.getUsername());
         dto.setEmail(user.getEmail());
         dto.setFullName(user.getFullName());
-        dto.setNoTelp(user.getPhoneNumber());
+        // dto.setNoTelp(user.getPhoneNumber());
         dto.setAddress(user.getAddress());
         dto.setBirthPlace(user.getBirthPlace());
         dto.setBirthDate(user.getBirthDate());
         dto.setGender(user.getGender());
         dto.setNik(user.getNik());
+        dto.setPostalCode(user.getPostalCode());
+
+        // 2. NO TELP: Hapus '0' di depan agar di form jadi (811...)
+        if (user.getPhoneNumber() != null && user.getPhoneNumber().startsWith("0")) {
+            dto.setPhoneNumber(user.getPhoneNumber().substring(1));
+        } else {
+            dto.setPhoneNumber(user.getPhoneNumber());
+        }
+        // dto.setAvatar(user.getAvatar()); // Removed: setAvatar expects MultipartFile,
+        // not String
         dto.setSignatureBase64(user.getSignatureBase64());
 
         dto.setProvinceId(user.getProvinceId());
@@ -110,7 +120,7 @@ public class AdminController {
         dto.setDistrictId(user.getDistrictId());
 
         model.addAttribute("userDto", dto);
-        return "pages/admin/profile"; // Mengarah ke file HTML shared
+        return "pages/admin/admin-profile"; // Mengarah ke file HTML shared
     }
 
     @ModelAttribute

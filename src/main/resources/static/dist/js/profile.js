@@ -190,20 +190,53 @@ $(document).ready(function () {
   // 2. TOGGLE PEKERJAAN (ASESI)
   // ==========================================
   // Asumsi: ID '1' adalah 'Tidak Bekerja' di database RefJobType
+  //   function toggleJobDetails() {
+  //     var jobTypeId = $("#selectPekerjaan").val();
+  //     // Jika Job Type ID != 1 (Tidak Bekerja) dan ada isinya
+  //     if (jobTypeId && jobTypeId != "1") {
+  //       $("#jobDetailsSection").slideDown();
+  //     } else {
+  //       $("#jobDetailsSection").slideUp();
+  //       // Optional: Bersihkan input jika disembunyikan
+  //       // $("#jobDetailsSection input").val("");
+  //     }
+  //   }
+
+  //   // Jalankan saat load (untuk edit data lama) dan saat change
+  //   toggleJobDetails();
+  //   $("#selectPekerjaan").on("change", toggleJobDetails);
+
+  // ==========================================
+  // 2. TOGGLE PEKERJAAN (ASESI) - DIPERBAIKI
+  // ==========================================
   function toggleJobDetails() {
-    var jobTypeId = $("#selectPekerjaan").val();
-    // Jika Job Type ID != 1 (Tidak Bekerja) dan ada isinya
-    if (jobTypeId && jobTypeId != "1") {
+    // Ambil value, pastikan konversi ke string untuk perbandingan aman
+    var jobTypeId = String($("#selectPekerjaan").val());
+
+    // Debugging (Opsional: Cek di console browser)
+    // console.log("Job Type ID:", jobTypeId);
+
+    // Asumsi: ID '1' adalah 'Tidak Bekerja'
+    // Jika jobTypeId ada isinya DAN bukan "1" -> Tampilkan Detail
+    if (jobTypeId && jobTypeId !== "1") {
       $("#jobDetailsSection").slideDown();
+
+      // Set required pada input di dalamnya agar tidak lolos validasi kosong
     } else {
       $("#jobDetailsSection").slideUp();
-      // Optional: Bersihkan input jika disembunyikan
-      // $("#jobDetailsSection input").val("");
+
+      // Hapus required jika disembunyikan
+      $("#jobDetailsSection input").prop("required", false);
     }
   }
 
-  // Jalankan saat load (untuk edit data lama) dan saat change
-  toggleJobDetails();
+  // PENTING: Jalankan saat halaman selesai dimuat (untuk edit data lama)
+  // Beri sedikit delay (100ms) untuk memastikan Select2 sudah me-load data
+  setTimeout(function () {
+    toggleJobDetails();
+  }, 100);
+
+  // Jalankan setiap kali dropdown berubah
   $("#selectPekerjaan").on("change", toggleJobDetails);
 
   // ==========================================

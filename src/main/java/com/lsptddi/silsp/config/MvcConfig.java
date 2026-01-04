@@ -5,40 +5,34 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.mvc.WebContentInterceptor;
-
-
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @Configuration
 public class MvcConfig implements WebMvcConfigurer {
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Expose folder 'uploads' agar bisa diakses via URL /uploads/**
+        // PERBAIKAN: Menggunakan toUri() agar path kompatibel di semua OS
+        // (Windows/Linux)
         Path uploadDir = Paths.get("./uploads");
-        String uploadPath = uploadDir.toFile().getAbsolutePath();
+        String uploadPath = uploadDir.toUri().toString();
 
         registry.addResourceHandler("/uploads/**")
-                .addResourceLocations("file:/" + uploadPath + "/");
+                .addResourceLocations(uploadPath);
     }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-
-        // 1. INTERCEPTOR CACHE CONTROL (BARU)
-        // Mencegah browser menyimpan halaman (No-Cache)
+        // Cache Control (Agar gambar baru langsung muncul tanpa cache lama)
         WebContentInterceptor cacheInterceptor = new WebContentInterceptor();
         cacheInterceptor.setCacheSeconds(0);
-        // cacheInterceptor.setUseExpiresHeader(true);
-        // cacheInterceptor.setUseCacheControlHeader(true);
-        // cacheInterceptor.setUseCacheControlNoStore(true);
-
-        // Terapkan ke semua URL
         registry.addInterceptor(cacheInterceptor);
-        // Daftarkan Logic Pengaman Role
+
+        // Security Interceptor (Biarkan seperti sebelumnya)
         registry.addInterceptor(new RoleAccessInterceptor())
-                .addPathPatterns("/**") // Cek semua URL
-                .excludePathPatterns("/dist/**", "/plugins/**", "/login", "/register", "/api/**", "/uploads/**","/forgot-password", "/reset-password"); // Kecuali aset &
-                                                                                                   // public
+                .addPathPatterns("/**")
+                .excludePathPatterns("/dist/**", "/plugins/**", "/login", "/register", "/api/**", "/uploads/**",
+                        "/forgot-password", "/reset-password");
     }
 }

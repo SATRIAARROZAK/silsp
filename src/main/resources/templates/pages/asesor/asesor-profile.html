@@ -29,8 +29,7 @@
                   <div class="text-center mb-4">
                     <div class="position-relative d-inline-block">
                       <img
-                        id="avatarPreview"
-                        th:src="${userDto.avatar != null ? '/avatar' + userDto.avatar : '/dist/img/avatar5.png'}"
+                        th:src="${user.avatar != null && !user.avatar.isEmpty() ? user.avatar : '/dist/img/avatar5.png'}"
                         class="profile-user-img img-fluid img-circle"
                         style="
                           width: 180px;
@@ -275,6 +274,7 @@
                             name="province"
                             th:data-selected="*{provinceId}"
                             required
+                            style="width: 100%"
                           ></select>
                           <input
                             type="hidden"
@@ -298,6 +298,7 @@
                             th:data-selected="*{cityId}"
                             disabled
                             required
+                            style="width: 100%"
                           >
                             <option value="" disabled selected>
                               Pilih Kota/Kab...
@@ -323,6 +324,7 @@
                             th:data-selected="*{districtId}"
                             disabled
                             required
+                            style="width: 100%"
                           >
                             <option value="" disabled selected>
                               Pilih Kecamatan...
@@ -488,7 +490,7 @@
 
                 <div class="card-footer">
                   <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save"></i> Simpan Perubahan
+                    <i class="fas fa-save"></i> Update
                   </button>
                 </div>
               </form>

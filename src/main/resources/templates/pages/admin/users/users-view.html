@@ -20,7 +20,7 @@
                 style="width: 100px"
               /> -->
               <img
-                th:src="@{userDto.avatar != null ? '/avatar' + userDto.avatar : '/dist/img/avatar5.png'}"
+                th:src="${user.avatar != null && !user.avatar.isEmpty() ? user.avatar : '/dist/img/avatar5.png'}"
                 class="profile-user-img img-fluid img-circle"
                 style="
                   width: 180px;

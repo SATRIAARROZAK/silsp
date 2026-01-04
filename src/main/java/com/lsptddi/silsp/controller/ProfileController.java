@@ -30,7 +30,7 @@ public class ProfileController {
     private TypePekerjaanRepository jobTypeRepository;
 
     // Path Upload (Sesuaikan dengan config resource handler Anda)
-    private static final String UPLOAD_DIR = "src/main/resources/static/uploads/avatars/";
+    private static final String UPLOAD_DIR = "uploads/avatars/";
 
     // ==========================================
     // 1. API CEK PASSWORD (REALTIME VALIDATION)

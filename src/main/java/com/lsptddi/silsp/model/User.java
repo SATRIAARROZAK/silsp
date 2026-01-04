@@ -134,7 +134,7 @@ public class User {
 
     // --- TANDA TANGAN ---
     @Lob
-    @Column(name = "tanda_tangan", columnDefinition = "TEXT") // Agar muat string panjang
+    @Column(name = "tanda_tangan", columnDefinition = "LONGTEXT") // Agar muat string panjang
     private String signatureBase64;
 
     public String getAvatar() {

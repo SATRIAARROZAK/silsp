@@ -28,9 +28,21 @@
                 <div class="card-body">
                   <div class="text-center mb-4">
                     <div class="position-relative d-inline-block">
-                      <img
+                      <!-- <img
                         id="avatarPreview"
                         th:src="${userDto.avatar != null ? userDto.avatar : '/dist/img/avatar5.png'}"
+                        class="profile-user-img img-fluid img-circle"
+                        style="
+                          width: 180px;
+                          height: 220px;
+                          object-fit: cover;
+                          border: 3px solid #adb5bd;
+                        "
+                        alt="User profile picture"
+                      /> -->
+
+                      <img
+                        th:src="${user.avatar != null && !user.avatar.isEmpty() ? user.avatar : '/dist/img/avatar5.png'}"
                         class="profile-user-img img-fluid img-circle"
                         style="
                           width: 180px;
@@ -256,6 +268,7 @@
                             name="province"
                             th:data-selected="*{provinceId}"
                             required
+                            style="width: 100%"
                           ></select>
                           <input
                             type="hidden"
@@ -279,6 +292,7 @@
                             th:data-selected="*{cityId}"
                             disabled
                             required
+                            style="width: 100%"
                           >
                             <option value="" disabled selected>
                               Pilih Kota/Kab...
@@ -304,6 +318,7 @@
                             th:data-selected="*{districtId}"
                             disabled
                             required
+                            style="width: 100%"
                           >
                             <option value="" disabled selected>
                               Pilih Kecamatan...
@@ -487,6 +502,7 @@
                                 type="text"
                                 class="form-control"
                                 th:field="*{companyName}"
+                                required
                               />
                             </div>
                           </div>
@@ -551,7 +567,7 @@
 
                 <div class="card-footer">
                   <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save"></i> Simpan Perubahan
+                    <i class="fas fa-save"></i> Update
                   </button>
                 </div>
               </form>

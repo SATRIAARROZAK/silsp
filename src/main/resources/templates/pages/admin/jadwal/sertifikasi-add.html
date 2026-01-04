@@ -1,356 +1,290 @@
 <!DOCTYPE html>
-<html
-  lang="en"
-  xmlns:th="http://www.thymeleaf.org"
-  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-  layout:decorate="~{layouts/app}"
->
-  <head th:replace="~{fragments/header :: header('Buat Jadwal')}"></head>
-
-  <body>
-    <div layout:fragment="page-title">
-      <h1 class="m-0">Buat Jadwal</h1>
-    </div>
-    <div layout:fragment="content">
-      <div class="container-fluid">
-        <form th:action="@{/}" method="post" id="form-buat-jadwal" novalidate>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layouts/app}">
+<head th:replace="~{fragments/header :: header('Buat Jadwal')}"></head>
+<body>
+<div layout:fragment="content">
+  <div class="container-fluid">
+    <form th:action="@{/admin/jadwal-sertifikasi/save}" method="post" th:object="${scheduleDto}" id="formJadwal">
+      
+      <div class="card card-blue-dark">
+        <div class="card-header"><h3 class="card-title">1. Detail Jadwal</h3></div>
+        <div class="card-body">
           <div class="row">
-            <div class="col-12">
-              <div class="card card-blue-dark">
-                <div class="card-header">
-                  <h3 class="card-title">1. Datail Jadwal</h3>
-                </div>
-                <!-- /.card-header -->
-                <!-- form start -->
-                <div class="card-body">
-                  <div class="form-group">
-                    <label for="namaJadwal">Nama Jadwal</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="namaJadwal"
-                      placeholder=""
-                      required
-                    />
-                  </div>
-                  <div class="form-group">
-                    <label for="pilihTUK">Pilih TUK</label>
-                    <select
-                      class="form-control select2"
-                      style="width: 100%"
-                      required
-                      id="pilihTUK"
-                    >
-                      <option value="" disabled selected></option>
-                      <option value="">PPKD Jakarta Utara</option>
-                      <option value="">PPKD Jakarta Selatan</option>
-                      <option value="">Universitas Brawijaya Malang</option>
-                    </select>
-                  </div>
-                  <div class="row">
-                    <div class="col-md-6">
-                      <div class="form-group">
-                        <label for="kodeJadwal">Kode Jadwal</label>
-                        <input
-                          type="text"
-                          class="form-control"
-                          id="kodeJadwal"
-                          value="JADWAL-LSPTDDI-001-2025"
-                          placeholder=""
-                          disabled
-                        />
-                      </div>
-                    </div>
-                    <div class="col-md-6">
-                      <div class="form-group">
-                        <label for="kodeJadwalBnsp">Kode Jadwal BNSP</label>
-                        <input
-                          type="text"
-                          class="form-control"
-                          id="kodeJadwalBnsp"
-                          placeholder=""
-                          required
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col-6">
-                      <div class="form-group">
-                        <label>Tanggal Sertifikasi</label>
-                        <div
-                          class="input-group date"
-                          id="reservationdate"
-                          data-target-input="nearest"
-                        >
-                          <input
-                            type="text"
-                            required
-                            class="form-control datetimepicker-input"
-                            id="tanggal_sertifikasi"
-                            data-target="#reservationdate"
-                          />
-
-                          <div
-                            class="input-group-append"
-                            data-target="#reservationdate"
-                            data-toggle="datetimepicker"
-                          >
-                            <div class="input-group-text">
-                              <i class="fa fa-calendar"></i>
-                            </div>
-                          </div>
-                          <div class="invalid-feedback">
-                            Tanggal Penetapan Tidak Boleh Kosong!
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-6">
-                      <div class="form-group">
-                        <label for="kuota">Kuota Peserta</label>
-                        <input
-                          type="number"
-                          class="form-control"
-                          id="kuota"
-                          placeholder=""
-                          required
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col-md-6">
-                      <div class="form-group">
-                        <label for="sumberAnggaran">Sumber Anggaran</label>
-                        <select
-                          class="form-control select2"
-                          style="width: 100%"
-                          required
-                          id="sumberAnggaran"
-                        >
-                          <option value="" disabled selected></option>
-                          <option value="">APBN</option>
-                          <option value="">APBD</option>
-                          <option value="">Biaya MANDIRI</option>
-                        </select>
-                      </div>
-                    </div>
-                    <div class="col-md-6">
-                      <div class="form-group">
-                        <label for="pemberiAnggaran">Pemberi Anggaran</label>
-                        <select
-                          class="form-control select2"
-                          style="width: 100%"
-                          required
-                          id="pemberiAnggaran"
-                        >
-                          <option value="" disabled selected></option>
-                          <option value="">Kementerian</option>
-                          <option value="">Biaya Mandiri</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <!-- /.card-body -->
-              </div>
-              <!-- /.card -->
+            <div class="col-md-6">
+               <div class="form-group">
+                 <label>Nama Jadwal</label>
+                 <input type="text" class="form-control" th:field="*{name}" required>
+               </div>
+            </div>
+            <div class="col-md-6">
+               <div class="form-group">
+                 <label>Pilih TUK</label>
+                 <select class="form-control select2" th:field="*{tukId}" required>
+                    <option value="">-- Pilih TUK --</option>
+                    <option th:each="tuk : ${listTuk}" th:value="${tuk.id}" th:text="${tuk.name}"></option>
+                 </select>
+               </div>
             </div>
           </div>
 
           <div class="row">
-            <div class="col-12">
-              <div class="card card-blue-dark">
-                <div class="card-header">
-                  <h3 class="card-title">2. Detail Penugasan</h3>
+             <div class="col-md-6">
+                <div class="form-group">
+                   <label>Kode Jadwal (Auto)</label>
+                   <input type="text" class="form-control" th:field="*{code}" readonly>
                 </div>
-                <!-- /.card-header -->
-                <!-- form start -->
-                <div class="card-body">
-                  <div class="row">
-                    <label for="pilihAsesor">Pilih Asesor:</label>
-                    <div class="row mb-2 align-items-center">
-                      <div class="col-10">
-                        <div class="form-group mb-0">
-                          <select
-                            class="form-control select2"
-                            style="width: 100%"
-                            required
-                            id="pilihAsesor"
-                          >
-                            <option value="" disabled selected></option>
-                            <option value="asesor1">Sigit Mareta</option>
-                            <option value="asesor2">Setyawati</option>
-                            <option value="asesor3">Haryo Mirsandi</option>
-                          </select>
-                          <div class="invalid-feedback"></div>
-                        </div>
-                      </div>
-                      <div class="col-2">
-                        <button class="btn btn-outline-info">
-                          Pilih Asesor
-                        </button>
-                      </div>
-                    </div>
+             </div>
+             <div class="col-md-6">
+                <div class="form-group">
+                   <label>Kode Jadwal BNSP</label>
+                   <input type="text" class="form-control" th:field="*{bnspCode}">
+                </div>
+             </div>
+          </div>
 
-                    <div class="row">
-                      <label for="kodeJadwal">Detail Asesor:</label>
-                      <div class="table-responsive">
-                        <table
-                          class="table table-valign-middle table-sm table-bordered nested-table"
-                        >
-                          <thead class="thead-light text-center">
-                            <tr>
-                              <th>No</th>
-                              <th>No. MET</th>
-                              <th>Nama Asesor</th>
-                              <th>Aksi</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            <tr>
-                              <td class="text-center">1</td>
-                              <td>MET.000.002580.2024</td>
-                              <td>Erlin Irosa</td>
-                              <td class="align-middle">
-                                <div class="action-buttons">
-                                  <a
-                                    class="btn btn-outline-danger btn-sm"
-                                    href="#"
-                                    title="Delete"
-                                  >
-                                    <i class="fas fa-trash"> </i>
-                                  </a>
-                                </div>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td class="text-center">2</td>
-                              <td>MET.000.002584.2024</td>
-                              <td>Sigit Mareta</td>
-                              <td class="align-middle">
-                                <div class="action-buttons">
-                                  <a
-                                    class="btn btn-outline-danger btn-sm"
-                                    href="#"
-                                    title="Delete"
-                                  >
-                                    <i class="fas fa-trash"> </i>
-                                  </a>
-                                </div>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="row mt-4 pt-3 border-top">
-                    <label for="pilihSkema">Pilih Skema</label>
-                    <div class="row mb-2 align-items-center">
-                      <div class="col-10 align-items-center">
-                        <div class="form-group mb-0">
-                          <select
-                            class="form-control select2"
-                            style="width: 100%"
-                            required
-                            id="pilihSkema"
-                          >
-                            <option value="" disabled selected></option>
-                            <option value="">Data Analyst</option>
-                            <option value="">Digital Marketing</option>
-                            <option value="">Data Scientist</option>
-                          </select>
-                        </div>
-                      </div>
-                      <div class="col-2">
-                        <button class="btn btn-outline-info">
-                          Pilih Skema
-                        </button>
-                      </div>
-                    </div>
+          <div class="row">
+             <div class="col-md-4">
+                <div class="form-group">
+                   <label>Tanggal Sertifikasi</label>
+                   <input type="date" class="form-control" th:field="*{startDate}" required>
+                </div>
+             </div>
+             <div class="col-md-4">
+                <div class="form-group">
+                   <label>Kuota Peserta</label>
+                   <input type="number" class="form-control" th:field="*{quota}" required>
+                </div>
+             </div>
+          </div>
 
-                    <div class="row">
-                      <div class="form-group">
-                        <label for="kodeJadwal"
-                          >Detail Unit Skema: <span>Data Analyst</span></label
-                        >
-                        <div class="table-responsive">
-                          <table
-                            class="table table-valign-middle table-sm table-bordered nested-table"
-                          >
-                            <thead class="thead-light text-center">
-                              <tr>
-                                <th>NO</th>
-                                <th>KODE UNIT</th>
-                                <th>KETERANGAN</th>
-                              </tr>
+          <div class="row">
+             <div class="col-md-6">
+                <div class="form-group">
+                   <label>Sumber Anggaran (API BNSP)</label>
+                   <select class="form-control select2" id="apiAnggaran" th:field="*{budgetSource}">
+                      <option value="">Loading API...</option>
+                   </select>
+                </div>
+             </div>
+             <div class="col-md-6">
+                <div class="form-group">
+                   <label>Pemberi Anggaran (API BNSP)</label>
+                   <select class="form-control select2" id="apiPemberi" th:field="*{budgetProvider}">
+                      <option value="">Loading API...</option>
+                   </select>
+                </div>
+             </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card card-blue-dark">
+        <div class="card-header"><h3 class="card-title">2. Detail Penugasan</h3></div>
+        <div class="card-body">
+           
+           <div class="form-group">
+              <label>Pilih Asesor</label>
+              <div class="input-group">
+                 <select class="form-control select2" id="selectAsesor">
+                    <option value="">-- Cari Asesor --</option>
+                    <option th:each="asr : ${listAsesor}" 
+                            th:value="${asr.id}" 
+                            th:data-nomet="${asr.noMet}"
+                            th:text="${asr.fullName}"></option>
+                 </select>
+                 <span class="input-group-append">
+                    <button type="button" class="btn btn-info" id="btnAddAsesor">Pilih Asesor</button>
+                 </span>
+              </div>
+           </div>
+           
+           <table class="table table-bordered table-sm mb-4">
+              <thead class="thead-light">
+                 <tr>
+                    <th>No MET</th>
+                    <th>Nama Asesor</th>
+                    <th style="width: 50px">Aksi</th>
+                 </tr>
+              </thead>
+              <tbody id="tblBodyAsesor">
+                 </tbody>
+           </table>
+
+           <hr>
+
+           <div class="form-group">
+              <label>Pilih Skema</label>
+              <div class="input-group">
+                 <select class="form-control select2" id="selectSkema">
+                    <option value="">-- Cari Skema --</option>
+                    <option th:each="skm : ${listSkema}" th:value="${skm.id}" th:text="${skm.name}"></option>
+                 </select>
+                 <span class="input-group-append">
+                    <button type="button" class="btn btn-info" id="btnAddSkema">Pilih Skema</button>
+                 </span>
+              </div>
+           </div>
+
+           <div id="schemaContainer">
+               </div>
+
+        </div>
+        <div class="card-footer">
+           <button type="submit" class="btn btn-primary">Simpan Jadwal</button>
+        </div>
+      </div>
+
+      <div id="hiddenInputs"></div>
+
+    </form>
+  </div>
+</div>
+
+<th:block layout:fragment="script">
+<script>
+$(document).ready(function() {
+    $('.select2').select2({theme: 'bootstrap4'});
+
+    // ==========================================
+    // 1. API EKSTERNAL (BNSP)
+    // ==========================================
+    // Simulasi Fetch karena URL yang diberikan perlu auth/token biasanya, 
+    // atau jika public CORS enabled. Ini contoh implementasinya:
+    
+    // Fetch Sumber Anggaran
+    // fetch('https://konstruksi.bnsp.go.id/api/v1/anggaran') 
+    // Ganti dengan URL asli dan handle response JSONnya. 
+    // Disini saya mock data sesuai kemungkinan isi API
+    var mockAnggaran = [
+        {id: 'APBN', text: 'APBN'}, 
+        {id: 'APBD', text: 'APBD'}, 
+        {id: 'Mandiri', text: 'Biaya Mandiri'}
+    ];
+    var optAnggaran = '<option value="">Pilih Sumber...</option>';
+    mockAnggaran.forEach(e => optAnggaran += `<option value="${e.text}">${e.text}</option>`);
+    $("#apiAnggaran").html(optAnggaran);
+
+    // Fetch Pemberi Anggaran (Kementrian)
+    var mockKementrian = [
+        {id: 'KOMINFO', text: 'Kementerian Komunikasi dan Informatika'},
+        {id: 'KEMNAKER', text: 'Kementerian Ketenagakerjaan'}
+    ];
+    var optPemberi = '<option value="">Pilih Pemberi...</option>';
+    mockKementrian.forEach(e => optPemberi += `<option value="${e.text}">${e.text}</option>`);
+    $("#apiPemberi").html(optPemberi);
+
+
+    // ==========================================
+    // 2. LOGIKA TABEL ASESOR
+    // ==========================================
+    var addedAsesors = []; // Simpan ID agar tidak duplikat
+
+    $("#btnAddAsesor").click(function() {
+        var id = $("#selectAsesor").val();
+        var name = $("#selectAsesor option:selected").text();
+        var nomet = $("#selectAsesor option:selected").data('nomet');
+
+        if(!id) { Swal.fire('Pilih asesor dulu'); return; }
+        if(addedAsesors.includes(id)) { Swal.fire('Asesor sudah dipilih'); return; }
+
+        addedAsesors.push(id);
+
+        var row = `
+            <tr id="row-asr-${id}">
+                <td>${nomet ? nomet : '-'}</td>
+                <td>${name}</td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-danger btn-xs" onclick="removeAsesor('${id}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    <input type="hidden" name="assessorIds" value="${id}">
+                </td>
+            </tr>
+        `;
+        $("#tblBodyAsesor").append(row);
+    });
+
+    window.removeAsesor = function(id) {
+        $("#row-asr-" + id).remove();
+        addedAsesors = addedAsesors.filter(item => item !== id);
+    };
+
+
+    // ==========================================
+    // 3. LOGIKA SKEMA & UNIT DETAIL
+    // ==========================================
+    var addedSchemas = [];
+
+    $("#btnAddSkema").click(function() {
+        var id = $("#selectSkema").val();
+        var name = $("#selectSkema option:selected").text();
+
+        if(!id) { Swal.fire('Pilih skema dulu'); return; }
+        if(addedSchemas.includes(id)) { Swal.fire('Skema sudah ditambahkan'); return; }
+
+        // Fetch Unit via API Internal
+        $.get(`/api/internal/skema/${id}/units`, function(units) {
+            addedSchemas.push(id);
+            
+            // Build Table Unit
+            var unitRows = "";
+            if(units && units.length > 0) {
+                units.forEach((u, idx) => {
+                    unitRows += `
+                        <tr>
+                            <td>${idx+1}</td>
+                            <td>${u.code}</td>
+                            <td>${u.name}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                unitRows = `<tr><td colspan="3" class="text-center text-muted">Tidak ada unit kompetensi</td></tr>`;
+            }
+
+            var cardHtml = `
+                <div class="card card-outline card-secondary mb-3" id="panel-skm-${id}">
+                    <div class="card-header">
+                        <h3 class="card-title font-weight-bold">${name}</h3>
+                        <div class="card-tools">
+                            <input type="hidden" name="schemaIds" value="${id}">
+                            <button type="button" class="btn btn-tool" onclick="removeSkema('${id}')">
+                                <i class="fas fa-times text-danger"></i> Hapus
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-striped table-sm">
+                            <thead>
+                                <tr>
+                                    <th style="width: 10px">#</th>
+                                    <th>Kode Unit</th>
+                                    <th>Judul Unit</th>
+                                </tr>
                             </thead>
                             <tbody>
-                              <tr>
-                                <td>1</td>
-                                <td>J.62DMS00.001.1</td>
-                                <td>
-                                  Mengidentifikasi Kebutuhan Pengelolaan Data
-                                  untuk Proses Bisnis
-                                </td>
-                              </tr>
-                              <tr>
-                                <td>2</td>
-                                <td>J.62DMS00.015.1</td>
-                                <td>Membuat Business Intelligence</td>
-                              </tr>
-                              <tr>
-                                <td>3</td>
-                                <td>J.62DMI00.004.1</td>
-                                <td>Mengumpulkan Data</td>
-                              </tr>
-                              <tr>
-                                <td>4</td>
-                                <td>J.62DMI00.005.1</td>
-                                <td>Menelaah Data</td>
-                              </tr>
-                              <tr>
-                                <td>5</td>
-                                <td>J.62DMI00.006.1</td>
-                                <td>Memvalidasi Data</td>
-                              </tr>
-                              <tr>
-                                <td>6</td>
-                                <td>J.62DMI00.007.1</td>
-                                <td>Menentukan Objek Data</td>
-                              </tr>
-                              <tr>
-                                <td>7</td>
-                                <td>M.70BDA00.013.1</td>
-                                <td>Menyusun Laporan Hasil Analisis</td>
-                              </tr>
+                                ${unitRows}
                             </tbody>
-                          </table>
-                        </div>
-                      </div>
+                        </table>
                     </div>
-                  </div>
                 </div>
-                <!-- /.card-body -->
-              </div>
-              <!-- /.card -->
-            </div>
-          </div>
+            `;
+            
+            $("#schemaContainer").append(cardHtml);
 
-          <div class="card-footer mt-3 text-left">
-            <button type="submit" class="btn btn-outline-warning">
-              Simpan
-            </button>
-            <a
-              th:href="@{/admin/jadwal-sertifikasi}"
-              class="btn btn-outline-info"
-              >Batal</a
-            >
-          </div>
-        </form>
-      </div>
-    </div>
-  </body>
+        }).fail(function() {
+            Swal.fire('Error', 'Gagal mengambil data unit skema', 'error');
+        });
+    });
+
+    window.removeSkema = function(id) {
+        $("#panel-skm-" + id).remove();
+        addedSchemas = addedSchemas.filter(item => item !== id);
+    };
+
+});
+</script>
+</th:block>
+
+</body>
 </html>

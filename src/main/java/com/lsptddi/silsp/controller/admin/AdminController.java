@@ -26,6 +26,7 @@ import com.lsptddi.silsp.repository.SkemaRepository;
 import com.lsptddi.silsp.repository.TukRepository;
 import com.lsptddi.silsp.repository.UserRepository;
 import com.lsptddi.silsp.service.TukService;
+import com.lsptddi.silsp.service.ScheduleService;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -34,6 +35,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import com.lsptddi.silsp.dto.UserRoleDto;
+import com.lsptddi.silsp.dto.ScheduleDto;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
@@ -78,6 +80,9 @@ public class AdminController {
     private TypeTukRepository tukTypeRepository;
     @Autowired
     private TukService tukService;
+
+    @Autowired
+    private ScheduleService scheduleService;
 
     // Di dalam class AsesiController
 
@@ -549,11 +554,46 @@ public class AdminController {
         return "pages/admin/jadwal/sertifikasi-detail";
     }
 
+    // HALAMAN TAMBAH JADWAL
     @GetMapping("/jadwal-sertifikasi/jadwal-tambah")
-    public String showAddJadwalAsesmen(Model model) { // 1. Tambahkan Model sebagai parameter
+    public String showAddSchedule(Model model) {
+        // Ambil data pendukung
+        model.addAttribute("listTuk", tukRepository.findAll());
+        // Ambil User yang role-nya Asesor (Buat query khusus di UserRepository jika
+        // perlu, atau filter disini)
+        List<User> asesorList = userRepository.findByRolesName("Asesor");
+        model.addAttribute("listAsesor", asesorList);
+        model.addAttribute("listSkema", schemaRepository.findAll());
+
+        // Generate kode bayangan untuk tampilan
+        String nextCode = scheduleService.generateScheduleCode();
+
+        ScheduleDto dto = new ScheduleDto();
+        dto.setCode(nextCode); // Pre-fill code
+        model.addAttribute("scheduleDto", dto);
 
         return "pages/admin/jadwal/sertifikasi-add";
     }
+
+    // PROSES SIMPAN
+    @PostMapping("/jadwal-sertifikasi/save")
+    public String saveSchedule(@ModelAttribute ScheduleDto dto, RedirectAttributes redirectAttributes) {
+        try {
+            scheduleService.saveSchedule(dto);
+            redirectAttributes.addFlashAttribute("success", "Jadwal berhasil dibuat!");
+        } catch (Exception e) {
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("error", "Gagal membuat jadwal: " + e.getMessage());
+        }
+        return "redirect:/admin/jadwal-sertifikasi";
+    }
+
+    // @GetMapping("/jadwal-sertifikasi/jadwal-tambah")
+    // public String showAddJadwalAsesmen(Model model) { // 1. Tambahkan Model
+    // sebagai parameter
+
+    // return "pages/admin/jadwal/sertifikasi-add";
+    // }
 
     @GetMapping("/jadwal-sertifikasi/jadwal-view")
     public String showViewJadwalAsesmen(Model model) { // 1. Tambahkan Model sebagai parameter

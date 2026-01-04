@@ -1,0 +1,54 @@
+package com.lsptddi.silsp.model;
+
+import jakarta.persistence.*;
+import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
+import java.time.LocalDate;
+import java.util.List;
+
+@Entity
+@Table(name = "trx_jadwal")
+@Data
+public class Schedule {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "nama_jadwal", nullable = false)
+    private String name;
+
+    @Column(name = "kode_jadwal", unique = true)
+    private String code; // Jadwal-LSPTDDI-001-2025
+
+    @Column(name = "kode_jadwal_bnsp")
+    private String bnspCode;
+
+    @Column(name = "tanggal_mulai")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate startDate;
+    
+    // Jika ada tanggal selesai, tambahkan endDate
+
+    @Column(name = "kuota_peserta")
+    private Integer quota;
+
+    // Data dari API Eksternal (Simpan Namanya/ID string saja)
+    @Column(name = "sumber_anggaran")
+    private String budgetSource;
+
+    @Column(name = "pemberi_anggaran")
+    private String budgetProvider;
+
+    // Relasi ke TUK (Many to One)
+    @ManyToOne
+    @JoinColumn(name = "id_tuk", nullable = false)
+    private Tuk tuk;
+
+    // Relasi ke Asesor (One to Many via Entity Penghubung atau ManyToMany langsung)
+    // Disini kita pakai OneToMany ke tabel penghubung agar lebih fleksibel di 3NF
+    @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ScheduleAssessor> assessors;
+
+    @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ScheduleSchema> schemas;
+}

@@ -1,5 +1,6 @@
 package com.lsptddi.silsp.repository;
 
+import java.util.List;
 import com.lsptddi.silsp.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -48,6 +49,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
          * Mencari user berdasarkan email.
          * Berguna untuk validasi agar tidak ada email kembar saat registrasi.
          */
+
+        List<User> findByRolesName(String roleName);
 
         Optional<User> findByEmail(String email);
 

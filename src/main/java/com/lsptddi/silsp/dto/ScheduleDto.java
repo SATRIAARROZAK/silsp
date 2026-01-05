@@ -16,9 +16,9 @@ public class ScheduleDto {
     private LocalDate startDate;
     
     private Integer quota;
-    private String budgetSource;   // Dari API
-    private String budgetProvider; // Dari API
-    
+    private Long budgetSource;   // Dari API
+    private Long budgetProvider; // Dari API
+
     private Long tukId;
 
     // List ID untuk relasi Many-to-Many

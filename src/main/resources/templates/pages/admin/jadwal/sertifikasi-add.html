@@ -5,6 +5,7 @@
   layout:decorate="~{layouts/app}"
 >
   <head th:replace="~{fragments/header :: header('Buat Jadwal')}"></head>
+
   <body>
     <div layout:fragment="content">
       <div class="container-fluid">
@@ -13,6 +14,7 @@
           method="post"
           th:object="${scheduleDto}"
           id="formJadwal"
+          novalidate
         >
           <div class="card card-blue-dark">
             <div class="card-header">
@@ -29,6 +31,8 @@
                       type="text"
                       class="form-control"
                       th:field="*{name}"
+                      id="inputNamaJadwal"
+                      name="inputNamaJadwal"
                       placeholder="Contoh: Uji Kompetensi Batch 1"
                       required
                     />
@@ -40,6 +44,8 @@
                     <select
                       class="form-control select2"
                       th:field="*{tukId}"
+                      id="selectTuk"
+                      name="selectTuk"
                       required
                       style="width: 100%"
                     >
@@ -50,6 +56,9 @@
                         th:text="${tuk.name}"
                       ></option>
                     </select>
+                    <div class="text-danger small d-none" id="errorTuk">
+                      TUK wajib dipilih.
+                    </div>
                   </div>
                 </div>
               </div>
@@ -57,7 +66,7 @@
               <div class="row">
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label>Kode Jadwal (Auto)</label>
+                    <label>Kode Jadwal</label>
                     <input
                       type="text"
                       class="form-control"
@@ -68,19 +77,24 @@
                 </div>
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label>Kode Jadwal BNSP</label>
+                    <label
+                      >Kode Jadwal BNSP
+                      <span class="text-danger">*</span></label
+                    >
                     <input
                       type="text"
                       class="form-control"
                       th:field="*{bnspCode}"
-                      placeholder="Opsional"
+                      name="inputKodeBNSP"
+                      id="inputBnspCode"
+                      required
                     />
                   </div>
                 </div>
               </div>
 
               <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-6">
                   <div class="form-group">
                     <label
                       >Tanggal Sertifikasi
@@ -90,11 +104,13 @@
                       type="date"
                       class="form-control"
                       th:field="*{startDate}"
+                      name="inputDate"
+                      id="inputDate"
                       required
                     />
                   </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
                   <div class="form-group">
                     <label
                       >Kuota Peserta <span class="text-danger">*</span></label
@@ -103,6 +119,8 @@
                       type="number"
                       class="form-control"
                       th:field="*{quota}"
+                      id="inputQuota"
+                      name="inputQuota"
                       min="1"
                       required
                     />
@@ -114,35 +132,49 @@
                 <div class="col-md-6">
                   <div class="form-group">
                     <label
-                      >Sumber Anggaran (API BNSP)
-                      <span class="text-danger">*</span></label
+                      >Sumber Anggaran <span class="text-danger">*</span></label
                     >
                     <select
                       class="form-control select2"
-                      id="apiAnggaran"
                       th:field="*{budgetSource}"
+                      id="selectSumber"
+                      name="selectSumber"
                       required
-                      style="width: 100%"
                     >
-                      <option value="">Loading Data...</option>
+                      <option value="">-- Pilih Sumber Anggaran --</option>
+                      <option
+                        th:each="src : ${listSumberAnggaran}"
+                        th:value="${src.id}"
+                        th:text="${src.name}"
+                      ></option>
                     </select>
+                    <!-- <div class="text-danger small d-none" id="errorSumber">
+                  Sumber anggaran wajib dipilih.
+                </div> -->
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="form-group">
                     <label
-                      >Pemberi Anggaran (API BNSP)
+                      >Pemberi Anggaran
                       <span class="text-danger">*</span></label
                     >
                     <select
                       class="form-control select2"
-                      id="apiPemberi"
                       th:field="*{budgetProvider}"
+                      id="selectPemberi"
                       required
-                      style="width: 100%"
                     >
-                      <option value="">Loading Data...</option>
+                      <option value="">-- Pilih Instansi Pemberi Anggaran --</option>
+                      <option
+                        th:each="prov : ${listPemberiAnggaran}"
+                        th:value="${prov.id}"
+                        th:text="${prov.name}"
+                      ></option>
                     </select>
+                    <!-- <div class="text-danger small d-none" id="errorPemberi">
+                  Pemberi anggaran wajib dipilih.
+                </div> -->
                   </div>
                 </div>
               </div>
@@ -155,14 +187,81 @@
             </div>
             <div class="card-body">
               <div class="form-group">
-                <label>Pilih Asesor</label>
+                <label for="pilihAsesor">Pilih Asesor:</label>
+                <div class="row mb-2 align-items-center">
+                  <div class="col-10">
+                    <div class="form-group mb-0">
+                      <select
+                        class="form-control select2"
+                        id="selectAsesor"
+                        name="selectAsesor"
+                        style="width: 100%"
+                      >
+                        <option value="" disabled selected>
+                          -- Cari Nama Asesor --
+                        </option>
+                        <option
+                          th:each="asr : ${listAsesor}"
+                          th:value="${asr.id}"
+                          th:data-nomet="${asr.noMet}"
+                          th:text="${asr.fullName}"
+                        ></option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="input-group-append col-2">
+                    <button
+                      type="button"
+                      class="btn btn-info"
+                      id="btnPilihAsesor"
+                    >
+                      Pilih Asesor
+                    </button>
+                  </div>
+                  <div class="text-danger small d-none" id="errorTabelAsesor">
+                    Harus memilih minimal 1 Asesor.
+                  </div>
+                </div>
+
+                <div class="row">
+                  <label for="kodeJadwal">Detail Asesor:</label>
+                  <div class="table-responsive">
+                    <table
+                      class="table table-valign-middle table-sm table-bordered nested-table"
+                    >
+                      <thead class="thead-light text-center">
+                        <tr>
+                          <th>No</th>
+                          <th>No. MET</th>
+                          <th>Nama Asesor</th>
+                          <th>Aksi</th>
+                        </tr>
+                      </thead>
+                      <tbody id="tbodyAsesor">
+                        <tr id="emptyAsesor">
+                          <td colspan="4" class="text-center text-muted">
+                            Belum ada asesor dipilih
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <!-- <div class="form-group">
+                <label>Pilih Asesor <span class="text-danger">*</span></label>
                 <div class="input-group">
                   <select
                     class="form-control select2"
                     id="selectAsesor"
+                    name="selectAsesor"
                     style="width: 85%"
+                    required
                   >
-                    <option value="">-- Cari Nama Asesor --</option>
+                    <option value="" disabled selected>
+                      -- Cari Nama Asesor --
+                    </option>
                     <option
                       th:each="asr : ${listAsesor}"
                       th:value="${asr.id}"
@@ -180,36 +279,46 @@
                     </button>
                   </div>
                 </div>
-              </div>
+                <div class="text-danger small d-none" id="errorTabelAsesor">
+                  Harus memilih minimal 1 Asesor.
+                </div>
+              </div> -->
 
-              <table class="table table-bordered table-striped table-sm mb-4">
+              <!-- <table class="table table-bordered table-striped table-sm mb-4">
                 <thead class="bg-light">
-                  <tr>
-                    <th>No. MET</th>
+                  <tr class="text-center">
+                    <th style="width: 50px">No</th>
                     <th>Nama Asesor</th>
-                    <th style="width: 50px" class="text-center">Aksi</th>
+                    <th>No. MET</th>
+                    <th style="width: 50px">Aksi</th>
                   </tr>
                 </thead>
                 <tbody id="tbodyAsesor">
                   <tr id="emptyAsesor">
-                    <td colspan="3" class="text-center text-muted">
+                    <td colspan="4" class="text-center text-muted">
                       Belum ada asesor dipilih
                     </td>
                   </tr>
                 </tbody>
-              </table>
+              </table> -->
 
               <hr />
 
               <div class="form-group">
-                <label>Pilih Skema Sertifikasi</label>
+                <label
+                  >Pilih Skema
+                  <span class="text-danger">*</span></label
+                >
                 <div class="input-group">
                   <select
                     class="form-control select2"
                     id="selectSkema"
                     style="width: 85%"
+                    name="selectSkema"
                   >
-                    <option value="">-- Cari Judul Skema --</option>
+                    <option value="" disabled selected>
+                      -- Cari Nama Skema --
+                    </option>
                     <option
                       th:each="skm : ${listSkema}"
                       th:value="${skm.id}"
@@ -222,20 +331,38 @@
                       class="btn btn-info"
                       id="btnPilihSkema"
                     >
-                      <i class="fas fa-plus"></i> Tambah
+                      <i class="fas fa-plus"></i> Pilih Skema
                     </button>
                   </div>
                 </div>
+                <div class="text-danger small d-none" id="errorTabelSkema">
+                  Harus memilih minimal 1 Skema.
+                </div>
               </div>
 
-              <div id="schemaContainer">
-                <p class="text-muted text-center" id="emptySkema">
-                  Belum ada skema dipilih
-                </p>
-              </div>
+              <table class="table table-bordered table-striped table-sm">
+                <thead class="bg-light">
+                  <tr class="text-center">
+                    <th style="width: 50px">No</th>
+                    <th>Nama Skema</th>
+                    <th style="width: 50px">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodySkema">
+                  <tr id="emptySkema">
+                    <td colspan="3" class="text-center text-muted">
+                      Belum ada skema dipilih
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
             <div class="card-footer">
-              <button type="submit" class="btn btn-primary">
+              <button
+                type="submit"
+                class="btn btn-primary"
+                id="btnSimpanJadwal"
+              >
                 <i class="fas fa-save"></i> Simpan Jadwal
               </button>
               <a

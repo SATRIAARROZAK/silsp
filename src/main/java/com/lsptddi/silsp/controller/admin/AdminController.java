@@ -21,6 +21,8 @@ import com.lsptddi.silsp.repository.TypePekerjaanRepository;
 import com.lsptddi.silsp.repository.TypePengajuanSkemaRepository;
 import com.lsptddi.silsp.repository.TypeSkemaRepository;
 import com.lsptddi.silsp.repository.TypeTukRepository;
+import com.lsptddi.silsp.repository.TypeSumberAnggaranRepository;
+import com.lsptddi.silsp.repository.TypePemberiAnggaranRepository;
 import com.lsptddi.silsp.repository.RoleRepository;
 import com.lsptddi.silsp.repository.SkemaRepository;
 import com.lsptddi.silsp.repository.TukRepository;
@@ -78,6 +80,12 @@ public class AdminController {
     private TukRepository tukRepository;
     @Autowired
     private TypeTukRepository tukTypeRepository;
+
+    @Autowired
+    private TypeSumberAnggaranRepository typeSumberAnggaranRepository;
+    @Autowired
+    private TypePemberiAnggaranRepository typePemberiAnggaranRepository;
+
     @Autowired
     private TukService tukService;
 
@@ -564,6 +572,9 @@ public class AdminController {
         List<User> asesorList = userRepository.findByRolesName("Asesor");
         model.addAttribute("listAsesor", asesorList);
         model.addAttribute("listSkema", schemaRepository.findAll());
+        model.addAttribute("listSumberAnggaran", typeSumberAnggaranRepository.findAll());
+        model.addAttribute("listPemberiAnggaran", typePemberiAnggaranRepository.findAll());
+       
 
         // Generate kode bayangan untuk tampilan
         String nextCode = scheduleService.generateScheduleCode();

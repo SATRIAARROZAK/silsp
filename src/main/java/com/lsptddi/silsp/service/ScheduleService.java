@@ -16,10 +16,18 @@ import java.util.List;
 @Service
 public class ScheduleService {
 
-    @Autowired private ScheduleRepository scheduleRepository;
-    @Autowired private TukRepository tukRepository;
-    @Autowired private UserRepository userRepository;
-    @Autowired private SkemaRepository schemaRepository;
+    @Autowired
+    private ScheduleRepository scheduleRepository;
+    @Autowired
+    private TukRepository tukRepository;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private SkemaRepository schemaRepository;
+    @Autowired
+    private TypeSumberAnggaranRepository typeSumberAnggaranRepository;
+    @Autowired
+    private TypePemberiAnggaranRepository typePemberiAnggaranRepository;
 
     // Generate Format: Jadwal-LSPTDDI-001-2025
     public String generateScheduleCode() {
@@ -37,7 +45,9 @@ public class ScheduleService {
                     if (parts.length >= 3) {
                         nextId = Integer.parseInt(parts[2]) + 1;
                     }
-                } catch (Exception e) { nextId = 1; }
+                } catch (Exception e) {
+                    nextId = 1;
+                }
             }
         }
         return String.format("Jadwal-LSPTDDI-%03d-%d", nextId, currentYear);
@@ -51,8 +61,12 @@ public class ScheduleService {
         schedule.setBnspCode(dto.getBnspCode());
         schedule.setStartDate(dto.getStartDate());
         schedule.setQuota(dto.getQuota());
-        schedule.setBudgetSource(dto.getBudgetSource());
-        schedule.setBudgetProvider(dto.getBudgetProvider());
+        TypeSumberAnggaran budgetSource = typeSumberAnggaranRepository.findById(dto.getBudgetSource())
+                .orElseThrow(() -> new RuntimeException("Budget source not found"));
+        schedule.setBudgetSource(budgetSource);
+        TypePemberiAnggaran budgetProvider = typePemberiAnggaranRepository.findById(dto.getBudgetProvider())
+                .orElseThrow(() -> new RuntimeException("Budget provider not found"));
+        schedule.setBudgetProvider(budgetProvider);
 
         // Set TUK
         Tuk tuk = tukRepository.findById(dto.getTukId())

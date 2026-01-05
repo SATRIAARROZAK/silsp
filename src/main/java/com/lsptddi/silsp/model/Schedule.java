@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Entity
-@Table(name = "trx_jadwal")
+@Table(name = "jadwal_sertifikasi")
 @Data
 public class Schedule {
     @Id
@@ -32,12 +32,22 @@ public class Schedule {
     @Column(name = "kuota_peserta")
     private Integer quota;
 
-    // Data dari API Eksternal (Simpan Namanya/ID string saja)
-    @Column(name = "sumber_anggaran")
-    private String budgetSource;
+    // RELASI KE SUMBER ANGGARAN (Ganti String jadi Relasi)
+    @ManyToOne
+    @JoinColumn(name = "id_sumber_anggaran")
+    private TypeSumberAnggaran budgetSource;
 
-    @Column(name = "pemberi_anggaran")
-    private String budgetProvider;
+    // RELASI KE PEMBERI ANGGARAN
+    @ManyToOne
+    @JoinColumn(name = "id_pemberi_anggaran")
+    private TypePemberiAnggaran budgetProvider;
+
+    // // Data dari API Eksternal (Simpan Namanya/ID string saja)
+    // @Column(name = "sumber_anggaran")
+    // private String budgetSource;
+
+    // @Column(name = "pemberi_anggaran")
+    // private String budgetProvider;
 
     // Relasi ke TUK (Many to One)
     @ManyToOne

@@ -1,197 +1,364 @@
-$(document).ready(function() {
-    // Inisialisasi Select2
-    // $('.select2').select2({theme: 'bootstrap4'});
+$(document).ready(function () {
+  // Inisialisasi Select2
+//   $(".select2").select2({ theme: "bootstrap4" });
 
-    // ==================================================================
-    // 1. FETCH API BNSP (Via Java Proxy untuk menghindari CORS)
-    // ==================================================================
-    
-    // A. Sumber Anggaran
-    $.ajax({
-        url: '/api/proxy/jenis-anggaran',
-        method: 'GET',
-        success: function(response) {
-            // Sesuaikan dengan struktur JSON API BNSP
-            // Biasanya response.data atau langsung array
-            var data = response.data || response; 
-            var options = '<option value="">-- Pilih Sumber Anggaran --</option>';
-            
-            if(Array.isArray(data)) {
-                data.forEach(function(item) {
-                    // Sesuaikan 'id' dan 'label' dengan field asli API BNSP
-                    options += `<option value="${item.label || item.nama_anggaran}">${item.label || item.nama_anggaran}</option>`;
-                });
-            }
-            $('#apiAnggaran').html(options);
-        },
-        error: function() {
-            $('#apiAnggaran').html('<option value="">Gagal memuat data API</option>');
-        }
-    });
+  var selectedAsesorIds = [];
+  var selectedSchemaIds = [];
 
-    // B. Pemberi Anggaran (Kementrian)
-    $.ajax({
-        url: '/api/proxy/kementrian',
-        method: 'GET',
-        success: function(response) {
-            var data = response.data || response;
-            var options = '<option value="">-- Pilih Pemberi Anggaran --</option>';
-            
-            if(Array.isArray(data)) {
-                data.forEach(function(item) {
-                     // Sesuaikan 'nama_kementrian' dengan field asli API
-                    options += `<option value="${item.nama_kementrian || item.label}">${item.nama_kementrian || item.label}</option>`;
-                });
-            }
-            $('#apiPemberi').html(options);
-        },
-        error: function() {
-            $('#apiPemberi').html('<option value="">Gagal memuat data API</option>');
-        }
-    });
+  // ==================================================================
+  // FUNGSI HELPER: UPDATE NOMOR TABEL
+  // ==================================================================
+  function updateRowNumbers(tbodyId) {
+    $(tbodyId)
+      .find("tr:visible")
+      .not('[id^="empty"]')
+      .each(function (index) {
+        $(this)
+          .find("td:first")
+          .text(index + 1);
+      });
+  }
 
+  // ==================================================================
+  // 1. LOGIKA PILIH ASESOR (Tabel: No, Nama, No MET, Aksi)
+  // ==================================================================
+  $("#btnPilihAsesor").click(function () {
+    var id = $("#selectAsesor").val();
+    var nama = $("#selectAsesor option:selected").text();
+    var noMet = $("#selectAsesor option:selected").data("nomet");
 
-    // ==================================================================
-    // 2. LOGIKA PILIH ASESOR (Fix Button Click)
-    // ==================================================================
-    var selectedAsesorIds = [];
+    if (!id) {
+      Swal.fire(
+        "Peringatan",
+        "Silakan pilih asesor terlebih dahulu",
+        "warning"
+      );
+      return;
+    }
+    if (selectedAsesorIds.includes(id)) {
+      Swal.fire("Info", "Asesor ini sudah ditambahkan", "info");
+      return;
+    }
 
-    $('#btnPilihAsesor').click(function() {
-        // Ambil data dari select2
-        var id = $('#selectAsesor').val();
-        // Ambil text nama dari option yang dipilih
-        var nama = $('#selectAsesor option:selected').text();
-        // Ambil data-nomet dari atribut HTML
-        var noMet = $('#selectAsesor option:selected').data('nomet');
+    selectedAsesorIds.push(id);
+    $("#emptyAsesor").hide();
+    $("#errorTabelAsesor").addClass("d-none"); // Sembunyikan error jika ada
 
-        // Validasi
-        if (!id) {
-            Swal.fire('Peringatan', 'Silakan pilih asesor terlebih dahulu', 'warning');
-            return;
-        }
-        if (selectedAsesorIds.includes(id)) {
-            Swal.fire('Info', 'Asesor ini sudah ditambahkan', 'info');
-            return;
-        }
-
-        // Tambah ke Array
-        selectedAsesorIds.push(id);
-        $('#emptyAsesor').hide();
-
-        // Render Baris Tabel
-        var rowHtml = `
+    var rowHtml = `
             <tr id="row-asesor-${id}">
-                <td>${noMet ? noMet : '<span class="text-warning">Belum ada No. MET</span>'}</td>
-                <td>${nama}</td>
-                <td class="text-center">
-                    <button type="button" class="btn btn-danger btn-xs" onclick="hapusAsesor('${id}')">
+                <td class="text-center"></td> <td>${nama}</td>
+                <td>${
+                  noMet
+                    ? noMet
+                    : '<span class="text-warning small">Belum ada No. MET</span>'
+                }</td>
+                <td class="align-middle">
+                            <div class="action-buttons">
+                              <button type="button" class="btn btn-danger btn-xs" onclick="hapusAsesor('${id}')">
                         <i class="fas fa-trash"></i>
                     </button>
                     <input type="hidden" name="assessorIds" value="${id}">
+                            </div>
+                          </td>
+               
+            </tr>
+        `;
+    $("#tbodyAsesor").append(rowHtml);
+    updateRowNumbers("#tbodyAsesor");
+
+    // Reset Select
+    $("#selectAsesor").val("").trigger("change");
+  });
+
+  window.hapusAsesor = function (id) {
+    $(`#row-asesor-${id}`).remove();
+    selectedAsesorIds = selectedAsesorIds.filter((item) => item !== id);
+    if (selectedAsesorIds.length === 0) $("#emptyAsesor").show();
+    updateRowNumbers("#tbodyAsesor");
+  };
+
+  // ==================================================================
+  // 2. LOGIKA PILIH SKEMA (Tabel: No, Nama Skema, Aksi)
+  // ==================================================================
+  $("#btnPilihSkema").click(function () {
+    var id = $("#selectSkema").val();
+    var namaSkema = $("#selectSkema option:selected").text();
+
+    if (!id) {
+      Swal.fire("Peringatan", "Silakan pilih skema terlebih dahulu", "warning");
+      return;
+    }
+    if (selectedSchemaIds.includes(id)) {
+      Swal.fire("Info", "Skema ini sudah ditambahkan", "info");
+      return;
+    }
+
+    selectedSchemaIds.push(id);
+    $("#emptySkema").hide();
+    $("#errorTabelSkema").addClass("d-none"); // Sembunyikan error
+
+    var rowHtml = `
+            <tr id="row-skema-${id}">
+                <td class="text-center"></td>
+                <td>${namaSkema}</td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-danger btn-xs" onclick="hapusSkema('${id}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    <input type="hidden" name="schemaIds" value="${id}">
                 </td>
             </tr>
         `;
-        $('#tbodyAsesor').append(rowHtml);
-        
-        // Reset Select
-        $('#selectAsesor').val('').trigger('change');
-    });
+    $("#tbodySkema").append(rowHtml);
+    updateRowNumbers("#tbodySkema");
 
-    // Fungsi Hapus Asesor (Harus global window agar bisa dipanggil onclick)
-    window.hapusAsesor = function(id) {
-        $(`#row-asesor-${id}`).remove();
-        selectedAsesorIds = selectedAsesorIds.filter(item => item !== id);
-        if (selectedAsesorIds.length === 0) $('#emptyAsesor').show();
-    };
+    // Reset Select
+    $("#selectSkema").val("").trigger("change");
+  });
 
+  window.hapusSkema = function (id) {
+    $(`#row-skema-${id}`).remove();
+    selectedSchemaIds = selectedSchemaIds.filter((item) => item !== id);
+    if (selectedSchemaIds.length === 0) $("#emptySkema").show();
+    updateRowNumbers("#tbodySkema");
+  };
 
-    // ==================================================================
-    // 3. LOGIKA PILIH SKEMA & LOAD UNIT (Fix Unit Not Showing)
-    // ==================================================================
-    var selectedSchemaIds = [];
+  var validationConfig = {
+    // Abaikan elemen hidden KECUALI Select2 (karena Select2 menyembunyikan select asli)
+    ignore: function (index, element) {
+      if ($(element).hasClass("select2-hidden-accessible")) {
+        // Validasi select2 hanya jika parent-nya visible
+        return $(element).next(".select2-container").is(":hidden");
+      }
+      return $(element).is(":hidden");
+    },
 
-    $('#btnPilihSkema').click(function() {
-        var id = $('#selectSkema').val();
-        var namaSkema = $('#selectSkema option:selected').text();
+    // RULES: Harus sesuai attribut name="" di HTML (Bukan ID!)
+    rules: {
+      name: { required: true }, // Field: Nama Jadwal
+      tukId: { required: true }, // Field: Pilih TUK
+      bnspCode: { required: true }, // Field: Kode BNSP
+      startDate: { required: true }, // Field: Tanggal
+      quota: { required: true, min: 1 }, // Field: Kuota
+      budgetSource: { required: true }, // Field: Sumber Anggaran
+      budgetProvider: { required: true }, // Field: Pemberi Anggaran
+    },
 
-        if (!id) {
-            Swal.fire('Peringatan', 'Silakan pilih skema terlebih dahulu', 'warning');
-            return;
-        }
-        if (selectedSchemaIds.includes(id)) {
-            Swal.fire('Info', 'Skema ini sudah ditambahkan', 'info');
-            return;
-        }
+    // Pesan Error Custom (Opsional, jika tidak pakai default)
+    messages: {
+      name: "Nama jadwal wajib diisi",
+      tukId: "Mohon pilih TUK",
+      bnspCode: "Kode BNSP wajib diisi",
+      startDate: "Tentukan tanggal pelaksanaan",
+      quota: "Kuota minimal 1 peserta",
+      budgetSource: "Pilih sumber anggaran",
+      budgetProvider: "Pilih pemberi anggaran",
+    },
 
-        // Tampilkan Loading
-        Swal.fire({title: 'Memuat Unit...', didOpen: () => Swal.showLoading()});
+    errorElement: "span",
+    errorPlacement: function (error, element) {
+      error.addClass("invalid-feedback");
+      // Penanganan khusus untuk Select2
+      if (
+        element.hasClass("select2") ||
+        element.hasClass("select2-hidden-accessible")
+      ) {
+        error.insertAfter(element.next(".select2"));
+      } else {
+        element.closest(".form-group").append(error);
+      }
+    },
 
-        // Panggil Internal API untuk dapat detail unit
-        $.ajax({
-            url: `/api/internal/skema/${id}/units`,
-            method: 'GET',
-            success: function(units) {
-                Swal.close();
-                selectedSchemaIds.push(id);
-                $('#emptySkema').hide();
+    highlight: function (element) {
+      $(element).addClass("is-invalid").removeClass("is-valid");
+      // Highlight border Select2
+      if ($(element).hasClass("select2-hidden-accessible")) {
+        $(element)
+          .next(".select2")
+          .find(".select2-selection")
+          .addClass("is-invalid-border");
+      }
+    },
 
-                // Buat Tabel Unit
-                var unitRows = '';
-                if (units && units.length > 0) {
-                    units.forEach(function(u, index) {
-                        unitRows += `
-                            <tr>
-                                <td>${index + 1}</td>
-                                <td>${u.code}</td>
-                                <td>${u.title}</td>
-                            </tr>
-                        `;
-                    });
-                } else {
-                    unitRows = '<tr><td colspan="3" class="text-center">Tidak ada unit kompetensi terdaftar.</td></tr>';
-                }
+    unhighlight: function (element) {
+      $(element).removeClass("is-invalid").addClass("is-valid");
+      // Remove Highlight Select2
+      if ($(element).hasClass("select2-hidden-accessible")) {
+        $(element)
+          .next(".select2")
+          .find(".select2-selection")
+          .removeClass("is-invalid-border");
+      }
+    },
 
-                // Render Card Skema
-                var cardHtml = `
-                    <div class="card card-outline card-success mb-3" id="panel-skema-${id}">
-                        <div class="card-header">
-                            <h3 class="card-title font-weight-bold"><i class="fas fa-book mr-2"></i>${namaSkema}</h3>
-                            <div class="card-tools">
-                                <button type="button" class="btn btn-tool" onclick="hapusSkema('${id}')">
-                                    <i class="fas fa-times text-danger"></i> Hapus
-                                </button>
-                                <input type="hidden" name="schemaIds" value="${id}">
-                            </div>
-                        </div>
-                        <div class="card-body p-0">
-                            <table class="table table-sm table-hover">
-                                <thead style="background-color: #f4f6f9">
-                                    <tr>
-                                        <th style="width: 10px">#</th>
-                                        <th style="width: 200px">Kode Unit</th>
-                                        <th>Judul Unit Kompetensi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${unitRows}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                `;
-                $('#schemaContainer').append(cardHtml);
-                $('#selectSkema').val('').trigger('change');
+    // Handler jika ada error pada input standar (Scroll ke atas)
+    invalidHandler: function (event, validator) {
+      Swal.fire({
+        icon: "warning",
+        title: "Perhatian!",
+        text: "Harap lengkapi semua formulir yang wajib diisi.",
+        confirmButtonColor: "#3085d6",
+      }).then(() => {
+        if (validator.errorList.length > 0) {
+          var firstErrorElement = $(validator.errorList[0].element);
+          // Scroll animasi
+          $("html, body").animate(
+            {
+              scrollTop:
+                firstErrorElement.closest(".form-group").offset().top - 100,
             },
-            error: function() {
-                Swal.fire('Error', 'Gagal mengambil data unit skema. Pastikan API Internal berjalan.', 'error');
-            }
+            500
+          );
+        }
+      });
+    },
+
+    // --- INI TEMPAT VALIDASI TABEL (CUSTOM LOGIC) ---
+    // submitHandler hanya jalan jika semua rules di atas LULUS (Valid)
+    submitHandler: function (form) {
+      var isTableValid = true;
+
+      // 1. Validasi Tabel Asesor
+      if (selectedAsesorIds.length === 0) {
+        $("#errorTabelAsesor").removeClass("d-none"); // Munculkan text error merah
+        isTableValid = false;
+      } else {
+        $("#errorTabelAsesor").addClass("d-none");
+      }
+
+      // 2. Validasi Tabel Skema
+      if (selectedSchemaIds.length === 0) {
+        $("#errorTabelSkema").removeClass("d-none");
+        isTableValid = false;
+      } else {
+        $("#errorTabelSkema").addClass("d-none");
+      }
+
+      // Jika tabel kosong, batalkan submit & beri alert
+      if (!isTableValid) {
+        Swal.fire({
+          icon: "error",
+          title: "Data Belum Lengkap",
+          text: "Harap pilih minimal 1 Asesor dan 1 Skema!",
+          confirmButtonColor: "#d33",
         });
-    });
+        return false; // Stop submit
+      }
 
-    window.hapusSkema = function(id) {
-        $(`#panel-skema-${id}`).remove();
-        selectedSchemaIds = selectedSchemaIds.filter(item => item !== id);
-        if (selectedSchemaIds.length === 0) $('#emptySkema').show();
-    };
+      // JIKA SEMUA VALID:
+      Swal.fire({
+        title: "Menyimpan Jadwal...",
+        text: "Mohon tunggu sebentar",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
 
+      // Lanjutkan submit form secara native
+      form.submit();
+    },
+  };
+
+  // Terapkan konfigurasi ke Form
+  $("#formJadwal").validate(validationConfig);
+  // ==================================================================
+  // 3. VALIDASI FORM SEBELUM SUBMIT
+  // ==================================================================
+  //   $("#formJadwal").on("submit", function (e) {
+  //     var isValid = true;
+  //     var firstError = null;
+
+  //     // Fungsi helper untuk error
+  //     function setError(id, messageId) {
+  //       $(id).addClass("is-invalid");
+  //       $(messageId).removeClass("d-none");
+  //       if (!firstError) firstError = id;
+  //       isValid = false;
+  //     }
+
+  //     function clearError(id, messageId) {
+  //       $(id).removeClass("is-invalid");
+  //       $(messageId).addClass("d-none");
+  //     }
+
+  //     // 1. Validasi Input Standar
+  //     var inputs = [
+  //       { id: "#inputNamaJadwal" },
+  //       { id: "#inputBnspCode" },
+  //       { id: "#inputDate" },
+  //       { id: "#inputQuota" },
+  //     ];
+  //     inputs.forEach((el) => {
+  //       if (!$(el.id).val()) {
+  //         $(el.id).addClass("is-invalid");
+  //         if (!firstError) firstError = el.id;
+  //         isValid = false;
+  //       } else {
+  //         $(el.id).removeClass("is-invalid");
+  //       }
+  //     });
+
+  //     // 2. Validasi Select2 (TUK, Sumber, Pemberi)
+  //     var selects = [
+  //       { id: "#selectTuk", err: "#errorTuk" },
+  //       { id: "#selectSumber", err: "#errorSumber" },
+  //       { id: "#selectPemberi", err: "#errorPemberi" },
+  //     ];
+  //     selects.forEach((el) => {
+  //       if (!$(el.id).val()) {
+  //         setError(el.id + " + .select2 .select2-selection", el.err); // Target border select2
+  //       } else {
+  //         clearError(el.id + " + .select2 .select2-selection", el.err);
+  //       }
+  //     });
+
+  //     // 3. Validasi Tabel (Minimal 1 Data)
+  //     if (selectedAsesorIds.length === 0) {
+  //       $("#errorTabelAsesor").removeClass("d-none");
+  //       isValid = false;
+  //     } else {
+  //       $("#errorTabelAsesor").addClass("d-none");
+  //     }
+
+  //     if (selectedSchemaIds.length === 0) {
+  //       $("#errorTabelSkema").removeClass("d-none");
+  //       isValid = false;
+  //     } else {
+  //       $("#errorTabelSkema").addClass("d-none");
+  //     }
+
+  //     // JIKA ADA ERROR
+  //     if (!isValid) {
+  //       e.preventDefault(); // Stop submit
+  //       Swal.fire({
+  //         icon: "error",
+  //         title: "Data Belum Lengkap",
+  //         text: "Mohon lengkapi semua kolom",
+  //       }).then(() => {
+  //         if (firstError) {
+  //           $("html, body").animate(
+  //             { scrollTop: $(firstError).offset().top - 100 },
+  //             500
+  //           );
+  //         }
+  //       });
+  //     } else {
+  //       // Jika Valid
+  //       Swal.fire({
+  //         title: "Menyimpan...",
+  //         didOpen: () => Swal.showLoading(),
+  //       });
+  //     }
+  //   });
+
+  //   // Hapus error saat user mulai mengisi/memilih
+  //   $("input").on("input", function () {
+  //     $(this).removeClass("is-invalid");
+  //   });
+  //   $(".select2").on("change", function () {
+  //     $(this)
+  //       .next(".select2")
+  //       .find(".select2-selection")
+  //       .removeClass("is-invalid");
+  //     $(this).parent().find(".text-danger.small").addClass("d-none");
+  //   });
 });

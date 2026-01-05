@@ -54,7 +54,7 @@ public class Skema {
     private List<UnitSkema> units = new ArrayList<>();
 
     // --- TAB 3: Persyaratan (One-to-Many) ---
-    @OneToMany(mappedBy = "skema", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "skema", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     private List<PersyaratanSkema> requirements = new ArrayList<>();
 

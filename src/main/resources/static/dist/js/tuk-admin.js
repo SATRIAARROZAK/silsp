@@ -9,7 +9,7 @@ $(document).ready(function () {
   const API_WILAYAH_URL = "https://www.emsifa.com/api-wilayah-indonesia/api";
 
   // Inisialisasi Select2
-  $(".select2").select2({ theme: "bootstrap4" });
+  // $(".select2").select2({ theme: "bootstrap4" });
 
   // CSS Inject untuk Border Merah Select2 saat Error
   $(

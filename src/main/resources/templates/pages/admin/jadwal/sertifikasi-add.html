@@ -1,290 +1,252 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layouts/app}">
-<head th:replace="~{fragments/header :: header('Buat Jadwal')}"></head>
-<body>
-<div layout:fragment="content">
-  <div class="container-fluid">
-    <form th:action="@{/admin/jadwal-sertifikasi/save}" method="post" th:object="${scheduleDto}" id="formJadwal">
-      
-      <div class="card card-blue-dark">
-        <div class="card-header"><h3 class="card-title">1. Detail Jadwal</h3></div>
-        <div class="card-body">
-          <div class="row">
-            <div class="col-md-6">
-               <div class="form-group">
-                 <label>Nama Jadwal</label>
-                 <input type="text" class="form-control" th:field="*{name}" required>
-               </div>
+<html
+  lang="en"
+  xmlns:th="http://www.thymeleaf.org"
+  layout:decorate="~{layouts/app}"
+>
+  <head th:replace="~{fragments/header :: header('Buat Jadwal')}"></head>
+  <body>
+    <div layout:fragment="content">
+      <div class="container-fluid">
+        <form
+          th:action="@{/admin/jadwal-sertifikasi/save}"
+          method="post"
+          th:object="${scheduleDto}"
+          id="formJadwal"
+        >
+          <div class="card card-blue-dark">
+            <div class="card-header">
+              <h3 class="card-title">1. Detail Jadwal</h3>
             </div>
-            <div class="col-md-6">
-               <div class="form-group">
-                 <label>Pilih TUK</label>
-                 <select class="form-control select2" th:field="*{tukId}" required>
-                    <option value="">-- Pilih TUK --</option>
-                    <option th:each="tuk : ${listTuk}" th:value="${tuk.id}" th:text="${tuk.name}"></option>
-                 </select>
-               </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label
+                      >Nama Jadwal <span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      th:field="*{name}"
+                      placeholder="Contoh: Uji Kompetensi Batch 1"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Pilih TUK <span class="text-danger">*</span></label>
+                    <select
+                      class="form-control select2"
+                      th:field="*{tukId}"
+                      required
+                      style="width: 100%"
+                    >
+                      <option value="">-- Pilih TUK --</option>
+                      <option
+                        th:each="tuk : ${listTuk}"
+                        th:value="${tuk.id}"
+                        th:text="${tuk.name}"
+                      ></option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Kode Jadwal (Auto)</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      th:field="*{code}"
+                      readonly
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Kode Jadwal BNSP</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      th:field="*{bnspCode}"
+                      placeholder="Opsional"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label
+                      >Tanggal Sertifikasi
+                      <span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="date"
+                      class="form-control"
+                      th:field="*{startDate}"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label
+                      >Kuota Peserta <span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="number"
+                      class="form-control"
+                      th:field="*{quota}"
+                      min="1"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label
+                      >Sumber Anggaran (API BNSP)
+                      <span class="text-danger">*</span></label
+                    >
+                    <select
+                      class="form-control select2"
+                      id="apiAnggaran"
+                      th:field="*{budgetSource}"
+                      required
+                      style="width: 100%"
+                    >
+                      <option value="">Loading Data...</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label
+                      >Pemberi Anggaran (API BNSP)
+                      <span class="text-danger">*</span></label
+                    >
+                    <select
+                      class="form-control select2"
+                      id="apiPemberi"
+                      th:field="*{budgetProvider}"
+                      required
+                      style="width: 100%"
+                    >
+                      <option value="">Loading Data...</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="row">
-             <div class="col-md-6">
-                <div class="form-group">
-                   <label>Kode Jadwal (Auto)</label>
-                   <input type="text" class="form-control" th:field="*{code}" readonly>
-                </div>
-             </div>
-             <div class="col-md-6">
-                <div class="form-group">
-                   <label>Kode Jadwal BNSP</label>
-                   <input type="text" class="form-control" th:field="*{bnspCode}">
-                </div>
-             </div>
-          </div>
-
-          <div class="row">
-             <div class="col-md-4">
-                <div class="form-group">
-                   <label>Tanggal Sertifikasi</label>
-                   <input type="date" class="form-control" th:field="*{startDate}" required>
-                </div>
-             </div>
-             <div class="col-md-4">
-                <div class="form-group">
-                   <label>Kuota Peserta</label>
-                   <input type="number" class="form-control" th:field="*{quota}" required>
-                </div>
-             </div>
-          </div>
-
-          <div class="row">
-             <div class="col-md-6">
-                <div class="form-group">
-                   <label>Sumber Anggaran (API BNSP)</label>
-                   <select class="form-control select2" id="apiAnggaran" th:field="*{budgetSource}">
-                      <option value="">Loading API...</option>
-                   </select>
-                </div>
-             </div>
-             <div class="col-md-6">
-                <div class="form-group">
-                   <label>Pemberi Anggaran (API BNSP)</label>
-                   <select class="form-control select2" id="apiPemberi" th:field="*{budgetProvider}">
-                      <option value="">Loading API...</option>
-                   </select>
-                </div>
-             </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card card-blue-dark">
-        <div class="card-header"><h3 class="card-title">2. Detail Penugasan</h3></div>
-        <div class="card-body">
-           
-           <div class="form-group">
-              <label>Pilih Asesor</label>
-              <div class="input-group">
-                 <select class="form-control select2" id="selectAsesor">
-                    <option value="">-- Cari Asesor --</option>
-                    <option th:each="asr : ${listAsesor}" 
-                            th:value="${asr.id}" 
-                            th:data-nomet="${asr.noMet}"
-                            th:text="${asr.fullName}"></option>
-                 </select>
-                 <span class="input-group-append">
-                    <button type="button" class="btn btn-info" id="btnAddAsesor">Pilih Asesor</button>
-                 </span>
-              </div>
-           </div>
-           
-           <table class="table table-bordered table-sm mb-4">
-              <thead class="thead-light">
-                 <tr>
-                    <th>No MET</th>
-                    <th>Nama Asesor</th>
-                    <th style="width: 50px">Aksi</th>
-                 </tr>
-              </thead>
-              <tbody id="tblBodyAsesor">
-                 </tbody>
-           </table>
-
-           <hr>
-
-           <div class="form-group">
-              <label>Pilih Skema</label>
-              <div class="input-group">
-                 <select class="form-control select2" id="selectSkema">
-                    <option value="">-- Cari Skema --</option>
-                    <option th:each="skm : ${listSkema}" th:value="${skm.id}" th:text="${skm.name}"></option>
-                 </select>
-                 <span class="input-group-append">
-                    <button type="button" class="btn btn-info" id="btnAddSkema">Pilih Skema</button>
-                 </span>
-              </div>
-           </div>
-
-           <div id="schemaContainer">
-               </div>
-
-        </div>
-        <div class="card-footer">
-           <button type="submit" class="btn btn-primary">Simpan Jadwal</button>
-        </div>
-      </div>
-
-      <div id="hiddenInputs"></div>
-
-    </form>
-  </div>
-</div>
-
-<th:block layout:fragment="script">
-<script>
-$(document).ready(function() {
-    $('.select2').select2({theme: 'bootstrap4'});
-
-    // ==========================================
-    // 1. API EKSTERNAL (BNSP)
-    // ==========================================
-    // Simulasi Fetch karena URL yang diberikan perlu auth/token biasanya, 
-    // atau jika public CORS enabled. Ini contoh implementasinya:
-    
-    // Fetch Sumber Anggaran
-    // fetch('https://konstruksi.bnsp.go.id/api/v1/anggaran') 
-    // Ganti dengan URL asli dan handle response JSONnya. 
-    // Disini saya mock data sesuai kemungkinan isi API
-    var mockAnggaran = [
-        {id: 'APBN', text: 'APBN'}, 
-        {id: 'APBD', text: 'APBD'}, 
-        {id: 'Mandiri', text: 'Biaya Mandiri'}
-    ];
-    var optAnggaran = '<option value="">Pilih Sumber...</option>';
-    mockAnggaran.forEach(e => optAnggaran += `<option value="${e.text}">${e.text}</option>`);
-    $("#apiAnggaran").html(optAnggaran);
-
-    // Fetch Pemberi Anggaran (Kementrian)
-    var mockKementrian = [
-        {id: 'KOMINFO', text: 'Kementerian Komunikasi dan Informatika'},
-        {id: 'KEMNAKER', text: 'Kementerian Ketenagakerjaan'}
-    ];
-    var optPemberi = '<option value="">Pilih Pemberi...</option>';
-    mockKementrian.forEach(e => optPemberi += `<option value="${e.text}">${e.text}</option>`);
-    $("#apiPemberi").html(optPemberi);
-
-
-    // ==========================================
-    // 2. LOGIKA TABEL ASESOR
-    // ==========================================
-    var addedAsesors = []; // Simpan ID agar tidak duplikat
-
-    $("#btnAddAsesor").click(function() {
-        var id = $("#selectAsesor").val();
-        var name = $("#selectAsesor option:selected").text();
-        var nomet = $("#selectAsesor option:selected").data('nomet');
-
-        if(!id) { Swal.fire('Pilih asesor dulu'); return; }
-        if(addedAsesors.includes(id)) { Swal.fire('Asesor sudah dipilih'); return; }
-
-        addedAsesors.push(id);
-
-        var row = `
-            <tr id="row-asr-${id}">
-                <td>${nomet ? nomet : '-'}</td>
-                <td>${name}</td>
-                <td class="text-center">
-                    <button type="button" class="btn btn-danger btn-xs" onclick="removeAsesor('${id}')">
-                        <i class="fas fa-trash"></i>
+          <div class="card card-blue-dark">
+            <div class="card-header">
+              <h3 class="card-title">2. Detail Penugasan</h3>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label>Pilih Asesor</label>
+                <div class="input-group">
+                  <select
+                    class="form-control select2"
+                    id="selectAsesor"
+                    style="width: 85%"
+                  >
+                    <option value="">-- Cari Nama Asesor --</option>
+                    <option
+                      th:each="asr : ${listAsesor}"
+                      th:value="${asr.id}"
+                      th:data-nomet="${asr.noMet}"
+                      th:text="${asr.fullName}"
+                    ></option>
+                  </select>
+                  <div class="input-group-append">
+                    <button
+                      type="button"
+                      class="btn btn-info"
+                      id="btnPilihAsesor"
+                    >
+                      <i class="fas fa-plus"></i> Tambah
                     </button>
-                    <input type="hidden" name="assessorIds" value="${id}">
-                </td>
-            </tr>
-        `;
-        $("#tblBodyAsesor").append(row);
-    });
-
-    window.removeAsesor = function(id) {
-        $("#row-asr-" + id).remove();
-        addedAsesors = addedAsesors.filter(item => item !== id);
-    };
-
-
-    // ==========================================
-    // 3. LOGIKA SKEMA & UNIT DETAIL
-    // ==========================================
-    var addedSchemas = [];
-
-    $("#btnAddSkema").click(function() {
-        var id = $("#selectSkema").val();
-        var name = $("#selectSkema option:selected").text();
-
-        if(!id) { Swal.fire('Pilih skema dulu'); return; }
-        if(addedSchemas.includes(id)) { Swal.fire('Skema sudah ditambahkan'); return; }
-
-        // Fetch Unit via API Internal
-        $.get(`/api/internal/skema/${id}/units`, function(units) {
-            addedSchemas.push(id);
-            
-            // Build Table Unit
-            var unitRows = "";
-            if(units && units.length > 0) {
-                units.forEach((u, idx) => {
-                    unitRows += `
-                        <tr>
-                            <td>${idx+1}</td>
-                            <td>${u.code}</td>
-                            <td>${u.name}</td>
-                        </tr>
-                    `;
-                });
-            } else {
-                unitRows = `<tr><td colspan="3" class="text-center text-muted">Tidak ada unit kompetensi</td></tr>`;
-            }
-
-            var cardHtml = `
-                <div class="card card-outline card-secondary mb-3" id="panel-skm-${id}">
-                    <div class="card-header">
-                        <h3 class="card-title font-weight-bold">${name}</h3>
-                        <div class="card-tools">
-                            <input type="hidden" name="schemaIds" value="${id}">
-                            <button type="button" class="btn btn-tool" onclick="removeSkema('${id}')">
-                                <i class="fas fa-times text-danger"></i> Hapus
-                            </button>
-                        </div>
-                    </div>
-                    <div class="card-body p-0">
-                        <table class="table table-striped table-sm">
-                            <thead>
-                                <tr>
-                                    <th style="width: 10px">#</th>
-                                    <th>Kode Unit</th>
-                                    <th>Judul Unit</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${unitRows}
-                            </tbody>
-                        </table>
-                    </div>
+                  </div>
                 </div>
-            `;
-            
-            $("#schemaContainer").append(cardHtml);
+              </div>
 
-        }).fail(function() {
-            Swal.fire('Error', 'Gagal mengambil data unit skema', 'error');
-        });
-    });
+              <table class="table table-bordered table-striped table-sm mb-4">
+                <thead class="bg-light">
+                  <tr>
+                    <th>No. MET</th>
+                    <th>Nama Asesor</th>
+                    <th style="width: 50px" class="text-center">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodyAsesor">
+                  <tr id="emptyAsesor">
+                    <td colspan="3" class="text-center text-muted">
+                      Belum ada asesor dipilih
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
 
-    window.removeSkema = function(id) {
-        $("#panel-skm-" + id).remove();
-        addedSchemas = addedSchemas.filter(item => item !== id);
-    };
+              <hr />
 
-});
-</script>
-</th:block>
+              <div class="form-group">
+                <label>Pilih Skema Sertifikasi</label>
+                <div class="input-group">
+                  <select
+                    class="form-control select2"
+                    id="selectSkema"
+                    style="width: 85%"
+                  >
+                    <option value="">-- Cari Judul Skema --</option>
+                    <option
+                      th:each="skm : ${listSkema}"
+                      th:value="${skm.id}"
+                      th:text="${skm.name}"
+                    ></option>
+                  </select>
+                  <div class="input-group-append">
+                    <button
+                      type="button"
+                      class="btn btn-info"
+                      id="btnPilihSkema"
+                    >
+                      <i class="fas fa-plus"></i> Tambah
+                    </button>
+                  </div>
+                </div>
+              </div>
 
-</body>
+              <div id="schemaContainer">
+                <p class="text-muted text-center" id="emptySkema">
+                  Belum ada skema dipilih
+                </p>
+              </div>
+            </div>
+            <div class="card-footer">
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Simpan Jadwal
+              </button>
+              <a
+                th:href="@{/admin/jadwal-sertifikasi}"
+                class="btn btn-outline-secondary"
+                >Kembali</a
+              >
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </body>
 </html>

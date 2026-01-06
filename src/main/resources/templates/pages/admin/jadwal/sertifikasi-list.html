@@ -24,8 +24,8 @@
             class="d-flex flex-column-reverse flex-w flex-md-row justify-content-md-between align-items-md-center gap-2 mb-3"
           >
             <form
-              th:action="@{/}"
-              method=""
+              th:action="@{/admin/jadwal-sertifikasi}"
+              method="get"
               class="d-flex"
               style="width: 100%; max-width: 450px"
             >
@@ -39,7 +39,7 @@
               />
               <button type="submit" class="btn btn-outline-info">Cari</button>
               <a
-                th:href="@{/}"
+                th:href="@{/admin/jadwal-sertifikasi}"
                 class="btn btn-outline-danger ms-2"
                 title="Reset Pencarian"
                 >Reset</a
@@ -56,6 +56,36 @@
         </div>
         <!-- /.card-header -->
         <div class="card-body responsive">
+          <div
+            th:if="${success}"
+            class="alert alert-success alert-dismissible fade show"
+            role="alert"
+          >
+            <span th:text="${success}"></span>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="alert"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div
+            th:if="${error}"
+            class="alert alert-danger alert-dismissible fade show"
+            role="alert"
+          >
+            <span th:text="${error}"></span>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="alert"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
           <table class="table table-bordered table-hover table-responsive-md">
             <thead>
               <tr class="text-center">
@@ -69,122 +99,222 @@
               </tr>
             </thead>
             <tbody class="align-middle">
-              <tr>
-                <td>1</td>
-                <td>
-                  <div class="plan-profile">
-                    <strong>Nama Jadwal</strong>
-                    <p class="mb-3">Sertifikasi Digital Marketing</p>
+              <th:block th:each="row, i : ${listJadwal}">
+                <tr class="align-middle">
+                  <td
+                    class="text-center"
+                    th:text="${(size * currentPage) + i.count}"
+                  >
+                    1
+                  </td>
 
-                    <div class="plan-details">
-                      <div class="jadwal-item">
-                        <strong>Kode Jadwal</strong>
-                        <strong>Kode Jadwal BNSP</strong>
-                        <strong>Tanggal Asesmen</strong>
-                        <!-- <span>TUK-LSPTDDI-001</span> -->
-                      </div>
+                  <td>
+                    <div class="plan-profile">
+                      <strong>Nama Jadwal</strong>
+                      <p th:text="${row.name}">Sertifikasi Digital Marketing</p>
 
-                      <div class="jadwal-item">
-                        <!-- <strong>Tanggal Asesmen</strong> -->
-                        <span>20250510-SKM01-UNBRAW</span>
-                        <span>BNSP.UJK.202505050488</span>
-                        <span>09 September 2025</span>
+                      <div class="plan-details">
+                        <div class="jadwal-item">
+                          <strong>Kode Jadwal</strong>
+                          <strong>Kode Jadwal BNSP</strong>
+                          <strong>Tanggal Asesmen</strong>
+                          <!-- <span>TUK-LSPTDDI-001</span> -->
+                        </div>
+
+                        <div class="jadwal-item">
+                          <!-- <strong>Tanggal Asesmen</strong> -->
+                          <span th:text="${row.code}"
+                            >20250510-SKM01-UNBRAW</span
+                          >
+                          <span
+                            th:if="${row.bnspCode}"
+                            th:text="'BNSP: ' + ${row.bnspCode}"
+                            >BNSP.UJK.202505050488</span
+                          >
+                          <span
+                            th:text="${#temporals.format(row.startDate, 'dd MMMM yyyy')}"
+                            >09 September 2025</span
+                          >
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </td>
-                <td class="align-middle text-center">
-                  <a
-                    class="btn btn-primary btn-sm btn-expand"
-                    data-target="#asesor-list"
-                  >
-                    <span>2</span>
-                  </a>
-                </td>
-                <td class="align-middle text-center">Associate Data Science</td>
-                <td class="align-middle">
-                  Fakultas Ilmu Komputer Universitas Brawijaya
-                </td>
-                <td class="align-middle">
-                  <div class="action-buttons">
-                    <a
-                      class="btn btn-outline-primary btn-sm"
-                      th:href="@{/admin/jadwal-sertifikasi/jadwal-view}"
-                      title="View"
+                  </td>
+                  <td class="align-middle text-center">
+                    <button
+                      type="button"
+                      class="btn btn-xs btn-outline-info btn-expand"
+                      th:data-target="'#detail-asesor-' + ${row.id}"
                     >
-                      <i class="fas fa-eye"> </i>
-                    </a>
-                    <a
-                      class="btn btn-outline-info btn-sm"
-                      th:href="@{/admin/skema/edit-skema}"
-                      title="Edit"
+                      <span
+                        th:text="${row.assessors != null ? row.assessors.size() : 0} + ' Asesor'"
+                      ></span>
+                    </button>
+                  </td>
+                  <td class="align-middle text-center">
+                    <button
+                      type="button"
+                      class="btn btn-xs btn-outline-info btn-expand"
+                      th:data-target="'#detail-skema-' + ${row.id}"
                     >
-                      <i class="fas fa-pencil-alt"> </i>
-                    </a>
-                    <a
-                      class="btn btn-outline-danger btn-sm"
-                      href="#"
-                      title="Delete"
-                    >
-                      <i class="fas fa-trash"> </i>
-                    </a>
-                  </div>
-                </td>
-                <td class="align-middle text-center">
-                  <a
-                    class="btn btn-outline-warning btn-sm"
-                    th:href="@{/admin/jadwal-sertifikasi/detail}"
-                    title="Lihat Berkas"
-                  >
-                    <i class="fas fa-folder"> </i>
-                  </a>
-                </td>
-              </tr>
-              <tr class="expandable-content-row" id="asesor-list">
-                <td colspan="8">
-                  <div class="expandable-content-wrapper">
-                    <h5>Daftar Asesor Bertugas</h5>
-                    <div class="table-responsive">
-                      <table
-                        class="table table-valign-middle table-sm table-bordered nested-table"
+                      <span
+                        th:text="${row.schemas != null ? row.schemas.size() : 0} + ' Skema'"
+                      ></span>
+                    </button>
+                  </td>
+                  <td
+                    class="align-middle"
+                    th:text="${row.tuk != null ? row.tuk.name : '-'}"
+                  ></td>
+                  <td class="align-middle">
+                    <div class="action-buttons">
+                      <a
+                        th:href="@{'/admin/jadwal-sertifikasi/view/' + ${row.id}}"
+                        class="btn btn-sm btn-info"
+                        title="Lihat"
                       >
-                        <thead class="thead-light text-center">
-                          <tr>
-                            <th>No</th>
-                            <th>No. MET</th>
-                            <th>Nama Asesor</th>
-                            <th>Surat Tugas</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td class="text-center">1</td>
-                            <td>MET.000.002580.2024</td>
-                            <td>Erlin Irosa</td>
-                            <td>
-                              <a
-                                th:href="@{/dist/doc/st_erlin.pdf}"
-                                target="_blank"
-                                >01/ST/LSPTDDI/V/2025</a
-                              >
-                            </td>
-                          </tr>
-                          <tr>
-                            <td class="text-center">2</td>
-                            <td>MET.000.002584.2024</td>
-                            <td>Sigit Mareta</td>
-                            <td>
-                              <a
-                                th:href="@{/dist/doc/st_sigit.pdf}"
-                                target="_blank"
-                                >02/ST/LSPTDDI/V/2025</a
-                              >
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
+                        <i class="fas fa-eye"></i>
+                      </a>
+                      <a
+                        th:href="@{'/admin/jadwal-sertifikasi/edit/' + ${row.id}}"
+                        class="btn btn-sm btn-warning"
+                        title="Edit"
+                      >
+                        <i class="fas fa-pencil-alt"></i>
+                      </a>
+                      <a
+                        th:href="@{'/admin/jadwal-sertifikasi/delete/' + ${row.id}}"
+                        class="btn btn-sm btn-danger delete-button-jadwal"
+                        title="Hapus"
+                        ><i class="fas fa-trash"></i
+                      ></a>
                     </div>
-                  </div>
+                  </td>
+                  <td class="align-middle text-center">
+                    <a
+                      class="btn btn-outline-warning btn-sm"
+                      th:href="@{/admin/jadwal-sertifikasi/detail}"
+                      title="Lihat Berkas"
+                    >
+                      <i class="fas fa-folder"> </i>
+                    </a>
+                  </td>
+                </tr>
+                <tr
+                  th:id="'detail-asesor-' + ${row.id}"
+                  class="d-none bg-light"
+                >
+                  <td colspan="8" class="p-4">
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div
+                          class="card card-outline card-primary shadow-none mb-0"
+                        >
+                          <div class="card-header py-2">
+                            <h3 class="card-title text-sm font-weight-bold">
+                              <i class="fas fa-user-tie mr-1"></i> Daftar Asesor
+                              Bertugas
+                            </h3>
+                          </div>
+                          <div class="card-body p-0">
+                            <table class="table table-sm table-bordered mb-0">
+                              <thead class="bg-white text-center">
+                                <tr>
+                                  <th>No</th>
+                                  <th>Nama Asesor</th>
+                                  <th>No. MET</th>
+                                  <th>Surat Tugas</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr th:each="asr, idx : ${row.assessors}">
+                                  <td
+                                    class="text-center"
+                                    th:text="${idx.count}"
+                                  >
+                                    1
+                                  </td>
+                                  <td th:text="${asr.asesor.fullName}">Nama</td>
+                                  <td
+                                    th:text="${asr.asesor.noMet != null ? asr.asesor.noMet : '-'}"
+                                  >
+                                    MET
+                                  </td>
+                                  <td class="text-center">
+                                    <span class="badge badge-secondary"
+                                      >Belum Ada</span
+                                    >
+                                  </td>
+                                </tr>
+                                <tr th:if="${row.assessors.empty}">
+                                  <td
+                                    colspan="4"
+                                    class="text-center text-muted small"
+                                  >
+                                    Tidak ada asesor ditugaskan.
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr th:id="'detail-skema-' + ${row.id}" class="d-none bg-light">
+                  <td colspan="8" class="p-4">
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div
+                          class="card card-outline card-success shadow-none mb-0"
+                        >
+                          <div class="card-header py-2">
+                            <h3 class="card-title text-sm font-weight-bold">
+                              <i class="fas fa-book mr-1"></i> Daftar Skema
+                            </h3>
+                          </div>
+                          <div class="card-body p-0">
+                            <table class="table table-sm table-bordered mb-0">
+                              <thead class="bg-white text-center">
+                                <tr>
+                                  <th width="5px">No</th>
+                                  <th>Nama Skema</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr th:each="sch, idx : ${row.schemas}">
+                                  <td
+                                    class="text-center"
+                                    th:text="${idx.count}"
+                                  >
+                                    1
+                                  </td>
+                                  <td th:text="${sch.schema.name}">
+                                    Judul Skema
+                                  </td>
+                                </tr>
+                                <tr th:if="${row.schemas.empty}">
+                                  <td
+                                    colspan="2"
+                                    class="text-center text-muted small"
+                                  >
+                                    Tidak ada skema dipilih.
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </th:block>
+
+              <tr th:if="${listJadwal.empty}">
+                <td colspan="8" class="text-center text-muted">
+                  Belum ada jadwal sertifikasi dibuat.
                 </td>
               </tr>
             </tbody>
@@ -193,58 +323,63 @@
 
         <!-- /.card-body -->
         <div class="card-footer clearfix">
-          <ul class="pagination pagination-sm m-0 float-right">
-            <li class="page-item"><a class="page-link" href="#">&laquo;</a></li>
-            <li class="page-item"><a class="page-link" href="#">1</a></li>
-            <li class="page-item"><a class="page-link" href="#">2</a></li>
-            <li class="page-item"><a class="page-link" href="#">3</a></li>
-            <li class="page-item"><a class="page-link" href="#">&raquo;</a></li>
-          </ul>
-        </div>
-      </div>
-      <div
-        class="modal fade"
-        id="previewModal"
-        tabindex="-1"
-        role="dialog"
-        aria-labelledby="previewModalLabel"
-        aria-hidden="true"
-      >
-        <div class="modal-dialog modal-xl" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="previewModalLabel">
-                Preview Dokumen Skema
-              </h5>
-              <button
-                type="button"
-                class="close"
-                data-dismiss="modal"
-                aria-label="Close"
-              >
-                <span aria-hidden="true">&times;</span>
-              </button>
+          <div class="row">
+            <div class="col-sm-12 col-md-5">
+              <span class="text-muted small">
+                <div class="dataTables_info" role="status" aria-live="polite">
+                  Menampilkan
+                  <b th:text="${(currentPage * 10) + 1}">1</b> sampai
+                  <b th:text="${(currentPage * 10) + listJadwal.size()}">10</b>
+                  dari <b th:text="${totalItems}">50</b> data
+                </div>
+              </span>
             </div>
-            <div class="modal-body">
-              <iframe
-                id="pdf-viewer"
-                src="about:blank"
-                frameborder="0"
-                style="width: 100%; height: 75vh"
-              ></iframe>
-            </div>
-            <div class="modal-footer">
-              <button
-                type="button"
-                class="btn btn-secondary"
-                data-dismiss="modal"
+            <div class="col-sm-12 col-md-7">
+              <ul
+                class="pagination pagination-sm m-0 float-right"
+                th:if="${totalPages > 0}"
               >
-                Tutup
-              </button>
+                <li
+                  class="page-item"
+                  th:classappend="${currentPage == 0} ? 'disabled'"
+                >
+                  <a
+                    class="page-link"
+                    th:href="@{/admin/jadwal-sertifikasi(page=${currentPage - 1}, keyword=${keyword})}"
+                    >&laquo;</a
+                  >
+                </li>
+
+                <li
+                  class="page-item"
+                  th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                  th:if="${i >= currentPage - 2 && i <= currentPage + 2}"
+                  th:classappend="${i == currentPage} ? 'active'"
+                >
+                  <a
+                    class="page-link"
+                    th:href="@{/admin/jadwal-sertifikasi(page=${i}, keyword=${keyword})}"
+                    th:text="${i + 1}"
+                    >1</a
+                  >
+                </li>
+
+                <li
+                  class="page-item"
+                  th:classappend="${currentPage == totalPages - 1} ? 'disabled'"
+                >
+                  <a
+                    class="page-link"
+                    th:href="@{/admin/jadwal-sertifikasi(page=${currentPage + 1}, keyword=${keyword})}"
+                    >&raquo;</a
+                  >
+                </li>
+              </ul>
             </div>
           </div>
         </div>
       </div>
+
       <!-- /.modal -->
     </div>
   </body>

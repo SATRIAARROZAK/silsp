@@ -4412,37 +4412,37 @@ $(document).ready(function () {
 // TABLE ROW EXPANDABLE
 // =======================================================
 // expand and collapse table rows
-document.addEventListener("DOMContentLoaded", function () {
-  // Ambil semua tombol yang berfungsi sebagai pemicu expand/collapse
-  const expandButtons = document.querySelectorAll(".btn-expand");
+// document.addEventListener("DOMContentLoaded", function () {
+//   // Ambil semua tombol yang berfungsi sebagai pemicu expand/collapse
+//   const expandButtons = document.querySelectorAll(".btn-expand");
 
-  expandButtons.forEach((button) => {
-    button.addEventListener("click", function (event) {
-      event.preventDefault(); // Mencegah link berpindah halaman
+//   expandButtons.forEach((button) => {
+//     button.addEventListener("click", function (event) {
+//       event.preventDefault(); // Mencegah link berpindah halaman
 
-      // Ambil target baris konten dari atribut 'data-target'
-      const targetId = this.getAttribute("data-target");
-      const contentRow = document.querySelector(targetId);
-      const icon = this.querySelector("i");
+//       // Ambil target baris konten dari atribut 'data-target'
+//       const targetId = this.getAttribute("data-target");
+//       const contentRow = document.querySelector(targetId);
+//       const icon = this.querySelector("i");
 
-      // Toggle class 'show' untuk menampilkan/menyembunyikan baris
-      if (contentRow) {
-        contentRow.classList.toggle("show");
+//       // Toggle class 'show' untuk menampilkan/menyembunyikan baris
+//       if (contentRow) {
+//         contentRow.classList.toggle("show");
 
-        // Ubah tampilan tombol dan ikonnya
-        this.classList.toggle("expanded");
-        if (this.classList.contains("expanded")) {
-          icon.classList.remove("fa-folder-plus");
-          icon.classList.add("fa-folder-minus"); // Ganti ikon menjadi 'x'
-          this.classList.remove("btn-primary");
-          this.classList.add("btn-danger"); // Ganti warna tombol
-        } else {
-          icon.classList.remove("fa-folder-minus");
-          icon.classList.add("fa-folder-plus"); // Kembalikan ikon '+'
-          this.classList.remove("btn-danger");
-          this.classList.add("btn-primary"); // Kembalikan warna tombol
-        }
-      }
-    });
-  });
-});
+//         // Ubah tampilan tombol dan ikonnya
+//         this.classList.toggle("expanded");
+//         if (this.classList.contains("expanded")) {
+//           icon.classList.remove("fa-folder-plus");
+//           icon.classList.add("fa-folder-minus"); // Ganti ikon menjadi 'x'
+//           this.classList.remove("btn-primary");
+//           this.classList.add("btn-danger"); // Ganti warna tombol
+//         } else {
+//           icon.classList.remove("fa-folder-minus");
+//           icon.classList.add("fa-folder-plus"); // Kembalikan ikon '+'
+//           this.classList.remove("btn-danger");
+//           this.classList.add("btn-primary"); // Kembalikan warna tombol
+//         }
+//       }
+//     });
+//   });
+// });

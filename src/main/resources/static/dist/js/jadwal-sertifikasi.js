@@ -1,6 +1,23 @@
 $(document).ready(function () {
   // Inisialisasi Select2
-//   $(".select2").select2({ theme: "bootstrap4" });
+  //   $(".select2").select2({ theme: "bootstrap4" });
+  // Handle Tombol Expand/Collapse
+  $(".btn-expand").on("click", function () {
+    var targetId = $(this).data("target");
+    var icon = $(this).find("i");
+    var row = $(targetId);
+
+    // Toggle visibility row detail
+    if (row.hasClass("d-none")) {
+      row.removeClass("d-none"); // Show
+      icon.removeClass("fa-plus").addClass("fa-minus"); // Ganti icon jadi minus
+      $(this).removeClass("btn-outline-info").addClass("btn-danger");
+    } else {
+      row.addClass("d-none"); // Hide
+      icon.removeClass("fa-minus").addClass("fa-plus"); // Ganti icon jadi plus
+      $(this).removeClass("btn-danger").addClass("btn-outline-info");
+    }
+  });
 
   var selectedAsesorIds = [];
   var selectedSchemaIds = [];
@@ -361,4 +378,26 @@ $(document).ready(function () {
   //       .removeClass("is-invalid");
   //     $(this).parent().find(".text-danger.small").addClass("d-none");
   //   });
+
+  // Konfirmasi Delete
+  $(".delete-button-jadwal").on("click",  function (e) {
+    e.preventDefault();
+    var link = $(this).attr("href");
+
+    Swal.fire({
+      title: "Yakin Hapus Jadwal?",
+      text: "Data didalamnya juga akan terhapus permanen!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Ya, Hapus!",
+      cancelButtonText: "Batal",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.href = link;
+      }
+    });
+  });
+
 });

@@ -21,6 +21,7 @@ import com.lsptddi.silsp.repository.TypePekerjaanRepository;
 import com.lsptddi.silsp.repository.TypePengajuanSkemaRepository;
 import com.lsptddi.silsp.repository.TypeSkemaRepository;
 import com.lsptddi.silsp.repository.TypeTukRepository;
+import com.lsptddi.silsp.repository.ScheduleRepository;
 import com.lsptddi.silsp.repository.TypeSumberAnggaranRepository;
 import com.lsptddi.silsp.repository.TypePemberiAnggaranRepository;
 import com.lsptddi.silsp.repository.RoleRepository;
@@ -73,6 +74,8 @@ public class AdminController {
     private TypeSkemaRepository schemaTypeRepository;
     @Autowired
     private TypePengajuanSkemaRepository schemaModeRepository;
+    @Autowired
+    private ScheduleRepository scheduleRepository;
 
     private final String UPLOAD_DIR = "uploads/skema/"; // Pastikan folder ini ada
 
@@ -551,7 +554,21 @@ public class AdminController {
     }
 
     @GetMapping("/jadwal-sertifikasi")
-    public String showDataJadwalAsesmen(Model model) { // 1. Tambahkan Model sebagai parameter
+
+    public String showScheduleList(Model model,
+            @RequestParam(value = "keyword", required = false) String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        PageRequest pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        Page<Schedule> pageSchedule = scheduleRepository.searchSchedule(keyword, pageable);
+
+        model.addAttribute("listJadwal", pageSchedule.getContent());
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", pageSchedule.getTotalPages());
+        model.addAttribute("totalItems", pageSchedule.getTotalElements());
+        model.addAttribute("size", size);
 
         return "pages/admin/jadwal/sertifikasi-list";
     }
@@ -574,7 +591,6 @@ public class AdminController {
         model.addAttribute("listSkema", schemaRepository.findAll());
         model.addAttribute("listSumberAnggaran", typeSumberAnggaranRepository.findAll());
         model.addAttribute("listPemberiAnggaran", typePemberiAnggaranRepository.findAll());
-       
 
         // Generate kode bayangan untuk tampilan
         String nextCode = scheduleService.generateScheduleCode();
@@ -606,16 +622,27 @@ public class AdminController {
     // return "pages/admin/jadwal/sertifikasi-add";
     // }
 
-    @GetMapping("/jadwal-sertifikasi/jadwal-view")
-    public String showViewJadwalAsesmen(Model model) { // 1. Tambahkan Model sebagai parameter
+    @GetMapping("/jadwal-sertifikasi/jadwal-view/{id}")
+    public String showViewJadwalAsesmen(@PathVariable Long id, Model model) { // 1. Tambahkan Model sebagai parameter
 
         return "pages/admin/jadwal/sertifikasi-view";
     }
 
-    @GetMapping("/jadwal-sertifikasi/jadwal-edit")
-    public String showEditJadwalAsesmen(Model model) { // 1. Tambahkan Model sebagai parameter
+    @GetMapping("/jadwal-sertifikasi/jadwal-edit/{id}")
+    public String showEditJadwalAsesmen(@PathVariable Long id, Model model) { // 1. Tambahkan Model sebagai parameter
 
         return "pages/admin/jadwal/sertifikasi-edit";
+    }
+
+    @GetMapping("/jadwal-sertifikasi/delete/{id}")
+    public String deleteSchedule(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            scheduleRepository.deleteById(id); // Cascade akan menghapus relasi di tabel asesor & skema otomatis
+            redirectAttributes.addFlashAttribute("success", "Jadwal berhasil dihapus!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Gagal menghapus jadwal.");
+        }
+        return "redirect:/admin/jadwal-sertifikasi";
     }
 
     @GetMapping("/surat-tugas-asesor")

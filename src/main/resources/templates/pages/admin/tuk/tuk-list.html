@@ -147,7 +147,64 @@
           </table>
         </div>
 
-        <div class="card-footer clearfix" th:if="${totalPages > 0}">
+        <div class="card-footer clearfix">
+          <div class="row">
+            <div class="col-sm-12 col-md-5">
+              <span class="text-muted small">
+                <div class="dataTables_info" role="status" aria-live="polite">
+                  Menampilkan
+                  <b th:text="${(currentPage * 10) + 1}">1</b> sampai
+                  <b th:text="${(currentPage * 10) + listTuk.size()}">10</b>
+                  dari <b th:text="${totalItems}">50</b> data
+                </div>
+              </span>
+            </div>
+            <div class="col-sm-12 col-md-7">
+              <ul
+                class="pagination pagination-sm m-0 float-right"
+                th:if="${totalPages > 0}"
+              >
+                <li
+                  class="page-item"
+                  th:classappend="${currentPage == 0} ? 'disabled'"
+                >
+                  <a
+                    class="page-link"
+                    th:href="@{/admin/tuk(page=${currentPage - 1}, keyword=${keyword})}"
+                    >&laquo;</a
+                  >
+                </li>
+
+                <li
+                  class="page-item"
+                  th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                  th:if="${i >= currentPage - 2 && i <= currentPage + 2}"
+                  th:classappend="${i == currentPage} ? 'active'"
+                >
+                  <a
+                    class="page-link"
+                    th:href="@{/admin/tuk(page=${i}, keyword=${keyword})}"
+                    th:text="${i + 1}"
+                    >1</a
+                  >
+                </li>
+
+                <li
+                  class="page-item"
+                  th:classappend="${currentPage == totalPages - 1} ? 'disabled'"
+                >
+                  <a
+                    class="page-link"
+                    th:href="@{/admin/tuk(page=${currentPage + 1}, keyword=${keyword})}"
+                    >&raquo;</a
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- <div class="card-footer clearfix" th:if="${totalPages > 0}">
           <ul class="pagination pagination-sm m-0 float-right">
             <li
               class="page-item"
@@ -182,7 +239,7 @@
               >
             </li>
           </ul>
-        </div>
+        </div> -->
         <!-- /.card-body -->
       </div>
     </div>

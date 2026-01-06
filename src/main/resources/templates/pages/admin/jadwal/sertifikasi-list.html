@@ -126,9 +126,14 @@
                           <span th:text="${row.code}"
                             >20250510-SKM01-UNBRAW</span
                           >
-                          <span
+                          <!-- <span
                             th:if="${row.bnspCode}"
                             th:text="'BNSP: ' + ${row.bnspCode}"
+                            >BNSP.UJK.202505050488</span
+                          > -->
+                          <span
+                            th:if="${row.bnspCode}"
+                            th:text="${row.bnspCode}"
                             >BNSP.UJK.202505050488</span
                           >
                           <span

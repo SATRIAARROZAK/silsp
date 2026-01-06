@@ -603,16 +603,19 @@ public class AdminController {
     }
 
     // PROSES SIMPAN
+
     @PostMapping("/jadwal-sertifikasi/save")
-    public String saveSchedule(@ModelAttribute ScheduleDto dto, RedirectAttributes redirectAttributes) {
+    @ResponseBody // Return JSON
+    public ResponseEntity<?> saveSchedule(@ModelAttribute ScheduleDto dto) {
         try {
             scheduleService.saveSchedule(dto);
-            redirectAttributes.addFlashAttribute("success", "Jadwal berhasil dibuat!");
+            // Kirim sinyal sukses ke JS
+            return ResponseEntity.ok().body("{\"status\":\"success\", \"type\":\"add\"}");
         } catch (Exception e) {
             e.printStackTrace();
-            redirectAttributes.addFlashAttribute("error", "Gagal membuat jadwal: " + e.getMessage());
+            return ResponseEntity.badRequest().body("{\"status\":\"error\", \"message\":\"" + e.getMessage() + "\"}");
         }
-        return "redirect:/admin/jadwal-sertifikasi";
+
     }
 
     // @GetMapping("/jadwal-sertifikasi/jadwal-tambah")
@@ -622,8 +625,14 @@ public class AdminController {
     // return "pages/admin/jadwal/sertifikasi-add";
     // }
 
-    @GetMapping("/jadwal-sertifikasi/jadwal-view/{id}")
-    public String showViewJadwalAsesmen(@PathVariable Long id, Model model) { // 1. Tambahkan Model sebagai parameter
+    @GetMapping("/jadwal-sertifikasi/view/{id}")
+    public String showViewSchedule(@PathVariable Long id, Model model) {
+        // Ambil data jadwal beserta relasinya (JPA otomatis fetch data relasi)
+        Schedule schedule = scheduleRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Jadwal tidak ditemukan"));
+
+        // Kirim entity langsung ke View (Read-Only)
+        model.addAttribute("schedule", schedule);
 
         return "pages/admin/jadwal/sertifikasi-view";
     }
@@ -687,19 +696,16 @@ public class AdminController {
     // 2. PROSES UPDATE JADWAL (POST)
     // ==========================================
     @PostMapping("/jadwal-sertifikasi/update")
-    public String updateSchedule(@ModelAttribute ScheduleDto dto, RedirectAttributes redirectAttributes) {
+    @ResponseBody // Return JSON
+    public ResponseEntity<?> updateSchedule(@ModelAttribute ScheduleDto dto) {
         try {
-            // Panggil Service update (Logika update harus ada di Service untuk menghapus
-            // relasi lama & insert baru)
             scheduleService.updateSchedule(dto);
-
-            redirectAttributes.addFlashAttribute("success", "Jadwal berhasil diperbarui!");
+            // Kirim sinyal sukses ke JS
+            return ResponseEntity.ok().body("{\"status\":\"success\", \"type\":\"edit\"}");
         } catch (Exception e) {
             e.printStackTrace();
-            redirectAttributes.addFlashAttribute("error", "Gagal memperbarui jadwal: " + e.getMessage());
-            return "redirect:/admin/jadwal-sertifikasi/edit/" + dto.getId();
+            return ResponseEntity.badRequest().body("{\"status\":\"error\", \"message\":\"" + e.getMessage() + "\"}");
         }
-        return "redirect:/admin/jadwal-sertifikasi";
     }
 
     @GetMapping("/jadwal-sertifikasi/delete/{id}")

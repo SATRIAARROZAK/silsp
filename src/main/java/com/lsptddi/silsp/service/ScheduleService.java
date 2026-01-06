@@ -108,54 +108,62 @@ public class ScheduleService {
 
     @Transactional
     public void updateSchedule(ScheduleDto dto) {
+        // 1. Ambil Data Lama (Existing)
         Schedule schedule = scheduleRepository.findById(dto.getId())
-                .orElseThrow(() -> new RuntimeException("Schedule not found"));
+                .orElseThrow(() -> new RuntimeException("Jadwal dengan ID " + dto.getId() + " tidak ditemukan."));
 
+        // 2. Update Field Dasar
         schedule.setName(dto.getName());
         schedule.setBnspCode(dto.getBnspCode());
         schedule.setStartDate(dto.getStartDate());
         schedule.setQuota(dto.getQuota());
 
-        TypeSumberAnggaran budgetSource = typeSumberAnggaranRepository.findById(dto.getBudgetSource())
-                .orElseThrow(() -> new RuntimeException("Budget source not found"));
-        schedule.setBudgetSource(budgetSource);
+        // 3. Update Relasi TUK & Anggaran (Jika Berubah)
+        if (!schedule.getTuk().getId().equals(dto.getTukId())) {
+            Tuk newTuk = tukRepository.findById(dto.getTukId())
+                    .orElseThrow(() -> new RuntimeException("TUK tidak ditemukan"));
+            schedule.setTuk(newTuk);
+        }
 
-        TypePemberiAnggaran budgetProvider = typePemberiAnggaranRepository.findById(dto.getBudgetProvider())
-                .orElseThrow(() -> new RuntimeException("Budget provider not found"));
-        schedule.setBudgetProvider(budgetProvider);
+        // Update Anggaran (Handle null safety)
+        if (dto.getBudgetSource() != null) {
+            TypeSumberAnggaran src = typeSumberAnggaranRepository.findById(dto.getBudgetSource()).orElse(null);
+            schedule.setBudgetSource(src);
+        }
+        if (dto.getBudgetProvider() != null) {
+            TypePemberiAnggaran prov = typePemberiAnggaranRepository.findById(dto.getBudgetProvider()).orElse(null);
+            schedule.setBudgetProvider(prov);
+        }
 
-        // Set TUK
-        Tuk tuk = tukRepository.findById(dto.getTukId())
-                .orElseThrow(() -> new RuntimeException("TUK not found"));
-        schedule.setTuk(tuk);
+        // 4. UPDATE RELASI LIST (PENTING: CLEAR & RE-ADD)
+        // Spring Data JPA dengan orphanRemoval=true akan otomatis menghapus data lama
+        // di DB
 
-        // Update Assessors
+        // A. Asesor
         if (dto.getAssessorIds() != null) {
-            List<ScheduleAssessor> assessorList = new ArrayList<>();
+            schedule.getAssessors().clear(); // Hapus yang lama
             for (Long userId : dto.getAssessorIds()) {
                 User user = userRepository.findById(userId).orElseThrow();
                 ScheduleAssessor sa = new ScheduleAssessor();
                 sa.setSchedule(schedule);
                 sa.setAsesor(user);
-                assessorList.add(sa);
+                schedule.getAssessors().add(sa); // Tambah yang baru
             }
-            schedule.setAssessors(assessorList);
         }
 
-        // Update Schemas
+        // B. Skema
         if (dto.getSchemaIds() != null) {
-            List<ScheduleSchema> schemaList = new ArrayList<>();
+            schedule.getSchemas().clear(); // Hapus yang lama
             for (Long schemaId : dto.getSchemaIds()) {
                 com.lsptddi.silsp.model.Skema sc = schemaRepository.findById(schemaId).orElseThrow();
                 ScheduleSchema ss = new ScheduleSchema();
                 ss.setSchedule(schedule);
                 ss.setSchema(sc);
-                schemaList.add(ss);
+                schedule.getSchemas().add(ss); // Tambah yang baru
             }
-            schedule.setSchemas(schemaList);
         }
 
-        // Save updated schedule
+        // 5. Simpan Perubahan
         scheduleRepository.save(schedule);
     }
 }

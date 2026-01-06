@@ -253,50 +253,142 @@ $(document).ready(function () {
 
     // --- INI TEMPAT VALIDASI TABEL (CUSTOM LOGIC) ---
     // submitHandler hanya jalan jika semua rules di atas LULUS (Valid)
+    //     submitHandler: function (form) {
+    //       var isTableValid = true;
+
+    //       // 1. Validasi Tabel Asesor
+    //       if (selectedAsesorIds.length === 0) {
+    //         $("#errorTabelAsesor").removeClass("d-none"); // Munculkan text error merah
+    //         isTableValid = false;
+    //       } else {
+    //         $("#errorTabelAsesor").addClass("d-none");
+    //       }
+
+    //       // 2. Validasi Tabel Skema
+    //       if (selectedSchemaIds.length === 0) {
+    //         $("#errorTabelSkema").removeClass("d-none");
+    //         isTableValid = false;
+    //       } else {
+    //         $("#errorTabelSkema").addClass("d-none");
+    //       }
+
+    //       // Jika tabel kosong, batalkan submit & beri alert
+    //       if (!isTableValid) {
+    //         Swal.fire({
+    //           icon: "error",
+    //           title: "Data Belum Lengkap",
+    //           text: "Harap pilih minimal 1 Asesor dan 1 Skema!",
+    //           confirmButtonColor: "#d33",
+    //         });
+    //         return false; // Stop submit
+    //       }
+
+    //       // JIKA SEMUA VALID:
+    //       Swal.fire({
+    //         title: "Menyimpan Jadwal...",
+    //         text: "Mohon tunggu sebentar",
+    //         allowOutsideClick: false,
+    //         didOpen: () => Swal.showLoading(),
+    //       });
+
+    //       // Lanjutkan submit form secara native
+    //       form.submit();
+    //     },
+    //   };
+
+    //   // Terapkan konfigurasi ke Form
+    //   $("#formJadwal").validate(validationConfig);
+
+    // --- SUBMIT HANDLER (AJAX) ---
     submitHandler: function (form) {
+      // Cek Tabel sebelum submit
       var isTableValid = true;
-
-      // 1. Validasi Tabel Asesor
       if (selectedAsesorIds.length === 0) {
-        $("#errorTabelAsesor").removeClass("d-none"); // Munculkan text error merah
+        $("#errorTabelAsesor").removeClass("d-none");
         isTableValid = false;
-      } else {
-        $("#errorTabelAsesor").addClass("d-none");
       }
-
-      // 2. Validasi Tabel Skema
       if (selectedSchemaIds.length === 0) {
         $("#errorTabelSkema").removeClass("d-none");
         isTableValid = false;
-      } else {
-        $("#errorTabelSkema").addClass("d-none");
       }
+      if (!isTableValid) return false;
 
-      // Jika tabel kosong, batalkan submit & beri alert
-      if (!isTableValid) {
-        Swal.fire({
-          icon: "error",
-          title: "Data Belum Lengkap",
-          text: "Harap pilih minimal 1 Asesor dan 1 Skema!",
-          confirmButtonColor: "#d33",
-        });
-        return false; // Stop submit
-      }
+      // Jika Valid, Mulai Proses
+      var formData = new FormData(form);
+      var actionUrl = $(form).attr("action"); // Ambil URL dari form th:action
 
-      // JIKA SEMUA VALID:
       Swal.fire({
-        title: "Menyimpan Jadwal...",
-        text: "Mohon tunggu sebentar",
+        title: "Sedang Memproses...",
+        html: "Mohon tunggu sebentar",
         allowOutsideClick: false,
         didOpen: () => Swal.showLoading(),
       });
 
-      // Lanjutkan submit form secara native
-      form.submit();
-    },
-  };
+      $.ajax({
+        url: actionUrl,
+        type: "POST",
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (response) {
+          // Parsing JSON manual jika server kirim string
+          var res =
+            typeof response === "string" ? JSON.parse(response) : response;
 
-  // Terapkan konfigurasi ke Form
+          // A. KONDISI SUKSES EDIT (UPDATE)
+          if (res.type === "edit") {
+            Swal.fire({
+              icon: "success",
+              title: "Berhasil Diupdate!",
+              text: "Data jadwal berhasil diperbarui.",
+              confirmButtonText: "Ok",
+              confirmButtonColor: "#3085d6",
+              allowOutsideClick: false,
+            }).then((result) => {
+              if (result.isConfirmed) {
+                // Redirect ke List
+                window.location.href = "/admin/jadwal-sertifikasi";
+              }
+            });
+          }
+
+          // B. KONDISI SUKSES TAMBAH (SAVE)
+          else {
+            Swal.fire({
+              icon: "success",
+              title: "Berhasil Disimpan!",
+              text: "Jadwal berhasil dibuat. Apakah Anda ingin membuat jadwal lagi?",
+              showCancelButton: true,
+              confirmButtonColor: "#28a745", // Hijau (Ya)
+              cancelButtonColor: "#d33", // Merah (Tidak)
+              confirmButtonText: "Ya, Buat Lagi",
+              cancelButtonText: "Tidak, Kembali ke List",
+              allowOutsideClick: false,
+            }).then((result) => {
+              if (result.isConfirmed) {
+                // YA -> Reload halaman agar form bersih & dapat Kode Jadwal Baru
+                window.location.reload();
+              } else {
+                // TIDAK -> Redirect ke List
+                window.location.href = "/admin/jadwal-sertifikasi";
+              }
+            });
+          }
+        },
+        error: function (xhr) {
+          var msg = "Terjadi kesalahan server";
+          try {
+            var err = JSON.parse(xhr.responseText);
+            if (err.message) msg = err.message;
+          } catch (e) {}
+          Swal.fire("Gagal!", msg, "error");
+        },
+      });
+
+      return false; // Mencegah submit form bawaan browser
+    },
+  }; // End validationConfig
+
   $("#formJadwal").validate(validationConfig);
 
   // ==================================================================

@@ -23,6 +23,27 @@ $(document).ready(function () {
   var selectedSchemaIds = [];
 
   // ==================================================================
+  // 0. INIT EDIT MODE (BACA DATA YANG SUDAH ADA) - FITUR BARU
+  // ==================================================================
+  // Loop semua input hidden asesor yang sudah dirender server
+  $("input[name='assessorIds']").each(function () {
+    selectedAsesorIds.push($(this).val());
+  });
+
+  // Loop semua input hidden skema yang sudah dirender server
+  $("input[name='schemaIds']").each(function () {
+    selectedSchemaIds.push($(this).val());
+  });
+
+  // Jika ini mode edit, sembunyikan pesan "Belum ada data" jika array terisi
+  if (selectedAsesorIds.length > 0) $("#emptyAsesor").hide();
+  if (selectedSchemaIds.length > 0) $("#emptySkema").hide();
+
+  // Update nomor urut awal
+  updateRowNumbers("#tbodyAsesor");
+  updateRowNumbers("#tbodySkema");
+
+  // ==================================================================
   // FUNGSI HELPER: UPDATE NOMOR TABEL
   // ==================================================================
   function updateRowNumbers(tbodyId) {
@@ -277,6 +298,7 @@ $(document).ready(function () {
 
   // Terapkan konfigurasi ke Form
   $("#formJadwal").validate(validationConfig);
+
   // ==================================================================
   // 3. VALIDASI FORM SEBELUM SUBMIT
   // ==================================================================
@@ -380,7 +402,7 @@ $(document).ready(function () {
   //   });
 
   // Konfirmasi Delete
-  $(".delete-button-jadwal").on("click",  function (e) {
+  $(".delete-button-jadwal").on("click", function (e) {
     e.preventDefault();
     var link = $(this).attr("href");
 
@@ -399,5 +421,4 @@ $(document).ready(function () {
       }
     });
   });
-
 });

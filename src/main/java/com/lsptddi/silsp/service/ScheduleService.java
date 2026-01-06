@@ -105,4 +105,57 @@ public class ScheduleService {
         // Save lagi dengan relasi
         scheduleRepository.save(schedule);
     }
+
+    @Transactional
+    public void updateSchedule(ScheduleDto dto) {
+        Schedule schedule = scheduleRepository.findById(dto.getId())
+                .orElseThrow(() -> new RuntimeException("Schedule not found"));
+
+        schedule.setName(dto.getName());
+        schedule.setBnspCode(dto.getBnspCode());
+        schedule.setStartDate(dto.getStartDate());
+        schedule.setQuota(dto.getQuota());
+
+        TypeSumberAnggaran budgetSource = typeSumberAnggaranRepository.findById(dto.getBudgetSource())
+                .orElseThrow(() -> new RuntimeException("Budget source not found"));
+        schedule.setBudgetSource(budgetSource);
+
+        TypePemberiAnggaran budgetProvider = typePemberiAnggaranRepository.findById(dto.getBudgetProvider())
+                .orElseThrow(() -> new RuntimeException("Budget provider not found"));
+        schedule.setBudgetProvider(budgetProvider);
+
+        // Set TUK
+        Tuk tuk = tukRepository.findById(dto.getTukId())
+                .orElseThrow(() -> new RuntimeException("TUK not found"));
+        schedule.setTuk(tuk);
+
+        // Update Assessors
+        if (dto.getAssessorIds() != null) {
+            List<ScheduleAssessor> assessorList = new ArrayList<>();
+            for (Long userId : dto.getAssessorIds()) {
+                User user = userRepository.findById(userId).orElseThrow();
+                ScheduleAssessor sa = new ScheduleAssessor();
+                sa.setSchedule(schedule);
+                sa.setAsesor(user);
+                assessorList.add(sa);
+            }
+            schedule.setAssessors(assessorList);
+        }
+
+        // Update Schemas
+        if (dto.getSchemaIds() != null) {
+            List<ScheduleSchema> schemaList = new ArrayList<>();
+            for (Long schemaId : dto.getSchemaIds()) {
+                com.lsptddi.silsp.model.Skema sc = schemaRepository.findById(schemaId).orElseThrow();
+                ScheduleSchema ss = new ScheduleSchema();
+                ss.setSchedule(schedule);
+                ss.setSchema(sc);
+                schemaList.add(ss);
+            }
+            schedule.setSchemas(schemaList);
+        }
+
+        // Save updated schedule
+        scheduleRepository.save(schedule);
+    }
 }

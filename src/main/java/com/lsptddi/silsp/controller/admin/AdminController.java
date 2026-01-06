@@ -628,10 +628,78 @@ public class AdminController {
         return "pages/admin/jadwal/sertifikasi-view";
     }
 
-    @GetMapping("/jadwal-sertifikasi/jadwal-edit/{id}")
-    public String showEditJadwalAsesmen(@PathVariable Long id, Model model) { // 1. Tambahkan Model sebagai parameter
+    @GetMapping("/jadwal-sertifikasi/edit/{id}")
+    public String showEditSchedule(@PathVariable Long id, Model model) {
+        // 1. Ambil Data Jadwal dari DB
+        Schedule schedule = scheduleRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Jadwal tidak ditemukan"));
+
+        // 2. Mapping Entity ke DTO
+        ScheduleDto dto = new ScheduleDto();
+        dto.setId(schedule.getId());
+        dto.setName(schedule.getName());
+        dto.setCode(schedule.getCode());
+        dto.setBnspCode(schedule.getBnspCode());
+        dto.setStartDate(schedule.getStartDate());
+        dto.setQuota(schedule.getQuota());
+
+        // Mapping Relasi TUK & Anggaran
+        if (schedule.getTuk() != null)
+            dto.setTukId(schedule.getTuk().getId());
+        if (schedule.getBudgetSource() != null)
+            dto.setBudgetSource(schedule.getBudgetSource().getId());
+        if (schedule.getBudgetProvider() != null)
+            dto.setBudgetProvider(schedule.getBudgetProvider().getId());
+
+        // 3. Mapping Relasi List (PENTING UNTUK EDIT)
+        // Kita ambil ID saja untuk DTO, tapi kita kirim object lengkap ke Model untuk
+        // ditampilkan di Tabel
+        dto.setAssessorIds(schedule.getAssessors().stream()
+                .map(sa -> sa.getAsesor().getId())
+                .collect(Collectors.toList()));
+
+        dto.setSchemaIds(schedule.getSchemas().stream()
+                .map(ss -> ss.getSchema().getId())
+                .collect(Collectors.toList()));
+
+        // 4. Kirim Data ke View
+        model.addAttribute("scheduleDto", dto);
+
+        // Kirim Object List Asli untuk di-render di tabel HTML (biar bisa ambil Nama/No
+        // MET)
+        model.addAttribute("existingAssessors", schedule.getAssessors());
+        model.addAttribute("existingSchemas", schedule.getSchemas());
+
+        // Data Referensi Dropdown
+        model.addAttribute("listTuk", tukRepository.findAll());
+        List<User> asesorList = userRepository.findByRolesName("Asesor");
+        model.addAttribute("listAsesor", asesorList);
+        // model.addAttribute("listAsesor",
+        // roleRepository.findByName("Asesor").get().getUsers());
+        model.addAttribute("listSkema", schemaRepository.findAll());
+        model.addAttribute("listSumberAnggaran", typeSumberAnggaranRepository.findAll());
+        model.addAttribute("listPemberiAnggaran", typePemberiAnggaranRepository.findAll());
 
         return "pages/admin/jadwal/sertifikasi-edit";
+    }
+
+    // ==========================================
+    // 2. PROSES UPDATE JADWAL (POST)
+    // ==========================================
+    @PostMapping("/jadwal-sertifikasi/update")
+    public String updateSchedule(@ModelAttribute ScheduleDto dto, RedirectAttributes redirectAttributes) {
+        try {
+            // Panggil Service update (Logika update harus ada di Service untuk menghapus
+            // relasi lama & insert baru)
+            scheduleService.updateSchedule(dto);
+
+            redirectAttributes.addFlashAttribute("success", "Jadwal berhasil diperbarui!");
+        } catch (Exception e) {
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("error", "Gagal memperbarui jadwal: " + e.getMessage());
+            return "redirect:/admin/jadwal-sertifikasi/edit/" + dto.getId();
+        }
+        return "redirect:/admin/jadwal-sertifikasi";
     }
 
     @GetMapping("/jadwal-sertifikasi/delete/{id}")

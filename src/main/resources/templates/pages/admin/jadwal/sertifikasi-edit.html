@@ -2,444 +2,357 @@
 <html
   lang="en"
   xmlns:th="http://www.thymeleaf.org"
-  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
   layout:decorate="~{layouts/app}"
 >
-  <head th:replace="~{fragments/header :: header('Edit Skema')}"></head>
-
+  <head th:replace="~{fragments/header :: header('Edit Jadwal')}"></head>
   <body>
     <div layout:fragment="content">
       <div class="container-fluid">
-        <div class="row">
-          <div class="col-12">
-            <div class="card card-secondary card-tabs">
-              <div class="card-header p-0 pt-1">
-                <ul class="nav nav-tabs" id="skema-tab" role="tablist">
-                  <li class="nav-item">
-                    <a
-                      class="nav-link active"
-                      id="skema-sertifikasi-tab"
-                      data-toggle="pill"
-                      href="#skema-sertifikasi"
-                      role="tab"
-                      aria-controls="skema-sertifikasi"
-                      aria-selected="true"
-                      >1. Skema Sertifikasi</a
+        <form
+          th:action="@{/admin/jadwal-sertifikasi/update}"
+          method="post"
+          th:object="${scheduleDto}"
+          id="formJadwal"
+          novalidate
+        >
+          <input type="hidden" th:field="*{id}" />
+          <div class="card card-warning card-outline">
+            <div class="card-header">
+              <h3 class="card-title">1. Edit Detail Jadwal</h3>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label
+                      >Nama Jadwal <span class="text-danger">*</span></label
                     >
-                  </li>
-                  <li class="nav-item">
-                    <a
-                      class="nav-link"
-                      id="unit-skema-tab"
-                      data-toggle="pill"
-                      href="#unit-skema"
-                      role="tab"
-                      aria-controls="unit-skema"
-                      aria-selected="false"
-                      >2. Unit Skema</a
+                    <input
+                      type="text"
+                      class="form-control"
+                      th:field="*{name}"
+                      id="inputNamaJadwal"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Pilih TUK <span class="text-danger">*</span></label>
+                    <select
+                      class="form-control select2"
+                      th:field="*{tukId}"
+                      id="selectTuk"
+                      required
+                      style="width: 100%"
                     >
-                  </li>
-                  <li class="nav-item">
-                    <a
-                      class="nav-link"
-                      id="persyaratan-tab"
-                      data-toggle="pill"
-                      href="#tab-persyaratan"
-                      role="tab"
-                      aria-controls="content-tab-persyaratan"
-                      aria-selected="false"
-                    >
-                      3. Persyaratan Dasar
-                    </a>
-                  </li>
-                </ul>
+                      <option value="">-- Pilih TUK --</option>
+                      <option
+                        th:each="tuk : ${listTuk}"
+                        th:value="${tuk.id}"
+                        th:text="${tuk.name}"
+                      ></option>
+                    </select>
+                  </div>
+                </div>
               </div>
 
-              <div class="card-body">
-                <form
-                  th:action="@{/admin/skema/save}"
-                  method="post"
-                  enctype="multipart/form-data"
-                >
-                  <div class="tab-content" id="skema-tabContent">
-                    <div
-                      class="tab-pane fade show active"
-                      id="skema-sertifikasi"
-                      role="tabpanel"
-                      aria-labelledby="skema-sertifikasi-tab"
-                    >
-                      <div class="row">
-                        <div class="col-md-12">
-                          <div class="form-group">
-                            <label for="namaSkema">Nama Skema</label>
-                            <input
-                              type="text"
-                              class="form-control"
-                              id="namaSkema"
-                              name="namaSkema"
-                              placeholder="Masukkan nama skema"
-                              value="Associate Data Scientist"
-                              required
-                            />
-                          </div>
-                        </div>
-                      </div>
-                      <div class="row">
-                        <div class="col-md-3">
-                          <div class="form-group">
-                            <label for="kodeSkema">Kode Skema</label>
-                            <input
-                              type="text"
-                              class="form-control"
-                              id="kodeSkema"
-                              name="kodeSkema"
-                              placeholder="Contoh: SKM-001"
-                              value="SKM-001"
-                              required
-                            />
-                          </div>
-                        </div>
-                        <div class="col-md-3">
-                          <div class="form-group">
-                            <label for="exampleInputLevel">Level</label>
-                            <input
-                              type="number"
-                              class="form-control"
-                              id="exampleInputLevel"
-                              placeholder="Level"
-                              value="3"
-                            />
-                          </div>
-                        </div>
-                        <div class="col-md-3">
-                          <div class="form-group">
-                            <label for="exampleInputLevel">No SKKNI</label>
-                            <input
-                              type="number"
-                              class="form-control"
-                              id="exampleInputLevel"
-                              placeholder="Level"
-                              value="299"
-                            />
-                          </div>
-                        </div>
-                        <div class="col-md-3">
-                          <div class="form-group">
-                            <label for="exampleInputLevel">Tahun SKKNI</label>
-                            <input
-                              type="number"
-                              class="form-control"
-                              id="exampleInputLevel"
-                              placeholder="Level"
-                              value="2020"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                      <div class="row">
-                        <div class="col-md-6">
-                          <div class="form-group">
-                            <label>Jenis Skema</label>
-                            <input
-                              type="text"
-                              class="form-control"
-                              id="exampleInputLevel"
-                              placeholder="Okupasi"
-                              value="Okupasi"
-                            />
-                          </div>
-                        </div>
-                        <div class="col-md-6">
-                          <div class="form-group">
-                            <label>Mode Skema</label>
-                            <input
-                              type="text"
-                              class="form-control"
-                              id="exampleInputLevel"
-                              placeholder="Mandiri"
-                              value="Mandiri"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                      <div class="row">
-                        <div class="col-md-6">
-                          <div class="form-group">
-                            <label>Tanggal Penetapan</label>
-                            <div
-                              class="input-group date"
-                              id="reservationdate"
-                              data-target-input="nearest"
-                            >
-                              <input
-                                type="text"
-                                class="form-control datetimepicker-input"
-                                data-target="#reservationdate"
-                                value="15 Juli 2025"
-                              />
-                              <div
-                                class="input-group-append"
-                                data-target="#reservationdate"
-                                data-toggle="datetimepicker"
-                              >
-                                <div class="input-group-text">
-                                  <i class="fa fa-calendar"></i>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-md-6">
-                          <div class="form-group">
-                            <label for="fileSkema"
-                              >Upload File Dokumen (PDF)</label
-                            >
-                            <div class="input-group">
-                              <div class="custom-file">
-                                <input
-                                  type="file"
-                                  class="custom-file-input"
-                                  id="fileSkema"
-                                  name="fileSkema"
-                                  accept=".pdf"
-                                />
-                                <label class="custom-file-label" for="fileSkema"
-                                  >Pilih file</label
-                                >
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div
-                      class="tab-pane fade"
-                      id="unit-skema"
-                      role="tabpanel"
-                      aria-labelledby="tab-unit"
-                    >
-                      <div id="unit-skema-container">
-                        <div class="unit-skema-row card card-body mb-3">
-                          <div class="row">
-                            <div class="col-md-6">
-                              <div class="form-group">
-                                <label>Kode Unit</label>
-                                <input
-                                  type="text"
-                                  class="form-control"
-                                  name="kodeUnit[]"
-                                  placeholder="Contoh: J.620100.001.01"
-                                />
-                              </div>
-                            </div>
-                            <div class="col-md-6">
-                              <div class="form-group">
-                                <label>Judul Unit</label>
-                                <input
-                                  type="text"
-                                  class="form-control"
-                                  name="judulUnit[]"
-                                  placeholder="Contoh: Mengimplementasikan User Interface"
-                                />
-                              </div>
-                            </div>
-                          </div>
-                          <!-- <div class="row">
-                            <div class="col-12">
-                              <div class="form-group">
-                                <label>Standar Kompetensi</label>
-                                <select
-                                  class="form-control"
-                                  name="standarKompetensi[]"
-                                >
-                                  <option value="SKKNI">SKKNI</option>
-                                  <option value="Standar Internasional">
-                                    Standar Internasional
-                                  </option>
-                                  <option value="Standar Khusus">
-                                    Standar Khusus
-                                  </option>
-                                </select>
-                              </div>
-                            </div>
-                          </div> -->
-                          <div class="row">
-                            <div class="col-12 text-right">
-                              <button
-                                type="button"
-                                class="btn btn-outline-danger btn-sm remove-unit-button"
-                              >
-                                <i class="fas fa-trash"></i>
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="row mb-3">
-                        <div class="col-12 text-center">
-                          <button
-                            type="button"
-                            id="add-unit-button"
-                            class="btn btn-outline-success"
-                          >
-                            <i class="fas fa-plus"></i> Tambah Data
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- <div
-                      class="tab-pane fade"
-                      id="tab-persyaratan"
-                      role="tabpanel"
-                      aria-labelledby="tab-persyaratan"
-                    >
-                      <div id="persyaratan-container">
-                        <div class="row persyaratan-row align-items-start mb-3">
-                          <div class="col-md-11">
-                            <div class="form-group mb-md-0">
-                              <label class="sr-only">Nama Persyaratan</label>
-                              <textarea
-                                class="form-control summernote-editor"
-                                name="persyaratan[]"
-                                rows="3"
-                              ></textarea>
-                            </div>
-                          </div>
-                          <div class="col-md-1 text-right">
-                            <button
-                              type="button"
-                              class="btn btn-danger btn-sm remove-persyaratan-button"
-                            >
-                              <i class="fas fa-trash"></i>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="row mt-2">
-                        <div class="col-12">
-                          <button
-                            type="button"
-                            id="add-persyaratan-button"
-                            class="btn btn-success btn-block"
-                          >
-                            <i class="fas fa-plus"></i> Tambah Persyaratan
-                          </button>
-                        </div>
-                      </div>
-                    </div> -->
-
-                    <div
-                      class="tab-pane fade"
-                      id="tab-persyaratan"
-                      role="tabpanel"
-                      aria-labelledby="tab-persyaratan"
-                    >
-                      <div class="card card-outline card-info">
-                        <div class="card-header">
-                          <h3 class="card-title">Format Teks Persyaratan</h3>
-                          <div
-                            id="custom-summernote-toolbar"
-                            class="float-right"
-                          >
-                            <div class="btn-group">
-                              <button
-                                type="button"
-                                class="btn btn-sm btn-default"
-                                data-command="bold"
-                                title="Bold"
-                              >
-                                <i class="fas fa-bold"></i>
-                              </button>
-                              <button
-                                type="button"
-                                class="btn btn-sm btn-default"
-                                data-command="italic"
-                                title="Italic"
-                              >
-                                <i class="fas fa-italic"></i>
-                              </button>
-                              <button
-                                type="button"
-                                class="btn btn-sm btn-default"
-                                data-command="underline"
-                                title="Underline"
-                              >
-                                <i class="fas fa-underline"></i>
-                              </button>
-                            </div>
-                            <div class="btn-group ml-2">
-                              <button
-                                type="button"
-                                class="btn btn-sm btn-default"
-                                data-command="insertUnorderedList"
-                                title="Unordered List"
-                              >
-                                <i class="fas fa-list-ul"></i>
-                              </button>
-                              <button
-                                type="button"
-                                class="btn btn-sm btn-default"
-                                data-command="insertOrderedList"
-                                title="Ordered List"
-                              >
-                                <i class="fas fa-list-ol"></i>
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div id="persyaratan-container">
-                        <div
-                          class="persyaratan-row row align-items-center mb-3"
-                        >
-                          <div class="col-11">
-                            <textarea
-                              class="form-control summernote-persyaratan"
-                              name="persyaratan[]"
-                            ></textarea>
-                          </div>
-                          <div class="col-1">
-                            <button
-                              type="button"
-                              class="btn btn-outline-danger btn-sm remove-persyaratan-button"
-                            >
-                              <i class="fas fa-trash"></i>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="row mt-3">
-                        <div class="col-12">
-                          <button
-                            type="button"
-                            id="add-persyaratan-button"
-                            class="btn btn-outline-success btn-block"
-                          >
-                            <i class="fas fa-plus"></i> Tambah Persyaratan
-                          </button>
-                        </div>
-                      </div>
-                    </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Kode Jadwal (Auto)</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      th:field="*{code}"
+                      readonly
+                    />
                   </div>
-
-                  <div class="card-footer mt-3 text-left">
-                    <button type="submit" class="btn btn-outline-warning">
-                      Simpan
-                    </button>
-                    <a th:href="@{/admin/skema}" class="btn btn-outline-info"
-                      >Batal</a
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label
+                      >Kode Jadwal BNSP
+                      <span class="text-danger">*</span></label
                     >
+                    <input
+                      type="text"
+                      class="form-control"
+                      th:field="*{bnspCode}"
+                      id="inputBnspCode"
+                      required
+                    />
                   </div>
-                </form>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label
+                      >Tanggal Sertifikasi
+                      <span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="date"
+                      class="form-control"
+                      th:field="*{startDate}"
+                      id="inputDate"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label
+                      >Kuota Peserta <span class="text-danger">*</span></label
+                    >
+                    <input
+                      type="number"
+                      class="form-control"
+                      th:field="*{quota}"
+                      id="inputQuota"
+                      min="1"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label
+                      >Sumber Anggaran <span class="text-danger">*</span></label
+                    >
+                    <select
+                      class="form-control select2"
+                      th:field="*{budgetSource}"
+                      id="selectSumber"
+                      required
+                    >
+                      <option value="">-- Pilih Sumber --</option>
+                      <option
+                        th:each="src : ${listSumberAnggaran}"
+                        th:value="${src.id}"
+                        th:text="${src.name}"
+                      ></option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label
+                      >Pemberi Anggaran
+                      <span class="text-danger">*</span></label
+                    >
+                    <select
+                      class="form-control select2"
+                      th:field="*{budgetProvider}"
+                      id="selectPemberi"
+                      required
+                    >
+                      <option value="">-- Pilih Instansi --</option>
+                      <option
+                        th:each="prov : ${listPemberiAnggaran}"
+                        th:value="${prov.id}"
+                        th:text="${prov.name}"
+                      ></option>
+                    </select>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+
+          <div class="card card-warning card-outline">
+            <div class="card-header">
+              <h3 class="card-title">2. Edit Penugasan</h3>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label>Tambah Asesor</label>
+                <div class="input-group">
+                  <select
+                    class="form-control select2"
+                    id="selectAsesor"
+                    style="width: 85%"
+                  >
+                    <option value="">-- Cari Nama Asesor --</option>
+                    <option
+                      th:each="asr : ${listAsesor}"
+                      th:value="${asr.id}"
+                      th:data-nomet="${asr.noMet}"
+                      th:text="${asr.fullName}"
+                    ></option>
+                  </select>
+                  <div class="input-group-append">
+                    <button
+                      type="button"
+                      class="btn btn-info"
+                      id="btnPilihAsesor"
+                    >
+                      <i class="fas fa-plus"></i> Tambah
+                    </button>
+                  </div>
+                </div>
+                <div class="text-danger small d-none" id="errorTabelAsesor">
+                  Harus memilih minimal 1 Asesor.
+                </div>
+              </div>
+
+              <table class="table table-bordered table-striped table-sm mb-4">
+                <thead class="bg-light">
+                  <tr class="text-center">
+                    <th style="width: 50px">No</th>
+                    <th>Nama Asesor</th>
+                    <th>No. MET</th>
+                    <th style="width: 50px">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodyAsesor">
+                  <tr
+                    th:each="sa, stat : ${existingAssessors}"
+                    th:id="'row-asesor-' + ${sa.asesor.id}"
+                  >
+                    <td class="text-center" th:text="${stat.count}"></td>
+                    <td th:text="${sa.asesor.fullName}"></td>
+                    <td th:text="${sa.asesor.noMet}"></td>
+                    <td class="text-center">
+                      <button
+                        type="button"
+                        class="btn btn-danger btn-xs"
+                        th:onclick="'hapusAsesor(\'' + ${sa.asesor.id} + '\')'"
+                      >
+                        <i class="fas fa-trash"></i>
+                      </button>
+                      <input
+                        type="hidden"
+                        name="assessorIds"
+                        th:value="${sa.asesor.id}"
+                      />
+                    </td>
+                  </tr>
+
+                  <tr
+                    id="emptyAsesor"
+                    th:if="${#lists.isEmpty(existingAssessors)}"
+                  >
+                    <td colspan="4" class="text-center text-muted">
+                      Belum ada asesor dipilih
+                    </td>
+                  </tr>
+                  <tr
+                    id="emptyAsesor"
+                    style="display: none"
+                    th:unless="${#lists.isEmpty(existingAssessors)}"
+                  >
+                    <td colspan="4" class="text-center text-muted">
+                      Belum ada asesor dipilih
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <hr />
+
+              <div class="form-group">
+                <label>Tambah Skema</label>
+                <div class="input-group">
+                  <select
+                    class="form-control select2"
+                    id="selectSkema"
+                    style="width: 85%"
+                  >
+                    <option value="">-- Cari Judul Skema --</option>
+                    <option
+                      th:each="skm : ${listSkema}"
+                      th:value="${skm.id}"
+                      th:text="${skm.name}"
+                    ></option>
+                  </select>
+                  <div class="input-group-append">
+                    <button
+                      type="button"
+                      class="btn btn-info"
+                      id="btnPilihSkema"
+                    >
+                      <i class="fas fa-plus"></i> Tambah
+                    </button>
+                  </div>
+                </div>
+                <div class="text-danger small d-none" id="errorTabelSkema">
+                  Harus memilih minimal 1 Skema.
+                </div>
+              </div>
+
+              <table class="table table-bordered table-striped table-sm">
+                <thead class="bg-light">
+                  <tr class="text-center">
+                    <th style="width: 50px">No</th>
+                    <th>Judul Skema</th>
+                    <th style="width: 50px">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodySkema">
+                  <tr
+                    th:each="ss, stat : ${existingSchemas}"
+                    th:id="'row-skema-' + ${ss.schema.id}"
+                  >
+                    <td class="text-center" th:text="${stat.count}"></td>
+                    <td th:text="${ss.schema.name}"></td>
+                    <td class="text-center">
+                      <button
+                        type="button"
+                        class="btn btn-danger btn-xs"
+                        th:onclick="'hapusSkema(\'' + ${ss.schema.id} + '\')'"
+                      >
+                        <i class="fas fa-trash"></i>
+                      </button>
+                      <input
+                        type="hidden"
+                        name="schemaIds"
+                        th:value="${ss.schema.id}"
+                      />
+                    </td>
+                  </tr>
+
+                  <tr
+                    id="emptySkema"
+                    th:if="${#lists.isEmpty(existingSchemas)}"
+                  >
+                    <td colspan="3" class="text-center text-muted">
+                      Belum ada skema dipilih
+                    </td>
+                  </tr>
+                  <tr
+                    id="emptySkema"
+                    style="display: none"
+                    th:unless="${#lists.isEmpty(existingSchemas)}"
+                  >
+                    <td colspan="3" class="text-center text-muted">
+                      Belum ada skema dipilih
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="card-footer">
+              <button
+                type="submit"
+                class="btn btn-primary"
+                id="btnSimpanJadwal"
+              >
+                <i class="fas fa-save"></i> Simpan Perubahan
+              </button>
+              <a
+                th:href="@{/admin/jadwal-sertifikasi}"
+                class="btn btn-outline-secondary"
+                >Kembali</a
+              >
+            </div>
+          </div>
+        </form>
       </div>
     </div>
   </body>

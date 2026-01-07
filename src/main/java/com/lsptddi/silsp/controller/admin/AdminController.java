@@ -28,6 +28,8 @@ import com.lsptddi.silsp.repository.TypePemberiAnggaranRepository;
 import com.lsptddi.silsp.repository.RoleRepository;
 import com.lsptddi.silsp.repository.SkemaRepository;
 import com.lsptddi.silsp.repository.TukRepository;
+import com.lsptddi.silsp.service.SuratTugasService;
+import com.lsptddi.silsp.repository.SuratTugasRepository;
 import com.lsptddi.silsp.repository.UserRepository;
 import com.lsptddi.silsp.service.TukService;
 import com.lsptddi.silsp.service.ScheduleService;
@@ -52,13 +54,13 @@ import java.security.Principal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import com.lsptddi.silsp.service.PdfService;
-import com.lsptddi.silsp.dto.SuratTugasDto;
+// import com.lsptddi.silsp.dto.SuratTugasDto;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import java.time.format.DateTimeFormatter;
+// import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Map;
-import java.util.HashMap;
+// import java.util.HashMap;
 
 @Controller
 @RequestMapping("/admin")
@@ -95,6 +97,11 @@ public class AdminController {
     private TukRepository tukRepository;
     @Autowired
     private TypeTukRepository tukTypeRepository;
+
+    @Autowired
+    private SuratTugasService suratTugasService;
+    @Autowired
+    private SuratTugasRepository suratTugasRepository;
 
     @Autowired
     private TypeSumberAnggaranRepository typeSumberAnggaranRepository;
@@ -740,6 +747,43 @@ public class AdminController {
         return "pages/admin/surat/surat-tugas-list";
     }
 
+    @GetMapping("/api/internal/asesor/{id}/schedules")
+    @ResponseBody
+    public ResponseEntity<?> getSchedulesByAsesor(@PathVariable Long id) {
+        // Cari User
+        User asesor = userRepository.findById(id).orElse(null);
+        if (asesor == null)
+            return ResponseEntity.notFound().build();
+
+        // Cari Jadwal dimana User ini menjadi Asesor
+        // Karena relasi Schedule -> ScheduleAssessor -> User
+        // Kita filter manual atau query repository (disini contoh filter manual stream)
+        List<Schedule> assignedSchedules = scheduleRepository.findAll().stream()
+                .filter(s -> s.getAssessors().stream()
+                        .anyMatch(sa -> sa.getAsesor().getId().equals(id)))
+                .collect(Collectors.toList());
+
+        // Buat Custom Response JSON sederhana untuk JS
+        List<Map<String, Object>> response = assignedSchedules.stream().map(s -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", s.getId());
+            map.put("name", s.getCode() + " - " + s.getName());
+            map.put("tuk", s.getTuk().getName());
+
+            // Ambil nama skema (asumsi 1 jadwal 1 skema utama, atau list)
+            String skemaName = s.getSchemas().isEmpty() ? "-" : s.getSchemas().get(0).getSchema().getName();
+            map.put("skema", skemaName);
+
+            // Format Tanggal
+            DateTimeFormatter indoFormat = DateTimeFormatter.ofPattern("dd MMMM yyyy", new Locale("id", "ID"));
+            map.put("tanggal", s.getStartDate().format(indoFormat));
+
+            return map;
+        }).collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);
+    }
+
     // @GetMapping("/surat-tugas-asesor/add")
     // public String showAddSuratTugas(Model model) { // 1. Tambahkan Model sebagai
     // parameter
@@ -749,13 +793,17 @@ public class AdminController {
 
     @GetMapping("/surat-tugas-asesor/buat")
     public String showFormSuratTugas(Model model) {
-        model.addAttribute("suratDto", new SuratTugasDto());
+        SuratTugasDto dto = new SuratTugasDto();
 
-        // Ambil list Asesor
+        // A. Auto Numbering
+        dto.setNomorSurat(suratTugasService.generateNomorSurat());
+
+        // B. Auto Date (Hari Ini)
+        dto.setTanggalSurat(LocalDate.now());
+
+        model.addAttribute("suratDto", dto);
         List<User> asesorList = userRepository.findByRolesName("Asesor");
         model.addAttribute("listAsesor", asesorList);
-        // model.addAttribute("listAsesor",
-        // roleRepository.findByName("Asesor").get().getUsers());
 
         // Ambil list Jadwal (Yang berisi TUK & Skema)
         model.addAttribute("listJadwal", scheduleRepository.findAll(Sort.by("id").descending()));
@@ -764,43 +812,92 @@ public class AdminController {
     }
 
     // 2. GENERATE PDF (POST)
+    // @PostMapping("/surat-tugas-asesor/generate")
+    // public ResponseEntity<byte[]> generateSuratTugas(@ModelAttribute SuratTugasDto dto) {
+
+    //     // A. Ambil Data dari DB berdasarkan Input ID
+    //     User asesor = userRepository.findById(dto.getAsesorId())
+    //             .orElseThrow(() -> new RuntimeException("Asesor tidak ditemukan"));
+
+    //     Schedule jadwal = scheduleRepository.findById(dto.getJadwalId())
+    //             .orElseThrow(() -> new RuntimeException("Jadwal tidak ditemukan"));
+
+    //     // B. Siapkan Data untuk Template HTML
+    //     Map<String, Object> data = new HashMap<>();
+
+    //     // Format Tanggal Indonesia
+    //     DateTimeFormatter indoFormat = DateTimeFormatter.ofPattern("dd MMMM yyyy", new Locale("id", "ID"));
+
+    //     data.put("nomorSurat", dto.getNomorSurat());
+    //     data.put("tanggalSurat", dto.getTanggalSurat().format(indoFormat));
+
+    //     data.put("namaAsesor", asesor.getFullName());
+    //     data.put("genderSapaan", "L".equalsIgnoreCase(asesor.getGender()) ? "Bapak" : "Ibu");
+    //     data.put("noMet", asesor.getNoMet() != null ? asesor.getNoMet() : "-");
+
+    //     // Ambil Nama Skema dari jadwal (Ambil skema pertama saja sbg contoh, atau logic
+    //     // lain)
+    //     String namaSkema = jadwal.getSchemas().isEmpty() ? "-" : jadwal.getSchemas().get(0).getSchema().getName();
+    //     data.put("namaSkema", namaSkema);
+
+    //     data.put("tanggalAsesmen", jadwal.getStartDate().format(indoFormat));
+    //     data.put("namaTuk", jadwal.getTuk().getName());
+
+    //     // C. Generate PDF
+    //     byte[] pdfBytes = pdfService.generatePdf("pages/admin/surat/surat-tugas-template", data);
+
+    //     // D. Return File Download
+    //     String filename = "Surat_Tugas_" + asesor.getFullName().replace(" ", "_") + ".pdf";
+
+    //     return ResponseEntity.ok()
+    //             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+    //             .contentType(MediaType.APPLICATION_PDF)
+    //             .body(pdfBytes);
+    // }
+
     @PostMapping("/surat-tugas-asesor/generate")
     public ResponseEntity<byte[]> generateSuratTugas(@ModelAttribute SuratTugasDto dto) {
+        
+        User asesor = userRepository.findById(dto.getAsesorId()).orElseThrow();
+        Schedule jadwal = scheduleRepository.findById(dto.getJadwalId()).orElseThrow();
 
-        // A. Ambil Data dari DB berdasarkan Input ID
-        User asesor = userRepository.findById(dto.getAsesorId())
-                .orElseThrow(() -> new RuntimeException("Asesor tidak ditemukan"));
+        // A. SIMPAN KE DATABASE (Agar jadi arsip)
+        SuratTugas surat = new SuratTugas();
+        surat.setNomorSurat(dto.getNomorSurat());
+        surat.setTanggalSurat(dto.getTanggalSurat());
+        surat.setBulanRomawi(suratTugasService.getRomanMonth(dto.getTanggalSurat().getMonthValue()));
+        surat.setTahun(dto.getTanggalSurat().getYear());
+        surat.setAsesor(asesor);
+        surat.setJadwal(jadwal);
+        suratTugasRepository.save(surat);
 
-        Schedule jadwal = scheduleRepository.findById(dto.getJadwalId())
-                .orElseThrow(() -> new RuntimeException("Jadwal tidak ditemukan"));
-
-        // B. Siapkan Data untuk Template HTML
+        // B. DATA UNTUK PDF
         Map<String, Object> data = new HashMap<>();
-
-        // Format Tanggal Indonesia
         DateTimeFormatter indoFormat = DateTimeFormatter.ofPattern("dd MMMM yyyy", new Locale("id", "ID"));
-
+        
         data.put("nomorSurat", dto.getNomorSurat());
         data.put("tanggalSurat", dto.getTanggalSurat().format(indoFormat));
-
+        
         data.put("namaAsesor", asesor.getFullName());
-        data.put("genderSapaan", "Laki-laki".equalsIgnoreCase(asesor.getGender()) ? "Bapak" : "Ibu");
+        
+        // PERBAIKAN LOGIKA GENDER (Case Insensitive & Trim)
+        String genderDb = asesor.getGender() != null ? asesor.getGender().trim() : "";
+        String sapaan = "Ibu"; // Default
+        if (genderDb.equalsIgnoreCase("L") || genderDb.equalsIgnoreCase("Pria") || genderDb.equalsIgnoreCase("L")) {
+            sapaan = "Bapak";
+        }
+        data.put("genderSapaan", sapaan);
+        
         data.put("noMet", asesor.getNoMet() != null ? asesor.getNoMet() : "-");
-
-        // Ambil Nama Skema dari jadwal (Ambil skema pertama saja sbg contoh, atau logic
-        // lain)
+        
         String namaSkema = jadwal.getSchemas().isEmpty() ? "-" : jadwal.getSchemas().get(0).getSchema().getName();
         data.put("namaSkema", namaSkema);
-
         data.put("tanggalAsesmen", jadwal.getStartDate().format(indoFormat));
         data.put("namaTuk", jadwal.getTuk().getName());
 
-        // C. Generate PDF
         byte[] pdfBytes = pdfService.generatePdf("pages/admin/surat/surat-tugas-template", data);
-
-        // D. Return File Download
-        String filename = "Surat_Tugas_" + asesor.getFullName().replace(" ", "_") + ".pdf";
-
+        String filename = "ST_" + asesor.getFullName().replace(" ", "_") + ".pdf";
+        
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
                 .contentType(MediaType.APPLICATION_PDF)

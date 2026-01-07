@@ -15,10 +15,10 @@ import java.util.Optional;
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     Optional<Schedule> findTopByOrderByIdDesc();
 
-     @Query("SELECT s FROM Schedule s WHERE " +
+    @Query("SELECT s FROM Schedule s WHERE " +
             "(:keyword IS NULL OR :keyword = '' OR " +
             "LOWER(s.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(s.code) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     Page<Schedule> searchSchedule(@Param("keyword") String keyword, Pageable pageable);
-   
+
 }

@@ -1,115 +1,182 @@
 <!DOCTYPE html>
-<html
-  lang="en"
-  xmlns:th="http://www.thymeleaf.org"
-  layout:decorate="~{layouts/app}"
->
-  <head
-    th:replace="~{fragments/header :: header('Generate Surat Tugas')}"
-  ></head>
-  <body>
-    <div layout:fragment="content">
-      <div class="container-fluid">
-        <form
-          th:action="@{/admin/surat-tugas-asesor/generate}"
-          method="post"
-          th:object="${suratDto}"
-          target="_blank"
-        >
-          <div class="card card-blue-dark">
-            <div class="card-header">
-              <h3 class="card-title">Form Generate Surat Tugas</h3>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layouts/app}">
+<head th:replace="~{fragments/header :: header('Generate Surat Tugas')}"></head>
+<body>
+<div layout:fragment="content">
+  <div class="container-fluid">
+    
+    <form th:action="@{/admin/surat-tugas-asesor/generate}" method="post" th:object="${suratDto}" target="_blank">
+      
+      <div class="card card-blue-dark">
+        <div class="card-header"><h3 class="card-title">Form Generate Surat Tugas</h3></div>
+        <div class="card-body">
+          
+          <div class="row">
+            <div class="col-md-6">
+               <div class="form-group">
+                 <label>Nomor Surat (Otomatis)</label>
+                 <input type="text" class="form-control" th:field="*{nomorSurat}" readonly style="background-color: #e9ecef;">
+               </div>
             </div>
-            <div class="card-body">
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label>Nomor Surat</label>
-                    <input
-                      type="text"
-                      class="form-control"
-                      th:field="*{nomorSurat}"
-                      placeholder="Contoh: 001/ST/LSPTDDI/I/2025"
-                      required
-                    />
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label>Tanggal Surat Dibuat</label>
-                    <input
-                      type="date"
-                      class="form-control"
-                      th:field="*{tanggalSurat}"
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label>Pilih Jadwal Kegiatan</label>
-                    <select
-                      class="form-control select2"
-                      th:field="*{jadwalId}"
-                      required
-                    >
-                      <option value="">-- Pilih Jadwal --</option>
-                      <option
-                        th:each="j : ${listJadwal}"
-                        th:value="${j.id}"
-                        th:text="${j.code + ' - ' + j.name + ' (' + j.tuk.name + ')'}"
-                      ></option>
-                    </select>
-                    <small class="text-muted"
-                      >Jadwal menentukan TUK, Skema, dan Tanggal
-                      Pelaksanaan.</small
-                    >
-                  </div>
-                </div>
-
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label>Pilih Asesor yang Ditugaskan</label>
-                    <select
-                      class="form-control select2"
-                      th:field="*{asesorId}"
-                      required
-                    >
-                      <option value="">-- Pilih Asesor --</option>
-                      <option
-                        th:each="a : ${listAsesor}"
-                        th:value="${a.id}"
-                        th:text="${a.fullName + ' (' + (a.noMet != null ? a.noMet : 'No MET -') + ')'}"
-                      ></option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="card-footer">
-              <button type="submit" class="btn btn-warning">
-                <i class="fas fa-file-pdf"></i> Generate & Download PDF
-              </button>
-              <a
-                th:href="@{/admin/surat-tugas-asesor}"
-                class="btn btn-secondary"
-                >Kembali</a
-              >
+            <div class="col-md-6">
+               <div class="form-group">
+                 <label>Tanggal Surat (Hari Ini)</label>
+                 <input type="date" class="form-control" th:field="*{tanggalSurat}" readonly style="background-color: #e9ecef;">
+               </div>
             </div>
           </div>
-        </form>
-      </div>
-    </div>
 
-    <th:block layout:fragment="script">
-      <script>
-        $(document).ready(function () {
-          $(".select2").select2({ theme: "bootstrap4" });
+          <hr>
+          <h5 class="text-primary mb-3"><i class="fas fa-user-tie"></i> Penugasan Asesor</h5>
+
+          <div class="row">
+             <div class="col-md-6">
+                <div class="form-group">
+                   <label>Pilih Asesor <span class="text-danger">*</span></label>
+                   <select class="form-control select2" th:field="*{asesorId}" id="selectAsesor" required>
+                      <option value="">-- Pilih Asesor --</option>
+                      <option th:each="a : ${listAsesor}" 
+                              th:value="${a.id}" 
+                              th:data-nomet="${a.noMet != null ? a.noMet : '-'}"
+                              th:text="${a.fullName}"></option>
+                   </select>
+                </div>
+             </div>
+             
+             <div class="col-md-6">
+                <div class="form-group">
+                   <label>No. Registrasi (MET)</label>
+                   <input type="text" class="form-control" id="displayNoMet" placeholder="Otomatis terisi..." readonly>
+                </div>
+             </div>
+          </div>
+
+          <div id="wrapperPenugasan" style="opacity: 0.5; pointer-events: none;">
+              
+              <div class="form-group">
+                 <label>Pilih Jadwal Asesmen <span class="text-danger">*</span></label>
+                 <select class="form-control select2" th:field="*{jadwalId}" id="selectJadwal" required>
+                    <option value="">-- Pilih Asesor Terlebih Dahulu --</option>
+                 </select>
+                 <small class="text-muted">Hanya menampilkan jadwal dimana asesor tersebut ditugaskan.</small>
+              </div>
+
+              <div class="row">
+                  <div class="col-md-6">
+                      <div class="form-group">
+                          <label>Skema Sertifikasi</label>
+                          <input type="text" class="form-control" id="displaySkema" readonly>
+                      </div>
+                  </div>
+                  <div class="col-md-6">
+                      <div class="form-group">
+                          <label>Tempat Uji Kompetensi (TUK)</label>
+                          <input type="text" class="form-control" id="displayTuk" readonly>
+                      </div>
+                  </div>
+                  <div class="col-md-12">
+                      <div class="form-group">
+                          <label>Tanggal Pelaksanaan</label>
+                          <input type="text" class="form-control" id="displayTanggal" readonly>
+                      </div>
+                  </div>
+              </div>
+
+          </div> </div>
+        <div class="card-footer">
+           <button type="submit" class="btn btn-warning" id="btnGenerate" disabled>
+               <i class="fas fa-file-pdf"></i> Simpan & Generate PDF
+           </button>
+           <a th:href="@{/admin/surat-tugas-asesor}" class="btn btn-secondary">Kembali</a>
+        </div>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<th:block layout:fragment="script">
+<script>
+    $(document).ready(function() {
+        $('.select2').select2({theme: 'bootstrap4'});
+
+        // Variable global untuk menyimpan data jadwal yang di-fetch
+        var schedulesData = [];
+
+        // 1. LOGIKA SAAT ASESOR DIPILIH
+        $('#selectAsesor').on('change', function() {
+            var asesorId = $(this).val();
+            var noMet = $(this).find(':selected').data('nomet');
+
+            // Reset Form Bawah
+            $('#selectJadwal').empty().append('<option value="">-- Memuat Jadwal... --</option>');
+            $('#displayNoMet').val('');
+            $('#displaySkema').val('');
+            $('#displayTuk').val('');
+            $('#displayTanggal').val('');
+            $('#btnGenerate').prop('disabled', true);
+
+            if(asesorId) {
+                // Isi No MET
+                $('#displayNoMet').val(noMet);
+
+                // Aktifkan Wrapper (Visual effect)
+                $('#wrapperPenugasan').css({'opacity': '1', 'pointer-events': 'auto'});
+
+                // Fetch Data Jadwal via API
+                $.ajax({
+                    url: '/admin/api/internal/asesor/' + asesorId + '/schedules',
+                    type: 'GET',
+                    success: function(response) {
+                        schedulesData = response; // Simpan ke global
+                        
+                        var options = '<option value="">-- Pilih Jadwal Penugasan --</option>';
+                        if(response.length > 0) {
+                            response.forEach(function(item) {
+                                options += `<option value="${item.id}">${item.name}</option>`;
+                            });
+                        } else {
+                            options = '<option value="">Asesor ini belum memiliki jadwal tugas</option>';
+                        }
+                        $('#selectJadwal').html(options);
+                    },
+                    error: function() {
+                        Swal.fire('Error', 'Gagal mengambil data jadwal', 'error');
+                    }
+                });
+            } else {
+                // Jika deselect, matikan wrapper
+                $('#wrapperPenugasan').css({'opacity': '0.5', 'pointer-events': 'none'});
+            }
         });
-      </script>
-    </th:block>
-  </body>
+
+        // 2. LOGIKA SAAT JADWAL DIPILIH
+        $('#selectJadwal').on('change', function() {
+            var jadwalId = $(this).val();
+            
+            if(jadwalId) {
+                // Cari detail jadwal dari variable global schedulesData
+                // (karena id di JSON adalah number, dan val adalah string, pakai == biar aman)
+                var selectedData = schedulesData.find(x => x.id == jadwalId);
+
+                if(selectedData) {
+                    $('#displaySkema').val(selectedData.skema);
+                    $('#displayTuk').val(selectedData.tuk);
+                    $('#displayTanggal').val(selectedData.tanggal);
+                    
+                    // Aktifkan Tombol Submit
+                    $('#btnGenerate').prop('disabled', false);
+                }
+            } else {
+                $('#displaySkema').val('');
+                $('#displayTuk').val('');
+                $('#displayTanggal').val('');
+                $('#btnGenerate').prop('disabled', true);
+            }
+        });
+
+    });
+</script>
+</th:block>
+</body>
 </html>

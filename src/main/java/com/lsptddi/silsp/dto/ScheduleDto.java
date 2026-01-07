@@ -24,4 +24,6 @@ public class ScheduleDto {
     // List ID untuk relasi Many-to-Many
     private List<Long> assessorIds;
     private List<Long> schemaIds;
+
+    
 }

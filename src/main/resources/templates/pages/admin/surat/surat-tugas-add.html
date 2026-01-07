@@ -1,185 +1,310 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layouts/app}">
-<head th:replace="~{fragments/header :: header('Generate Surat Tugas')}"></head>
-<body>
-<div layout:fragment="content">
-  <div class="container-fluid">
-    
-    <form th:action="@{/admin/surat-tugas-asesor/generate}" method="post" th:object="${suratDto}" target="_blank">
-      
-      <div class="card card-blue-dark">
-        <div class="card-header"><h3 class="card-title">Form Generate Surat Tugas</h3></div>
-        <div class="card-body">
-          
-          <div class="row">
-            <div class="col-md-6">
-               <div class="form-group">
-                 <label>Nomor Surat (Otomatis)</label>
-                 <input type="text" class="form-control" th:field="*{nomorSurat}" readonly style="background-color: #e9ecef;">
-               </div>
+<html
+  lang="en"
+  xmlns:th="http://www.thymeleaf.org"
+  layout:decorate="~{layouts/app}"
+>
+  <head
+    th:replace="~{fragments/header :: header('Generate Surat Tugas')}"
+  ></head>
+  <body>
+    <div layout:fragment="content">
+      <div class="container-fluid">
+        <form
+          th:action="@{/admin/surat-tugas-asesor/generate}"
+          method="post"
+          th:object="${suratDto}"
+          target="_blank"
+          id="formGenerate"
+        >
+          <div class="card card-blue-dark">
+            <div class="card-header">
+              <h3 class="card-title">Form Generate Surat Tugas</h3>
             </div>
-            <div class="col-md-6">
-               <div class="form-group">
-                 <label>Tanggal Surat</label>
-                 <input type="date" class="form-control" th:field="*{tanggalSurat}" readonly style="background-color: #e9ecef;">
-               </div>
-            </div>
-          </div>
-
-          <hr>
-          <h5 class="text-primary mb-3"><i class="fas fa-user-tie"></i> Penugasan Asesor</h5>
-
-          <div class="row">
-             <div class="col-md-6">
-                <div class="form-group">
-                   <label>Pilih Asesor <span class="text-danger">*</span></label>
-                   
-                   <select class="form-control select2" name="asesorId" id="selectAsesor" required>
-                      <option value="" selected>-- Pilih Asesor --</option>
-                      <option th:each="a : ${listAsesor}" 
-                              th:value="${a.id}" 
-                              th:data-nomet="${a.noMet != null ? a.noMet : '-'}"
-                              th:text="${a.fullName}"></option>
-                   </select>
+            <div class="card-body">
+              <div class="row bg-light p-3 mb-4 rounded">
+                <div class="col-md-6">
+                  <div class="form-group mb-0">
+                    <label>Nomor Surat</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      th:field="*{nomorSurat}"
+                      readonly
+                      style="background-color: white"
+                    />
+                  </div>
                 </div>
-             </div>
-             
-             <div class="col-md-6">
-                <div class="form-group">
-                   <label>No. Registrasi (MET)</label>
-                   <input type="text" class="form-control" id="displayNoMet" placeholder="Otomatis terisi..." readonly>
+                <div class="col-md-6">
+                  <div class="form-group mb-0">
+                    <label>Tanggal Surat</label>
+                    <input
+                      type="date"
+                      class="form-control"
+                      th:field="*{tanggalSurat}"
+                      readonly
+                      style="background-color: white"
+                    />
+                  </div>
                 </div>
-             </div>
-          </div>
-
-          <div id="wrapperPenugasan" style="opacity: 0.5; pointer-events: none; transition: all 0.3s;">
-              
-              <div class="form-group">
-                 <label>Pilih Jadwal Asesmen <span class="text-danger">*</span></label>
-                 <select class="form-control select2" name="jadwalId" id="selectJadwal" required>
-                    <option value="">-- Pilih Asesor Terlebih Dahulu --</option>
-                 </select>
-                 <small class="text-muted">Hanya menampilkan jadwal dimana asesor tersebut bertugas.</small>
               </div>
 
-              <div class="row">
+              <div class="form-group">
+                <label
+                  >1. Pilih Jadwal Kegiatan
+                  <span class="text-danger">*</span></label
+                >
+                <select
+                  class="form-control select2"
+                  th:field="*{jadwalId}"
+                  id="selectJadwal"
+                  required
+                  style="width: 100%"
+                >
+                  <option value="" selected>
+                    -- Cari Kode / Nama Jadwal --
+                  </option>
+                  <option
+                    th:each="j : ${listJadwal}"
+                    th:value="${j.id}"
+                    th:text="${j.code + ' - ' + j.name}"
+                  ></option>
+                </select>
+                <small class="text-muted"
+                  >Memilih jadwal akan otomatis memuat data TUK, Skema, dan
+                  Asesor yang bertugas.</small
+                >
+              </div>
+
+              <hr />
+
+              <div
+                id="wrapperDetail"
+                style="
+                  opacity: 0.6;
+                  pointer-events: none;
+                  transition: opacity 0.3s;
+                "
+              >
+                <h5 class="text-primary mb-3">
+                  2. Pilih Asesor & Detail Penugasan
+                </h5>
+
+                <div class="row">
                   <div class="col-md-6">
-                      <div class="form-group">
-                          <label>Skema Sertifikasi</label>
-                          <input type="text" class="form-control" id="displaySkema" readonly>
-                      </div>
+                    <div class="form-group">
+                      <label
+                        >Pilih Asesor <span class="text-danger">*</span></label
+                      >
+                      <select
+                        class="form-control select2"
+                        th:field="*{asesorId}"
+                        id="selectAsesor"
+                        required
+                      >
+                        <option value="">
+                          -- Pilih Jadwal Terlebih Dahulu --
+                        </option>
+                      </select>
+                      <small class="text-info d-none" id="infoAsesorEmpty"
+                        ><i class="fas fa-info-circle"></i> Semua asesor pada
+                        jadwal ini sudah dibuatkan surat tugas.</small
+                      >
+                    </div>
                   </div>
                   <div class="col-md-6">
-                      <div class="form-group">
-                          <label>Tempat Uji Kompetensi (TUK)</label>
-                          <input type="text" class="form-control" id="displayTuk" readonly>
-                      </div>
+                    <div class="form-group">
+                      <label>No. Registrasi (MET)</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="displayNoMet"
+                        readonly
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row mt-2">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label>Skema Sertifikasi</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="displaySkema"
+                        readonly
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label>Tempat Uji Kompetensi (TUK)</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="displayTuk"
+                        readonly
+                      />
+                    </div>
                   </div>
                   <div class="col-md-12">
-                      <div class="form-group">
-                          <label>Tanggal Pelaksanaan</label>
-                          <input type="text" class="form-control" id="displayTanggal" readonly>
-                      </div>
+                    <div class="form-group">
+                      <label>Tanggal Pelaksanaan</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="displayTanggal"
+                        readonly
+                      />
+                    </div>
                   </div>
+                </div>
               </div>
-
-          </div> </div>
-        <div class="card-footer">
-           <button type="submit" class="btn btn-warning" id="btnGenerate" disabled>
-               <i class="fas fa-file-pdf"></i> Generate & Download PDF
-           </button>
-           <a th:href="@{/admin/surat-tugas-asesor}" class="btn btn-secondary">Kembali</a>
-        </div>
+            </div>
+            <div class="card-footer">
+              <button
+                type="submit"
+                class="btn btn-warning btn-block"
+                id="btnGenerate"
+                disabled
+              >
+                <i class="fas fa-print mr-2"></i> Generate & Simpan Surat Tugas
+              </button>
+            </div>
+          </div>
+        </form>
       </div>
+    </div>
 
-    </form>
-  </div>
-</div>
+    <th:block layout:fragment="script">
+      <script>
+        $(document).ready(function () {
+          // Init Select2
+          // $('.select2').select2({theme: 'bootstrap4'});
 
-<th:block layout:fragment="script">
-<script>
-    $(document).ready(function() {
-        // Init Select2
-        $('.select2').select2({theme: 'bootstrap4'});
-
-        var schedulesData = []; // Cache data
-
-        // 1. EVENT ASESOR (DIPERBAIKI)
-        $('#selectAsesor').on('change', function() {
-            var asesorId = $(this).val();
-            var noMet = $(this).find(':selected').data('nomet'); // Ambil data-nomet
-
-            // Reset Form Bawah
-            $('#selectJadwal').empty().append('<option value="">-- Memuat Jadwal... --</option>');
-            $('#displayNoMet').val('');
-            $('#displaySkema').val('');
-            $('#displayTuk').val('');
-            $('#displayTanggal').val('');
-            $('#btnGenerate').prop('disabled', true);
-
-            if(asesorId) {
-                // Isi No MET
-                $('#displayNoMet').val(noMet);
-
-                // Panggil API
-                // Pastikan URL prefix (/admin) sesuai dengan Controller Anda
-                $.ajax({
-                    url: '/admin/api/internal/asesor/' + asesorId + '/schedules',
-                    type: 'GET',
-                    dataType: 'json',
-                    success: function(response) {
-                        schedulesData = response;
-                        
-                        var options = '<option value="" selected>-- Pilih Jadwal Penugasan --</option>';
-                        
-                        if(response && response.length > 0) {
-                            response.forEach(function(item) {
-                                options += `<option value="${item.id}">${item.name}</option>`;
-                            });
-                            // Buka Kunci Wrapper
-                            $('#wrapperPenugasan').css({'opacity': '1', 'pointer-events': 'auto'});
-                        } else {
-                            options = '<option value="">Asesor ini belum memiliki jadwal</option>';
-                            // Tetap buka wrapper agar user tahu statusnya
-                            $('#wrapperPenugasan').css({'opacity': '1', 'pointer-events': 'auto'});
-                            Swal.fire('Info', 'Asesor ini belum dijadwalkan.', 'info');
-                        }
-                        
-                        $('#selectJadwal').html(options);
-                    },
-                    error: function(xhr) {
-                        console.error(xhr);
-                        Swal.fire('Error', 'Gagal memuat data jadwal. Cek Console.', 'error');
-                        $('#selectJadwal').html('<option value="">Gagal memuat data</option>');
-                    }
-                });
-            } else {
-                // Tutup Wrapper jika pilih default
-                $('#wrapperPenugasan').css({'opacity': '0.5', 'pointer-events': 'none'});
-            }
-        });
-
-        // 2. EVENT JADWAL
-        $('#selectJadwal').on('change', function() {
+          // =========================================================
+          // LOGIKA UTAMA: GANTI JADWAL
+          // =========================================================
+          $("#selectJadwal").on("change", function () {
             var jadwalId = $(this).val();
-            
-            if(jadwalId) {
-                var selectedData = schedulesData.find(x => x.id == jadwalId);
-                if(selectedData) {
-                    $('#displaySkema').val(selectedData.skema);
-                    $('#displayTuk').val(selectedData.tuk);
-                    $('#displayTanggal').val(selectedData.tanggal);
-                    $('#btnGenerate').prop('disabled', false);
-                }
+
+            // 1. Reset Form Bawah
+            $("#selectAsesor")
+              .empty()
+              .append('<option value="">-- Memuat Data... --</option>');
+            $("#displayNoMet").val("");
+            $("#displaySkema").val("");
+            $("#displayTuk").val("");
+            $("#displayTanggal").val("");
+            $("#btnGenerate").prop("disabled", true);
+            $("#infoAsesorEmpty").addClass("d-none");
+
+            if (jadwalId) {
+              // Tampilkan Loading
+              Swal.fire({
+                title: "Memuat Data...",
+                text: "Mengambil detail jadwal dan filter asesor...",
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading(),
+              });
+
+              // 2. Fetch Data via AJAX
+              $.ajax({
+                url: "/admin/api/internal/schedule/" + jadwalId + "/details",
+                type: "GET",
+                dataType: "json",
+                success: function (response) {
+                  Swal.close();
+
+                  // A. Isi Field Readonly
+                  $("#displaySkema").val(response.skemaName);
+                  $("#displayTuk").val(response.tukName);
+                  $("#displayTanggal").val(response.tanggalPelaksanaan);
+
+                  // B. Isi Dropdown Asesor (Hanya yang belum punya surat)
+                  var asesorOpts =
+                    '<option value="" selected>-- Pilih Asesor --</option>';
+                  var assessors = response.assessors;
+
+                  if (assessors && assessors.length > 0) {
+                    assessors.forEach(function (a) {
+                      // Simpan NoMet di attribut data-nomet
+                      asesorOpts += `<option value="${a.id}" data-nomet="${a.noMet}">${a.fullName}</option>`;
+                    });
+                    // Buka Kunci Wrapper
+                    $("#wrapperDetail").css({
+                      opacity: "1",
+                      "pointer-events": "auto",
+                    });
+                  } else {
+                    // Kasus: Semua asesor di jadwal ini SUDAH punya surat tugas
+                    asesorOpts =
+                      '<option value="">Tidak ada asesor tersedia</option>';
+                    $("#infoAsesorEmpty").removeClass("d-none"); // Tampilkan pesan info
+                    // Tetap buka wrapper agar user bisa lihat detail jadwal, tapi select asesor kosong
+                    $("#wrapperDetail").css({
+                      opacity: "1",
+                      "pointer-events": "auto",
+                    });
+                  }
+
+                  $("#selectAsesor").html(asesorOpts);
+                },
+                error: function () {
+                  Swal.fire("Error", "Gagal memuat data jadwal.", "error");
+                  $("#selectAsesor").html(
+                    '<option value="">Gagal Memuat</option>'
+                  );
+                },
+              });
             } else {
-                $('#displaySkema').val('');
-                $('#displayTuk').val('');
-                $('#displayTanggal').val('');
-                $('#btnGenerate').prop('disabled', true);
+              // Jika user pilih default "-- Pilih Jadwal --"
+              $("#wrapperDetail").css({
+                opacity: "0.6",
+                "pointer-events": "none",
+              });
+              $("#selectAsesor").html(
+                '<option value="">-- Pilih Jadwal Terlebih Dahulu --</option>'
+              );
             }
+          });
+
+          // =========================================================
+          // LOGIKA KEDUA: PILIH ASESOR
+          // =========================================================
+          $("#selectAsesor").on("change", function () {
+            var asesorId = $(this).val();
+            var noMet = $(this).find(":selected").data("nomet");
+
+            if (asesorId) {
+              $("#displayNoMet").val(noMet);
+              $("#btnGenerate")
+                .prop("disabled", false)
+                .removeClass("btn-secondary")
+                .addClass("btn-warning");
+            } else {
+              $("#displayNoMet").val("");
+              $("#btnGenerate").prop("disabled", true);
+            }
+          });
+
+          // Refresh halaman setelah generate (agar nomor surat update & asesor hilang dari list)
+          $("#formGenerate").on("submit", function () {
+            setTimeout(function () {
+              Swal.fire({
+                title: "Berhasil!",
+                text: "Surat tugas telah digenerate. Halaman akan dimuat ulang untuk memperbarui data.",
+                icon: "success",
+                timer: 3000,
+                showConfirmButton: false,
+              }).then(() => {
+                window.location.reload();
+              });
+            }, 1000); // Delay sedikit biar PDF terdownload dulu
+          });
         });
-    });
-</script>
-</th:block>
-</body>
+      </script>
+    </th:block>
+  </body>
 </html>

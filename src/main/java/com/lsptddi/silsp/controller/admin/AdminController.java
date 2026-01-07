@@ -43,6 +43,7 @@ import org.springframework.data.domain.Sort;
 import com.lsptddi.silsp.dto.UserRoleDto;
 import com.lsptddi.silsp.dto.ScheduleDto;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -757,31 +758,81 @@ public class AdminController {
         return "pages/admin/surat/surat-tugas-list";
     }
 
-    @GetMapping("/api/internal/asesor/{id}/schedules")
-    @ResponseBody
-    public ResponseEntity<?> getSchedulesByAsesor(@PathVariable Long id) {
-        // Panggil method repository yang baru kita tambahkan di atas
-        List<Schedule> assignedSchedules = scheduleRepository.findSchedulesByAsesorId(id);
+    // @GetMapping("/api/internal/asesor/{id}/schedules")
+    // @ResponseBody
+    // public ResponseEntity<?> getSchedulesByAsesor(@PathVariable Long id) {
+    // // Panggil method repository yang baru kita tambahkan di atas
+    // List<Schedule> assignedSchedules =
+    // scheduleRepository.findSchedulesByAsesorId(Collections.singletonList(id));
 
-        if (assignedSchedules.isEmpty()) {
-            return ResponseEntity.ok(Collections.emptyList());
+    // if (assignedSchedules.isEmpty()) {
+    // return ResponseEntity.ok(Collections.emptyList());
+    // }
+
+    // // Mapping ke JSON sederhana
+    // List<Map<String, Object>> response = assignedSchedules.stream().map(s -> {
+    // Map<String, Object> map = new HashMap<>();
+    // map.put("id", s.getId());
+    // map.put("name", s.getCode() + " - " + s.getName());
+    // map.put("tuk", s.getTuk().getName());
+
+    // String skemaName = s.getSchemas().isEmpty() ? "-" :
+    // s.getSchemas().get(0).getSchema().getName();
+    // map.put("skema", skemaName);
+
+    // DateTimeFormatter indoFormat = DateTimeFormatter.ofPattern("dd MMMM yyyy",
+    // new Locale("id", "ID"));
+    // map.put("tanggal", s.getStartDate().format(indoFormat));
+
+    // return map;
+    // }).collect(Collectors.toList());
+
+    // return ResponseEntity.ok(response);
+    // }
+
+    @GetMapping("/api/internal/schedule/{id}/details")
+    @ResponseBody
+    public ResponseEntity<?> getScheduleDetails(@PathVariable Long id) {
+        // A. Cari Jadwal
+        Schedule schedule = scheduleRepository.findById(id).orElse(null);
+        if (schedule == null)
+            return ResponseEntity.notFound().build();
+
+        // B. Filter Asesor (Hanya yang BELUM punya surat tugas di jadwal ini)
+        List<Map<String, Object>> availableAssessors = new ArrayList<>();
+
+        if (schedule.getAssessors() != null) {
+            for (ScheduleAssessor sa : schedule.getAssessors()) {
+                User asesor = sa.getAsesor();
+
+                // Cek Database: Sudah ada surat belum?
+                boolean alreadyHasLetter = suratTugasRepository.existsByJadwalAndAsesor(schedule, asesor);
+
+                if (!alreadyHasLetter) {
+                    Map<String, Object> mapAsesor = new HashMap<>();
+                    mapAsesor.put("id", asesor.getId());
+                    mapAsesor.put("fullName", asesor.getFullName());
+                    mapAsesor.put("noMet", asesor.getNoMet() != null ? asesor.getNoMet() : "-");
+                    availableAssessors.add(mapAsesor);
+                }
+            }
         }
 
-        // Mapping ke JSON sederhana
-        List<Map<String, Object>> response = assignedSchedules.stream().map(s -> {
-            Map<String, Object> map = new HashMap<>();
-            map.put("id", s.getId());
-            map.put("name", s.getCode() + " - " + s.getName());
-            map.put("tuk", s.getTuk().getName());
+        // C. Siapkan Response Gabungan
+        Map<String, Object> response = new HashMap<>();
 
-            String skemaName = s.getSchemas().isEmpty() ? "-" : s.getSchemas().get(0).getSchema().getName();
-            map.put("skema", skemaName);
+        // Data Jadwal untuk Auto-Fill Form
+        response.put("tukName", schedule.getTuk().getName());
 
-            DateTimeFormatter indoFormat = DateTimeFormatter.ofPattern("dd MMMM yyyy", new Locale("id", "ID"));
-            map.put("tanggal", s.getStartDate().format(indoFormat));
+        DateTimeFormatter indoFormat = DateTimeFormatter.ofPattern("dd MMMM yyyy", new Locale("id", "ID"));
+        response.put("tanggalPelaksanaan", schedule.getStartDate().format(indoFormat));
 
-            return map;
-        }).collect(Collectors.toList());
+        // Ambil Skema (Asumsi 1 jadwal 1 skema utama, atau ambil list)
+        String skemaName = schedule.getSchemas().isEmpty() ? "-" : schedule.getSchemas().get(0).getSchema().getName();
+        response.put("skemaName", skemaName);
+
+        // Data Asesor yang Tersedia
+        response.put("assessors", availableAssessors);
 
         return ResponseEntity.ok(response);
     }
@@ -793,24 +844,99 @@ public class AdminController {
     // return "pages/admin/surat/surat-tugas-add";
     // }
 
+    // @GetMapping("/surat-tugas-asesor/buat")
+    // public String showFormSuratTugas(Model model) {
+    // SuratTugasDto dto = new SuratTugasDto();
+
+    // // A. Auto Numbering
+    // dto.setNomorSurat(suratTugasService.generateNomorSurat());
+
+    // // B. Auto Date (Hari Ini)
+    // dto.setTanggalSurat(LocalDate.now());
+
+    // model.addAttribute("suratDto", dto);
+    // List<User> asesorList = userRepository.findByRolesName("Asesor");
+    // model.addAttribute("listAsesor", asesorList);
+
+    // // Ambil list Jadwal (Yang berisi TUK & Skema)
+    // model.addAttribute("listJadwal",
+    // scheduleRepository.findAll(Sort.by("id").descending()));
+
+    // return "pages/admin/surat/surat-tugas-add";
+    // }
+
     @GetMapping("/surat-tugas-asesor/buat")
     public String showFormSuratTugas(Model model) {
         SuratTugasDto dto = new SuratTugasDto();
-
-        // A. Auto Numbering
         dto.setNomorSurat(suratTugasService.generateNomorSurat());
-
-        // B. Auto Date (Hari Ini)
         dto.setTanggalSurat(LocalDate.now());
 
         model.addAttribute("suratDto", dto);
-        List<User> asesorList = userRepository.findByRolesName("Asesor");
-        model.addAttribute("listAsesor", asesorList);
 
-        // Ambil list Jadwal (Yang berisi TUK & Skema)
+        // Kita hanya butuh List Jadwal di awal (Master Data)
+        // Urutkan jadwal terbaru di atas
         model.addAttribute("listJadwal", scheduleRepository.findAll(Sort.by("id").descending()));
 
         return "pages/admin/surat/surat-tugas-add";
+    }
+
+    // -------------------------------------------------------------
+    // 3. GENERATE & SAVE (POST) - Validasi Tambahan
+    // -------------------------------------------------------------
+    @PostMapping("/surat-tugas-asesor/generate")
+    public ResponseEntity<?> generateSuratTugas(@ModelAttribute SuratTugasDto dto) {
+        try {
+            User asesor = userRepository.findById(dto.getAsesorId()).orElseThrow();
+            Schedule jadwal = scheduleRepository.findById(dto.getJadwalId()).orElseThrow();
+
+            // VALIDASI BACKEND: Cegah double insert jika user menekan tombol 2x
+            if (suratTugasRepository.existsByJadwalAndAsesor(jadwal, asesor)) {
+                return ResponseEntity.badRequest()
+                        .body("Surat tugas untuk asesor ini pada jadwal tersebut sudah dibuat!".getBytes());
+            }
+
+            // A. Simpan Database
+            SuratTugas surat = new SuratTugas();
+            surat.setNomorSurat(dto.getNomorSurat());
+            surat.setTanggalSurat(dto.getTanggalSurat());
+            surat.setBulanRomawi(suratTugasService.getRomanMonth(dto.getTanggalSurat().getMonthValue()));
+            surat.setTahun(dto.getTanggalSurat().getYear());
+            surat.setAsesor(asesor);
+            surat.setJadwal(jadwal);
+            suratTugasRepository.save(surat);
+
+            // B. Generate PDF (Logic Sama)
+            Map<String, Object> data = new HashMap<>();
+            DateTimeFormatter indoFormat = DateTimeFormatter.ofPattern("dd MMMM yyyy", new Locale("id", "ID"));
+
+            data.put("nomorSurat", dto.getNomorSurat());
+            data.put("tanggalSurat", dto.getTanggalSurat().format(indoFormat));
+            data.put("namaAsesor", asesor.getFullName());
+
+            String genderDb = asesor.getGender() != null ? asesor.getGender().trim() : "";
+            String sapaan = (genderDb.equalsIgnoreCase("Laki-laki") || genderDb.equalsIgnoreCase("L")) ? "Bapak"
+                    : "Ibu";
+            data.put("genderSapaan", sapaan);
+
+            data.put("noMet", asesor.getNoMet() != null ? asesor.getNoMet() : "-");
+
+            String namaSkema = jadwal.getSchemas().isEmpty() ? "-" : jadwal.getSchemas().get(0).getSchema().getName();
+            data.put("namaSkema", namaSkema);
+            data.put("tanggalAsesmen", jadwal.getStartDate().format(indoFormat));
+            data.put("namaTuk", jadwal.getTuk().getName());
+
+            byte[] pdfBytes = pdfService.generatePdf("pages/admin/surat/surat-tugas-template", data);
+            String filename = "ST_" + asesor.getFullName().replace(" ", "_") + ".pdf";
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(pdfBytes);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     // 2. GENERATE PDF (POST)
@@ -864,54 +990,61 @@ public class AdminController {
     // .body(pdfBytes);
     // }
 
-    @PostMapping("/surat-tugas-asesor/generate")
-    public ResponseEntity<byte[]> generateSuratTugas(@ModelAttribute SuratTugasDto dto) {
+    // @PostMapping("/surat-tugas-asesor/generate")
+    // public ResponseEntity<byte[]> generateSuratTugas(@ModelAttribute
+    // SuratTugasDto dto) {
 
-        User asesor = userRepository.findById(dto.getAsesorId()).orElseThrow();
-        Schedule jadwal = scheduleRepository.findById(dto.getJadwalId()).orElseThrow();
+    // User asesor = userRepository.findById(dto.getAsesorId()).orElseThrow();
+    // Schedule jadwal =
+    // scheduleRepository.findById(dto.getJadwalId()).orElseThrow();
 
-        // A. SIMPAN KE DATABASE (Agar jadi arsip)
-        SuratTugas surat = new SuratTugas();
-        surat.setNomorSurat(dto.getNomorSurat());
-        surat.setTanggalSurat(dto.getTanggalSurat());
-        surat.setBulanRomawi(suratTugasService.getRomanMonth(dto.getTanggalSurat().getMonthValue()));
-        surat.setTahun(dto.getTanggalSurat().getYear());
-        surat.setAsesor(asesor);
-        surat.setJadwal(jadwal);
-        suratTugasRepository.save(surat);
+    // // A. SIMPAN KE DATABASE (Agar jadi arsip)
+    // SuratTugas surat = new SuratTugas();
+    // surat.setNomorSurat(dto.getNomorSurat());
+    // surat.setTanggalSurat(dto.getTanggalSurat());
+    // surat.setBulanRomawi(suratTugasService.getRomanMonth(dto.getTanggalSurat().getMonthValue()));
+    // surat.setTahun(dto.getTanggalSurat().getYear());
+    // surat.setAsesor(asesor);
+    // surat.setJadwal(jadwal);
+    // suratTugasRepository.save(surat);
 
-        // B. DATA UNTUK PDF
-        Map<String, Object> data = new HashMap<>();
-        DateTimeFormatter indoFormat = DateTimeFormatter.ofPattern("dd MMMM yyyy", new Locale("id", "ID"));
+    // // B. DATA UNTUK PDF
+    // Map<String, Object> data = new HashMap<>();
+    // DateTimeFormatter indoFormat = DateTimeFormatter.ofPattern("dd MMMM yyyy",
+    // new Locale("id", "ID"));
 
-        data.put("nomorSurat", dto.getNomorSurat());
-        data.put("tanggalSurat", dto.getTanggalSurat().format(indoFormat));
+    // data.put("nomorSurat", dto.getNomorSurat());
+    // data.put("tanggalSurat", dto.getTanggalSurat().format(indoFormat));
 
-        data.put("namaAsesor", asesor.getFullName());
+    // data.put("namaAsesor", asesor.getFullName());
 
-        // PERBAIKAN LOGIKA GENDER (Case Insensitive & Trim)
-        String genderDb = asesor.getGender() != null ? asesor.getGender().trim() : "";
-        String sapaan = "Ibu"; // Default
-        if (genderDb.equalsIgnoreCase("L") || genderDb.equalsIgnoreCase("Pria") || genderDb.equalsIgnoreCase("L")) {
-            sapaan = "Bapak";
-        }
-        data.put("genderSapaan", sapaan);
+    // // PERBAIKAN LOGIKA GENDER (Case Insensitive & Trim)
+    // String genderDb = asesor.getGender() != null ? asesor.getGender().trim() :
+    // "";
+    // String sapaan = "Ibu"; // Default
+    // if (genderDb.equalsIgnoreCase("L") || genderDb.equalsIgnoreCase("Pria") ||
+    // genderDb.equalsIgnoreCase("L")) {
+    // sapaan = "Bapak";
+    // }
+    // data.put("genderSapaan", sapaan);
 
-        data.put("noMet", asesor.getNoMet() != null ? asesor.getNoMet() : "-");
+    // data.put("noMet", asesor.getNoMet() != null ? asesor.getNoMet() : "-");
 
-        String namaSkema = jadwal.getSchemas().isEmpty() ? "-" : jadwal.getSchemas().get(0).getSchema().getName();
-        data.put("namaSkema", namaSkema);
-        data.put("tanggalAsesmen", jadwal.getStartDate().format(indoFormat));
-        data.put("namaTuk", jadwal.getTuk().getName());
+    // String namaSkema = jadwal.getSchemas().isEmpty() ? "-" :
+    // jadwal.getSchemas().get(0).getSchema().getName();
+    // data.put("namaSkema", namaSkema);
+    // data.put("tanggalAsesmen", jadwal.getStartDate().format(indoFormat));
+    // data.put("namaTuk", jadwal.getTuk().getName());
 
-        byte[] pdfBytes = pdfService.generatePdf("pages/admin/surat/surat-tugas-template", data);
-        String filename = "ST_" + asesor.getFullName().replace(" ", "_") + ".pdf";
+    // byte[] pdfBytes =
+    // pdfService.generatePdf("pages/admin/surat/surat-tugas-template", data);
+    // String filename = "ST_" + asesor.getFullName().replace(" ", "_") + ".pdf";
 
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
-                .contentType(MediaType.APPLICATION_PDF)
-                .body(pdfBytes);
-    }
+    // return ResponseEntity.ok()
+    // .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+    // .contentType(MediaType.APPLICATION_PDF)
+    // .body(pdfBytes);
+    // }
 
     @GetMapping("/surat-tugas-asesor/preview")
     public String previewSuratTugasHtml(Model model) {

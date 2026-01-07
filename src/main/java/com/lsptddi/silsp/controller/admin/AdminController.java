@@ -43,6 +43,7 @@ import org.springframework.data.domain.Sort;
 import com.lsptddi.silsp.dto.UserRoleDto;
 import com.lsptddi.silsp.dto.ScheduleDto;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -60,6 +61,8 @@ import org.springframework.http.MediaType;
 // import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
+
 // import java.util.HashMap;
 
 @Controller
@@ -585,6 +588,13 @@ public class AdminController {
         PageRequest pageable = PageRequest.of(page, size, Sort.by("id").descending());
         Page<Schedule> pageSchedule = scheduleRepository.searchSchedule(keyword, pageable);
 
+        if (keyword != null && !keyword.isEmpty()) {
+            // PERBAIKAN: Panggil method yang sudah kita perbaiki di Repo
+            pageSchedule = scheduleRepository.searchSchedule(keyword, pageable);
+        } else {
+            pageSchedule = scheduleRepository.findAll(pageable);
+        }
+
         model.addAttribute("listJadwal", pageSchedule.getContent());
         model.addAttribute("keyword", keyword);
         model.addAttribute("currentPage", page);
@@ -750,28 +760,25 @@ public class AdminController {
     @GetMapping("/api/internal/asesor/{id}/schedules")
     @ResponseBody
     public ResponseEntity<?> getSchedulesByAsesor(@PathVariable Long id) {
-        // Cari User
-        User asesor = userRepository.findById(id).orElse(null);
-        if (asesor == null)
-            return ResponseEntity.notFound().build();
+        // PERBAIKAN: Gunakan Query Repository langsung (Lebih Cepat & Aman)
+        List<Schedule> assignedSchedules = scheduleRepository.findSchedulesByAsesorId(id);
 
-        // Cari Jadwal dimana User ini menjadi Asesor
-        // Karena relasi Schedule -> ScheduleAssessor -> User
-        // Kita filter manual atau query repository (disini contoh filter manual stream)
-        List<Schedule> assignedSchedules = scheduleRepository.findAll().stream()
-                .filter(s -> s.getAssessors().stream()
-                        .anyMatch(sa -> sa.getAsesor().getId().equals(id)))
-                .collect(Collectors.toList());
+        if (assignedSchedules.isEmpty()) {
+            return ResponseEntity.ok(Collections.emptyList());
+        }
 
-        // Buat Custom Response JSON sederhana untuk JS
         List<Map<String, Object>> response = assignedSchedules.stream().map(s -> {
             Map<String, Object> map = new HashMap<>();
             map.put("id", s.getId());
+            // Tampilkan Kode + Nama agar jelas
             map.put("name", s.getCode() + " - " + s.getName());
             map.put("tuk", s.getTuk().getName());
 
-            // Ambil nama skema (asumsi 1 jadwal 1 skema utama, atau list)
-            String skemaName = s.getSchemas().isEmpty() ? "-" : s.getSchemas().get(0).getSchema().getName();
+            // Null safety untuk skema
+            String skemaName = "-";
+            if (!s.getSchemas().isEmpty()) {
+                skemaName = s.getSchemas().get(0).getSchema().getName();
+            }
             map.put("skema", skemaName);
 
             // Format Tanggal
@@ -813,51 +820,58 @@ public class AdminController {
 
     // 2. GENERATE PDF (POST)
     // @PostMapping("/surat-tugas-asesor/generate")
-    // public ResponseEntity<byte[]> generateSuratTugas(@ModelAttribute SuratTugasDto dto) {
+    // public ResponseEntity<byte[]> generateSuratTugas(@ModelAttribute
+    // SuratTugasDto dto) {
 
-    //     // A. Ambil Data dari DB berdasarkan Input ID
-    //     User asesor = userRepository.findById(dto.getAsesorId())
-    //             .orElseThrow(() -> new RuntimeException("Asesor tidak ditemukan"));
+    // // A. Ambil Data dari DB berdasarkan Input ID
+    // User asesor = userRepository.findById(dto.getAsesorId())
+    // .orElseThrow(() -> new RuntimeException("Asesor tidak ditemukan"));
 
-    //     Schedule jadwal = scheduleRepository.findById(dto.getJadwalId())
-    //             .orElseThrow(() -> new RuntimeException("Jadwal tidak ditemukan"));
+    // Schedule jadwal = scheduleRepository.findById(dto.getJadwalId())
+    // .orElseThrow(() -> new RuntimeException("Jadwal tidak ditemukan"));
 
-    //     // B. Siapkan Data untuk Template HTML
-    //     Map<String, Object> data = new HashMap<>();
+    // // B. Siapkan Data untuk Template HTML
+    // Map<String, Object> data = new HashMap<>();
 
-    //     // Format Tanggal Indonesia
-    //     DateTimeFormatter indoFormat = DateTimeFormatter.ofPattern("dd MMMM yyyy", new Locale("id", "ID"));
+    // // Format Tanggal Indonesia
+    // DateTimeFormatter indoFormat = DateTimeFormatter.ofPattern("dd MMMM yyyy",
+    // new Locale("id", "ID"));
 
-    //     data.put("nomorSurat", dto.getNomorSurat());
-    //     data.put("tanggalSurat", dto.getTanggalSurat().format(indoFormat));
+    // data.put("nomorSurat", dto.getNomorSurat());
+    // data.put("tanggalSurat", dto.getTanggalSurat().format(indoFormat));
 
-    //     data.put("namaAsesor", asesor.getFullName());
-    //     data.put("genderSapaan", "L".equalsIgnoreCase(asesor.getGender()) ? "Bapak" : "Ibu");
-    //     data.put("noMet", asesor.getNoMet() != null ? asesor.getNoMet() : "-");
+    // data.put("namaAsesor", asesor.getFullName());
+    // data.put("genderSapaan", "L".equalsIgnoreCase(asesor.getGender()) ? "Bapak" :
+    // "Ibu");
+    // data.put("noMet", asesor.getNoMet() != null ? asesor.getNoMet() : "-");
 
-    //     // Ambil Nama Skema dari jadwal (Ambil skema pertama saja sbg contoh, atau logic
-    //     // lain)
-    //     String namaSkema = jadwal.getSchemas().isEmpty() ? "-" : jadwal.getSchemas().get(0).getSchema().getName();
-    //     data.put("namaSkema", namaSkema);
+    // // Ambil Nama Skema dari jadwal (Ambil skema pertama saja sbg contoh, atau
+    // logic
+    // // lain)
+    // String namaSkema = jadwal.getSchemas().isEmpty() ? "-" :
+    // jadwal.getSchemas().get(0).getSchema().getName();
+    // data.put("namaSkema", namaSkema);
 
-    //     data.put("tanggalAsesmen", jadwal.getStartDate().format(indoFormat));
-    //     data.put("namaTuk", jadwal.getTuk().getName());
+    // data.put("tanggalAsesmen", jadwal.getStartDate().format(indoFormat));
+    // data.put("namaTuk", jadwal.getTuk().getName());
 
-    //     // C. Generate PDF
-    //     byte[] pdfBytes = pdfService.generatePdf("pages/admin/surat/surat-tugas-template", data);
+    // // C. Generate PDF
+    // byte[] pdfBytes =
+    // pdfService.generatePdf("pages/admin/surat/surat-tugas-template", data);
 
-    //     // D. Return File Download
-    //     String filename = "Surat_Tugas_" + asesor.getFullName().replace(" ", "_") + ".pdf";
+    // // D. Return File Download
+    // String filename = "Surat_Tugas_" + asesor.getFullName().replace(" ", "_") +
+    // ".pdf";
 
-    //     return ResponseEntity.ok()
-    //             .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
-    //             .contentType(MediaType.APPLICATION_PDF)
-    //             .body(pdfBytes);
+    // return ResponseEntity.ok()
+    // .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+    // .contentType(MediaType.APPLICATION_PDF)
+    // .body(pdfBytes);
     // }
 
     @PostMapping("/surat-tugas-asesor/generate")
     public ResponseEntity<byte[]> generateSuratTugas(@ModelAttribute SuratTugasDto dto) {
-        
+
         User asesor = userRepository.findById(dto.getAsesorId()).orElseThrow();
         Schedule jadwal = scheduleRepository.findById(dto.getJadwalId()).orElseThrow();
 
@@ -874,12 +888,12 @@ public class AdminController {
         // B. DATA UNTUK PDF
         Map<String, Object> data = new HashMap<>();
         DateTimeFormatter indoFormat = DateTimeFormatter.ofPattern("dd MMMM yyyy", new Locale("id", "ID"));
-        
+
         data.put("nomorSurat", dto.getNomorSurat());
         data.put("tanggalSurat", dto.getTanggalSurat().format(indoFormat));
-        
+
         data.put("namaAsesor", asesor.getFullName());
-        
+
         // PERBAIKAN LOGIKA GENDER (Case Insensitive & Trim)
         String genderDb = asesor.getGender() != null ? asesor.getGender().trim() : "";
         String sapaan = "Ibu"; // Default
@@ -887,9 +901,9 @@ public class AdminController {
             sapaan = "Bapak";
         }
         data.put("genderSapaan", sapaan);
-        
+
         data.put("noMet", asesor.getNoMet() != null ? asesor.getNoMet() : "-");
-        
+
         String namaSkema = jadwal.getSchemas().isEmpty() ? "-" : jadwal.getSchemas().get(0).getSchema().getName();
         data.put("namaSkema", namaSkema);
         data.put("tanggalAsesmen", jadwal.getStartDate().format(indoFormat));
@@ -897,7 +911,7 @@ public class AdminController {
 
         byte[] pdfBytes = pdfService.generatePdf("pages/admin/surat/surat-tugas-template", data);
         String filename = "ST_" + asesor.getFullName().replace(" ", "_") + ".pdf";
-        
+
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
                 .contentType(MediaType.APPLICATION_PDF)

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.RequestMapping;
 import com.lsptddi.silsp.dto.SkemaDto;
+import com.lsptddi.silsp.dto.SuratTugasDto;
 import com.lsptddi.silsp.dto.TukDto;
 import com.lsptddi.silsp.dto.UserDto;
 import com.lsptddi.silsp.dto.UserProfileDto;
@@ -40,6 +41,7 @@ import org.springframework.data.domain.Sort;
 import com.lsptddi.silsp.dto.UserRoleDto;
 import com.lsptddi.silsp.dto.ScheduleDto;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -47,6 +49,16 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.nio.file.*;
 import java.security.Principal;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import com.lsptddi.silsp.service.PdfService;
+import com.lsptddi.silsp.dto.SuratTugasDto;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+import java.util.Map;
+import java.util.HashMap;
 
 @Controller
 @RequestMapping("/admin")
@@ -91,6 +103,9 @@ public class AdminController {
 
     @Autowired
     private TukService tukService;
+
+    @Autowired
+    private PdfService pdfService; // Inject Service PDF
 
     @Autowired
     private ScheduleService scheduleService;
@@ -725,10 +740,92 @@ public class AdminController {
         return "pages/admin/surat/surat-tugas-list";
     }
 
-    @GetMapping("/surat-tugas-asesor/add")
-    public String showAddSuratTugas(Model model) { // 1. Tambahkan Model sebagai parameter
+    // @GetMapping("/surat-tugas-asesor/add")
+    // public String showAddSuratTugas(Model model) { // 1. Tambahkan Model sebagai
+    // parameter
+
+    // return "pages/admin/surat/surat-tugas-add";
+    // }
+
+    @GetMapping("/surat-tugas-asesor/buat")
+    public String showFormSuratTugas(Model model) {
+        model.addAttribute("suratDto", new SuratTugasDto());
+
+        // Ambil list Asesor
+        List<User> asesorList = userRepository.findByRolesName("Asesor");
+        model.addAttribute("listAsesor", asesorList);
+        // model.addAttribute("listAsesor",
+        // roleRepository.findByName("Asesor").get().getUsers());
+
+        // Ambil list Jadwal (Yang berisi TUK & Skema)
+        model.addAttribute("listJadwal", scheduleRepository.findAll(Sort.by("id").descending()));
 
         return "pages/admin/surat/surat-tugas-add";
+    }
+
+    // 2. GENERATE PDF (POST)
+    @PostMapping("/surat-tugas-asesor/generate")
+    public ResponseEntity<byte[]> generateSuratTugas(@ModelAttribute SuratTugasDto dto) {
+
+        // A. Ambil Data dari DB berdasarkan Input ID
+        User asesor = userRepository.findById(dto.getAsesorId())
+                .orElseThrow(() -> new RuntimeException("Asesor tidak ditemukan"));
+
+        Schedule jadwal = scheduleRepository.findById(dto.getJadwalId())
+                .orElseThrow(() -> new RuntimeException("Jadwal tidak ditemukan"));
+
+        // B. Siapkan Data untuk Template HTML
+        Map<String, Object> data = new HashMap<>();
+
+        // Format Tanggal Indonesia
+        DateTimeFormatter indoFormat = DateTimeFormatter.ofPattern("dd MMMM yyyy", new Locale("id", "ID"));
+
+        data.put("nomorSurat", dto.getNomorSurat());
+        data.put("tanggalSurat", dto.getTanggalSurat().format(indoFormat));
+
+        data.put("namaAsesor", asesor.getFullName());
+        data.put("genderSapaan", "Laki-laki".equalsIgnoreCase(asesor.getGender()) ? "Bapak" : "Ibu");
+        data.put("noMet", asesor.getNoMet() != null ? asesor.getNoMet() : "-");
+
+        // Ambil Nama Skema dari jadwal (Ambil skema pertama saja sbg contoh, atau logic
+        // lain)
+        String namaSkema = jadwal.getSchemas().isEmpty() ? "-" : jadwal.getSchemas().get(0).getSchema().getName();
+        data.put("namaSkema", namaSkema);
+
+        data.put("tanggalAsesmen", jadwal.getStartDate().format(indoFormat));
+        data.put("namaTuk", jadwal.getTuk().getName());
+
+        // C. Generate PDF
+        byte[] pdfBytes = pdfService.generatePdf("pages/admin/surat/surat-tugas-template", data);
+
+        // D. Return File Download
+        String filename = "Surat_Tugas_" + asesor.getFullName().replace(" ", "_") + ".pdf";
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdfBytes);
+    }
+
+    @GetMapping("/surat-tugas-asesor/preview")
+    public String previewSuratTugasHtml(Model model) {
+        // 1. Masukkan Data Dummy (Palsu) untuk keperluan preview tampilan
+        model.addAttribute("nomorSurat", "001/ST/PREVIEW/V/2026");
+
+        // Format tanggal dummy
+        DateTimeFormatter indoFormat = DateTimeFormatter.ofPattern("dd MMMM yyyy", new Locale("id", "ID"));
+        model.addAttribute("tanggalSurat", LocalDate.now().format(indoFormat));
+
+        model.addAttribute("genderSapaan", "Bapak");
+        model.addAttribute("namaAsesor", "Muhammad Satria Arrozak (Contoh)");
+        model.addAttribute("noMet", "MET.000.001234.2024");
+
+        model.addAttribute("namaSkema", "Skema Sertifikasi Network Administrator");
+        model.addAttribute("tanggalAsesmen", LocalDate.now().plusDays(3).format(indoFormat));
+        model.addAttribute("namaTuk", "TUK Mandiri PPKD Jakarta Selatan");
+
+        // 2. Return nama file template HTML yang ada di folder 'templates/pdf'
+        return "pages/admin/surat/surat-tugas-template";
     }
 
     @GetMapping("/surat-tugas-asesor/view")

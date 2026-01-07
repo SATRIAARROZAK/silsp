@@ -2,176 +2,114 @@
 <html
   lang="en"
   xmlns:th="http://www.thymeleaf.org"
-  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
   layout:decorate="~{layouts/app}"
 >
-  <head th:replace="~{fragments/header :: header('Generate Surat Tugas')}">
-  </head>
-
+  <head
+    th:replace="~{fragments/header :: header('Generate Surat Tugas')}"
+  ></head>
   <body>
-    <div layout:fragment="page-title">
-      <h1 class="m-0">Buat Surat Tugas</h1>
-    </div>
     <div layout:fragment="content">
       <div class="container-fluid">
-        <form th:action="@{/}" method="post" id="form-buat-jadwal" novalidate>
-          <div class="row">
-            <div class="col-12">
-              <div class="card card-blue-dark">
-                <div class="card-header">
-                  <h3 class="card-title">Form Generate Surat Tugas</h3>
-                </div>
-                <!-- /.card-header -->
-                <!-- form start -->
-                <div class="card-body">
-                  <div class="row">
-                    <div class="col-md-6">
-                      <div class="form-group">
-                        <label for="nomorSurat">Nomor Surat Tugas</label>
-                        <input
-                          type="text"
-                          class="form-control"
-                          id="nomorSurat"
-                          name="nomorSurat"
-                          required
-                          value="001/ST/LSPDDI/XI/2025"
-                          disabled
-                        />
-                      </div>
-                    </div>
-                    <div class="col-md-6">
-                      <div class="form-group">
-                        <label for="tanggalPelaksanaan"
-                          >Tanggal Pelaksanaan</label
-                        >
-                        <input
-                          type="date"
-                          class="form-control"
-                          id="tanggalPelaksanaan"
-                          name="tanggalPelaksanaan"
-                          required
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="row">
-                    <div class="col-md-6">
-                      <div class="form-group">
-                        <label for="namaAsesor">Pilih Asesor</label>
-                        <select
-                          class="form-control select2"
-                          style="width: 100%"
-                          id="namaAsesor"
-                          name="namaAsesor"
-                          required
-                        >
-                          <option value="" disabled selected>
-                            Pilih seorang Asesor
-                          </option>
-                          <option value="Muhammad Arifin">
-                            Muhammad Arifin
-                          </option>
-                          <option value="Budi Santoso">Budi Santoso</option>
-                          <option value="Dewi Lestari">Dewi Lestari</option>
-                        </select>
-                      </div>
-                    </div>
-                    <div class="col-md-6">
-                      <div class="form-group">
-                        <label for="namaAsesor">Pilih No MET</label>
-                        <select
-                          class="form-control select2"
-                          style="width: 100%"
-                          id="metAsesor"
-                          name="noMetAsesor"
-                          required
-                        >
-                          <option value="" disabled selected>
-                            Pilih MET Asesor
-                          </option>
-                          <option value="MET.000.002584.2024">
-                            MET.000.002584.2024
-                          </option>
-                          <option value="MET.000.002785.2024">
-                            MET.000.002785.2024
-                          </option>
-                          <option value="MET.000.002986.2024">
-                            MET.000.002986.2024
-                          </option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="col-md-6">
-                      <div class="form-group">
-                        <label for="skemaPenugasan">Pilih Skema</label>
-                        <select
-                          class="form-control select2"
-                          style="width: 100%"
-                          id="skemaPenugasan"
-                          name="skemaPenugasan"
-                          required
-                          data-error="Silakan pilih Skema."
-                        >
-                          <option value="" disabled selected>
-                            Pilih Skema
-                          </option>
-                          <option value="Associate Data Scientist">
-                            Associate Data Scientist
-                          </option>
-                          <option value="Digital Marketing">
-                            Digital Marketing
-                          </option>
-                          <option value="Network Administrator">
-                            Network Administrator
-                          </option>
-                        </select>
-                      </div>
-                    </div>
-                    <div class="col-md-6">
-                      <div class="form-group">
-                        <label for="namaTuk">Pilih TUK</label>
-                        <select
-                          class="form-control select2"
-                          style="width: 100%"
-                          id="namaTuk"
-                          name="namaTuk"
-                          required
-                          data-error="Silakan pilih TUK."
-                        >
-                          <option value="" disabled selected>Pilih TUK</option>
-                          <option value="TUK Mandiri PPKD Jakarta">
-                            TUK Mandiri PPKD Jakarta
-                          </option>
-                          <option value="Universitas Muria Kudus">
-                            Universitas Muria Kudus
-                          </option>
-                          <option value="TUK Sewaktu PT. Cipta Jaya">
-                            TUK Sewaktu PT. Cipta Jaya
-                          </option>
-                        </select>
-                        <div class="invalid-feedback"></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <!-- /.card-body -->
-              </div>
-              <!-- /.card -->
+        <form
+          th:action="@{/admin/surat-tugas-asesor/generate}"
+          method="post"
+          th:object="${suratDto}"
+          target="_blank"
+        >
+          <div class="card card-blue-dark">
+            <div class="card-header">
+              <h3 class="card-title">Form Generate Surat Tugas</h3>
             </div>
-          </div>
-          <div class="card-footer mt-3 text-left">
-            <button type="submit" class="btn btn-outline-warning">
-              Simpan
-            </button>
-            <a th:href="@{/admin/surat-tugas-asesor}" class="btn btn-outline-info"
-              >Batal</a
-            >
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Nomor Surat</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      th:field="*{nomorSurat}"
+                      placeholder="Contoh: 001/ST/LSPTDDI/I/2025"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Tanggal Surat Dibuat</label>
+                    <input
+                      type="date"
+                      class="form-control"
+                      th:field="*{tanggalSurat}"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Pilih Jadwal Kegiatan</label>
+                    <select
+                      class="form-control select2"
+                      th:field="*{jadwalId}"
+                      required
+                    >
+                      <option value="">-- Pilih Jadwal --</option>
+                      <option
+                        th:each="j : ${listJadwal}"
+                        th:value="${j.id}"
+                        th:text="${j.code + ' - ' + j.name + ' (' + j.tuk.name + ')'}"
+                      ></option>
+                    </select>
+                    <small class="text-muted"
+                      >Jadwal menentukan TUK, Skema, dan Tanggal
+                      Pelaksanaan.</small
+                    >
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Pilih Asesor yang Ditugaskan</label>
+                    <select
+                      class="form-control select2"
+                      th:field="*{asesorId}"
+                      required
+                    >
+                      <option value="">-- Pilih Asesor --</option>
+                      <option
+                        th:each="a : ${listAsesor}"
+                        th:value="${a.id}"
+                        th:text="${a.fullName + ' (' + (a.noMet != null ? a.noMet : 'No MET -') + ')'}"
+                      ></option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <button type="submit" class="btn btn-warning">
+                <i class="fas fa-file-pdf"></i> Generate & Download PDF
+              </button>
+              <a
+                th:href="@{/admin/surat-tugas-asesor}"
+                class="btn btn-secondary"
+                >Kembali</a
+              >
+            </div>
           </div>
         </form>
       </div>
     </div>
+
+    <th:block layout:fragment="script">
+      <script>
+        $(document).ready(function () {
+          $(".select2").select2({ theme: "bootstrap4" });
+        });
+      </script>
+    </th:block>
   </body>
 </html>

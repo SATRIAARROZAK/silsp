@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <style>
+      @page {
+        size: A4;
+        margin: 2.5cm; /* Margin sesuai surat resmi */
+      }
+      body {
+        font-family: "Times New Roman", Times, serif;
+        font-size: 12pt;
+        line-height: 1.5;
+        color: #000;
+      }
+      .header {
+        text-align: center;
+        border-bottom: 3px double #000;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+        position: relative;
+      }
+      .logo {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 80px; /* Sesuaikan ukuran logo */
+      }
+      .header h2 {
+        margin: 0;
+        font-size: 16pt;
+        font-weight: bold;
+      }
+      .header p {
+        margin: 0;
+        font-size: 10pt;
+      }
+
+      .meta-table td {
+        vertical-align: top;
+        padding-bottom: 5px;
+      }
+      .content {
+        margin-top: 30px;
+        text-align: justify;
+      }
+
+      .asesor-box {
+        margin: 20px 0 20px 30px;
+      }
+      .asesor-table td {
+        padding: 5px 10px 5px 0;
+        font-weight: bold;
+      }
+
+      .footer {
+        margin-top: 50px;
+        float: right;
+        width: 40%;
+        text-align: center;
+      }
+      .ttd-name {
+        margin-top: 70px;
+        font-weight: bold;
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <img src="dist/img/logoLSP.png" class="logo" />
+      <h2>LSP Teknologi Data Digital Indonesia</h2>
+      <p>
+        Jl Perumahan Griya Pratama Mas Blok D4 No.35, Desa Cikarageman Setu
+        Bekasi, Jawa Barat 17320
+      </p>
+      <p>Phone: +62 815-1338-2480 | Email: lsp.tddi@gmail.com</p>
+    </div>
+
+    <table class="meta-table" style="width: 100%">
+      <tr>
+        <td width="80">Nomor</td>
+        <td width="10">:</td>
+        <td th:text="${nomorSurat}">00/ST/LSPTDDI/V/2025</td>
+      </tr>
+      <tr>
+        <td>Lampiran</td>
+        <td>:</td>
+        <td>-</td>
+      </tr>
+      <tr>
+        <td>Hal</td>
+        <td>:</td>
+        <td><strong>Penugasan Asesor untuk Kegiatan Asesmen</strong></td>
+      </tr>
+    </table>
+
+    <div style="margin-top: 20px">
+      <p>Bekasi, <span th:text="${tanggalSurat}">01 Januari 2025</span></p>
+      <br />
+      <p>
+        Ykh.<br />
+        <span th:text="${genderSapaan}">Bapak/Ibu</span>
+        <span th:text="${namaAsesor}">Nama Asesor</span><br />
+        Asesor Lembaga Sertifikasi Profesi Teknologi Data Digital Indonesia<br />
+        di tempat
+      </p>
+    </div>
+
+    <div class="content">
+      <p>
+        Melalui surat ini, kami menyatakan bahwa saudara yang tersebut di bawah
+        ini:
+      </p>
+
+      <div class="asesor-box">
+        <table class="asesor-table">
+          <tr>
+            <td width="130">Nama</td>
+            <td>: <span th:text="${namaAsesor}">Nama</span></td>
+          </tr>
+          <tr>
+            <td>No. Reg</td>
+            <td>: <span th:text="${noMet}">MET.00000</span></td>
+          </tr>
+          <tr>
+            <td>Bidang Keahlian</td>
+            <td>: <span th:text="${namaSkema}">Data Science</span></td>
+          </tr>
+        </table>
+      </div>
+
+      <p>
+        Kami tugaskan untuk menjadi asesor pada kegiatan Asesmen Kompetensi
+        Skema
+        <strong th:text="${namaSkema}">Nama Skema</strong> yang akan
+        dilaksanakan pada tanggal
+        <strong th:text="${tanggalAsesmen}">01 Januari 2025</strong> di
+        <strong th:text="${namaTuk}">Nama TUK</strong>.
+      </p>
+
+      <p>
+        Demikian surat tugas ini kami sampaikan. Terima kasih atas perhatian dan
+        kerjasama yang Bapak/Ibu berikan.
+      </p>
+    </div>
+
+    <div class="footer">
+      <p>Hormat kami,</p>
+      <p>LSP Teknologi Data Digital Indonesia</p>
+
+      <p class="ttd-name">Dr. Arinda Puspita Rachman, S.T., M.Sc.</p>
+      <p>Direktur Eksekutif</p>
+    </div>
+  </body>
+</html>

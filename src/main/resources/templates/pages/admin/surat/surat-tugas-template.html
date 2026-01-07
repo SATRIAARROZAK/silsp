@@ -1,172 +1,278 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
-    <meta charset="UTF-8" />
-    <title>Surat Tugas Asesor</title>
     <style>
+      /* =========================================
+           SETTING HALAMAN PDF (A4)
+           ========================================= */
+      @page {
+        size: A4;
+        margin-top: 1.5cm;
+        margin-bottom: 1.5cm;
+        margin-left: 1.5cm;
+        margin-right: 1.5cm;
+      }
+
       body {
         font-family: "Times New Roman", Times, serif;
         font-size: 12pt;
-        line-height: 1.5;
+        line-height: 1.3; /* Jarak antar baris standar */
+        color: #000;
       }
-      .container {
-        width: 90%;
-        margin: 0 auto;
+
+      /* Reset Margin Paragraph agar tidak terlalu renggang */
+      p {
+        margin: 0 0 5px 0;
+        text-align: justify; /* Rata kanan-kiri */
       }
-      .kop-surat {
-        text-align: center;
-        border-bottom: 4px solid black;
-        padding-bottom: 10px;
-      }
-      .logo-lsp {
-        font-family: Arial, sans-serif;
-        font-weight: bold;
-        font-size: 24pt;
-        color: #007bff; /* Biru seperti di PDF */
-        margin: 0;
-      }
-      .nama-lsp {
-        font-size: 14pt;
-        font-weight: bold;
-        margin: 0;
-      }
-      .alamat-lsp {
-        font-size: 10pt;
-        margin: 5px 0 0 0;
-      }
-      .kontak-lsp {
-        font-size: 10pt;
-        margin: 0;
-      }
-      .tanggal-surat {
-        text-align: right;
-        margin-top: 20px;
-      }
-      .tabel-info,
-      .tabel-asesor {
-        border-collapse: collapse;
+
+      /* =========================================
+           KOP SURAT (HEADER)
+           ========================================= */
+      .kop-table {
         width: 100%;
-        margin-top: 15px;
+        /* border-bottom: 3px double #000; Garis Ganda di bawah Kop */
+        padding-bottom: 10px;
+        margin-bottom: 20px;
       }
-      .tabel-info td,
-      .tabel-asesor td {
-        padding: 4px 0;
+      .kop-logo {
+        width: 150px; /* Ukuran Logo */
+        vertical-align: middle;
+      }
+      .kop-text {
+        text-align: right;
+        vertical-align: middle;
+      }
+      .kop-text h2 {
+        width: 93%; /* Lebar area TTD */
+        margin-left: auto; /* Dorong ke kanan */
+        text-align: right;
+        margin: 0;
+        font-size: 10pt;
+        font-weight: bold;
+        /* text-transform: uppercase; */
+        color: #1a4d8f;
+      }
+      .kop-text p {
+          /* margin: 0;
+          font-size: 10pt;
+          text-align: left;
+          
+          vertical-align: middle; */
+        width: 49%;
+        margin-left: auto; /* Dorong ke kanan */
+        text-align: left;
+        font-size: 8pt;
+        
+      }
+
+      /* =========================================
+           META DATA (Nomor, Lampiran, Hal)
+           ========================================= */
+      .meta-table {
+        width: 100%;
+        margin-bottom: 15px;
+      }
+      .meta-table td {
         vertical-align: top;
       }
-      .tabel-info td:first-child {
-        width: 80px; /* Lebar untuk "Nomor", "Hal" */
-      }
-      .tabel-asesor td:first-child {
-        width: 120px; /* Lebar untuk "Nama", "No.Reg" */
-      }
-      .tujuan-surat {
+      .label-col {
+        width: 90px;
+      } /* Lebar kolom label 'Nomor' */
+      .sep-col {
+        width: 15px;
+        text-align: center;
+      } /* Lebar kolom ':' */
+
+      /* =========================================
+           ISI SURAT
+           ========================================= */
+      .content {
         margin-top: 20px;
       }
-      .isi-surat {
-        margin-top: 20px;
+      .tujuan {
+        margin-bottom: 20px;
       }
-      .paragraf {
-        text-align: justify;
-        margin-top: 15px;
+
+      /* Tabel Detail Asesor (Indentasi ke dalam) */
+      .detail-table {
+        margin-left: 40px; /* Indentasi */
+        margin-top: 10px;
+        margin-bottom: 10px;
+        width: 90%;
       }
+      .detail-table td {
+        padding: 3px 0;
+        vertical-align: top;
+      }
+      .detail-label {
+        width: 140px;
+        font-weight: bold;
+      }
+
+      /* =========================================
+           TANDA TANGAN (FOOTER)
+           ========================================= */
       .ttd-container {
+        width: 100%;
         margin-top: 50px;
-        width: 50%;
-        margin-left: 50%; /* Posisi di sebelah kanan */
+      }
+      .ttd-table {
+        width: 100%; /* Lebar area TTD */
+        margin-left: auto; /* Dorong ke kanan */
         text-align: left;
       }
-      .logo-ttd {
-        font-family: Arial, sans-serif;
+      .ttd-name {
+        margin-top: 70px; /* Jarak untuk tanda tangan basah/cap */
         font-weight: bold;
-        font-size: 20pt;
-        color: #007bff;
-        margin: 0;
       }
-      .nama-ttd {
-        margin-top: 60px; /* Jarak untuk tanda tangan */
-        font-weight: bold;
-        text-decoration: underline;
-      }
-      .jabatan-ttd {
-        margin-top: 2px;
+
+      /* =========================================
+           PREVIEW MODE (BROWSER)
+           ========================================= */
+      @media screen {
+        body {
+          width: 210mm;
+          min-height: 297mm;
+          margin: 20px auto;
+          padding: 2.5cm;
+          border: 1px solid #ccc;
+          background: white;
+          box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        html {
+          background-color: #f0f0f0;
+        }
       }
     </style>
   </head>
   <body>
-    <div class="container">
-      <div class="kop-surat">
-        <p class="logo-lsp" th:text="${kopLogo}">LSP TDDI</p>
-        <p class="nama-lsp" th:text="${kopNama}">LSP Teknologi Data Digital Indonesia</p>
-        <p class="alamat-lsp" th:text="${kopAlamat}">Jl Perumahan Griya Pratama Mas Blok D4 No.35, Desa Cikarageman Setu Bekasi, Jawa Barat 17320</p>
-        <p class="kontak-lsp" th:text="'Phone: ' + ${kopTelepon} + ' Email: ' + ${kopEmail}">Phone: +62815-1338-2480 Email: lsp.tddi@gmail.com</p>
-      </div>
+    <table class="kop-table" cellspacing="0" cellpadding="0">
+      <tr>
+        <td width="10%" align="right">
+          <img src="dist/img/LogoLSP2.png" class="kop-logo" />
+        </td>
+        <td width="100%" class="kop-text">
+          <h2>LSP Teknologi Data Digital Indonesia</h2>
+          <p>Jl. Perumahan Griya Pratama Mas Blok D4 No.35, Desa</p>
+          <p>Cikarageman Setu Bekasi, Jawa Barat 17320</p>
+          <p>Phone: +62 815-1338-2480</p>
+          <p>Email: lsp.tddi@gmail.com</p>
+        </td>
+      </tr>
+    </table>
+    
 
-      <div class="tanggal-surat">
-        <p th:text="'Bekasi, ' + ${tanggalSurat}">Bekasi, 11 Oktober 2025</p>
-      </div>
+    <table class="meta-table" border="0" cellspacing="0" cellpadding="0">
+      <tr>
+        <td class="label-col">Nomor</td>
+        <td class="sep-col">:</td>
+        <td th:text="${nomorSurat}">001/ST/LSPTDDI/V/2026</td>
+        <td align="right" th:text="'Bekasi, ' + ${tanggalSurat}">
+          Bekasi, 01 Januari 2026
+        </td>
+      </tr>
+      <tr>
+        <td>Lampiran</td>
+        <td>:</td>
+        <td>-</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>Hal</td>
+        <td>:</td>
+        <td><strong>Penugasan Asesor Kompetensi</strong></td>
+        <td></td>
+      </tr>
+    </table>
 
-      <table class="tabel-info">
-        <tbody>
-          <tr>
-            <td>Nomor</td>
-            <td th:text="': ' + ${nomorSurat}">: 02/ST/LSPTDDI/X/2025</td>
-          </tr>
-          <tr>
-            <td>Lampiran</td>
-            <td>: -</td>
-          </tr>
-          <tr>
-            <td>Hal</td>
-            <td th:text="': ' + ${perihal}">: Penugasan Asesor untuk Kegiatan Asesmen</td>
-          </tr>
-        </tbody>
+    <div class="tujuan">
+      <p>Ykh.</p>
+      <p>
+        <span th:text="${genderSapaan}">Bapak/Ibu</span>
+        <strong th:text="${namaAsesor}">Nama Asesor</strong>
+      </p>
+      <p>Asesor Lembaga Sertifikasi Profesi Teknologi Data Digital Indonesia</p>
+      <p>di Tempat</p>
+    </div>
+
+    <div class="content">
+      <p>Dengan hormat,</p>
+      <p>
+       Melalui surat ini, kami menyatakan bahwa saudara yang tersebut di bawah ini:
+      </p>
+
+      <table class="detail-table" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+          <td class="detail-label">Nama</td>
+          <td width="15">:</td>
+          <td><strong th:text="${namaAsesor}">Muhammad Satria</strong></td>
+        </tr>
+        <tr>
+          <td class="detail-label">No. Registrasi</td>
+          <td>:</td>
+          <td th:text="${noMet}">MET.000.000000.2024</td>
+        </tr>
+        <tr>
+          <td class="detail-label">Bidang Keahlian</td>
+          <td>:</td>
+          <td th:text="${namaSkema}">Teknologi Informasi dan Komunikasi</td>
+        </tr>
       </table>
 
-      <div class="tujuan-surat">
-        <p>Ykh.</p>
-        <p th:text="${tujuanSurat}">LSP Teknologi Data Digital Indonesia</p>
-        <p>di tempat</p>
-      </div>
+      <p style="margin-top: 10px; margin-bottom: 10px">
+        Kami tugaskan untuk menjadi asesor pada kegiatan Asesmen Kompetensi
+        Skema <strong th:text="${namaSkema}">Network Administrator</strong> yang
+        akan dilaksanakan pada
+        <strong th:text="${tanggalAsesmen}">Senin, 20 Mei 2026</strong> di
+        <strong th:text="${namaTuk}">TUK Mandiri PPKD Jakarta Selatan</strong>.
+      </p>
 
-      <div class="isi-surat">
-        <p class="paragraf" th:text="${paragrafPembuka}">Melalui surat ini, kami menyatakan bahwa saudara yang tersebut di bawah ini:</p>
+      <!-- <p>Kegiatan tersebut akan dilaksanakan pada:</p> -->
 
-        <table class="tabel-asesor">
-          <tbody>
-            <tr>
-              <td>Nama</td>
-              <td th:text="': ' + ${namaAsesor}">: Muhammad Arifin</td>
-            </tr>
-            <tr>
-              <td>No.Reg</td>
-              <td th:text="': ' + ${noRegAsesor}">: MET.000.003549 2025</td>
-            </tr>
-            <tr>
-              <td>Bidang Keahlian</td>
-              <td th:text="': ' + ${skemaPenugasan}">: Associate Data Scientist</td>
-            </tr>
-          </tbody>
-        </table>
+      <!-- <table class="detail-table" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+          <td class="detail-label">Hari / Tanggal</td>
+          <td width="15">:</td>
+          <td th:text="${tanggalAsesmen}">Senin, 20 Mei 2026</td>
+        </tr>
+        <tr>
+          <td class="detail-label">Waktu</td>
+          <td>:</td>
+          <td>08.00 WIB s.d Selesai</td>
+        </tr>
+        <tr>
+          <td class="detail-label">Tempat (TUK)</td>
+          <td>:</td>
+          <td th:text="${namaTuk}">TUK Mandiri PPKD Jakarta Selatan</td>
+        </tr>
+      </table> -->
 
-        <p class="paragraf">
-          Kami tugaskan untuk menjadi asesor pada kegiatan Asesmen Kompetensi Skema
-          <span style="font-weight: bold;" th:text="${skemaPenugasan}">Associate Data Scientist</span>
-          yang akan dilaksanakan pada <span th:text="${tanggalPelaksanaan}">13 Oktober 2025</span>
-          di <span th:text="${namaTuk}">Universitas Muria Kudus</span>.
-        </p>
+      <p>
+        Demikian surat tugas ini kami sampaikan untuk dilaksanakan dengan penuh
+        tanggung jawab. Atas perhatian dan kerjasamanya, kami ucapkan terima
+        kasih.
+      </p>
+    </div>
 
-        <p class="paragraf" th:text="${paragrafPenutup}">
-          Demikian surat tugas ini kami sampaikan. Terima kasih atas perhatian dan kerjasama yang Bapak/Ibu berikan.
-        </p>
-      </div>
-
-      <div class="ttd-container">
-        <p>Hormat kami,</p>
-        <p th:text="${namaLsp}">LSP Teknologi Data Digital Indonesia</p>
-        <p classs="logo-ttd" th:text="${kopLogo}">TDDI</p>
-        <p class="nama-ttd" th:text="${namaPenandaTangan}">Dr. Arinda Puspita Rachman, S.T., M.Sc</p>
-        <p class="jabatan-ttd" th:text="${jabatanPenandaTangan}">Direktur Eksekutif</p>
-      </div>
+    <div class="ttd-container">
+      <table class="ttd-table" border="0">
+        <tr>
+          <td>Hormat kami,</td>
+        </tr>
+        <tr>
+          <td>LSP Teknologi Data Digital Indonesia</td>
+        </tr>
+        <tr>
+          <td height="100"></td>
+        </tr>
+        <tr>
+          <td class="ttd-name">Dr. Arinda Puspita Rachman, S.T., M.Sc.</td>
+        </tr>
+        <tr>
+          <td>Direktur Eksekutif</td>
+        </tr>
+      </table>
     </div>
   </body>
 </html>

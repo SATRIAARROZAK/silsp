@@ -71,21 +71,14 @@
                   ></option>
                 </select>
                 <small class="text-muted"
-                  >Memilih jadwal akan otomatis memuat data TUK, Skema, dan
-                  Asesor yang bertugas.</small
+                  >Pilih jadwal untuk memuat data TUK, Skema, dan Asesor yang
+                  bertugas.</small
                 >
               </div>
 
               <hr />
 
-              <div
-                id="wrapperDetail"
-                style="
-                  opacity: 0.6;
-                  pointer-events: none;
-                  transition: opacity 0.3s;
-                "
-              >
+              <div id="wrapperDetail">
                 <h5 class="text-primary mb-3">
                   2. Pilih Asesor & Detail Penugasan
                 </h5>
@@ -101,15 +94,14 @@
                         th:field="*{asesorId}"
                         id="selectAsesor"
                         required
+                        style="width: 100%"
                       >
-                        <option value="">
-                          -- Pilih Jadwal Terlebih Dahulu --
-                        </option>
+                        <option value="">-- Menunggu Pilihan Jadwal --</option>
                       </select>
-                      <small class="text-info d-none" id="infoAsesorEmpty"
-                        ><i class="fas fa-info-circle"></i> Semua asesor pada
-                        jadwal ini sudah dibuatkan surat tugas.</small
-                      >
+                      <small class="text-info d-none" id="infoAsesorEmpty">
+                        <i class="fas fa-info-circle"></i> Data asesor kosong
+                        atau sudah dibuatkan semua.
+                      </small>
                     </div>
                   </div>
                   <div class="col-md-6">
@@ -167,7 +159,6 @@
                 type="submit"
                 class="btn btn-warning btn-block"
                 id="btnGenerate"
-                disabled
               >
                 <i class="fas fa-print mr-2"></i> Generate & Simpan Surat Tugas
               </button>
@@ -181,15 +172,15 @@
       <script>
         $(document).ready(function () {
           // Init Select2
-          // $('.select2').select2({theme: 'bootstrap4'});
+          $(".select2").select2({ theme: "bootstrap4" });
 
           // =========================================================
-          // LOGIKA UTAMA: GANTI JADWAL
+          // LOGIKA: SAAT JADWAL DIPILIH -> ISI DATA LAIN
           // =========================================================
           $("#selectJadwal").on("change", function () {
             var jadwalId = $(this).val();
 
-            // 1. Reset Form Bawah
+            // 1. Reset Form Bawah (Kosongkan dulu biar bersih)
             $("#selectAsesor")
               .empty()
               .append('<option value="">-- Memuat Data... --</option>');
@@ -197,19 +188,19 @@
             $("#displaySkema").val("");
             $("#displayTuk").val("");
             $("#displayTanggal").val("");
-            $("#btnGenerate").prop("disabled", true);
             $("#infoAsesorEmpty").addClass("d-none");
 
             if (jadwalId) {
-              // Tampilkan Loading
+              // Loading indikator
               Swal.fire({
                 title: "Memuat Data...",
-                text: "Mengambil detail jadwal dan filter asesor...",
+                text: "Mengambil detail jadwal...",
                 allowOutsideClick: false,
                 didOpen: () => Swal.showLoading(),
               });
 
               // 2. Fetch Data via AJAX
+              // Pastikan URL ini benar sesuai Controller (/admin/api/...)
               $.ajax({
                 url: "/admin/api/internal/schedule/" + jadwalId + "/details",
                 type: "GET",
@@ -217,53 +208,44 @@
                 success: function (response) {
                   Swal.close();
 
-                  // A. Isi Field Readonly
+                  // A. Isi Field Readonly (Skema, TUK, Tanggal)
                   $("#displaySkema").val(response.skemaName);
                   $("#displayTuk").val(response.tukName);
                   $("#displayTanggal").val(response.tanggalPelaksanaan);
 
-                  // B. Isi Dropdown Asesor (Hanya yang belum punya surat)
+                  // B. Isi Dropdown Asesor
                   var asesorOpts =
                     '<option value="" selected>-- Pilih Asesor --</option>';
                   var assessors = response.assessors;
 
                   if (assessors && assessors.length > 0) {
                     assessors.forEach(function (a) {
-                      // Simpan NoMet di attribut data-nomet
+                      // Simpan NoMet di attribut data-nomet agar mudah diambil
                       asesorOpts += `<option value="${a.id}" data-nomet="${a.noMet}">${a.fullName}</option>`;
                     });
-                    // Buka Kunci Wrapper
-                    $("#wrapperDetail").css({
-                      opacity: "1",
-                      "pointer-events": "auto",
-                    });
                   } else {
-                    // Kasus: Semua asesor di jadwal ini SUDAH punya surat tugas
                     asesorOpts =
                       '<option value="">Tidak ada asesor tersedia</option>';
-                    $("#infoAsesorEmpty").removeClass("d-none"); // Tampilkan pesan info
-                    // Tetap buka wrapper agar user bisa lihat detail jadwal, tapi select asesor kosong
-                    $("#wrapperDetail").css({
-                      opacity: "1",
-                      "pointer-events": "auto",
-                    });
+                    $("#infoAsesorEmpty").removeClass("d-none");
                   }
 
                   $("#selectAsesor").html(asesorOpts);
                 },
-                error: function () {
-                  Swal.fire("Error", "Gagal memuat data jadwal.", "error");
+                error: function (xhr) {
+                  Swal.close();
+                  console.error(xhr);
+                  Swal.fire(
+                    "Gagal",
+                    "Terjadi kesalahan saat mengambil data jadwal.",
+                    "error"
+                  );
                   $("#selectAsesor").html(
                     '<option value="">Gagal Memuat</option>'
                   );
                 },
               });
             } else {
-              // Jika user pilih default "-- Pilih Jadwal --"
-              $("#wrapperDetail").css({
-                opacity: "0.6",
-                "pointer-events": "none",
-              });
+              // Jika user reset pilihan jadwal ke default
               $("#selectAsesor").html(
                 '<option value="">-- Pilih Jadwal Terlebih Dahulu --</option>'
               );
@@ -271,37 +253,35 @@
           });
 
           // =========================================================
-          // LOGIKA KEDUA: PILIH ASESOR
+          // LOGIKA: SAAT ASESOR DIPILIH -> ISI NO MET
           // =========================================================
           $("#selectAsesor").on("change", function () {
-            var asesorId = $(this).val();
+            // Ambil data-nomet dari option yang dipilih
             var noMet = $(this).find(":selected").data("nomet");
 
-            if (asesorId) {
+            if (noMet) {
               $("#displayNoMet").val(noMet);
-              $("#btnGenerate")
-                .prop("disabled", false)
-                .removeClass("btn-secondary")
-                .addClass("btn-warning");
             } else {
               $("#displayNoMet").val("");
-              $("#btnGenerate").prop("disabled", true);
             }
           });
 
-          // Refresh halaman setelah generate (agar nomor surat update & asesor hilang dari list)
+          // =========================================================
+          // LOGIKA: REFRESH SETELAH GENERATE
+          // =========================================================
           $("#formGenerate").on("submit", function () {
+            // Beri waktu 2 detik agar PDF terdownload, lalu refresh halaman
             setTimeout(function () {
               Swal.fire({
                 title: "Berhasil!",
-                text: "Surat tugas telah digenerate. Halaman akan dimuat ulang untuk memperbarui data.",
+                text: "Surat tugas sedang didownload. Halaman akan dimuat ulang.",
                 icon: "success",
-                timer: 3000,
+                timer: 2000,
                 showConfirmButton: false,
               }).then(() => {
                 window.location.reload();
               });
-            }, 1000); // Delay sedikit biar PDF terdownload dulu
+            }, 1000);
           });
         });
       </script>

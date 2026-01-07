@@ -15,4 +15,5 @@ public class SuratTugasDto {
     // Data Pilihan (Dropdown)
     private Long jadwalId; // Dari jadwal kita bisa dapat Skema & TUK
     private Long asesorId; // Dari user asesor
+    
 }

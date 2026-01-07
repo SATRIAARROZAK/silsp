@@ -760,28 +760,23 @@ public class AdminController {
     @GetMapping("/api/internal/asesor/{id}/schedules")
     @ResponseBody
     public ResponseEntity<?> getSchedulesByAsesor(@PathVariable Long id) {
-        // PERBAIKAN: Gunakan Query Repository langsung (Lebih Cepat & Aman)
+        // Panggil method repository yang baru kita tambahkan di atas
         List<Schedule> assignedSchedules = scheduleRepository.findSchedulesByAsesorId(id);
 
         if (assignedSchedules.isEmpty()) {
             return ResponseEntity.ok(Collections.emptyList());
         }
 
+        // Mapping ke JSON sederhana
         List<Map<String, Object>> response = assignedSchedules.stream().map(s -> {
             Map<String, Object> map = new HashMap<>();
             map.put("id", s.getId());
-            // Tampilkan Kode + Nama agar jelas
             map.put("name", s.getCode() + " - " + s.getName());
             map.put("tuk", s.getTuk().getName());
 
-            // Null safety untuk skema
-            String skemaName = "-";
-            if (!s.getSchemas().isEmpty()) {
-                skemaName = s.getSchemas().get(0).getSchema().getName();
-            }
+            String skemaName = s.getSchemas().isEmpty() ? "-" : s.getSchemas().get(0).getSchema().getName();
             map.put("skema", skemaName);
 
-            // Format Tanggal
             DateTimeFormatter indoFormat = DateTimeFormatter.ofPattern("dd MMMM yyyy", new Locale("id", "ID"));
             map.put("tanggal", s.getStartDate().format(indoFormat));
 

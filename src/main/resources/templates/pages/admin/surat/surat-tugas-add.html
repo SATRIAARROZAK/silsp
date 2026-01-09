@@ -1,120 +1,280 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" layout:decorate="~{layouts/app}">
-<head th:replace="~{fragments/header :: header('Generate Surat Tugas')}"></head>
-<body>
-<div layout:fragment="content">
-  <div class="container-fluid">
-    
-    <form th:action="@{/admin/surat-tugas-asesor/generate}" method="post" th:object="${suratDto}" id="formSurat" target="_blank">
-      
-      <div class="card card-blue-dark">
-        <div class="card-header"><h3 class="card-title">Form Generate Surat Tugas</h3></div>
-        <div class="card-body">
-          
-          <div class="row">
-            <div class="col-md-6">
-               <div class="form-group">
-                 <label>Nomor Surat (Otomatis)</label>
-                 <input type="text" class="form-control bg-light" th:field="*{nomorSurat}" readonly>
-               </div>
+<!-- <!DOCTYPE html>
+<html
+  lang="en"
+  xmlns:th="http://www.thymeleaf.org"
+  layout:decorate="~{layouts/app}"
+>
+  <head
+    th:replace="~{fragments/header :: header('Generate Surat Tugas')}"
+  ></head>
+  <body>
+    <div layout:fragment="content">
+      <div class="container-fluid">
+        <form
+          th:action="@{/admin/surat-tugas-asesor/generate}"
+          method="post"
+          th:object="${suratDto}"
+          id="formSurat"
+          target="_blank"
+        >
+          <div class="card card-blue-dark">
+            <div class="card-header">
+              <h3 class="card-title">Form Generate Surat Tugas</h3>
             </div>
-            <div class="col-md-6">
-               <div class="form-group">
-                 <label>Tanggal Surat (Otomatis Hari Ini)</label>
-                 <input type="text" class="form-control bg-light" th:value="${#temporals.format(suratDto.tanggalSurat, 'dd MMMM yyyy')}" readonly>
-                 <input type="hidden" th:field="*{tanggalSurat}">
-               </div>
-            </div>
-          </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Nomor Surat (Otomatis)</label>
+                    <input
+                      type="text"
+                      class="form-control bg-light"
+                      th:field="*{nomorSurat}"
+                      readonly
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Tanggal Surat (Otomatis Hari Ini)</label>
+                    <input
+                      type="text"
+                      class="form-control bg-light"
+                      th:value="${#temporals.format(suratDto.tanggalSurat, 'dd MMMM yyyy')}"
+                      readonly
+                    />
+                    <input type="hidden" th:field="*{tanggalSurat}" />
+                  </div>
+                </div>
+              </div>
 
-          <hr>
+              <hr />
 
-          <div class="row">
-             <div class="col-md-12">
-                <div class="form-group">
-                   <label>Pilih Jadwal Kegiatan <span class="text-danger">*</span></label>
-                   <select class="form-control select2" id="selectJadwal" th:field="*{jadwalId}" required style="width: 100%;">
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label
+                      >Pilih Jadwal Kegiatan
+                      <span class="text-danger">*</span></label
+                    >
+                    <select
+                      class="form-control select2"
+                      id="selectJadwal"
+                      th:field="*{jadwalId}"
+                      required
+                      style="width: 100%"
+                    >
                       <option value="" selected>-- Pilih Jadwal --</option>
-                      <option th:each="j : ${listJadwal}" 
-                              th:value="${j.id}" 
-                              th:text="${j.code + ' - ' + j.name + ' (' + j.tuk.name + ')'}">
-                      </option>
-                   </select>
-                   <small class="text-muted">Jadwal menentukan Tanggal Pelaksanaan dan Lokasi TUK pada surat.</small>
+                      <option
+                        th:each="j : ${listJadwal}"
+                        th:value="${j.id}"
+                        th:text="${j.code + ' - ' + j.name + ' (' + j.tuk.name + ')'}"
+                      ></option>
+                    </select>
+                    <small class="text-muted"
+                      >Jadwal menentukan Tanggal Pelaksanaan dan Lokasi TUK pada
+                      surat.</small
+                    >
+                  </div>
                 </div>
-             </div>
-          </div>
+              </div>
 
-          <div class="row">
-             <div class="col-md-6">
-                <div class="form-group">
-                   <label>Pilih Asesor <span class="text-danger">*</span></label>
-                   <select class="form-control select2" id="selectAsesor" th:field="*{asesorId}" required style="width: 100%;">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label
+                      >Pilih Asesor <span class="text-danger">*</span></label
+                    >
+                    <select
+                      class="form-control select2"
+                      id="selectAsesor"
+                      th:field="*{asesorId}"
+                      required
+                      style="width: 100%"
+                    >
                       <option value="" selected>-- Pilih Asesor --</option>
-                      <option th:each="a : ${listAsesor}" 
-                              th:value="${a.id}" 
-                              th:text="${a.fullName + ' (' + (a.noMet != null ? a.noMet : 'No MET -') + ')'}">
-                      </option>
-                   </select>
+                      <option
+                        th:each="a : ${listAsesor}"
+                        th:value="${a.id}"
+                        th:text="${a.fullName + ' (' + (a.noMet != null ? a.noMet : 'No MET -') + ')'}"
+                      ></option>
+                    </select>
+                  </div>
                 </div>
-             </div>
-             
-             <div class="col-md-6">
-                <div class="form-group">
-                   <label>Pilih Skema <span class="text-danger">*</span></label>
-                   <select class="form-control select2" id="selectSkema" th:field="*{skemaId}" required style="width: 100%;">
+
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label
+                      >Pilih Skema <span class="text-danger">*</span></label
+                    >
+                    <select
+                      class="form-control select2"
+                      id="selectSkema"
+                      th:field="*{skemaId}"
+                      required
+                      style="width: 100%"
+                    >
                       <option value="" selected>-- Pilih Skema --</option>
-                      <option th:each="s : ${listSkema}" 
-                              th:value="${s.id}" 
-                              th:text="${s.name}">
-                      </option>
-                   </select>
+                      <option
+                        th:each="s : ${listSkema}"
+                        th:value="${s.id}"
+                        th:text="${s.name}"
+                      ></option>
+                    </select>
+                  </div>
                 </div>
-             </div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <button type="submit" class="btn btn-warning" id="btnGenerate">
+                <i class="fas fa-file-pdf"></i> Generate & Simpan
+              </button>
+              <a
+                th:href="@{/admin/surat-tugas-asesor}"
+                class="btn btn-secondary"
+                >Kembali</a
+              >
+            </div>
           </div>
-
-        </div>
-        <div class="card-footer">
-           <button type="submit" class="btn btn-warning" id="btnGenerate">
-               <i class="fas fa-file-pdf"></i> Generate & Simpan
-           </button>
-           <a th:href="@{/admin/surat-tugas-asesor}" class="btn btn-secondary">Kembali</a>
-        </div>
+        </form>
       </div>
+    </div>
+  </body>
+</html> -->
+<!DOCTYPE html>
+<html
+  lang="en"
+  xmlns:th="http://www.thymeleaf.org"
+  layout:decorate="~{layouts/app}"
+>
+  <head
+    th:replace="~{fragments/header :: header('Generate Surat Tugas')}"
+  ></head>
+  <body>
+    <div layout:fragment="content">
+      <div class="container-fluid">
+        <form
+          th:action="@{/admin/surat-tugas-asesor/generate}"
+          method="post"
+          th:object="${suratDto}"
+          id="formSurat"
+          target="_blank"
+        >
+          <div class="card card-blue-dark">
+            <div class="card-header">
+              <h3 class="card-title">Form Generate Surat Tugas</h3>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Nomor Surat (Otomatis)</label>
+                    <input
+                      type="text"
+                      class="form-control bg-light"
+                      th:field="*{nomorSurat}"
+                      readonly
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Tanggal Surat (Otomatis)</label>
+                    <input
+                      type="text"
+                      class="form-control bg-light"
+                      th:value="${#temporals.format(suratDto.tanggalSurat, 'dd-MM-yyyy')}"
+                      readonly
+                    />
+                  </div>
+                </div>
+              </div>
 
-    </form>
-  </div>
-</div>
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="form-group">
+                    <label
+                      >Pilih Jadwal Kegiatan
+                      <span class="text-danger">*</span></label
+                    >
+                    <select
+                      class="form-control select2"
+                      id="selectJadwal"
+                      th:field="*{jadwalId}"
+                      required
+                    >
+                      <option value="">-- Pilih Jadwal --</option>
+                      <option
+                        th:each="j : ${listJadwal}"
+                        th:value="${j.id}"
+                        th:text="${j.code + ' - ' + j.name + ' (' + j.tuk.name + ')'}"
+                      ></option>
+                    </select>
+                  </div>
+                </div>
+              </div>
 
-<th:block layout:fragment="script">
-<script>
-    $(document).ready(function() {
-        // Inisialisasi Select2
-        $('.select2').select2({theme: 'bootstrap4'});
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label
+                      >Pilih Asesor <span class="text-danger">*</span></label
+                    >
+                    <select
+                      class="form-control select2"
+                      id="selectAsesor"
+                      th:field="*{asesorId}"
+                      required
+                      disabled
+                    >
+                      <option value="">
+                        -- Pilih Jadwal Terlebih Dahulu --
+                      </option>
+                    </select>
+                    <small class="text-muted"
+                      >Hanya menampilkan asesor yang bertugas di jadwal
+                      tersebut.</small
+                    >
+                  </div>
+                </div>
 
-        // ==========================================
-        // VALIDASI FORM SEBELUM SUBMIT
-        // ==========================================
-        // Karena target="_blank" sulit dicegah via preventDefault standar jika validasi HTML5 gagal di beberapa browser,
-        // Kita tambahkan listener manual.
-        $('#btnGenerate').on('click', function(e) {
-            var jadwal = $('#selectJadwal').val();
-            var asesor = $('#selectAsesor').val();
-            var skema = $('#selectSkema').val();
-
-            if (!jadwal || !asesor || !skema) {
-                e.preventDefault(); // Stop download
-                Swal.fire('Peringatan', 'Mohon lengkapi Jadwal, Asesor, dan Skema!', 'warning');
-            } else {
-                // Jika valid, biarkan form submit berjalan (Download PDF)
-                // Opsional: Reload halaman setelah beberapa detik agar nomor surat baru ter-generate
-                setTimeout(function() {
-                    location.reload();
-                }, 3000);
-            }
-        });
-    });
-</script>
-</th:block>
-</body>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label
+                      >Pilih Skema <span class="text-danger">*</span></label
+                    >
+                    <select
+                      class="form-control select2"
+                      id="selectSkema"
+                      th:field="*{skemaId}"
+                      required
+                      disabled
+                    >
+                      <option value="">
+                        -- Pilih Jadwal Terlebih Dahulu --
+                      </option>
+                    </select>
+                    <small class="text-muted"
+                      >Pilih skema kompetensi yang akan diuji oleh
+                      asesor.</small
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <button type="submit" class="btn btn-warning" id="btnGenerate">
+                <i class="fas fa-file-pdf"></i> Generate & Simpan
+              </button>
+              <a
+                th:href="@{/admin/surat-tugas-asesor}"
+                class="btn btn-secondary"
+                >Kembali</a
+              >
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </body>
 </html>

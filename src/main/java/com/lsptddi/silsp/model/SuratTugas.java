@@ -37,4 +37,8 @@ public class SuratTugas {
     @ManyToOne
     @JoinColumn(name = "id_skema")
     private Skema skema; // Tambahan: Skema spesifik yang dipilih
+
+    // --- TAMBAHAN BARU: LOKASI FILE PDF ---
+    @Column(name = "file_path")
+    private String filePath;
 }

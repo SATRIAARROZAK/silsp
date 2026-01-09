@@ -54,7 +54,7 @@ public class SecurityConfig {
                                                 // Halaman yang boleh diakses SIAPA SAJA (Tanpa Login)
                                                 .requestMatchers("/dev/**").permitAll()
                                                 .requestMatchers("/login", "/register", "/reset-password",
-                                                                "/api/check-duplicate",
+                                                                "/api/check-duplicate", "/api/internal/**",
                                                                 "/forgot-password", "/assets/**", "/plugins/**",
                                                                 "/dist/**")
                                                 .permitAll()

@@ -790,18 +790,55 @@ public class AdminController {
         // 1. Load Semua Jadwal
         model.addAttribute("listJadwal", scheduleRepository.findAll(Sort.by("id").descending()));
 
-        // 2. Load Semua Asesor (Tanpa filter jadwal)
-        List<User> asesorList = userRepository.findByRolesName("Asesor");
-        model.addAttribute("listAsesor", asesorList);
+        // // 2. Load Semua Asesor (Tanpa filter jadwal)
+        // List<User> asesorList = userRepository.findByRolesName("Asesor");
+        // model.addAttribute("listAsesor", asesorList);
 
         // 3. Load Semua Skema (Tanpa filter jadwal)
-        model.addAttribute("listSkema", schemaRepository.findAll());
+        // model.addAttribute("listSkema", schemaRepository.findAll());
 
         return "pages/admin/surat/surat-tugas-add";
     }
 
+    @GetMapping("/api/check-surat-tugas")
+    @ResponseBody
+    public ResponseEntity<?> checkSuratTugasExisting(@RequestParam Long jadwalId, @RequestParam Long asesorId) {
+        Schedule jadwal = scheduleRepository.findById(jadwalId).orElse(null);
+        User asesor = userRepository.findById(asesorId).orElse(null);
+
+        if (jadwal != null && asesor != null) {
+            // Cek di Repository apakah sudah ada
+            boolean exists = suratTugasRepository.existsByJadwalAndAsesor(jadwal, asesor);
+            return ResponseEntity.ok(exists); // Return true jika sudah ada
+        }
+        return ResponseEntity.ok(false);
+    }
+
     // 2. API INTERNAL: Get Detail Jadwal (Asesor & Skema)
     // Dipanggil via AJAX saat user memilih Jadwal
+    // @GetMapping("/api/internal/jadwal/{id}/details")
+    // @ResponseBody
+    // public ResponseEntity<?> getJadwalDetails(@PathVariable Long id) {
+    // Schedule schedule = scheduleRepository.findById(id).orElse(null);
+    // if (schedule == null)
+    // return ResponseEntity.notFound().build();
+
+    // Map<String, Object> response = new HashMap<>();
+
+    // // HANYA AMBIL SKEMA (Karena Asesor bebas pilih)
+    // List<Map<String, Object>> schemas = schedule.getSchemas().stream().map(ss ->
+    // {
+    // Map<String, Object> map = new HashMap<>();
+    // map.put("id", ss.getSchema().getId());
+    // map.put("name", ss.getSchema().getName());
+    // return map;
+    // }).collect(Collectors.toList());
+
+    // response.put("schemas", schemas);
+
+    // return ResponseEntity.ok(response);
+    // }
+
     @GetMapping("/api/internal/jadwal/{id}/details")
     @ResponseBody
     public ResponseEntity<?> getJadwalDetails(@PathVariable Long id) {
@@ -809,9 +846,19 @@ public class AdminController {
         if (schedule == null)
             return ResponseEntity.notFound().build();
 
+        // Siapkan Data JSON custom
         Map<String, Object> response = new HashMap<>();
 
-        // HANYA AMBIL SKEMA (Karena Asesor bebas pilih)
+        // List Asesor di Jadwal tersebut
+        List<Map<String, Object>> asesors = schedule.getAssessors().stream().map(sa -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", sa.getAsesor().getId());
+            map.put("name", sa.getAsesor().getFullName());
+            map.put("noMet", sa.getAsesor().getNoMet());
+            return map;
+        }).collect(Collectors.toList());
+
+        // List Skema di Jadwal tersebut
         List<Map<String, Object>> schemas = schedule.getSchemas().stream().map(ss -> {
             Map<String, Object> map = new HashMap<>();
             map.put("id", ss.getSchema().getId());
@@ -819,6 +866,7 @@ public class AdminController {
             return map;
         }).collect(Collectors.toList());
 
+        response.put("asesors", asesors);
         response.put("schemas", schemas);
 
         return ResponseEntity.ok(response);
@@ -891,16 +939,73 @@ public class AdminController {
     // }
     // }
 
+    // @PostMapping("/surat-tugas-asesor/generate")
+    // public ResponseEntity<?> generateSuratTugas(@ModelAttribute SuratTugasDto
+    // dto) {
+    // try {
+    // // A. Ambil Data Referensi
+    // Schedule jadwal =
+    // scheduleRepository.findById(dto.getJadwalId()).orElseThrow();
+    // User asesor = userRepository.findById(dto.getAsesorId()).orElseThrow();
+    // Skema skema = schemaRepository.findById(dto.getSkemaId()).orElseThrow();
+
+    // // B. Simpan ke Database (Sekaligus Generate Nomor)
+    // // Service akan melempar error jika duplikat
+    // SuratTugas suratBaru = suratTugasService.createSuratTugas(jadwal, asesor,
+    // skema);
+
+    // // C. Siapkan Data PDF
+    // Map<String, Object> data = new HashMap<>();
+    // DateTimeFormatter indoFormat = DateTimeFormatter.ofPattern("dd MMMM yyyy",
+    // new Locale("id", "ID"));
+
+    // data.put("nomorSurat", suratBaru.getNomorSurat());
+    // data.put("tanggalSurat", suratBaru.getTanggalSurat().format(indoFormat));
+
+    // data.put("namaAsesor", asesor.getFullName());
+    // data.put("genderSapaan", "L".equalsIgnoreCase(asesor.getGender()) ? "Bapak" :
+    // "Ibu");
+    // data.put("noMet", asesor.getNoMet() != null ? asesor.getNoMet() : "-");
+
+    // data.put("namaSkema", skema.getName());
+    // data.put("tanggalAsesmen", jadwal.getStartDate().format(indoFormat));
+    // data.put("namaTuk", jadwal.getTuk().getName());
+
+    // // D. Generate File PDF
+    // byte[] pdfBytes =
+    // pdfService.generatePdf("pages/admin/surat/surat-tugas-template", data);
+    // String filename = "ST_" + suratBaru.getNomorSurat().replace("/", "_") +
+    // ".pdf";
+
+    // return ResponseEntity.ok()
+    // .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+    // .contentType(MediaType.APPLICATION_PDF)
+    // .body(pdfBytes);
+
+    // } catch (RuntimeException e) {
+    // // Tangkap Error Duplikat/Lainnya dan kirim ke Frontend (sebagai HTML Error
+    // Page
+    // // sementara)
+    // // Idealnya return JSON error dan dihandle AJAX, tapi karena ini form submit
+    // PDF
+    // // download:
+    // // Kita return Text plain error agar user tahu
+    // return ResponseEntity.badRequest().body(e.getMessage().getBytes());
+    // }
+    // }
+
     @PostMapping("/surat-tugas-asesor/generate")
     public ResponseEntity<?> generateSuratTugas(@ModelAttribute SuratTugasDto dto) {
         try {
-            // A. Ambil Data Referensi
+            // A. Ambil Data
             Schedule jadwal = scheduleRepository.findById(dto.getJadwalId()).orElseThrow();
             User asesor = userRepository.findById(dto.getAsesorId()).orElseThrow();
             Skema skema = schemaRepository.findById(dto.getSkemaId()).orElseThrow();
 
-            // B. Simpan ke Database (Sekaligus Generate Nomor)
-            // Service akan melempar error jika duplikat
+            // B. Simpan Data ke DB (Record Baru)
+            // Note: Service createSuratTugas Anda sebelumnya mungkin sudah menghandle
+            // duplicate check,
+            // tapi kita double check di sini atau biarkan service melempar error.
             SuratTugas suratBaru = suratTugasService.createSuratTugas(jadwal, asesor, skema);
 
             // C. Siapkan Data PDF
@@ -909,31 +1014,44 @@ public class AdminController {
 
             data.put("nomorSurat", suratBaru.getNomorSurat());
             data.put("tanggalSurat", suratBaru.getTanggalSurat().format(indoFormat));
-
             data.put("namaAsesor", asesor.getFullName());
             data.put("genderSapaan", "L".equalsIgnoreCase(asesor.getGender()) ? "Bapak" : "Ibu");
             data.put("noMet", asesor.getNoMet() != null ? asesor.getNoMet() : "-");
-
             data.put("namaSkema", skema.getName());
             data.put("tanggalAsesmen", jadwal.getStartDate().format(indoFormat));
             data.put("namaTuk", jadwal.getTuk().getName());
 
-            // D. Generate File PDF
+            // D. Generate Bytes PDF
             byte[] pdfBytes = pdfService.generatePdf("pages/admin/surat/surat-tugas-template", data);
-            String filename = "ST_" + suratBaru.getNomorSurat().replace("/", "_") + ".pdf";
 
+            // --- E. SIMPAN FILE KE SERVER (FITUR BARU) ---
+            // String filename = "ST_" +
+            // suratBaru.getNomorSurat().replaceAll("[^a-zA-Z0-9]", "_") + ".pdf";
+            String filename = suratBaru.getNomorSurat().replaceAll("[^a-zA-Z0-9]", "_") + ".pdf";
+
+            String uploadDir = "uploads/surat_tugas/";
+            Path uploadPath = Paths.get(uploadDir);
+
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+
+            Path filePath = uploadPath.resolve(filename);
+            Files.write(filePath, pdfBytes); // Simpan fisik file
+
+            // F. Update Database dengan Path File
+            suratBaru.setFilePath("/" + uploadDir + filename);
+            suratTugasRepository.save(suratBaru);
+
+            // G. Return Download Stream ke Browser
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
                     .contentType(MediaType.APPLICATION_PDF)
                     .body(pdfBytes);
 
-        } catch (RuntimeException e) {
-            // Tangkap Error Duplikat/Lainnya dan kirim ke Frontend (sebagai HTML Error Page
-            // sementara)
-            // Idealnya return JSON error dan dihandle AJAX, tapi karena ini form submit PDF
-            // download:
-            // Kita return Text plain error agar user tahu
-            return ResponseEntity.badRequest().body(e.getMessage().getBytes());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(("Gagal: " + e.getMessage()).getBytes());
         }
     }
 

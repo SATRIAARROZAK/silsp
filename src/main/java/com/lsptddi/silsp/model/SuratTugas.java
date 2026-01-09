@@ -33,4 +33,8 @@ public class SuratTugas {
     @ManyToOne
     @JoinColumn(name = "id_jadwal")
     private Schedule jadwal;
+
+    @ManyToOne
+    @JoinColumn(name = "id_skema")
+    private Skema skema; // Tambahan: Skema spesifik yang dipilih
 }

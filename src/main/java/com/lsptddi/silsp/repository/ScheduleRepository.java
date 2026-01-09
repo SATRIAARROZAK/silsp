@@ -31,4 +31,12 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     // Pastikan query ini juga ada agar fitur surat tugas tidak error
     @Query("SELECT s FROM Schedule s JOIN s.assessors sa WHERE sa.asesor.id = :asesorId ORDER BY s.id DESC")
     List<Schedule> findSchedulesByAsesorId(@Param("asesorId") Long asesorId);
+
+    @Query("SELECT s FROM Schedule s " +
+           "LEFT JOIN FETCH s.assessors sa " +
+           "LEFT JOIN FETCH sa.asesor u " +  // Fetch User Asesor
+           "LEFT JOIN FETCH s.schemas ss " +
+           "LEFT JOIN FETCH ss.schema sc " + // Fetch Data Skema
+           "WHERE s.id = :id")
+    Optional<Schedule> findByIdWithDetails(@Param("id") Long id);
 }

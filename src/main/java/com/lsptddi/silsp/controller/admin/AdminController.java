@@ -751,84 +751,189 @@ public class AdminController {
         return "pages/admin/surat/surat-tugas-list";
     }
 
+    // @GetMapping("/surat-tugas-asesor/buat")
+    // public String showFormSuratTugas(Model model) {
+    // SuratTugasDto dto = new SuratTugasDto();
+
+    // // A. Auto Numbering
+    // dto.setNomorSurat(suratTugasService.generateNomorSurat());
+
+    // // B. Auto Date (Hari Ini)
+    // dto.setTanggalSurat(LocalDate.now());
+
+    // model.addAttribute("suratDto", dto);
+
+    // // Hanya kirim list asesor, sisanya (jadwal, skema, tuk) diambil via API JS
+    // List<User> asesorList = userRepository.findByRolesName("Asesor");
+    // model.addAttribute("listAsesor", asesorList);
+
+    // // Ambil list Jadwal (Yang berisi TUK & Skema)
+    // model.addAttribute("listJadwal",
+    // scheduleRepository.findAll(Sort.by("id").descending()));
+
+    // return "pages/admin/surat/surat-tugas-add";
+    // }
+
+    // 1. HALAMAN FORM SURAT TUGAS (GET) - MODIFIED
     @GetMapping("/surat-tugas-asesor/buat")
     public String showFormSuratTugas(Model model) {
         SuratTugasDto dto = new SuratTugasDto();
 
-        // A. Auto Numbering
+        // Pre-fill Nomor & Tanggal (Otomatis Hari Ini & Nomor Urut Baru)
         dto.setNomorSurat(suratTugasService.generateNomorSurat());
-
-        // B. Auto Date (Hari Ini)
         dto.setTanggalSurat(LocalDate.now());
 
         model.addAttribute("suratDto", dto);
 
-        // Hanya kirim list asesor, sisanya (jadwal, skema, tuk) diambil via API JS
+        // --- PERUBAHAN DISINI: LOAD SEMUA DATA SECARA INDEPENDEN ---
+
+        // 1. Load Semua Jadwal
+        model.addAttribute("listJadwal", scheduleRepository.findAll(Sort.by("id").descending()));
+
+        // 2. Load Semua Asesor (Tanpa filter jadwal)
         List<User> asesorList = userRepository.findByRolesName("Asesor");
         model.addAttribute("listAsesor", asesorList);
 
-        // Ambil list Jadwal (Yang berisi TUK & Skema)
-        model.addAttribute("listJadwal", scheduleRepository.findAll(Sort.by("id").descending()));
+        // 3. Load Semua Skema (Tanpa filter jadwal)
+        model.addAttribute("listSkema", schemaRepository.findAll());
 
         return "pages/admin/surat/surat-tugas-add";
+    }
+
+    // 2. API INTERNAL: Get Detail Jadwal (Asesor & Skema)
+    // Dipanggil via AJAX saat user memilih Jadwal
+    @GetMapping("/api/internal/jadwal/{id}/details")
+    @ResponseBody
+    public ResponseEntity<?> getJadwalDetails(@PathVariable Long id) {
+        Schedule schedule = scheduleRepository.findById(id).orElse(null);
+        if (schedule == null)
+            return ResponseEntity.notFound().build();
+
+        Map<String, Object> response = new HashMap<>();
+
+        // HANYA AMBIL SKEMA (Karena Asesor bebas pilih)
+        List<Map<String, Object>> schemas = schedule.getSchemas().stream().map(ss -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", ss.getSchema().getId());
+            map.put("name", ss.getSchema().getName());
+            return map;
+        }).collect(Collectors.toList());
+
+        response.put("schemas", schemas);
+
+        return ResponseEntity.ok(response);
     }
 
     // -------------------------------------------------------------
     // 3. GENERATE PDF & SIMPAN (POST)
     // -------------------------------------------------------------
+    // @PostMapping("/surat-tugas-asesor/generate")
+    // public ResponseEntity<?> generateSuratTugas(@ModelAttribute SuratTugasDto
+    // dto) {
+    // try {
+    // User asesor = userRepository.findById(dto.getAsesorId()).orElseThrow();
+    // Schedule jadwal =
+    // scheduleRepository.findById(dto.getJadwalId()).orElseThrow();
+
+    // // VALIDASI BACKEND: Cegah double insert jika user menekan tombol 2x
+    // if (suratTugasRepository.existsByJadwalAndAsesor(jadwal, asesor)) {
+    // return ResponseEntity.badRequest()
+    // .body("Surat tugas untuk asesor ini pada jadwal tersebut sudah
+    // dibuat!".getBytes());
+    // }
+
+    // // A. Simpan Database
+    // SuratTugas surat = new SuratTugas();
+    // surat.setNomorSurat(dto.getNomorSurat());
+    // surat.setTanggalSurat(dto.getTanggalSurat());
+    // surat.setBulanRomawi(suratTugasService.getRomanMonth(dto.getTanggalSurat().getMonthValue()));
+    // surat.setTahun(dto.getTanggalSurat().getYear());
+    // surat.setAsesor(asesor);
+    // surat.setJadwal(jadwal);
+    // suratTugasRepository.save(surat);
+
+    // // B. Generate PDF (Logic Sama)
+    // Map<String, Object> data = new HashMap<>();
+    // DateTimeFormatter indoFormat = DateTimeFormatter.ofPattern("dd MMMM yyyy",
+    // new Locale("id", "ID"));
+
+    // data.put("nomorSurat", dto.getNomorSurat());
+    // data.put("tanggalSurat", dto.getTanggalSurat().format(indoFormat));
+    // data.put("namaAsesor", asesor.getFullName());
+
+    // String genderDb = asesor.getGender() != null ? asesor.getGender().trim() :
+    // "";
+    // String sapaan = (genderDb.equalsIgnoreCase("Laki-laki") ||
+    // genderDb.equalsIgnoreCase("L")) ? "Bapak"
+    // : "Ibu";
+    // data.put("genderSapaan", sapaan);
+
+    // data.put("noMet", asesor.getNoMet() != null ? asesor.getNoMet() : "-");
+
+    // String namaSkema = jadwal.getSchemas().isEmpty() ? "-" :
+    // jadwal.getSchemas().get(0).getSchema().getName();
+    // data.put("namaSkema", namaSkema);
+    // data.put("tanggalAsesmen", jadwal.getStartDate().format(indoFormat));
+    // data.put("namaTuk", jadwal.getTuk().getName());
+
+    // byte[] pdfBytes =
+    // pdfService.generatePdf("pages/admin/surat/surat-tugas-template", data);
+    // String filename = "ST_" + asesor.getFullName().replace(" ", "_") + ".pdf";
+
+    // return ResponseEntity.ok()
+    // .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+    // .contentType(MediaType.APPLICATION_PDF)
+    // .body(pdfBytes);
+
+    // } catch (Exception e) {
+    // e.printStackTrace();
+    // return ResponseEntity.internalServerError().build();
+    // }
+    // }
+
     @PostMapping("/surat-tugas-asesor/generate")
     public ResponseEntity<?> generateSuratTugas(@ModelAttribute SuratTugasDto dto) {
         try {
-            User asesor = userRepository.findById(dto.getAsesorId()).orElseThrow();
+            // A. Ambil Data Referensi
             Schedule jadwal = scheduleRepository.findById(dto.getJadwalId()).orElseThrow();
+            User asesor = userRepository.findById(dto.getAsesorId()).orElseThrow();
+            Skema skema = schemaRepository.findById(dto.getSkemaId()).orElseThrow();
 
-            // VALIDASI BACKEND: Cegah double insert jika user menekan tombol 2x
-            if (suratTugasRepository.existsByJadwalAndAsesor(jadwal, asesor)) {
-                return ResponseEntity.badRequest()
-                        .body("Surat tugas untuk asesor ini pada jadwal tersebut sudah dibuat!".getBytes());
-            }
+            // B. Simpan ke Database (Sekaligus Generate Nomor)
+            // Service akan melempar error jika duplikat
+            SuratTugas suratBaru = suratTugasService.createSuratTugas(jadwal, asesor, skema);
 
-            // A. Simpan Database
-            SuratTugas surat = new SuratTugas();
-            surat.setNomorSurat(dto.getNomorSurat());
-            surat.setTanggalSurat(dto.getTanggalSurat());
-            surat.setBulanRomawi(suratTugasService.getRomanMonth(dto.getTanggalSurat().getMonthValue()));
-            surat.setTahun(dto.getTanggalSurat().getYear());
-            surat.setAsesor(asesor);
-            surat.setJadwal(jadwal);
-            suratTugasRepository.save(surat);
-
-            // B. Generate PDF (Logic Sama)
+            // C. Siapkan Data PDF
             Map<String, Object> data = new HashMap<>();
             DateTimeFormatter indoFormat = DateTimeFormatter.ofPattern("dd MMMM yyyy", new Locale("id", "ID"));
 
-            data.put("nomorSurat", dto.getNomorSurat());
-            data.put("tanggalSurat", dto.getTanggalSurat().format(indoFormat));
+            data.put("nomorSurat", suratBaru.getNomorSurat());
+            data.put("tanggalSurat", suratBaru.getTanggalSurat().format(indoFormat));
+
             data.put("namaAsesor", asesor.getFullName());
-
-            String genderDb = asesor.getGender() != null ? asesor.getGender().trim() : "";
-            String sapaan = (genderDb.equalsIgnoreCase("Laki-laki") || genderDb.equalsIgnoreCase("L")) ? "Bapak"
-                    : "Ibu";
-            data.put("genderSapaan", sapaan);
-
+            data.put("genderSapaan", "L".equalsIgnoreCase(asesor.getGender()) ? "Bapak" : "Ibu");
             data.put("noMet", asesor.getNoMet() != null ? asesor.getNoMet() : "-");
 
-            String namaSkema = jadwal.getSchemas().isEmpty() ? "-" : jadwal.getSchemas().get(0).getSchema().getName();
-            data.put("namaSkema", namaSkema);
+            data.put("namaSkema", skema.getName());
             data.put("tanggalAsesmen", jadwal.getStartDate().format(indoFormat));
             data.put("namaTuk", jadwal.getTuk().getName());
 
+            // D. Generate File PDF
             byte[] pdfBytes = pdfService.generatePdf("pages/admin/surat/surat-tugas-template", data);
-            String filename = "ST_" + asesor.getFullName().replace(" ", "_") + ".pdf";
+            String filename = "ST_" + suratBaru.getNomorSurat().replace("/", "_") + ".pdf";
 
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
                     .contentType(MediaType.APPLICATION_PDF)
                     .body(pdfBytes);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.internalServerError().build();
+        } catch (RuntimeException e) {
+            // Tangkap Error Duplikat/Lainnya dan kirim ke Frontend (sebagai HTML Error Page
+            // sementara)
+            // Idealnya return JSON error dan dihandle AJAX, tapi karena ini form submit PDF
+            // download:
+            // Kita return Text plain error agar user tahu
+            return ResponseEntity.badRequest().body(e.getMessage().getBytes());
         }
     }
 

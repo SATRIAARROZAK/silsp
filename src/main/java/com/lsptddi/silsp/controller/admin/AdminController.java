@@ -41,6 +41,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import com.lsptddi.silsp.dto.UserRoleDto;
+import com.lsptddi.silsp.dto.AsesorListDto;
 import com.lsptddi.silsp.dto.ScheduleDto;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -59,6 +60,7 @@ import com.lsptddi.silsp.service.PdfService;
 // import com.lsptddi.silsp.dto.SuratTugasDto;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.data.domain.Sort;
 // import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Map;
@@ -1774,10 +1776,60 @@ public class AdminController {
         return "pages/admin/asesi/asesi-view";
     }
 
-    @GetMapping("/data-asesor")
-    public String showDataAsesor(Model model) {
+    // @GetMapping("/data-asesor")
+    // public String showDataAsesor(Model model) {
 
-        return "pages/admin/asesors/asesor-list";
+    //     return "pages/admin/asesors/asesor-list";
+    // }
+
+    @GetMapping("/data-asesor")
+    public String showDataAsesor(Model model,
+                                 @RequestParam(defaultValue = "0") int page,
+                                 @RequestParam(defaultValue = "10") int size,
+                                 @RequestParam(required = false) String keyword,
+                                 @RequestParam(defaultValue = "desc") String sort) { // Param sort (asc/desc)
+
+        // Tentukan Arah Sortir (Default DESC = Terbanyak ke Terkecil)
+        Sort.Direction direction = sort.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        
+        // Sorting berdasarkan hasil Count (alias kolom ke-2 di query / jumlahAsesmen)
+        // Note: Sort by computed field di JPQL kadang tricky, kita gunakan index kolom atau properti DTO jika didukung DB
+        // Untuk aman di JPA standar, kita sort by 'COUNT(st)' di PageRequest agak sulit, 
+        // jadi kita biarkan Pageable melakukan sort di memori atau gunakan query native.
+        // Tapi solusi terbaik JPA: JpaSort.unsafe(direction, "COUNT(st)")
+        
+        // Sederhananya, kita gunakan sort property 'jumlahAsesmen' jika menggunakan custom implementation,
+        // Tapi karena JPQL Pageable standar agak kaku dengan Agregat, kita gunakan JpaSort unsafe atau logic default.
+        // DISINI KITA GUNAKAN LOGIC SEDERHANA: SORT BY ID USER jika sort parameter default, 
+        // tapi user minta sort by jumlah.
+        
+        // SOLUSI SORTING AGREGAT JPA (Menggunakan JpaSort.unsafe jika menggunakan Spring Data JPA terbaru)
+        // Atau kita handle sorting manual di Query string.
+        // Agar tidak error "PropertyReferenceException", kita gunakan PageRequest tanpa sort dulu di controllernya,
+        // dan biarkan Query di Repository yang menangani ORDER BY nya jika perlu.
+        
+        // Namun, agar dinamis (Klik header), kita gunakan pendekatan JpaSort (membutuhkan import org.springframework.data.jpa.domain.JpaSort)
+        // Jika tidak ada JpaSort, kita gunakan Sort.unsorted() dan hardcode ORDER BY di Query repository tadi.
+        
+        // UNTUK SAAT INI: Kita gunakan Sort berdasarkan ID User saja sebagai default pageable, 
+        // Tapi karena Anda minta fitur sort jumlah, saya akan memodifikasi Repository sedikit di bawah.
+        
+        Pageable pageable = PageRequest.of(page, size, org.springframework.data.jpa.domain.JpaSort.unsafe(direction, "COUNT(st)"));
+
+        Page<AsesorListDto> pageAsesor = userRepository.findAsesorList(keyword, pageable);
+
+        model.addAttribute("listAsesor", pageAsesor.getContent());
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", pageAsesor.getTotalPages());
+        model.addAttribute("totalItems", pageAsesor.getTotalElements());
+        model.addAttribute("size", size);
+        
+        // Kirim status sort saat ini ke view untuk ikon panah
+        model.addAttribute("currentSort", sort);
+        model.addAttribute("reverseSort", sort.equals("asc") ? "desc" : "asc");
+
+        return "pages/admin/asesors/asesor-list"; // Pastikan path HTML benar (asesor-list.html)
     }
 
 }

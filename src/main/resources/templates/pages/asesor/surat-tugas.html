@@ -1,0 +1,81 @@
+<!-- <!DOCTYPE html>
+<html
+  lang="en"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/app}"
+>
+  <head th:replace="~{fragments/header :: header('Daftar Surat Tugas')}"></head>
+
+  <body>
+    <div layout:fragment="page-title">
+      <h1 class="m-0">Daftar Surat Tugas</h1>
+    </div>
+    <div layout:fragment="breadcrumb">
+      <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item"><a href="#">Home</a></li>
+        <li class="breadcrumb-item active">Surat Tugas</li>
+      </ol>
+    </div>
+    <div layout:fragment="content">
+      <div class="card">
+        <div class="card-header">
+          <div class="row mb-3"></div>
+
+          <form th:action="@{/}" method="get">
+            <div class="row">
+              <div class="col-12 col-md-4 mb-2">
+                <div class="form-group mb-0">
+                  <div class="input-group">
+                    <input
+                      type="text"
+                      class="form-control"
+                      name="keyword"
+                      th:value="${keyword}"
+                      placeholder="Masukkan Nama Asesor"
+                    />
+                    <div class="input-group-append">
+                      <button type="submit" class="btn btn-outline-info">
+                        <i class="fas fa-search"></i> Cari
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12 col-md-3 mb-2 d-flex align-items">
+                <a
+                  th:href="@{/admin/data-asesor}"
+                  class="btn btn-default btn-block"
+                >
+                  <i class="fas fa-sync-alt"></i> Reset Filter
+                </a>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table
+              class="table table-striped projects table-hover align-middle"
+            >
+              <thead class="bg-light">
+                <tr class="text-center">
+                  <th style="width: 1%">No</th>
+                  <th style="width: 25%">Jadwal & Skema</th>
+                  <th style="width: 15%" class="text-center">
+                    Tanggal Asesmen
+                  </th>
+                  <th style="width: 20%">Nomor Surat</th>
+                  <th style="width: 19%" class="text-center">File</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html> -->

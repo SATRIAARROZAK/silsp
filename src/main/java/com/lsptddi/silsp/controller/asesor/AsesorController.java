@@ -64,7 +64,7 @@ public class AsesorController {
             dto.setEducationId(user.getEducationId().getId());
         if (user.getJobTypeId() != null)
             dto.setJobTypeId(user.getJobTypeId().getId());
-           // 3. NO MET: Hapus "MET." di depan
+        // 3. NO MET: Hapus "MET." di depan
         if (user.getNoMet() != null) {
             dto.setNoMet(user.getNoMet().replace("MET.", "").trim());
         }
@@ -84,13 +84,12 @@ public class AsesorController {
         dto.setCityId(user.getCityId());
         dto.setDistrictId(user.getDistrictId());
 
-
         model.addAttribute("userDto", dto);
         return "pages/asesor/asesor-profile"; // Mengarah ke file HTML shared
     }
 
-    @GetMapping("/surat-tugas")
-    public String showSertifikasiList() {
-        return "pages/admin/surat/surat-tugas-list"; // Sesuaikan path html-nya
+    @GetMapping("/jadwal")
+    public String showJadwalUji() {
+        return "pages/asesor/jadwal/jadwal-list"; // Sesuaikan path html-nya
     }
 }

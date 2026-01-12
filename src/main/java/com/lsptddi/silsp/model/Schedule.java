@@ -3,6 +3,7 @@ package com.lsptddi.silsp.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
+import lombok.ToString; // Import ini
 import java.time.LocalDate;
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class Schedule {
     @Column(name = "tanggal_mulai")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate startDate;
-    
+
     // Jika ada tanggal selesai, tambahkan endDate
 
     @Column(name = "kuota_peserta")
@@ -61,5 +62,27 @@ public class Schedule {
 
     @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ScheduleSchema> schemas;
-   
+
+    // =================================================================
+    // TAMBAHAN BARU: RELASI KE SURAT TUGAS & HELPER METHOD
+    // =================================================================
+
+    @OneToMany(mappedBy = "jadwal") // Relasi ke SuratTugas (field 'jadwal')
+    @ToString.Exclude // PENTING: Cegah error infinite loop
+    private List<SuratTugas> suratTugasList;
+
+    /**
+     * Helper Function untuk HTML:
+     * Mencari Surat Tugas milik asesor tertentu di jadwal ini.
+     */
+    public SuratTugas getSuratTugasByAsesor(Long asesorId) {
+        if (suratTugasList == null || suratTugasList.isEmpty()) {
+            return null;
+        }
+        // Cari surat yang id_asesor-nya cocok
+        return suratTugasList.stream()
+                .filter(st -> st.getAsesor().getId().equals(asesorId))
+                .findFirst()
+                .orElse(null);
+    }
 }

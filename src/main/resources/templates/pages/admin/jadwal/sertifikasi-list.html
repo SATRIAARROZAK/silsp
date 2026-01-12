@@ -244,10 +244,29 @@
                                   >
                                     MET
                                   </td>
-                                  <td class="text-center">
-                                    <span class="badge badge-secondary"
-                                      >Belum Ada</span
+                                  <td
+                                    class="text-center"
+                                    th:with="st=${row.getSuratTugasByAsesor(asr.asesor.id)}"
+                                  >
+                                    <a
+                                      th:if="${st != null}"
+                                      th:href="@{${st.filePath}}"
+                                      target="_blank"
+                                      class="btn btn-xs btn-outline-primary"
+                                      title="Lihat Surat Tugas"
                                     >
+                                      <i class="fas fa-file-pdf mr-1"></i>
+                                      <span th:text="${st.nomorSurat}"
+                                        >001/ST...</span
+                                      >
+                                    </a>
+
+                                    <span
+                                      th:unless="${st != null}"
+                                      class="badge badge-secondary"
+                                    >
+                                      Belum Digenerate
+                                    </span>
                                   </td>
                                 </tr>
                                 <tr th:if="${row.assessors.empty}">

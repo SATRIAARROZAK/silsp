@@ -320,6 +320,29 @@ $(document).ready(function () {
     },
   });
 
+
+
+  // Konfirmasi Delete
+  $(".delete-button-surat").on("click", function (e) {
+    e.preventDefault();
+    var link = $(this).attr("href");
+
+    Swal.fire({
+      title: "Yakin Hapus Surat Tugas?",
+      text: "Surat Yang Dibuat Akan Hilang!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Ya, Hapus!",
+      cancelButtonText: "Batal",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.href = link;
+      }
+    });
+  });
+
   // Integrasi Select2 dengan Validasi (Hapus error saat dipilih)
   //   $(".select2").on("change", function () {
   //     $(this).valid();

@@ -745,8 +745,37 @@ public class AdminController {
         return "redirect:/admin/jadwal-sertifikasi";
     }
 
+    // @GetMapping("/surat-tugas-asesor")
+    // public String showDataSuratTugas(Model model) { // 1. Tambahkan Model sebagai
+    // parameter
+
+    // return "pages/admin/surat/surat-tugas-list";
+    // }
+
     @GetMapping("/surat-tugas-asesor")
-    public String showDataSuratTugas(Model model) { // 1. Tambahkan Model sebagai parameter
+    public String showSuratTugasList(Model model,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(value = "keyword", required = false) String keyword) {
+
+        // Setup Pagination (Urutkan ID Descending agar surat terbaru di atas)
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+
+        Page<SuratTugas> pageSurat;
+
+        if (keyword != null && !keyword.isEmpty()) {
+            // Pencarian berdasarkan Nomor Surat atau Nama Asesor
+            pageSurat = suratTugasRepository.searchSuratTugas(keyword, pageable);
+        } else {
+            pageSurat = suratTugasRepository.findAll(pageable);
+        }
+
+        model.addAttribute("listSurat", pageSurat.getContent());
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", pageSurat.getTotalPages());
+        model.addAttribute("totalItems", pageSurat.getTotalElements());
+        model.addAttribute("size", size);
 
         return "pages/admin/surat/surat-tugas-list";
     }
@@ -1086,6 +1115,21 @@ public class AdminController {
 
         // 2. Return nama file template HTML yang ada di folder 'templates/pdf'
         return "pages/admin/surat/surat-tugas-template";
+    }
+
+    @GetMapping("/surat-tugas-asesor/delete/{id}")
+    public String deleteSuratTugas(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            // Opsional: Hapus file fisik jika perlu
+            // SuratTugas st = suratTugasRepository.findById(id).orElse(null);
+            // if(st != null && st.getFilePath() != null) { ... logic hapus file ... }
+
+            suratTugasRepository.deleteById(id);
+            redirectAttributes.addFlashAttribute("success", "Surat tugas berhasil dihapus!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Gagal menghapus data.");
+        }
+        return "redirect:/admin/surat-tugas-asesor";
     }
 
     @GetMapping("/data-pengguna")
@@ -1730,12 +1774,10 @@ public class AdminController {
         return "pages/admin/asesi/asesi-view";
     }
 
-    // @GetMapping("/asesi")
-    // public String showAsesiListPage(Model model) {
-    // // ... (logika data asesi Anda) ...
+    @GetMapping("/data-asesor")
+    public String showDataAsesor(Model model) {
 
-    // // Tambahkan daftar menu ke model
-    // model.addAttribute("menuItems", sidebarService.getAdminMenuItems());
-    // return "pages/admin/asesi-list";
-    // }
+        return "pages/admin/asesors/asesor-list";
+    }
+
 }

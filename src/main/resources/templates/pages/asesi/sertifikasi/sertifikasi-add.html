@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html
+  lang="en"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/app}"
+>
+  <head
+    th:replace="~{fragments/header :: header('Daftar Ujikompetensi')}"
+  ></head>
+
+  <body>
+    <div layout:fragment="content">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-12">
+            <div class="card card-blue-dark card-tabs">
+              <div class="card-header p-0 pt-1">
+                <ul class="nav nav-tabs" id="daftar-sertifikasi" role="tablist">
+                  <li class="nav-item">
+                    <a
+                      class="nav-link active"
+                      id="pengajuan-skema-tab"
+                      data-toggle="pill"
+                      href="#pengajuan-skema-tabs"
+                      role="tab"
+                      aria-controls="pengajuan-skema-tabs"
+                      aria-selected="true"
+                      >Pengajuan Skema</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a
+                      class="nav-link"
+                      id="data-asesi-tab"
+                      data-toggle="pill"
+                      href="#data-asesi-tabs"
+                      role="tab"
+                      aria-controls="data-asesi-tabs"
+                      aria-selected="false"
+                      >Data Pemohon</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a
+                      class="nav-link"
+                      id="bukti-persyaratan-dasar-tab"
+                      data-toggle="pill"
+                      href="#bukti-persyaratan-dasar-tabs"
+                      role="tab"
+                      aria-controls="bukti-persyaratan-dasar-tabs"
+                      aria-selected="false"
+                      >Persyaratan Dasar</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a
+                      class="nav-link"
+                      id="bukti-administrasi-tab"
+                      data-toggle="pill"
+                      href="#bukti-administrasi-tabs"
+                      role="tab"
+                      aria-controls="bukti-administrasi-tabs"
+                      aria-selected="false"
+                      >Bukti Administrasi</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a
+                      class="nav-link"
+                      id="bukti-portofolio-tab"
+                      data-toggle="pill"
+                      href="#bukti-portofolio-tabs"
+                      role="tab"
+                      aria-controls="bukti-portofolio-tabs"
+                      aria-selected="false"
+                      >Bukti Portofolio</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a
+                      class="nav-link"
+                      id="tujuan-uji-tab"
+                      data-toggle="pill"
+                      href="#tujuan-uji-tabs"
+                      role="tab"
+                      aria-controls="tujuan-uji-tabs"
+                      aria-selected="false"
+                      >Tujuan Asesmen</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a
+                      class="nav-link"
+                      id="bukti-kompetensi-tab"
+                      data-toggle="pill"
+                      href="#bukti-kompetensi-tabs"
+                      role="tab"
+                      aria-controls="bukti-kompetensi-tabs"
+                      aria-selected="false"
+                      >Bukti Kompetensi</a
+                    >
+                  </li>
+                </ul>
+              </div>
+              <div class="card-body">
+                <form
+                  id="form-pengajuan-skema"
+                  th:action="@{/}"
+                  method="post"
+                  enctype="multipart/form-data"
+                  novalidate
+                >
+                  <div class="tab-content" id="pengajuan-skema-tabContent">
+                    <div
+                      class="tab-pane fade show active"
+                      id="pengajuan-skema-tabs"
+                      role="tabpanel"
+                      aria-labelledby="pengajuan-skema-tab"
+                    >
+                      <div class="row">
+                        <div class="col-md-6">
+                          <div class="form-group">
+                            <label>Pilih Skema</label>
+                            <select
+                              required
+                              class="form-control select2"
+                              style="width: 100%"
+                              id="pilihSkema"
+                              name="selectSkema"
+                            >
+                              <option value="" disabled selected>
+                                Pilih Skema
+                              </option>
+
+                              <option value="">Digital Marketing</option>
+                              <option value="">Data Analyst</option>
+                              <option value="">Data Scientist</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="form-group">
+                            <label>Pilih Jadwal</label>
+                            <select
+                              required
+                              class="form-control select2"
+                              style="width: 100%"
+                              id="pilihJadwalUji"
+                              name="selectJadwalUji"
+                            >
+                              <option value="" disabled selected>
+                                Pilih Jadwal
+                              </option>
+                              <option value="">
+                                Nama Jadwal - Skema - Tgl Asesmen - di TUK
+                              </option>
+                            </select>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="form-group">
+                            <label>Sumber Aggaran</label>
+                            <select
+                              class="form-control select2"
+                              required
+                              disabled
+                            >
+                              <option value="">
+                                Sumber Anggaran Biaya Mandiri
+                              </option>
+                            </select>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="form-group">
+                            <label>Pemberi Aggaran</label>
+                            <select
+                              class="form-control select2"
+                              required
+                              disabled
+                            >
+                              <option value="">Biaya Mandiri</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="tab-pane fade"
+                      id="data-asesi-tabs"
+                      role="tabpanel"
+                      aria-labelledby="data-asesi-tab"
+                    >
+                      <div class="row">
+                        <div class="col-md-4">
+                          <div class="form-group">
+                            <label>NIK<span class="text-danger">*</span></label>
+
+                            <input
+                              type="text"
+                              class="form-control mask-nik"
+                              required
+                            />
+                          </div>
+                          <div class="invalid-feedback"></div>
+                        </div>
+
+                        <div class="col-md-8">
+                          <div class="form-group">
+                            <label
+                              >Nama Lengkap
+                              <span class="text-danger">*</span></label
+                            >
+                            <input type="text" class="form-control" required />
+                          </div>
+                        </div>
+
+                        <div class="col-md-4">
+                          <div class="form-group">
+                            <label
+                              >Tempat Lahir
+                              <span class="text-danger">*</span></label
+                            >
+                            <input type="text" class="form-control" required />
+                          </div>
+                        </div>
+                        <div class="col-md-4">
+                          <div class="form-group">
+                            <label
+                              >Tanggal Lahir
+                              <span class="text-danger">*</span></label
+                            >
+                            <input type="date" class="form-control" required />
+                          </div>
+                        </div>
+                        <div class="col-md-4">
+                          <div class="form-group">
+                            <label
+                              >Jenis Kelamin<span class="text-danger"
+                                >*</span
+                              ></label
+                            >
+                            <select class="form-control" required>
+                              <option value="L">Laki-laki</option>
+                              <option value="P">Perempuan</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div class="row mt-2">
+                          <div class="col-md-4">
+                            <div class="form-group">
+                              <label
+                                >Provinsi<span class="text-danger"
+                                  >*</span
+                                ></label
+                              >
+                              <select
+                                class="form-control select2"
+                                id="selectProvinsi"
+                                name="province"
+                                th:data-selected="*{provinceId}"
+                                required
+                                style="width: 100%"
+                              ></select>
+                              <input type="hidden" id="inputProvinsi" />
+                            </div>
+                          </div>
+
+                          <div class="col-md-4">
+                            <div class="form-group">
+                              <label
+                                >Kota/Kabupaten<span class="text-danger"
+                                  >*</span
+                                ></label
+                              >
+                              <select
+                                class="form-control select2"
+                                id="selectKota"
+                                name="city"
+                                th:data-selected="*{cityId}"
+                                disabled
+                                required
+                                style="width: 100%"
+                              >
+                                <option value="" disabled selected>
+                                  Pilih Kota/Kab...
+                                </option>
+                              </select>
+                              <input type="hidden" id="inputKota" />
+                            </div>
+                          </div>
+
+                          <div class="col-md-4">
+                            <div class="form-group">
+                              <label
+                                >Kecamatan<span class="text-danger"
+                                  >*</span
+                                ></label
+                              >
+                              <select
+                                class="form-control select2"
+                                id="selectKecamatan"
+                                name="district"
+                                th:data-selected="*{districtId}"
+                                disabled
+                                required
+                                style="width: 100%"
+                              >
+                                <option value="" disabled selected>
+                                  Pilih Kecamatan...
+                                </option>
+                              </select>
+                              <input
+                                type="hidden"
+                                id="inputKecamatan"
+                                required
+                              />
+                            </div>
+                          </div>
+                          <div class="col-md-12">
+                            <div class="form-group">
+                              <label
+                                >Alamat Jalan<span class="text-danger"
+                                  >*</span
+                                ></label
+                              >
+                              <textarea
+                                class="form-control"
+                                rows="2"
+                                required
+                              ></textarea>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="col-md-4">
+                          <div class="form-group">
+                            <label
+                              >Kode Pos<span class="text-danger">*</span></label
+                            >
+                            <input type="text" class="form-control" required />
+                          </div>
+                        </div>
+
+                        <div class="col-md-4">
+                          <div class="form-group">
+                            <label
+                              >Email <span class="text-danger">*</span></label
+                            >
+                            <input type="email" class="form-control" required />
+                          </div>
+                        </div>
+
+                        <div class="col-md-4">
+                          <div class="form-group">
+                            <label
+                              >No Telp <span class="text-danger">*</span></label
+                            >
+                            <div class="input-group">
+                              <div class="input-group-prepend">
+                                <span class="input-group-text">+62</span>
+                              </div>
+                              <input
+                                type="text"
+                                class="form-control input-phone"
+                                name="phoneNumber"
+                                placeholder="812xxxxxxx"
+                                required
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="col-md-4">
+                          <div class="form-group">
+                            <label
+                              >Pendidikan Terakhir<span class="text-danger"
+                                >*</span
+                              ></label
+                            >
+                            <select
+                              class="form-control select2"
+                              id="selectPendidikan"
+                              th:data-selected="*{educationId}"
+                              style="width: 100%"
+                              required
+                            >
+                              <option value="" disabled selected></option>
+                            </select>
+                            <input type="hidden" id="inputPendidikan" />
+                          </div>
+                        </div>
+
+                        <div class="col-md-6">
+                          <div class="form-group">
+                            <label>Jenis Pekerjaan</label>
+
+                            <select
+                              class="form-control select2"
+                              style="width: 100%"
+                              required
+                            >
+                              <option value="">Pilih Pekerjaan...</option>
+                            </select>
+                            <!-- <input type="hidden" id="inputPekerjaan" /> -->
+                          </div>
+                        </div>
+
+                        <div class="row">
+                          <div class="col-12">
+                            <h5 class="mt-3 text-muted">Detail Pekerjaan</h5>
+                            <div class="row">
+                              <div class="col-md-6">
+                                <div class="form-group">
+                                  <label>Nama Instansi/Perusahaan</label>
+                                  <input
+                                    type="text"
+                                    class="form-control"
+                                    required
+                                  />
+                                </div>
+                              </div>
+                              <div class="col-md-6">
+                                <div class="form-group">
+                                  <label>Jabatan</label>
+                                  <input type="text" class="form-control" />
+                                </div>
+                              </div>
+
+                              <div class="col-md-4">
+                                <div class="form-group">
+                                  <label>Telp Kantor</label
+                                  ><input type="text" class="form-control" />
+                                </div>
+                              </div>
+                              <div class="col-md-4">
+                                <div class="form-group">
+                                  <label>Email Kantor</label
+                                  ><input type="text" class="form-control" />
+                                </div>
+                              </div>
+                              <div class="col-md-4">
+                                <div class="form-group">
+                                  <label>Fax</label
+                                  ><input type="text" class="form-control" />
+                                </div>
+                              </div>
+                            </div>
+                            <div class="row">
+                              <div class="col-md-12">
+                                <div class="form-group">
+                                  <label>Alamat Kantor</label
+                                  ><textarea
+                                    class="form-control"
+                                    rows="1"
+                                  ></textarea>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="tab-pane fade"
+                      id="bukti-persyaratan-dasar-tabs"
+                      role="tabpanel"
+                      aria-labelledby="bukti-persyaratan-dasar-tab"
+                    >
+                      <div class="row">
+                        <div class="table-responsive">
+                          <table
+                            class="table table-valign-middle table-sm table-bordered nested-table"
+                          >
+                            <thead class="thead-light text-center">
+                              <tr>
+                                <th>No</th>
+                                <th>Daftar Persyaratan</th>
+                                <th>Upload</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td class="text-center align-middle">1</td>
+                                <td class="align-middle">Persyaratan</td>
+                                <td>
+                                  <div class="input-group">
+                                    <div class="custom-file">
+                                      <input
+                                        type="file"
+                                        required
+                                        class="custom-file-input"
+                                        id="fileSkema"
+                                        name="fileSkema"
+                                        accept=".pdf"
+                                      />
+                                      <label
+                                        class="custom-file-label"
+                                        for="fileSkema"
+                                        >Pilih file</label
+                                      >
+                                    </div>
+                                  </div>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="tab-pane fade"
+                      id="bukti-administrasi-tabs"
+                      role="tabpanel"
+                      aria-labelledby="bukti-administrasi-tab"
+                    >
+                      <div class="row">
+                        <div class="table-responsive">
+                          <table
+                            class="table table-valign-middle table-sm table-bordered nested-table"
+                          >
+                            <thead class="thead-light text-center">
+                              <tr>
+                                <th>No</th>
+                                <th>Bukti Administrasi</th>
+                                <th>Upload</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td class="text-center align-middle">1</td>
+                                <td class="align-middle">
+                                  Upload Kartu Tanda Penduduk (KTP)
+                                </td>
+                                <td>
+                                  <div class="input-group">
+                                    <div class="custom-file">
+                                      <input
+                                        type="file"
+                                        required
+                                        class="custom-file-input"
+                                        id="fileSkema"
+                                        name="fileSkema"
+                                        accept=".pdf"
+                                      />
+                                      <label
+                                        class="custom-file-label"
+                                        for="fileSkema"
+                                        >Pilih file</label
+                                      >
+                                    </div>
+                                  </div>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td class="text-center align-middle">2</td>
+                                <td class="align-middle">
+                                  Upload Pasfoto terbaru ukuran 3x4 cm dengan
+                                  latar belakang warna merah
+                                </td>
+                                <td>
+                                  <div class="input-group">
+                                    <div class="custom-file">
+                                      <input
+                                        type="file"
+                                        required
+                                        class="custom-file-input"
+                                        id="fileSkema"
+                                        name="fileSkema"
+                                        accept=".pdf"
+                                      />
+                                      <label
+                                        class="custom-file-label"
+                                        for="fileSkema"
+                                        >Pilih file</label
+                                      >
+                                    </div>
+                                  </div>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="tab-pane fade"
+                      id="bukti-portofolio-tabs"
+                      role="tabpanel"
+                      aria-labelledby="bukti-portofolio-tab"
+                    >
+                      <div class="row">
+                        <div class="table-responsive">
+                          <table
+                            class="table table-valign-middle table-sm table-bordered nested-table"
+                          >
+                            <thead class="thead-light text-center">
+                              <tr>
+                                <th>No</th>
+                                <th>Bukti Portofolio</th>
+                                <th>Upload</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td class="text-center align-middle">1</td>
+                                <td class="align-middle">Laporan Projek</td>
+                                <td>
+                                  <div class="input-group">
+                                    <div class="custom-file">
+                                      <input
+                                        type="file"
+                                        required
+                                        class="custom-file-input"
+                                        id="fileSkema"
+                                        name="fileSkema"
+                                        accept=".pdf"
+                                      />
+                                      <label
+                                        class="custom-file-label"
+                                        for="fileSkema"
+                                        >Pilih file</label
+                                      >
+                                    </div>
+                                  </div>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td class="text-center align-middle">2</td>
+                                <td class="align-middle">
+                                  Sertifikat Pelatihan
+                                </td>
+                                <td>
+                                  <div class="input-group">
+                                    <div class="custom-file">
+                                      <input
+                                        type="file"
+                                        required
+                                        class="custom-file-input"
+                                        id="fileSkema"
+                                        name="fileSkema"
+                                        accept=".pdf"
+                                      />
+                                      <label
+                                        class="custom-file-label"
+                                        for="fileSkema"
+                                        >Pilih file</label
+                                      >
+                                    </div>
+                                  </div>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td class="text-center align-middle">3</td>
+                                <td class="align-middle">Surat Tugas</td>
+                                <td>
+                                  <div class="input-group">
+                                    <div class="custom-file">
+                                      <input
+                                        type="file"
+                                        required
+                                        class="custom-file-input"
+                                        id="fileSkema"
+                                        name="fileSkema"
+                                        accept=".pdf"
+                                      />
+                                      <label
+                                        class="custom-file-label"
+                                        for="fileSkema"
+                                        >Pilih file</label
+                                      >
+                                    </div>
+                                  </div>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="tab-pane fade"
+                      id="tujuan-uji-tabs"
+                      role="tabpanel"
+                      aria-labelledby="tujuan-uji-tab"
+                    >
+                      <div class="row">
+                        <div class="table-responsive">
+                          <h6 class="text-primary font-weight-bold mb-2">
+                            <i class="fas fa-layer-group mr-1"></i>
+                            Daftar Unit Skema:
+                            <span>Digital Marketing</span>
+                          </h6>
+                          <table
+                            class="table table-valign-middle table-sm table-bordered nested-table"
+                          >
+                            <thead class="thead-light text-center">
+                              <tr>
+                                <th style="width: 50px" class="text-center">
+                                  No
+                                </th>
+                                <th style="width: 200px">Kode Unit</th>
+                                <th>Judul Unit</th>
+                                <th>Standar Kompetensi Kerja</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td class="text-center">1</td>
+                                <td class="font-weight-bold">Kode</td>
+                                <td>Judul</td>
+                                <td class="text-center align-middle bg-white">
+                                  SKKNI No.<span>299</span>
+                                  Tahun
+                                  <span>2020</span>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+
+                        <div class="col-md-6 mt-3">
+                          <div class="form-group">
+                            <label>Tujuan Asesmen</label>
+                            <div class="custom-control custom-radio">
+                              <input
+                                class="custom-control-input"
+                                type="radio"
+                                id="customRadio1" name="customRadio"
+                              />
+                              <label
+                                for="customRadio1"
+                                class="custom-control-label"
+                                >Sertifikasi</label
+                              >
+                            </div>
+                            <div class="custom-control custom-radio">
+                              <input
+                                class="custom-control-input"
+                                type="radio" id="customRadio2" name="customRadio"
+                              />
+                              <label
+                                for="customRadio2"
+                                class="custom-control-label"
+                                >Pengakuan Kompetensi Terkini (PKT)</label
+                              >
+                            </div>
+                            <div class="custom-control custom-radio">
+                              <input
+                                class="custom-control-input"
+                                type="radio"
+                                id="customRadio3" name="customRadio"
+                              />
+                              <label
+                                for="customRadio2"
+                                class="custom-control-label"
+                                >Rekognisi Pembelajaran Lampau (RPL)</label
+                              >
+                            </div>
+                            <div class="custom-control custom-radio">
+                              <input
+                                class="custom-control-input"
+                                type="radio" id="customRadio4" name="customRadio"
+                              />
+                              <label
+                                for="customRadio2"
+                                class="custom-control-label"
+                                >Lainnya</label
+                              >
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="tab-pane fade"
+                      id="bukti-kompetensi-tabs"
+                      role="tabpanel"
+                      aria-labelledby="bukti-kompetensi-tab"
+                    >
+                      <div class="row">
+                        <div class="table-responsive">
+                          <table
+                            class="table table-valign-middle table-sm table-bordered nested-table"
+                          >
+                            <thead class="thead-light text-center">
+                              <tr>
+                                <th>Unit Kompetensi</th>
+                                <th>Elemen</th>
+                                <th>Kriteria Untuk Kerja</th>
+                                <th>Upload</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td class="text-center align-middle">
+                                  Menelaah Data
+                                </td>
+                                <td class="align-middle">
+                                  Menilai Hasil Pemodelan
+                                </td>
+                                <td class="align-middle">
+                                  1.1 - Strategi pembersihan data ditentukan
+                                  berdasarkan hasil telaah data. 1.2 - Data yang
+                                  kotor dikoreksi berdasarkan strategi
+                                  pembersihan data.
+                                </td>
+                                <td>
+                                  <div class="input-group">
+                                    <div class="custom-file">
+                                      <input
+                                        type="file"
+                                        required
+                                        class="custom-file-input"
+                                        id="fileSkema"
+                                        name="fileSkema"
+                                        accept=".pdf"
+                                      />
+                                      <label
+                                        class="custom-file-label"
+                                        for="fileSkema"
+                                        >Pilih file</label
+                                      >
+                                    </div>
+                                  </div>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card-footer mt-3 text-left">
+                    <button
+                      type="submit"
+                      id="save-button"
+                      class="btn btn-outline-warning"
+                    >
+                      Kirim
+                    </button>
+                    <a
+                      th:href="@{/asesi/daftar-sertifikasi}"
+                      class="btn btn-outline-info"
+                      id="cancel-button"
+                      >Batal</a
+                    >
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

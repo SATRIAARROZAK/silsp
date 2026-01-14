@@ -531,19 +531,19 @@ $(document).ready(function () {
       }
     });
 
-    $(".prev-tab").on("click", function () {
-      const targetTabId = $(this).data("target-tab");
-      $("#" + targetTabId).tab("show");
-    });
+    // $(".prev-tab").on("click", function () {
+    //   const targetTabId = $(this).data("target-tab");
+    //   $("#" + targetTabId).tab("show");
+    // });
 
-    $(".card-tabs .nav-tabs .nav-link").on("click", function (e) {
-      e.preventDefault();
-      Toast.fire({
-        icon: "info",
-        title: 'Gunakan tombol "Selanjutnya" atau "Sebelumnya".',
-      });
-      return false;
-    });
+    // $(".card-tabs .nav-tabs .nav-link").on("click", function (e) {
+    //   e.preventDefault();
+    //   Toast.fire({
+    //     icon: "info",
+    //     title: 'Gunakan tombol "Selanjutnya" atau "Sebelumnya".',
+    //   });
+    //   return false;
+    // });
 
     // D. SUBMIT FORM
     // --------------

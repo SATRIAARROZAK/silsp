@@ -94,4 +94,10 @@ public class AsesiController {
     public String showSertifikasiList() {
         return "pages/asesi/sertifikasi/sertifikasi-list";
     }
+
+    @GetMapping("/daftar")
+    public String showDaftarUji() {
+        return "pages/asesi/sertifikasi/sertifikasi-add";
+    }
+    
 }

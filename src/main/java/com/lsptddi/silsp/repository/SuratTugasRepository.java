@@ -27,4 +27,15 @@ public interface SuratTugasRepository extends JpaRepository<SuratTugas, Long> {
             "LOWER(s.asesor.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(s.jadwal.name) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     Page<SuratTugas> searchSuratTugas(@Param("keyword") String keyword, Pageable pageable);
+
+    // QUERY KHUSUS ASESOR: Hanya ambil surat tugas milik usernya sendiri
+    @Query("SELECT st FROM SuratTugas st WHERE " +
+            "st.asesor.username = :username AND " +
+            "(:keyword IS NULL OR :keyword = '' OR " +
+            "LOWER(st.jadwal.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(st.skema.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(st.nomorSurat) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+    Page<SuratTugas> findMyAssignments(@Param("username") String username,
+            @Param("keyword") String keyword,
+            Pageable pageable);
 }

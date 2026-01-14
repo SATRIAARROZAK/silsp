@@ -5,7 +5,7 @@
   xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
   layout:decorate="~{layouts/app}"
 >
-  <head th:replace="~{fragments/header :: header('Daftar Jadwal')}"></head>
+  <head th:replace="~{fragments/header :: header('Daftar Jadwal Uji')}"></head>
 
   <body>
     <div layout:fragment="page-title">
@@ -18,13 +18,17 @@
       </ol>
     </div>
     <div layout:fragment="content">
-      <div class="card">
+      <div class="card card-outline card-primary">
         <div class="card-header">
-          <div class="row mb-3"></div>
+          <!-- <div class="row mb-2">
+            <div class="col-sm-12">
+              <h3 class="card-title text-muted">Jadwal Penugasan Saya</h3>
+            </div>
+          </div> -->
 
-          <form th:action="@{/}" method="get">
+          <form th:action="@{/asesor/jadwal}" method="get">
             <div class="row">
-              <div class="col-12 col-md-4 mb-2">
+              <div class="col-12 col-md-5 mb-2">
                 <div class="form-group mb-0">
                   <div class="input-group">
                     <input
@@ -32,10 +36,10 @@
                       class="form-control"
                       name="keyword"
                       th:value="${keyword}"
-                      placeholder="Masukkan Nama Asesor"
+                      placeholder="Cari Jadwal Yang Ditugaskan"
                     />
                     <div class="input-group-append">
-                      <button type="submit" class="btn btn-outline-info">
+                      <button type="submit" class="btn btn-primary">
                         <i class="fas fa-search"></i> Cari
                       </button>
                     </div>
@@ -43,12 +47,12 @@
                 </div>
               </div>
 
-              <div class="col-12 col-md-3 mb-2 d-flex align-items">
+              <div class="col-12 col-md-3 mb-2">
                 <a
-                  th:href="@{/admin/data-asesor}"
+                  th:href="@{/asesor/jadwal}"
                   class="btn btn-default btn-block"
                 >
-                  <i class="fas fa-sync-alt"></i> Reset Filter
+                  <i class="fas fa-sync-alt"></i> Reset
                 </a>
               </div>
             </div>
@@ -62,19 +66,314 @@
             >
               <thead class="bg-light">
                 <tr class="text-center">
-                  <th style="width: 1%">No</th>
-                  <th style="width: 25%">Jadwal & Skema</th>
-                  <th style="width: 15%" class="text-center">
-                    Tanggal Asesmen
-                  </th>
-                  <th style="width: 20%">Surat Tugas</th>
+                  <th style="width: 5%">No</th>
+                  <th style="width: 40%" class="text-left">Jadwal & Skema</th>
+                  <th style="width: 20%">Tanggal Asesmen</th>
+                  <th style="width: 35%">Surat Tugas</th>
+                  <th style="width: 10%">Berkas Asesi</th>
                 </tr>
               </thead>
-              <tbody></tbody>
+              <tbody>
+                <tr th:each="row, i : ${listJadwal}">
+                  <td
+                    class="text-center"
+                    th:text="${(size * currentPage) + i.count}"
+                  >
+                    1
+                  </td>
+
+                  <!-- <td>
+                    <div class="d-flex flex-column">
+                      <span class="font-weight-bold text-primary mb-1">
+                        <i class="fas fa-calendar-check mr-1"></i>
+                        <span th:text="${row.name}">Nama Jadwal Uji</span>
+                      </span>
+
+
+
+                      <small class="text-muted">
+                        <i class="fas fa-book mr-1"></i>
+                        <span th:text="${row.schemas}">Nama Skema</span>
+                      </small>
+
+                      <small class="text-info mt-1">
+                        <i class="fas fa-map-marker-alt mr-1"></i>
+                        <span th:text="${row.tuk.name}">Lokasi TUK</span>
+                      </small>
+                    </div>
+                  </td> -->
+
+                  <td>
+                    <div class="d-flex flex-column">
+                      <span class="font-weight-bold text-primary mb-1">
+                        <i class="fas fa-calendar-check mr-1"></i>
+                        <span th:text="${row.name}">Nama Jadwal Uji</span>
+                      </span>
+
+                      <div class="text-muted small">
+                        <i class="fas fa-book mr-1"></i> Skema:
+                        <ul class="mb-0 pl-3">
+                          <li
+                            th:each="s : ${row.schemas}"
+                            th:text="${s.schema.name}"
+                          ></li>
+                        </ul>
+                      </div>
+
+                      <small class="text-info mt-2">
+                        <i class="fas fa-map-marker-alt mr-1"></i>
+                        <span th:text="${row.tuk.name}">Lokasi TUK</span>
+                      </small>
+                    </div>
+                  </td>
+
+                  <td class="text-center">
+                    <span class="badge badge-light border p-2">
+                      <i class="far fa-clock mr-1"></i>
+                      <span
+                        th:text="${#temporals.format(row.startDate, 'dd MMMM yyyy')}"
+                        >01 Jan 2025</span
+                      >
+                    </span>
+                  </td>
+
+                  <td
+                    class="text-center"
+                    th:with="mySurat=${row.getSuratTugasByAsesor(currentUser.id)}"
+                  >
+                    <div th:if="${mySurat != null}">
+                      <a
+                        th:href="@{${mySurat.filePath}}"
+                        target="_blank"
+                        class="btn btn-outline-danger btn-sm"
+                      >
+                        <i class="fas fa-file-pdf"></i>
+                        <!-- <span th:text="${row.nomorSurat}">001/ST/...</span> -->
+                      </a>
+                      <!-- <a
+                        th:href="@{${mySurat.filePath}}"
+                        target="_blank"
+                        class="btn btn-outline-success btn-sm text-left shadow-sm"
+                      >
+                        <div
+                          class="d-flex justify-content-between align-items-center"
+                        >
+                          <span>
+                            <i class="fas fa-file-pdf mr-2"></i> Download Surat
+                          </span>
+                          <i class="fas fa-check-circle"></i>
+                        </div>
+                        <small
+                          class="d-block mt-1 text-muted text-center"
+                          style="font-size: 10px"
+                          th:text="${mySurat.nomorSurat}"
+                        ></small>
+                      </a> -->
+                    </div>
+
+                    <div th:unless="${mySurat != null}">
+                      <span class="badge badge-warning p-2 w-100">
+                        <i class="fas fa-hourglass-half mr-1"></i> Menunggu
+                        Surat Tugas
+                      </span>
+                      <small class="text-muted d-block mt-1"
+                        >Admin belum menerbitkan surat.</small
+                      >
+                    </div>
+                  </td>
+                  <td class="align-middle text-center">
+                    <a
+                      class="btn btn-outline-warning btn-sm"
+                      th:href="@{/}"
+                      title="Lihat Berkas"
+                    >
+                      <i class="fas fa-folder"> </i>
+                    </a>
+                  </td>
+
+                  <!-- <td class="text-center"> -->
+                  <!-- <a
+                    th:href="@{${mySurat.filePath}}"
+                    target="_blank"
+                    class="btn btn-outline-danger btn-sm"
+                  >
+                    <i class="fas fa-file-pdf"></i> -->
+                  <!-- <span th:text="${row.nomorSurat}">001/ST/...</span> -->
+                  <!-- </a> -->
+                  <!-- </td> -->
+                </tr>
+
+                <tr th:if="${listJadwal.empty}">
+                  <td colspan="4" class="text-center text-muted py-4">
+                    <i class="fas fa-info-circle mr-1"></i> Anda belum memiliki
+                    jadwal penugasan.
+                  </td>
+                </tr>
+              </tbody>
             </table>
+          </div>
+          <div class="card-footer clearfix">
+            <div class="row">
+              <div class="col-sm-12 col-md-5">
+                <span class="text-muted small">
+                  <div class="dataTables_info" role="status" aria-live="polite">
+                    Menampilkan
+                    <b th:text="${(currentPage * 10) + 1}">1</b> sampai
+                    <b th:text="${(currentPage * 10) + listJadwal.size()}"
+                      >10</b
+                    >
+                    dari <b th:text="${totalItems}">50</b> data
+                  </div>
+                </span>
+              </div>
+              <div class="col-sm-12 col-md-7">
+                <ul
+                  class="pagination pagination-sm m-0 float-right"
+                  th:if="${totalPages > 0}"
+                >
+                  <li
+                    class="page-item"
+                    th:classappend="${currentPage == 0} ? 'disabled'"
+                  >
+                    <a
+                      class="page-link"
+                      th:href="@{/asesor/jadwal(page=${currentPage - 1}, keyword=${keyword})}"
+                      >&laquo;</a
+                    >
+                  </li>
+
+                  <li
+                    class="page-item"
+                    th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                    th:if="${i >= currentPage - 2 && i <= currentPage + 2}"
+                    th:classappend="${i == currentPage} ? 'active'"
+                  >
+                    <a
+                      class="page-link"
+                      th:href="@{/asesor/jadwal(page=${i}, keyword=${keyword})}"
+                      th:text="${i + 1}"
+                      >1</a
+                    >
+                  </li>
+
+                  <li
+                    class="page-item"
+                    th:classappend="${currentPage == totalPages - 1} ? 'disabled'"
+                  >
+                    <a
+                      class="page-link"
+                      th:href="@{/asesor/jadwal(page=${currentPage + 1}, keyword=${keyword})}"
+                      >&raquo;</a
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </body>
 </html>
+<!-- 
+<!DOCTYPE html>
+<html
+  lang="en"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/app}"
+>
+  <head th:replace="~{fragments/header :: header('Daftar Jadwal Uji')}"></head>
+
+  <body>
+    <div layout:fragment="page-title">
+      <h1 class="m-0">Daftar Jadwal Uji</h1>
+    </div>
+    
+    <div layout:fragment="content">
+      <div class="card card-outline card-primary">
+        
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-striped projects table-hover align-middle">
+              <thead class="bg-light">
+                <tr class="text-center">
+                  <th style="width: 5%">No</th>
+                  <th style="width: 40%" class="text-left">Detail Jadwal & Skema</th>
+                  <th style="width: 20%">Tanggal Asesmen</th>
+                  <th style="width: 35%">Status Surat Tugas</th>
+                </tr>
+              </thead>
+              <tbody>
+                
+                <tr th:each="row, i : ${listJadwal.content}">
+                  
+                  <td class="text-center" th:text="${(size * currentPage) + i.count}">1</td>
+                  
+                  <td>
+                    <div class="d-flex flex-column">
+                        <span class="font-weight-bold text-primary mb-1">
+                            <i class="fas fa-calendar-check mr-1"></i>
+                            <span th:text="${row.name}">Nama Jadwal Uji</span>
+                        </span>
+                        
+                        <div class="text-muted small">
+                            <i class="fas fa-book mr-1"></i> Skema Tersedia:
+                            <ul class="mb-0 pl-3">
+                                <li th:each="s : ${row.schemas}" th:text="${s.schema.name}"></li>
+                            </ul>
+                        </div>
+                        
+                        <small class="text-info mt-2">
+                            <i class="fas fa-map-marker-alt mr-1"></i>
+                            <span th:text="${row.tuk.name}">Lokasi TUK</span>
+                        </small>
+                    </div>
+                  </td>
+                  
+                  <td class="text-center">
+                    <span class="badge badge-light border p-2">
+                        <i class="far fa-clock mr-1"></i>
+                        <span th:text="${#temporals.format(row.startDate, 'dd MMMM yyyy')}">01 Jan 2025</span>
+                    </span>
+                  </td>
+                  
+                  <td class="text-center" th:with="mySurat=${row.getSuratTugasByAsesor(currentUser.id)}">
+                    
+                    <div th:if="${mySurat != null}" class="btn-group-vertical btn-block">
+                        <a th:href="@{${mySurat.filePath}}" target="_blank" class="btn btn-outline-success btn-sm text-left shadow-sm">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>
+                                    <i class="fas fa-file-pdf mr-2"></i> Download Surat
+                                </span>
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <small class="d-block mt-1 text-muted" style="font-size: 10px;" th:text="${mySurat.nomorSurat}"></small>
+                        </a>
+                    </div>
+
+                    <div th:unless="${mySurat != null}">
+                        <span class="badge badge-warning p-2 w-100">
+                            <i class="fas fa-hourglass-half mr-1"></i> Menunggu Surat Tugas
+                        </span>
+                        <small class="text-muted d-block mt-1">Admin belum menerbitkan surat.</small>
+                    </div>
+
+                  </td>
+                </tr>
+
+                <tr th:if="${listJadwal.empty}">
+                    <td colspan="4" class="text-center text-muted py-4">
+                        <i class="fas fa-info-circle mr-1"></i> Anda belum ditugaskan pada jadwal manapun.
+                    </td>
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        </div>
+    </div>
+  </body>
+</html> -->

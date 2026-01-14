@@ -42,6 +42,30 @@
                   <li class="nav-item">
                     <a
                       class="nav-link"
+                      id="unit-elemen-tab"
+                      data-toggle="pill"
+                      href="#unit-elemen"
+                      role="tab"
+                      aria-controls="unit-elemen"
+                      aria-selected="false"
+                      >3. Elemen</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a
+                      class="nav-link"
+                      id="kuk-tab"
+                      data-toggle="pill"
+                      href="#kuk"
+                      role="tab"
+                      aria-controls="kuk"
+                      aria-selected="false"
+                      >4. Kriteria Untuk Kerja</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a
+                      class="nav-link"
                       id="persyaratan-tab"
                       data-toggle="pill"
                       href="#tab-persyaratan"
@@ -49,7 +73,7 @@
                       aria-controls="content-tab-persyaratan"
                       aria-selected="false"
                     >
-                      3. Persyaratan Dasar
+                      5. Persyaratan Dasar
                     </a>
                   </li>
                 </ul>
@@ -263,7 +287,7 @@
                       class="tab-pane fade"
                       id="unit-skema"
                       role="tabpanel"
-                      aria-labelledby="tab-unit"
+                      aria-labelledby="tab-unit-skema"
                     >
                       <div class="row mb-3">
                         <div class="col-6 text-left">
@@ -316,6 +340,209 @@
                                 />
                                 <div class="invalid-feedback">
                                   Judul Unit Tidak Boleh Kosong!
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="row">
+                            <div class="col-12 text-right">
+                              <button
+                                type="button"
+                                class="btn btn-outline-danger btn-sm remove-unit-button"
+                              >
+                                <i class="fas fa-trash"></i>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row mb-3">
+                        <div class="col-12 text-center">
+                          <button
+                            type="button"
+                            id="add-unit-button"
+                            class="btn btn-outline-success"
+                          >
+                            <i class="fas fa-plus"></i> Tambah Data
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="tab-pane fade"
+                      id="unit-elemen"
+                      role="tabpanel"
+                      aria-labelledby="tab-unit-elemen"
+                    >
+                      <div class="row mb-3">
+                        <div class="col-6 text-left">
+                          <button
+                            type="button"
+                            class="btn btn-secondary prev-tab"
+                            data-target-tab="skema-sertifikasi-tab"
+                          >
+                            <i class="fas fa-arrow-left"></i> Sebelumnya
+                          </button>
+                        </div>
+                        <div class="col-6 text-right">
+                          <button
+                            type="button"
+                            class="btn btn-primary next-tab"
+                            data-target-tab="persyaratan-tab"
+                          >
+                            Selanjutnya <i class="fas fa-arrow-right"></i>
+                          </button>
+                        </div>
+                      </div>
+
+                      <div id="unit-elemen-container">
+                        <div class="unit-elemen-row card card-body mb-3">
+                          <div class="row">
+                            <div class="col-md-5">
+                              <div class="form-group">
+                                <label>Judul Unit</label>
+                                <select
+                                  required
+                                  class="form-control select2"
+                                  style="width: 100%"
+                                >
+                                  <option value="" disabled selected>
+                                    Pilih Judul Unit
+                                  </option>
+                                  <option value="">Merancang Basis Data</option>
+                                  <option value="">
+                                    Mengelola Reference and Master Data
+                                  </option>
+                                  <option value="">Mengelola Metadata</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                  Harapa Pilih Judul Unit!
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-md-2">
+                              <div class="form-group">
+                                <label>No Elemen</label>
+                                <input
+                                  type="number"
+                                  required
+                                  class="form-control"
+                                />
+                                <div class="invalid-feedback">
+                                  Harap Isi No Elemen!
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col-md-5">
+                              <div class="form-group">
+                                <label>Elemen</label>
+                                <input
+                                  type="text"
+                                  required
+                                  class="form-control"
+                                />
+                                <div class="invalid-feedback">
+                                  Harap Isi Elemen!
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="row">
+                            <div class="col-12 text-right">
+                              <button
+                                type="button"
+                                class="btn btn-outline-danger btn-sm remove-unit-button"
+                              >
+                                <i class="fas fa-trash"></i>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row mb-3">
+                        <div class="col-12 text-center">
+                          <button
+                            type="button"
+                            id="add-unit-button"
+                            class="btn btn-outline-success"
+                          >
+                            <i class="fas fa-plus"></i> Tambah Data
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="tab-pane fade"
+                      id="kuk"
+                      role="tabpanel"
+                      aria-labelledby="tab-kuk"
+                    >
+                      <div class="row mb-3">
+                        <div class="col-6 text-left">
+                          <button
+                            type="button"
+                            class="btn btn-secondary prev-tab"
+                            data-target-tab="skema-sertifikasi-tab"
+                          >
+                            <i class="fas fa-arrow-left"></i> Sebelumnya
+                          </button>
+                        </div>
+                        <div class="col-6 text-right">
+                          <button
+                            type="button"
+                            class="btn btn-primary next-tab"
+                            data-target-tab="persyaratan-tab"
+                          >
+                            Selanjutnya <i class="fas fa-arrow-right"></i>
+                          </button>
+                        </div>
+                      </div>
+
+                      <div id="kuk-container">
+                        <div class="kuk-row card card-body mb-3">
+                          <div class="row">
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label>Elemen</label>
+                                <select
+                                  required
+                                  class="form-control select2"
+                                  style="width: 100%"
+                                >
+                                  <option value="" disabled selected>
+                                    Pilih Elemen
+                                  </option>
+                                  <option value="">
+                                    Kebutuhan data diidentifikasi sesuai tujuan
+                                    teknis data science
+                                  </option>
+                                  <option value="">
+                                    Kebutuhan data diperiksa ketersediaannya
+                                    sesuai aturan yang berlaku.
+                                  </option>
+                                  <option value="">
+                                    Kebutuhan data ditentukan volumenya sesuai
+                                    tujuan teknis data science.
+                                  </option>
+                                </select>
+                                <div class="invalid-feedback">
+                                  Harapa Pilih Judul Unit!
+                                </div>
+                              </div>
+                            </div>
+
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label>Nama KUK</label>
+                                <input
+                                  type="text"
+                                  required
+                                  class="form-control"
+                                />
+                                <div class="invalid-feedback">
+                                  Harap Isi Elemen!
                                 </div>
                               </div>
                             </div>

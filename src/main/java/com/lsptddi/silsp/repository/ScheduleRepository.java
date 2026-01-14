@@ -33,10 +33,20 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     List<Schedule> findSchedulesByAsesorId(@Param("asesorId") Long asesorId);
 
     @Query("SELECT s FROM Schedule s " +
-           "LEFT JOIN FETCH s.assessors sa " +
-           "LEFT JOIN FETCH sa.asesor u " +  // Fetch User Asesor
-           "LEFT JOIN FETCH s.schemas ss " +
-           "LEFT JOIN FETCH ss.schema sc " + // Fetch Data Skema
-           "WHERE s.id = :id")
+            "LEFT JOIN FETCH s.assessors sa " +
+            "LEFT JOIN FETCH sa.asesor u " + // Fetch User Asesor
+            "LEFT JOIN FETCH s.schemas ss " +
+            "LEFT JOIN FETCH ss.schema sc " + // Fetch Data Skema
+            "WHERE s.id = :id")
     Optional<Schedule> findByIdWithDetails(@Param("id") Long id);
+
+    @Query("SELECT s FROM Schedule s " +
+            "JOIN s.assessors sa " +
+            "WHERE sa.asesor.username = :username AND " +
+            "(:keyword IS NULL OR :keyword = '' OR " +
+            "LOWER(s.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(s.code) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+    Page<Schedule> findJadwalByAsesor(@Param("username") String username,
+            @Param("keyword") String keyword,
+            Pageable pageable);
 }

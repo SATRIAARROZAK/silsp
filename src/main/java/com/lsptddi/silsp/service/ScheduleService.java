@@ -29,6 +29,9 @@ public class ScheduleService {
     @Autowired
     private TypePemberiAnggaranRepository typePemberiAnggaranRepository;
 
+    @Autowired
+    private NotificationService notificationService;
+
     // Generate Format: Jadwal-LSPTDDI-001-2025
     public String generateScheduleCode() {
         Optional<Schedule> lastSchedule = scheduleRepository.findTopByOrderByIdDesc();
@@ -55,7 +58,11 @@ public class ScheduleService {
 
     @Transactional
     public void saveSchedule(ScheduleDto dto) {
+
+        // --- TAMBAHAN: KIRIM NOTIFIKASI KE ASESOR ---
+
         Schedule schedule = new Schedule();
+
         schedule.setName(dto.getName());
         schedule.setCode(generateScheduleCode()); // Auto Generate
         schedule.setBnspCode(dto.getBnspCode());
@@ -85,6 +92,13 @@ public class ScheduleService {
                 sa.setSchedule(schedule);
                 sa.setAsesor(user);
                 assessorList.add(sa);
+
+                notificationService.createNotification(
+                        user,
+                        "Admin Telah Membuat Jadwal",
+                        "Anda ditugaskan sebagai asesor uji kompetensi pada jadwal: " + dto.getName(),
+                        "/asesor/jadwal" // Link tujuan saat diklik
+                );
             }
             schedule.setAssessors(assessorList);
         }

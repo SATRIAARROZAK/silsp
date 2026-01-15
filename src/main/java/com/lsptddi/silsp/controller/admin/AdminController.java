@@ -30,6 +30,10 @@ import com.lsptddi.silsp.repository.SkemaRepository;
 import com.lsptddi.silsp.repository.TukRepository;
 import com.lsptddi.silsp.service.SuratTugasService;
 import com.lsptddi.silsp.repository.SuratTugasRepository;
+import com.lsptddi.silsp.repository.UnitSkemaRepository;
+import com.lsptddi.silsp.repository.PersyaratanSkemaRepository;
+import com.lsptddi.silsp.repository.UnitElemenSkemaRepository;
+import com.lsptddi.silsp.repository.KukSkemaRepository;
 import com.lsptddi.silsp.repository.UserRepository;
 import com.lsptddi.silsp.service.TukService;
 import com.lsptddi.silsp.service.ScheduleService;
@@ -113,6 +117,18 @@ public class AdminController {
     private TypeSumberAnggaranRepository typeSumberAnggaranRepository;
     @Autowired
     private TypePemberiAnggaranRepository typePemberiAnggaranRepository;
+
+    @Autowired
+    private UnitSkemaRepository unitSkemaRepository;
+
+    @Autowired
+    private PersyaratanSkemaRepository persyaratanSkemaRepository;
+
+    @Autowired
+    private UnitElemenSkemaRepository unitElemenSkemaRepository;
+
+    @Autowired
+    private KukSkemaRepository kukSkemaRepository;
 
     @Autowired
     private TukService tukService;
@@ -266,29 +282,96 @@ public class AdminController {
                 schema.setDocumentPath(fileName);
             }
 
-            // D. Mapping Unit Skema (Looping Array)
-            if (dto.getKodeUnit() != null) {
-                for (int i = 0; i < dto.getKodeUnit().size(); i++) {
+            // // D. Mapping Unit Skema (Looping Array)
+            // if (dto.getKodeUnit() != null) {
+            // for (int i = 0; i < dto.getKodeUnit().size(); i++) {
+            // UnitSkema unit = new UnitSkema();
+            // unit.setCode(dto.getKodeUnit().get(i));
+            // unit.setTitle(dto.getJudulUnit().get(i));
+            // schema.addUnit(unit); // Helper method handles relationship
+            // }
+            // }
+
+            // E. Mapping Persyaratan (Looping Array)
+            // if (dto.getPersyaratan() != null) {
+            // for (String reqText : dto.getPersyaratan()) {
+            // if (reqText != null && !reqText.trim().isEmpty()) {
+            // PersyaratanSkema req = new PersyaratanSkema();
+            // req.setDescription(reqText);
+            // schema.addRequirement(req);
+            // }
+            // }
+            // }
+
+            // Simpan Parent (Cascade akan menyimpan Unit & Req)
+            schemaRepository.save(schema);
+
+            // ============================================================
+            // PROSES DATA BERTINGKAT (Unit -> Elemen -> KUK)
+            // ============================================================
+
+            // List Penampung untuk Referensi ID
+            List<UnitSkema> savedUnits = new ArrayList<>();
+            List<UnitElemenSkema> savedElements = new ArrayList<>();
+
+            // A. Simpan Unit
+            if (dto.getUnits() != null) {
+                for (SkemaDto.UnitItem item : dto.getUnits()) {
                     UnitSkema unit = new UnitSkema();
-                    unit.setCode(dto.getKodeUnit().get(i));
-                    unit.setTitle(dto.getJudulUnit().get(i));
-                    schema.addUnit(unit); // Helper method handles relationship
+                    unit.setSkema(schema); // Link ke Skema
+                    unit.setCode(item.getKodeUnit());
+                    unit.setTitle(item.getJudulUnit());
+
+                    // Simpan & Masukkan ke List Penampung (Index 0, 1, 2...)
+                    savedUnits.add(unitSkemaRepository.save(unit));
                 }
             }
 
-            // E. Mapping Persyaratan (Looping Array)
+            // B. Simpan Elemen (Link ke Unit via Index)
+            if (dto.getElements() != null) {
+                for (SkemaDto.ElementItem item : dto.getElements()) {
+                    // Validasi: Pastikan Index Unit Valid
+                    if (item.getUnitIndex() != null && item.getUnitIndex() < savedUnits.size()) {
+                        UnitElemenSkema el = new UnitElemenSkema();
+                        el.setNoElemen(item.getNoElemen());
+                        el.setNamaElemen(item.getNamaElemen());
+
+                        // Link ke Unit yang TEPAT (menggunakan index dari form)
+                        el.setSkemaUnit(savedUnits.get(item.getUnitIndex()));
+
+                        // Simpan & Masukkan ke List Penampung
+                        savedElements.add(unitElemenSkemaRepository.save(el));
+                    }
+                }
+            }
+
+            // C. Simpan KUK (Link ke Elemen via Index)
+            if (dto.getKuks() != null) {
+                for (SkemaDto.KukItem item : dto.getKuks()) {
+                    // Validasi: Pastikan Index Elemen Valid
+                    if (item.getElementIndex() != null && item.getElementIndex() < savedElements.size()) {
+                        KukSkema kuk = new KukSkema();
+                        kuk.setNamaKuk(item.getNamaKuk());
+
+                        // Link ke Elemen yang TEPAT
+                        kuk.setSchemaElement(savedElements.get(item.getElementIndex()));
+
+                        kukSkemaRepository.save(kuk);
+                    }
+                }
+            }
+
+            // D. Simpan Persyaratan (Logic Lama)
             if (dto.getPersyaratan() != null) {
                 for (String reqText : dto.getPersyaratan()) {
                     if (reqText != null && !reqText.trim().isEmpty()) {
                         PersyaratanSkema req = new PersyaratanSkema();
                         req.setDescription(reqText);
-                        schema.addRequirement(req);
+                        req.setSkema(schema); // Link ke Skema
+                        persyaratanSkemaRepository.save(req);
                     }
                 }
             }
-
-            // Simpan Parent (Cascade akan menyimpan Unit & Req)
-            schemaRepository.save(schema);
 
             return ResponseEntity.ok().body("{\"status\": \"success\", \"message\": \"Skema berhasil disimpan!\"}");
 
@@ -298,6 +381,44 @@ public class AdminController {
                     .body("{\"status\": \"error\", \"message\": \"Gagal menyimpan: " + e.getMessage() + "\"}");
         }
     }
+
+    // @PostMapping("/skema/save")
+    // @ResponseBody
+    // public ResponseEntity<?> saveSchema(@ModelAttribute SkemaDto dto) {
+    // try {
+    // // 1. Simpan Parent (Skema)
+    // Skema schema = new Skema();
+    // schema.setName(dto.getNamaSkema());
+    // schema.setCode(dto.getKodeSkema());
+    // schema.setLevel(dto.getLevel());
+    // schema.setNoSkkni(dto.getNoSkkni());
+    // schema.setSkkniYear(dto.getTahunSkkni());
+    // schema.setEstablishmentDate(dto.getTanggalPenetapan());
+
+    // // Set Relasi Type & Mode
+    // if (dto.getJenisSkemaId() != null)
+    // schema.setSchemaType(schemaTypeRepository.findById(dto.getJenisSkemaId()).orElse(null));
+    // if (dto.getModeSkemaId() != null)
+    // schema.setSchemaMode(schemaModeRepository.findById(dto.getModeSkemaId()).orElse(null));
+
+    // // Upload File
+    // if (dto.getFileSkema() != null && !dto.getFileSkema().isEmpty()) {
+    // String fileName = saveFile(dto.getFileSkema());
+    // schema.setDocumentPath(fileName);
+    // }
+
+    // // Simpan Skema Dulu (Agar dapat ID)
+    // schema = schemaRepository.save(schema);
+
+    // return ResponseEntity.ok().body("{\"status\": \"success\", \"message\":
+    // \"Skema lengkap berhasil disimpan!\"}");
+
+    // } catch (Exception e) {
+    // e.printStackTrace();
+    // return ResponseEntity.badRequest().body("{\"status\": \"error\", \"message\":
+    // \"Gagal: " + e.getMessage() + "\"}");
+    // }
+    // }
 
     // Helper untuk simpan file
     private String saveFile(MultipartFile file) throws IOException {
@@ -357,30 +478,97 @@ public class AdminController {
                 schema.setDocumentPath(fileName);
             }
 
-            // D. Update Unit Skema (Strategi: Clear & Add All)
-            schema.getUnits().clear(); // Hapus unit lama
-            if (dto.getKodeUnit() != null) {
-                for (int i = 0; i < dto.getKodeUnit().size(); i++) {
+            // // D. Update Unit Skema (Strategi: Clear & Add All)
+            // schema.getUnits().clear(); // Hapus unit lama
+            // if (dto.getKodeUnit() != null) {
+            // for (int i = 0; i < dto.getKodeUnit().size(); i++) {
+            // UnitSkema unit = new UnitSkema();
+            // unit.setCode(dto.getKodeUnit().get(i));
+            // unit.setTitle(dto.getJudulUnit().get(i));
+            // schema.addUnit(unit); // Tambahkan yang baru
+            // }
+            // }
+
+            // // E. Update Persyaratan (Strategi: Clear & Add All)
+            // schema.getRequirements().clear(); // Hapus req lama
+            // if (dto.getPersyaratan() != null) {
+            // for (String reqText : dto.getPersyaratan()) {
+            // if (reqText != null && !reqText.trim().isEmpty()) {
+            // PersyaratanSkema req = new PersyaratanSkema();
+            // req.setDescription(reqText);
+            // schema.addRequirement(req);
+            // }
+            // }
+            // }
+
+            schemaRepository.save(schema);
+
+            // ============================================================
+            // PROSES DATA BERTINGKAT (Unit -> Elemen -> KUK)
+            // ============================================================
+
+            // List Penampung untuk Referensi ID
+            List<UnitSkema> savedUnits = new ArrayList<>();
+            List<UnitElemenSkema> savedElements = new ArrayList<>();
+
+            // A. Simpan Unit
+            if (dto.getUnits() != null) {
+                for (SkemaDto.UnitItem item : dto.getUnits()) {
                     UnitSkema unit = new UnitSkema();
-                    unit.setCode(dto.getKodeUnit().get(i));
-                    unit.setTitle(dto.getJudulUnit().get(i));
-                    schema.addUnit(unit); // Tambahkan yang baru
+                    unit.setSkema(schema); // Link ke Skema
+                    unit.setCode(item.getKodeUnit());
+                    unit.setTitle(item.getJudulUnit());
+
+                    // Simpan & Masukkan ke List Penampung (Index 0, 1, 2...)
+                    savedUnits.add(unitSkemaRepository.save(unit));
                 }
             }
 
-            // E. Update Persyaratan (Strategi: Clear & Add All)
-            schema.getRequirements().clear(); // Hapus req lama
+            // B. Simpan Elemen (Link ke Unit via Index)
+            if (dto.getElements() != null) {
+                for (SkemaDto.ElementItem item : dto.getElements()) {
+                    // Validasi: Pastikan Index Unit Valid
+                    if (item.getUnitIndex() != null && item.getUnitIndex() < savedUnits.size()) {
+                        UnitElemenSkema el = new UnitElemenSkema();
+                        el.setNoElemen(item.getNoElemen());
+                        el.setNamaElemen(item.getNamaElemen());
+
+                        // Link ke Unit yang TEPAT (menggunakan index dari form)
+                        el.setSkemaUnit(savedUnits.get(item.getUnitIndex()));
+
+                        // Simpan & Masukkan ke List Penampung
+                        savedElements.add(unitElemenSkemaRepository.save(el));
+                    }
+                }
+            }
+
+            // C. Simpan KUK (Link ke Elemen via Index)
+            if (dto.getKuks() != null) {
+                for (SkemaDto.KukItem item : dto.getKuks()) {
+                    // Validasi: Pastikan Index Elemen Valid
+                    if (item.getElementIndex() != null && item.getElementIndex() < savedElements.size()) {
+                        KukSkema kuk = new KukSkema();
+                        kuk.setNamaKuk(item.getNamaKuk());
+
+                        // Link ke Elemen yang TEPAT
+                        kuk.setSchemaElement(savedElements.get(item.getElementIndex()));
+
+                        kukSkemaRepository.save(kuk);
+                    }
+                }
+            }
+
+            // D. Simpan Persyaratan (Logic Lama)
             if (dto.getPersyaratan() != null) {
                 for (String reqText : dto.getPersyaratan()) {
                     if (reqText != null && !reqText.trim().isEmpty()) {
                         PersyaratanSkema req = new PersyaratanSkema();
                         req.setDescription(reqText);
-                        schema.addRequirement(req);
+                        req.setSkema(schema); // Link ke Skema
+                        persyaratanSkemaRepository.save(req);
                     }
                 }
             }
-
-            schemaRepository.save(schema);
 
             return ResponseEntity.ok()
                     .body("{\"status\": \"success\", \"message\": \"Data skema berhasil diperbarui!\"}");
@@ -1779,42 +1967,55 @@ public class AdminController {
     // @GetMapping("/data-asesor")
     // public String showDataAsesor(Model model) {
 
-    //     return "pages/admin/asesors/asesor-list";
+    // return "pages/admin/asesors/asesor-list";
     // }
 
     @GetMapping("/data-asesor")
     public String showDataAsesor(Model model,
-                                 @RequestParam(defaultValue = "0") int page,
-                                 @RequestParam(defaultValue = "10") int size,
-                                 @RequestParam(required = false) String keyword,
-                                 @RequestParam(defaultValue = "desc") String sort) { // Param sort (asc/desc)
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "desc") String sort) { // Param sort (asc/desc)
 
         // Tentukan Arah Sortir (Default DESC = Terbanyak ke Terkecil)
         Sort.Direction direction = sort.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
-        
+
         // Sorting berdasarkan hasil Count (alias kolom ke-2 di query / jumlahAsesmen)
-        // Note: Sort by computed field di JPQL kadang tricky, kita gunakan index kolom atau properti DTO jika didukung DB
-        // Untuk aman di JPA standar, kita sort by 'COUNT(st)' di PageRequest agak sulit, 
-        // jadi kita biarkan Pageable melakukan sort di memori atau gunakan query native.
+        // Note: Sort by computed field di JPQL kadang tricky, kita gunakan index kolom
+        // atau properti DTO jika didukung DB
+        // Untuk aman di JPA standar, kita sort by 'COUNT(st)' di PageRequest agak
+        // sulit,
+        // jadi kita biarkan Pageable melakukan sort di memori atau gunakan query
+        // native.
         // Tapi solusi terbaik JPA: JpaSort.unsafe(direction, "COUNT(st)")
-        
-        // Sederhananya, kita gunakan sort property 'jumlahAsesmen' jika menggunakan custom implementation,
-        // Tapi karena JPQL Pageable standar agak kaku dengan Agregat, kita gunakan JpaSort unsafe atau logic default.
-        // DISINI KITA GUNAKAN LOGIC SEDERHANA: SORT BY ID USER jika sort parameter default, 
+
+        // Sederhananya, kita gunakan sort property 'jumlahAsesmen' jika menggunakan
+        // custom implementation,
+        // Tapi karena JPQL Pageable standar agak kaku dengan Agregat, kita gunakan
+        // JpaSort unsafe atau logic default.
+        // DISINI KITA GUNAKAN LOGIC SEDERHANA: SORT BY ID USER jika sort parameter
+        // default,
         // tapi user minta sort by jumlah.
-        
-        // SOLUSI SORTING AGREGAT JPA (Menggunakan JpaSort.unsafe jika menggunakan Spring Data JPA terbaru)
+
+        // SOLUSI SORTING AGREGAT JPA (Menggunakan JpaSort.unsafe jika menggunakan
+        // Spring Data JPA terbaru)
         // Atau kita handle sorting manual di Query string.
-        // Agar tidak error "PropertyReferenceException", kita gunakan PageRequest tanpa sort dulu di controllernya,
+        // Agar tidak error "PropertyReferenceException", kita gunakan PageRequest tanpa
+        // sort dulu di controllernya,
         // dan biarkan Query di Repository yang menangani ORDER BY nya jika perlu.
-        
-        // Namun, agar dinamis (Klik header), kita gunakan pendekatan JpaSort (membutuhkan import org.springframework.data.jpa.domain.JpaSort)
-        // Jika tidak ada JpaSort, kita gunakan Sort.unsorted() dan hardcode ORDER BY di Query repository tadi.
-        
-        // UNTUK SAAT INI: Kita gunakan Sort berdasarkan ID User saja sebagai default pageable, 
-        // Tapi karena Anda minta fitur sort jumlah, saya akan memodifikasi Repository sedikit di bawah.
-        
-        Pageable pageable = PageRequest.of(page, size, org.springframework.data.jpa.domain.JpaSort.unsafe(direction, "COUNT(st)"));
+
+        // Namun, agar dinamis (Klik header), kita gunakan pendekatan JpaSort
+        // (membutuhkan import org.springframework.data.jpa.domain.JpaSort)
+        // Jika tidak ada JpaSort, kita gunakan Sort.unsorted() dan hardcode ORDER BY di
+        // Query repository tadi.
+
+        // UNTUK SAAT INI: Kita gunakan Sort berdasarkan ID User saja sebagai default
+        // pageable,
+        // Tapi karena Anda minta fitur sort jumlah, saya akan memodifikasi Repository
+        // sedikit di bawah.
+
+        Pageable pageable = PageRequest.of(page, size,
+                org.springframework.data.jpa.domain.JpaSort.unsafe(direction, "COUNT(st)"));
 
         Page<AsesorListDto> pageAsesor = userRepository.findAsesorList(keyword, pageable);
 
@@ -1824,7 +2025,7 @@ public class AdminController {
         model.addAttribute("totalPages", pageAsesor.getTotalPages());
         model.addAttribute("totalItems", pageAsesor.getTotalElements());
         model.addAttribute("size", size);
-        
+
         // Kirim status sort saat ini ke view untuk ikon panah
         model.addAttribute("currentSort", sort);
         model.addAttribute("reverseSort", sort.equals("asc") ? "desc" : "asc");

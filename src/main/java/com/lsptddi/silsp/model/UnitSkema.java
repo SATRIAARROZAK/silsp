@@ -2,6 +2,7 @@ package com.lsptddi.silsp.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import java.util.List;
 
 @Entity
 @Table(name = "unit_skema")
@@ -14,11 +15,15 @@ public class UnitSkema {
 
     @Column(name = "kode_unit")
     private String code; // Kode Unit
-    
+
     @Column(name = "judul_unit")
     private String title; // Judul Unit
 
     @ManyToOne
     @JoinColumn(name = "id_skema")
     private Skema skema;
+
+    // TAMBAHAN: Relasi ke Element
+    @OneToMany(mappedBy = "skemaUnit", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UnitElemenSkema> elements;
 }

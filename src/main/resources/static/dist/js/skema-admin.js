@@ -452,11 +452,12 @@ $(document).ready(function () {
                         <textarea class="form-control summernote-persyaratan" name="persyaratan[]"></textarea>
                     </div>
                     <div class="col-1">
-                        <button type="button" class="btn btn-outline-danger remove-persyaratan-button">
+                        <button type="button" class="btn btn-outline-danger btn-sm remove-persyaratan-button">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
                 </div>`;
+
       var newRow = $(newRowHTML);
       $("#persyaratan-container").append(newRow);
       initializeSummernote(newRow.find(".summernote-persyaratan"));
@@ -693,7 +694,7 @@ $(document).ready(function () {
             var newRowHTML = `
                         <div class="persyaratan-row row align-items-center mb-3">
                             <div class="col-11"><textarea class="form-control summernote-persyaratan" name="persyaratan[]"></textarea></div>
-                            <div class="col-1"><button type="button" class="btn btn-outline-danger remove-persyaratan-button"><i class="fas fa-trash"></i></button></div>
+                            <div class="col-1"><button type="button" class="btn btn-outline-danger btn-sm remove-persyaratan-button"><i class="fas fa-trash"></i></button></div>
                         </div>`;
             var newReqRow = $(newRowHTML);
             reqContainer.append(newReqRow);
@@ -776,25 +777,25 @@ $(document).ready(function () {
         });
       if (isDirty) return true;
 
-      // $("#unit-elemen-container .unit-elemen-row")
-      //   .find("input")
-      //   .each(function () {
-      //     if ($(this).val().trim() !== "") {
-      //       isDirty = true;
-      //       return false;
-      //     }
-      //   });
-      // if (isDirty) return true;
+      $("#unit-elemen-container .unit-elemen-row")
+        .find("input")
+        .each(function () {
+          if ($(this).val().trim() !== "") {
+            isDirty = true;
+            return false;
+          }
+        });
+      if (isDirty) return true;
 
-      // $("#kuk-container .kuk-row")
-      //   .find("input")
-      //   .each(function () {
-      //     if ($(this).val().trim() !== "") {
-      //       isDirty = true;
-      //       return false;
-      //     }
-      //   });
-      // if (isDirty) return true;
+      $("#kuk-container .kuk-row")
+        .find("input")
+        .each(function () {
+          if ($(this).val().trim() !== "") {
+            isDirty = true;
+            return false;
+          }
+        });
+      if (isDirty) return true;
 
       // Cek Isi Summernote Pertama
       const firstNote = $(

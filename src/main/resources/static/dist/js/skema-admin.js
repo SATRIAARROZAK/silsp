@@ -759,8 +759,8 @@ $(document).ready(function () {
       // Cek Jumlah Baris Tab 2 & 3
       if (
         $("#unit-skema-container .unit-skema-row").length > 1 ||
-        $("#unit-elemen-container .unit-elemen-row").length > 1 ||
-        $("#kuk-container .kuk-row").length > 1 ||
+        // $("#unit-elemen-container .unit-elemen-row").length > 1 ||
+        // $("#kuk-container .kuk-row").length > 1 ||
         $("#persyaratan-container .persyaratan-row").length > 1
       )
         return true;
@@ -776,25 +776,25 @@ $(document).ready(function () {
         });
       if (isDirty) return true;
 
-      $("#unit-elemen-container .unit-elemen-row")
-        .find("input")
-        .each(function () {
-          if ($(this).val().trim() !== "") {
-            isDirty = true;
-            return false;
-          }
-        });
-      if (isDirty) return true;
+      // $("#unit-elemen-container .unit-elemen-row")
+      //   .find("input")
+      //   .each(function () {
+      //     if ($(this).val().trim() !== "") {
+      //       isDirty = true;
+      //       return false;
+      //     }
+      //   });
+      // if (isDirty) return true;
 
-      $("#kuk-container .kuk-row")
-        .find("input")
-        .each(function () {
-          if ($(this).val().trim() !== "") {
-            isDirty = true;
-            return false;
-          }
-        });
-      if (isDirty) return true;
+      // $("#kuk-container .kuk-row")
+      //   .find("input")
+      //   .each(function () {
+      //     if ($(this).val().trim() !== "") {
+      //       isDirty = true;
+      //       return false;
+      //     }
+      //   });
+      // if (isDirty) return true;
 
       // Cek Isi Summernote Pertama
       const firstNote = $(
@@ -902,19 +902,19 @@ $(document).ready(function () {
       }
     });
 
-    // $(".prev-tab").on("click", function () {
-    //   const targetTabId = $(this).data("target-tab");
-    //   $("#" + targetTabId).tab("show");
-    // });
+    $(".prev-tab").on("click", function () {
+      const targetTabId = $(this).data("target-tab");
+      $("#" + targetTabId).tab("show");
+    });
 
-    // $(".card-tabs .nav-tabs .nav-link").on("click", function (e) {
-    //   e.preventDefault();
-    //   Toast.fire({
-    //     icon: "info",
-    //     title: 'Gunakan tombol "Selanjutnya" atau "Sebelumnya".',
-    //   });
-    //   return false;
-    // });
+    $(".card-tabs .nav-tabs .nav-link").on("click", function (e) {
+      e.preventDefault();
+      Toast.fire({
+        icon: "info",
+        title: 'Gunakan tombol "Selanjutnya" atau "Sebelumnya".',
+      });
+      return false;
+    });
 
     // D. SUBMIT FORM
     // --------------
@@ -970,4 +970,16 @@ $(document).ready(function () {
       });
     });
   } // End if form exists
+
+  // ==========================================
+  // 7. INITIALIZE EDIT PAGE DATA
+  // ==========================================
+  // Jika ini halaman edit, jalankan update dropdowns agar terisi
+  // if ($formEdit.length > 0) {
+  //   setTimeout(function () {
+  //     updateUnitDropdowns(); // Isi dropdown unit di tab elemen
+  //     updateElementDropdowns(); // Isi dropdown elemen di tab kuk
+  //     console.log("Edit page initialized: Dropdowns updated.");
+  //   }, 500); // Delay sedikit untuk memastikan DOM siap
+  // }
 });

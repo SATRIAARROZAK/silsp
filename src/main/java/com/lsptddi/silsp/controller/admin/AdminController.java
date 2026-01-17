@@ -258,8 +258,9 @@ public class AdminController {
     @ResponseBody
     public ResponseEntity<?> saveSchema(@ModelAttribute SkemaDto dto) {
         try {
-            // 1. Simpan Parent (Skema)
             Skema schema = new Skema();
+
+            // A. Mapping Data Dasar
             schema.setName(dto.getNamaSkema());
             schema.setCode(dto.getKodeSkema());
             schema.setLevel(dto.getLevel());
@@ -267,101 +268,50 @@ public class AdminController {
             schema.setSkkniYear(dto.getTahunSkkni());
             schema.setEstablishmentDate(dto.getTanggalPenetapan());
 
-            // Set Relasi Type & Mode
-            if (dto.getJenisSkemaId() != null)
+            // B. Mapping Relasi (3NF)
+            if (dto.getJenisSkemaId() != null) {
                 schema.setSchemaType(schemaTypeRepository.findById(dto.getJenisSkemaId()).orElse(null));
-            if (dto.getModeSkemaId() != null)
+            }
+            if (dto.getModeSkemaId() != null) {
                 schema.setSchemaMode(schemaModeRepository.findById(dto.getModeSkemaId()).orElse(null));
+            }
 
-            // Upload File
+            // C. Upload File
             if (dto.getFileSkema() != null && !dto.getFileSkema().isEmpty()) {
                 String fileName = saveFile(dto.getFileSkema());
                 schema.setDocumentPath(fileName);
             }
 
-            // // C. Upload File
-            // if (dto.getFileSkema() != null && !dto.getFileSkema().isEmpty()) {
-            // String fileName = saveFile(dto.getFileSkema());
-            // schema.setDocumentPath(fileName);
-            // }
-
-            // Simpan Skema Dulu (Agar dapat ID)
-            schemaRepository.save(schema);
-
-            // ============================================================
-            // PROSES DATA BERTINGKAT (Unit -> Elemen -> KUK)
-            // ============================================================
-
-            // List Penampung untuk Referensi ID saat menyimpan Child
-            List<UnitSkema> savedUnits = new ArrayList<>();
-            List<UnitElemenSkema> savedElements = new ArrayList<>();
-
-            // A. Simpan Unit (Tab 2)
-            if (dto.getUnits() != null) {
-                for (SkemaDto.UnitItem item : dto.getUnits()) {
+            // D. Mapping Unit Skema (Looping Array)
+            if (dto.getKodeUnit() != null) {
+                for (int i = 0; i < dto.getKodeUnit().size(); i++) {
                     UnitSkema unit = new UnitSkema();
-                    unit.setSkema(schema); // Link ke Skema
-                    unit.setCode(item.getKodeUnit());
-                    unit.setTitle(item.getJudulUnit()); // Sesuaikan nama field di entity UnitSkema (setTitle/setName)
-
-                    // Simpan & Masukkan ke List Penampung (Index 0, 1, 2...)
-                    savedUnits.add(unitSkemaRepository.save(unit)); // Ganti nama repo sesuai punya Anda
+                    unit.setCode(dto.getKodeUnit().get(i));
+                    unit.setTitle(dto.getJudulUnit().get(i));
+                    schema.addUnit(unit); // Helper method handles relationship
                 }
             }
 
-            // B. Simpan Elemen (Tab 3 - Link ke Unit via Index)
-            if (dto.getElements() != null) {
-                for (SkemaDto.ElementItem item : dto.getElements()) {
-                    // Validasi: Pastikan Index Unit Valid (User memilih unit yg benar)
-                    if (item.getUnitIndex() != null && item.getUnitIndex() < savedUnits.size()) {
-                        UnitElemenSkema el = new UnitElemenSkema();
-                        el.setNoElemen(item.getNoElemen());
-                        el.setNamaElemen(item.getNamaElemen());
-
-                        // Link ke Unit yang TEPAT (menggunakan index dari form)
-                        el.setSkemaUnit(savedUnits.get(item.getUnitIndex()));
-
-                        // Simpan & Masukkan ke List Penampung
-                        savedElements.add(unitElemenSkemaRepository.save(el));
-                    }
-                }
-            }
-
-            // C. Simpan KUK (Link ke Elemen via Index)
-            if (dto.getKuks() != null) {
-                for (SkemaDto.KukItem item : dto.getKuks()) {
-                    // Validasi: Pastikan Index Elemen Valid
-                    if (item.getElementIndex() != null && item.getElementIndex() < savedElements.size()) {
-                        KukSkema kuk = new KukSkema();
-                        kuk.setNamaKuk(item.getNamaKuk());
-
-                        // Link ke Elemen yang TEPAT
-                        kuk.setSchemaElement(savedElements.get(item.getElementIndex()));
-
-                        kukSkemaRepository.save(kuk);
-                    }
-                }
-            }
-
-            // D. Simpan Persyaratan (Logic Lama)
+            // E. Mapping Persyaratan (Looping Array)
             if (dto.getPersyaratan() != null) {
                 for (String reqText : dto.getPersyaratan()) {
                     if (reqText != null && !reqText.trim().isEmpty()) {
                         PersyaratanSkema req = new PersyaratanSkema();
                         req.setDescription(reqText);
-                        req.setSkema(schema); // Link ke Skema
-                        persyaratanSkemaRepository.save(req);
+                        schema.addRequirement(req);
                     }
                 }
             }
 
-            return ResponseEntity.ok()
-                    .body("{\"status\": \"success\", \"message\": \"Skema lengkap berhasil disimpan!\"}");
+            // Simpan Parent (Cascade akan menyimpan Unit & Req)
+            schemaRepository.save(schema);
+
+            return ResponseEntity.ok().body("{\"status\": \"success\", \"message\": \"Skema berhasil disimpan!\"}");
 
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest()
-                    .body("{\"status\": \"error\", \"message\": \"Gagal: " + e.getMessage() + "\"}");
+                    .body("{\"status\": \"error\", \"message\": \"Gagal menyimpan: " + e.getMessage() + "\"}");
         }
     }
 
@@ -374,92 +324,23 @@ public class AdminController {
         return fileName;
     }
 
-  
-
     @GetMapping("/skema/edit/{id}")
     public String editSchema(@PathVariable Long id, Model model) {
         Skema schema = schemaRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid schema Id:" + id));
 
-        // --- MAPPING ENTITY KE DTO (FLATTENING) ---
-        // Kita ubah struktur Pohon (Tree) menjadi List Datar agar sesuai dengan Form
-        // HTML
-        SkemaDto dto = new SkemaDto();
+        // Kirim data Schema (Entity) langsung ke View
+        // Thymeleaf akan mengambil data dari Entity ini
+        model.addAttribute("skema", schema);
 
-        // A. Data Utama
-        dto.setId(schema.getId());
-        dto.setNamaSkema(schema.getName());
-        dto.setKodeSkema(schema.getCode());
-        dto.setLevel(schema.getLevel());
-        dto.setNoSkkni(schema.getNoSkkni());
-        dto.setTahunSkkni(schema.getSkkniYear());
-        dto.setTanggalPenetapan(schema.getEstablishmentDate());
-
-        if (schema.getSchemaType() != null)
-            dto.setJenisSkemaId(schema.getSchemaType().getId());
-        if (schema.getSchemaMode() != null)
-            dto.setModeSkemaId(schema.getSchemaMode().getId());
-
-        // B. Data List (Unit -> Element -> KUK)
-        List<SkemaDto.UnitItem> unitItems = new ArrayList<>();
-        List<SkemaDto.ElementItem> elementItems = new ArrayList<>();
-        List<SkemaDto.KukItem> kukItems = new ArrayList<>();
-        List<String> requirements = new ArrayList<>();
-
-        // Loop Unit
-        int unitIndex = 0;
-        for (UnitSkema unit : schema.getUnits()) {
-            SkemaDto.UnitItem uItem = new SkemaDto.UnitItem();
-            uItem.setKodeUnit(unit.getCode());
-            uItem.setJudulUnit(unit.getTitle());
-            unitItems.add(uItem);
-
-            // Loop Elemen didalam Unit
-            for (UnitElemenSkema elem : unit.getElements()) {
-                SkemaDto.ElementItem eItem = new SkemaDto.ElementItem();
-                eItem.setUnitIndex(unitIndex); // Point ke Index Unit saat ini
-                eItem.setNoElemen(elem.getNoElemen());
-                eItem.setNamaElemen(elem.getNamaElemen());
-                elementItems.add(eItem);
-
-                // Hitung Global Index elemen ini untuk referensi KUK
-                int currentElementIndex = elementItems.size() - 1;
-
-                // Loop KUK didalam Elemen
-                for (KukSkema kuk : elem.getKuks()) {
-                    SkemaDto.KukItem kItem = new SkemaDto.KukItem();
-                    kItem.setElementIndex(currentElementIndex); // Point ke Index Elemen saat ini
-                    kItem.setNamaKuk(kuk.getNamaKuk());
-                    kukItems.add(kItem);
-                }
-            }
-            unitIndex++; // Increment index unit untuk iterasi berikutnya
-        }
-
-        // Loop Persyaratan
-        for (PersyaratanSkema req : schema.getRequirements()) {
-            requirements.add(req.getDescription());
-        }
-
-        // Set ke DTO
-        dto.setUnits(unitItems);
-        dto.setElements(elementItems);
-        dto.setKuks(kukItems);
-        dto.setPersyaratan(requirements);
-
-        // Kirim ke View
-        model.addAttribute("skemaDto", dto); // PENTING: Nama attribute harus 'skemaDto' agar sama dengan Add
+        // Kirim Data Referensi untuk Dropdown
         model.addAttribute("types", schemaTypeRepository.findAll());
         model.addAttribute("modes", schemaModeRepository.findAll());
-        // Kirim object asli untuk info tambahan (misal path file lama)
-        model.addAttribute("existingSchema", schema);
 
         return "pages/admin/skema/skema-edit";
     }
 
-    // ==========================================
-    // 2. PROSES UPDATE SKEMA (POST AJAX)
-    // ==========================================
+    // 6. PROSES UPDATE (POST AJAX)
     @PostMapping("/skema/update")
     @ResponseBody
     public ResponseEntity<?> updateSchema(@ModelAttribute SkemaDto dto) {
@@ -467,7 +348,7 @@ public class AdminController {
             Skema schema = schemaRepository.findById(dto.getId())
                     .orElseThrow(() -> new RuntimeException("Skema tidak ditemukan"));
 
-            // 1. Update Data Dasar
+            // A. Update Data Dasar
             schema.setName(dto.getNamaSkema());
             schema.setCode(dto.getKodeSkema());
             schema.setLevel(dto.getLevel());
@@ -475,82 +356,50 @@ public class AdminController {
             schema.setSkkniYear(dto.getTahunSkkni());
             schema.setEstablishmentDate(dto.getTanggalPenetapan());
 
-            if (dto.getJenisSkemaId() != null)
+            // B. Update Relasi Master (Jenis & Mode)
+            if (dto.getJenisSkemaId() != null) {
                 schema.setSchemaType(schemaTypeRepository.findById(dto.getJenisSkemaId()).orElse(null));
-            if (dto.getModeSkemaId() != null)
+            }
+            if (dto.getModeSkemaId() != null) {
                 schema.setSchemaMode(schemaModeRepository.findById(dto.getModeSkemaId()).orElse(null));
+            }
 
-            // 2. Update File (Jika ada)
+            // C. Update File (Hanya jika ada upload baru)
             if (dto.getFileSkema() != null && !dto.getFileSkema().isEmpty()) {
+                // Hapus file lama jika perlu (opsional)
+                // ... logic hapus file lama ...
+
                 String fileName = saveFile(dto.getFileSkema());
                 schema.setDocumentPath(fileName);
             }
 
-            // 3. RESET RELASI (STRATEGI CLEAR & RE-INSERT)
-            // Hapus data lama agar sinkron dengan form editor
-            // OrphanRemoval=true di Entity Skema akan menghapus Unit, Elemen, dan KUK
-            // otomatis
-            schema.getUnits().clear();
-            schema.getRequirements().clear();
-
-            // Simpan perubahan dasar & penghapusan anak
-            schemaRepository.save(schema);
-            // Flush agar delete tereksekusi sebelum insert baru
-            schemaRepository.flush();
-
-            // 4. INSERT ULANG DATA BARU (Logic sama persis dengan Save)
-            List<UnitSkema> savedUnits = new ArrayList<>();
-            List<UnitElemenSkema> savedElements = new ArrayList<>();
-
-            // A. Unit
-            if (dto.getUnits() != null) {
-                for (SkemaDto.UnitItem item : dto.getUnits()) {
+            // D. Update Unit Skema (Strategi: Clear & Add All)
+            schema.getUnits().clear(); // Hapus unit lama
+            if (dto.getKodeUnit() != null) {
+                for (int i = 0; i < dto.getKodeUnit().size(); i++) {
                     UnitSkema unit = new UnitSkema();
-                    unit.setSkema(schema);
-                    unit.setCode(item.getKodeUnit());
-                    unit.setTitle(item.getJudulUnit());
-                    savedUnits.add(unitSkemaRepository.save(unit));
+                    unit.setCode(dto.getKodeUnit().get(i));
+                    unit.setTitle(dto.getJudulUnit().get(i));
+                    schema.addUnit(unit); // Tambahkan yang baru
                 }
             }
 
-            // B. Elemen
-            if (dto.getElements() != null) {
-                for (SkemaDto.ElementItem item : dto.getElements()) {
-                    if (item.getUnitIndex() != null && item.getUnitIndex() < savedUnits.size()) {
-                        UnitElemenSkema el = new UnitElemenSkema();
-                        el.setNoElemen(item.getNoElemen());
-                        el.setNamaElemen(item.getNamaElemen());
-                        el.setSkemaUnit(savedUnits.get(item.getUnitIndex()));
-                        savedElements.add(unitElemenSkemaRepository.save(el));
-                    }
-                }
-            }
-
-            // C. KUK
-            if (dto.getKuks() != null) {
-                for (SkemaDto.KukItem item : dto.getKuks()) {
-                    if (item.getElementIndex() != null && item.getElementIndex() < savedElements.size()) {
-                        KukSkema kuk = new KukSkema();
-                        kuk.setNamaKuk(item.getNamaKuk());
-                        kuk.setSchemaElement(savedElements.get(item.getElementIndex()));
-                        kukSkemaRepository.save(kuk);
-                    }
-                }
-            }
-
-            // D. Persyaratan
+            // E. Update Persyaratan (Strategi: Clear & Add All)
+            schema.getRequirements().clear(); // Hapus req lama
             if (dto.getPersyaratan() != null) {
                 for (String reqText : dto.getPersyaratan()) {
                     if (reqText != null && !reqText.trim().isEmpty()) {
                         PersyaratanSkema req = new PersyaratanSkema();
                         req.setDescription(reqText);
-                        req.setSkema(schema);
-                        persyaratanSkemaRepository.save(req);
+                        schema.addRequirement(req);
                     }
                 }
             }
 
-            return ResponseEntity.ok().body("{\"status\": \"success\", \"message\": \"Skema berhasil diperbarui!\"}");
+            schemaRepository.save(schema);
+
+            return ResponseEntity.ok()
+                    .body("{\"status\": \"success\", \"message\": \"Data skema berhasil diperbarui!\"}");
 
         } catch (Exception e) {
             e.printStackTrace();

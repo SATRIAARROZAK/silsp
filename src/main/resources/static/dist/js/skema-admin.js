@@ -1,3 +1,4 @@
+
 // ========================================================
 // JAVASCRIPT UTAMA SKEMA ADMIN (LIST, ADD, EDIT, VIEW)
 // ========================================================
@@ -6,8 +7,6 @@ $(document).ready(function () {
   // --- KONFIGURASI UMUM ---
   var activeSummernoteInstance = null;
   const formKey = "skemaFormData";
-  var $formAdd = $("#form-tambah-skema");
-  var $formEdit = $("#form-edit-skema");
 
   // ==========================================
   // HANDLE UPLOAD FILE: LABEL & PREVIEW
@@ -69,7 +68,7 @@ $(document).ready(function () {
   // ========================================================
 
   // Konfirmasi Delete
-  $(".delete-button-skema").on("click", function (e) {
+  $(".delete-button-skema").on("click",  function (e) {
     e.preventDefault();
     var link = $(this).attr("href");
 
@@ -108,8 +107,8 @@ $(document).ready(function () {
   // 2. LOGIKA ADD & EDIT PAGE (FORM DINAMIS)
   // ========================================================
 
-  // var $formAdd = $("#form-tambah-skema");
-  // var $formEdit = $("#form-edit-skema");
+  var $formAdd = $("#form-tambah-skema");
+  var $formEdit = $("#form-edit-skema");
 
   if ($formAdd.length || $formEdit.length) {
     // A. FORM DINAMIS (UNIT SKEMA)
@@ -130,229 +129,6 @@ $(document).ready(function () {
           icon: "error",
           title: "Minimal harus ada satu unit skema.",
         });
-      }
-    });
-
-    // ==========================================
-    // LOGIKA TAB DINAMIS (UNIT -> ELEMEN -> KUK)
-    // ==========================================
-
-    // 1. UPDATE DROPDOWN UNIT DI TAB ELEMEN
-    // -------------------------------------
-    function updateUnitDropdowns() {
-      var options = '<option value="">-- Pilih Unit --</option>';
-      // Loop setiap baris unit di Tab 2
-      $("#unit-skema-container .unit-skema-row").each(function (index) {
-        var kode = $(this).find(".input-kode-unit").val();
-        var judul = $(this).find(".input-judul-unit").val();
-
-        // if (judul && kode) {
-        //   // Value = index array, Text = Kode - Judul
-        //   options += `<option value="${index}">${kode} - ${judul}</option>`;
-        // }
-
-        if (judul) {
-          // Value = index array, Text = Kode - Judul
-          options += `<option value="${index}"> ${judul}</option>`;
-        }
-      });
-
-      // Update semua dropdown di Tab Elemen
-      $(".select-unit-ref").each(function () {
-        var currentVal = $(this).val(); // Simpan pilihan user
-        $(this).html(options);
-        $(this).val(currentVal); // Balikin pilihan user jika masih valid
-      });
-    }
-
-    // Event saat Tab Elemen diklik/muncul
-    $('a[href="#unit-elemen"]').on("shown.bs.tab", function (e) {
-      updateUnitDropdowns();
-    });
-
-    // 2. UPDATE DROPDOWN ELEMEN DI TAB KUK
-    // -------------------------------------
-    function updateElementDropdowns() {
-      var options = '<option value="">-- Pilih Elemen --</option>';
-
-      // Loop setiap baris elemen di Tab 3
-      $("#unit-elemen-container .unit-elemen-row").each(function (index) {
-        var namaElemen = $(this).find(".input-nama-elemen").val();
-        // var unitText = $(this).find(".select-unit-ref option:selected").text();
-        // var noElemen = $(this).find('input[name*="noElemen"]').val();
-
-        if (namaElemen) {
-          // Tampilkan Unit induknya juga agar jelas
-          // var displayText = `${noElemen} ${namaElemen} (Unit: ${unitText})`;
-          var displayText = `${namaElemen}`;
-
-          options += `<option value="${index}">${displayText}</option>`;
-        }
-      });
-
-      // Update semua dropdown di Tab KUK
-      $(".select-element-ref").each(function () {
-        var currentVal = $(this).val();
-        $(this).html(options);
-        $(this).val(currentVal);
-      });
-    }
-
-    // Event saat Tab KUK diklik/muncul
-    $('a[href="#kuk"]').on("shown.bs.tab", function (e) {
-      updateElementDropdowns();
-    });
-
-    // 3. TAMBAH / HAPUS ROW (GENERIC)
-    // -------------------------------
-
-    // $(document).on("click", "#add-elemen-button", function () {
-    //   var template = $("#unit-elemen-container .unit-elemen-row:first");
-    //   var newUnitRow = template.clone();
-    //   newUnitRow.find("input").val("");
-    //   newUnitRow.find(".remove-elemen-button").show();
-    //   $("#unit-elemen-container").append(newUnitRow);
-    // });
-
-    // Hapus Row (Generic)
-
-    // Tambah Elemen
-    $("#add-elemen-button").click(function () {
-      updateUnitDropdowns(); // Refresh dulu opsi unitnya
-      var unitOptions = $(".select-unit-ref").first().html(); // Ambil opsi dari baris pertama
-      var count = $("#unit-elemen-container .unit-elemen-row").length;
-
-      var newRow = `
-      <div class="unit-elemen-row card card-body mb-3  animate__animated animate__fadeIn">
-        <div class="row">
-          <div class="col-md-5">
-            <div class="form-group">
-              <label>Judul Unit</label>
-              <select name="elements[${count}].unitIndex" class="form-control select-unit-ref select2" required
-                style="width: 100%;">
-                ${unitOptions}
-              </select>
-             
-            </div>
-          </div>
-
-          <div class="col-md-2">
-            <div class="form-group">
-              <label>No Elemen</label>
-              <input type="number" name="elements[${count}].noElemen" class="form-control" required placeholder="No"/>
-             
-            </div>
-          </div>
-
-          <div class="col-md-5">
-            <div class="form-group">
-              <label>Elemen</label>
-              <input type="text" name="elements[${count}].namaElemen" class="form-control input-nama-elemen" required
-                placeholder="Nama Elemen"/>
-             
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-12 text-right">
-            <button type="button" class="btn btn-outline-danger btn-sm remove-elemen-button">
-              <i class="fas fa-trash"></i>
-            </button>
-          </div>
-        </div>
-      </div>`;
-
-      $("#unit-elemen-container").append(newRow);
-      // Re-init select2 untuk row baru
-      // $("#unit-elemen-container .unit-elemen-row:last .select2").select2({
-      //   theme: "bootstrap4",
-      // });
-    });
-
-    $(document).on("click", ".remove-elemen-button", function () {
-      if ($("#unit-elemen-container .unit-elemen-row").length > 1) {
-        $(this).closest(".unit-elemen-row").remove();
-      } else {
-        Toast.fire({
-          icon: "error",
-          title: "Minimal harus ada satu unit elemen.",
-        });
-      }
-      // Pastikan sisa minimal 1 jika required, atau bisa dihapus semua tergantung logic
-      // Disini kita hapus saja langsung
-      // $(this).closest(".card").remove();
-    });
-
-    // $(document).on("click", ".remove-elemen-button", function () {
-    //   // Jangan hapus jika cuma sisa 1 baris
-    //   if (
-    //     $(this).closest(".tab-pane").find(".row.border-bottom, .unit-row")
-    //       .length > 1
-    //   ) {
-    //     $(this).closest(".row").remove();
-    //   } else {
-    //     Swal.fire("Info", "Minimal satu baris data harus ada.", "info");
-    //   }
-    // });
-
-    // Tambah KUK
-    // --- KUK ---
-    $("#add-kuk-button").click(function () {
-      updateElementDropdowns(); // Refresh opsi
-      var elementOptions = $(".select-element-ref").first().html();
-      var count = $("#kuk-container .kuk-row").length;
-
-      var newRow = `
-
-      <div class="kuk-row card card-body mb-3 animate__animated animate__fadeIn">
-      <div class="row">
-        <div class="col-md-6">
-          <div class="form-group">
-            <label>Elemen</label>
-            <select
-              name="kuks[${count}].elementIndex"
-              class="form-control select2 select-element-ref select2"
-              required
-              style="width: 100%"
-            >
-              ${elementOptions}
-            </select>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="form-group">
-            <label>Nama KUK</label>
-            <input
-              name="kuks[${count}].namaKuk"
-              required
-              class="form-control input-nama-kuk"
-            />
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-12 text-right">
-            <button
-              type="button"
-              class="btn btn-outline-danger btn-sm remove-kuk-button"
-            >
-              <i class="fas fa-trash"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-      </div>`;
-
-      $("#kuk-container").append(newRow);
-      $("#kuk-container .kuk-row:last .select2").select2({
-        theme: "bootstrap4",
-      });
-    });
-
-    $(document).on("click", ".remove-kuk-button", function () {
-      if ($("#kuk-container .kuk-row").length > 1) {
-        $(this).closest(".kuk-row").remove();
-      } else {
-        Swal.fire("Info", "Minimal harus ada satu KUK.", "info");
       }
     });
 
@@ -452,12 +228,11 @@ $(document).ready(function () {
                         <textarea class="form-control summernote-persyaratan" name="persyaratan[]"></textarea>
                     </div>
                     <div class="col-1">
-                        <button type="button" class="btn btn-outline-danger btn-sm remove-persyaratan-button">
+                        <button type="button" class="btn btn-outline-danger remove-persyaratan-button">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
                 </div>`;
-
       var newRow = $(newRowHTML);
       $("#persyaratan-container").append(newRow);
       initializeSummernote(newRow.find(".summernote-persyaratan"));
@@ -495,42 +270,14 @@ $(document).ready(function () {
         // if ($("#fileSkema").val())
         //   formData.fileSkemaName = $("#fileSkema").val().split("\\").pop();
 
-        // Tab 2 (Units)
+        // TAB 2 (Unit)
         formData.unitSkema = [];
         $("#unit-skema-container .unit-skema-row").each(function () {
-          formData.unitSkema.push({
-            kodeUnit: $(this).find('input[name*="kodeUnit"]').val(),
-            judulUnit: $(this).find('input[name*="judulUnit"]').val(),
-          });
-        });
-
-        // TAB 2 (Unit)
-        // formData.unitSkema = [];
-        // $("#unit-skema-container .unit-skema-row").each(function () {
-        //   const unit = {
-        //     kodeUnit: $(this).find('input[name="units[0].kodeUnit"]').val(),
-        //     judulUnit: $(this).find('input[name="units[0].judulUnit"]').val(),
-        //   };
-        //   formData.unitSkema.push(unit);
-        // });
-
-        // BARU: SIMPAN ELEMEN
-        formData.elements = [];
-        $("#unit-elemen-container .unit-elemen-row").each(function () {
-          formData.elements.push({
-            unitIndex: $(this).find(".select-unit-ref").val(),
-            noElemen: $(this).find('input[name*="noElemen"]').val(),
-            namaElemen: $(this).find(".input-nama-elemen").val(),
-          });
-        });
-
-        // BARU: SIMPAN KUK
-        formData.kuks = [];
-        $("#kuk-container .kuk-row").each(function () {
-          formData.kuks.push({
-            elementIndex: $(this).find(".select-element-ref").val(),
-            namaKuk: $(this).find(".input-nama-kuk").val(),
-          });
+          const unit = {
+            kodeUnit: $(this).find('input[name="kodeUnit[]"]').val(),
+            judulUnit: $(this).find('input[name="judulUnit[]"]').val(),
+          };
+          formData.unitSkema.push(unit);
         });
 
         // TAB 3 (Persyaratan)
@@ -571,117 +318,21 @@ $(document).ready(function () {
           .html("Pilih file")
           .removeClass("selected");
 
-        if (formData.unitSkema && formData.unitSkema.length > 0) {
-          const container = $("#unit-skema-container");
-          container.empty(); // Reset container
-          formData.unitSkema.forEach(function (unit, index) {
-            // Buat ulang HTML row (agar bersih)
-            var rowHtml = `
-            <div class="unit-skema-row card card-body mb-3">
-                <div class="row">
-                    <div class="col-md-6"><div class="form-group"><label>Kode Unit</label><input type="text" required class="form-control input-kode-unit" name="units[${index}].kodeUnit" value="${unit.kodeUnit}"/></div></div>
-                    <div class="col-md-6"><div class="form-group"><label>Judul Unit</label><input type="text" required class="form-control input-judul-unit" name="units[${index}].judulUnit" value="${unit.judulUnit}"/></div></div>
-                </div>
-                <div class="row"><div class="col-12 text-right"><button type="button" class="btn btn-outline-danger btn-sm remove-unit-button"><i class="fas fa-trash"></i></button></div></div>
-            </div>`;
-            container.append(rowHtml);
-          });
-        }
-
         // Restore Tab 2 (Unit)
-        // if (formData.unitSkema && formData.unitSkema.length > 0) {
-        //   const unitContainer = $("#unit-skema-container");
-        //   // Sisakan 1, hapus sisanya (reset)
-        //   unitContainer.find(".unit-skema-row:not(:first)").remove();
+        if (formData.unitSkema && formData.unitSkema.length > 0) {
+          const unitContainer = $("#unit-skema-container");
+          // Sisakan 1, hapus sisanya (reset)
+          unitContainer.find(".unit-skema-row:not(:first)").remove();
 
-        //   formData.unitSkema.forEach(function (unit, index) {
-        //     var row;
-        //     if (index === 0) row = unitContainer.find(".unit-skema-row:first");
-        //     else {
-        //       row = unitContainer.find(".unit-skema-row:first").clone();
-        //       unitContainer.append(row);
-        //     }
-        //     row.find('input[name="kodeUnit[]"]').val(unit.kodeUnit);
-        //     row.find('input[name="judulUnit[]"]').val(unit.judulUnit);
-        //   });
-        // }
-
-        // PENTING: Update Dropdown Unit setelah restore data Unit
-        updateUnitDropdowns();
-
-        // Restore Tab 3 (Elements)
-        if (formData.elements && formData.elements.length > 0) {
-          const container = $("#unit-elemen-container");
-          var unitOptions = $(".select-unit-ref").first().html(); // Ambil opsi unit yg baru digenerate
-          container.empty();
-
-          formData.elements.forEach(function (el, index) {
-            var rowHtml = `
-            <div class="unit-elemen-row card card-body mb-3">
-                <div class="row">
-                    <div class="col-md-5"><div class="form-group"><label>Judul Unit</label><select name="elements[${index}].unitIndex" class="form-control select-unit-ref select2" required style="width: 100%;">${unitOptions}</select></div></div>
-                    <div class="col-md-2"><div class="form-group"><label>No Elemen</label><input type="number" name="elements[${index}].noElemen" class="form-control" required value="${el.noElemen}"/></div></div>
-                    <div class="col-md-5"><div class="form-group"><label>Elemen</label><input type="text" name="elements[${index}].namaElemen" class="form-control input-nama-elemen" required value="${el.namaElemen}"/></div></div>
-                </div>
-                <div class="row"><div class="col-12 text-right"><button type="button" class="btn btn-outline-danger btn-sm remove-elemen-button"><i class="fas fa-trash"></i></button></div></div>
-            </div>`;
-            container.append(rowHtml);
-            // Set value dropdown setelah append & init select2
-            var $lastRow = container.find(".unit-elemen-row:last");
-            $lastRow.find(".select2").select2({ theme: "bootstrap4" });
-            $lastRow
-              .find(".select-unit-ref")
-              .val(el.unitIndex)
-              .trigger("change");
-          });
-        }
-
-        // PENTING: Update Dropdown Elemen setelah restore data Elemen
-        updateElementDropdowns();
-
-        // Restore Tab 4 (KUKs)
-        if (formData.kuks && formData.kuks.length > 0) {
-          const container = $("#kuk-container");
-          var elementOptions = $(".select-element-ref").first().html();
-          container.empty();
-
-          formData.kuks.forEach(function (kuk, index) {
-            var rowHtml = `
-           
-            <div class="kuk-row card card-body mb-3">
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label>Elemen</label>
-                    <select name="kuks[${index}].elementIndex" class="form-control select2 select-element-ref select2" required
-                      style="width: 100%">
-                      ${elementOptions}
-                    </select>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label>Nama KUK</label>
-                    <input type="text" name="kuks[${index}].namaKuk" class="form-control input-nama-kuk" required value="${kuk.namaKuk}"/>
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-12 text-right">
-                  <button type="button" class="btn btn-outline-danger btn-sm remove-kuk-button">
-                    <i class="fas fa-trash"></i>
-                  </button>
-                </div>
-              </div>
-            </div>`;
-
-            container.append(rowHtml);
-            var $lastRow = container.find(".kuk-row:last");
-            $lastRow.find(".select2").select2({ theme: "bootstrap4" });
-            $lastRow
-              .find(".select-element-ref")
-              .val(kuk.elementIndex)
-              .trigger("change");
+          formData.unitSkema.forEach(function (unit, index) {
+            var row;
+            if (index === 0) row = unitContainer.find(".unit-skema-row:first");
+            else {
+              row = unitContainer.find(".unit-skema-row:first").clone();
+              unitContainer.append(row);
+            }
+            row.find('input[name="kodeUnit[]"]').val(unit.kodeUnit);
+            row.find('input[name="judulUnit[]"]').val(unit.judulUnit);
           });
         }
 
@@ -694,7 +345,7 @@ $(document).ready(function () {
             var newRowHTML = `
                         <div class="persyaratan-row row align-items-center mb-3">
                             <div class="col-11"><textarea class="form-control summernote-persyaratan" name="persyaratan[]"></textarea></div>
-                            <div class="col-1"><button type="button" class="btn btn-outline-danger btn-sm remove-persyaratan-button"><i class="fas fa-trash"></i></button></div>
+                            <div class="col-1"><button type="button" class="btn btn-outline-danger remove-persyaratan-button"><i class="fas fa-trash"></i></button></div>
                         </div>`;
             var newReqRow = $(newRowHTML);
             reqContainer.append(newReqRow);
@@ -730,7 +381,7 @@ $(document).ready(function () {
       );
       $(document).on(
         "click",
-        "#add-unit-button, .remove-unit-button, #add-persyaratan-button, .remove-persyaratan-button, #add-elemen-button, .remove-elemen-button, #add-kuk-button, .remove-kuk-button",
+        "#add-unit-button, .remove-unit-button, #add-persyaratan-button, .remove-persyaratan-button",
         function () {
           setTimeout(saveFormDataToLocalStorage, 200);
         }
@@ -760,34 +411,12 @@ $(document).ready(function () {
       // Cek Jumlah Baris Tab 2 & 3
       if (
         $("#unit-skema-container .unit-skema-row").length > 1 ||
-        // $("#unit-elemen-container .unit-elemen-row").length > 1 ||
-        // $("#kuk-container .kuk-row").length > 1 ||
         $("#persyaratan-container .persyaratan-row").length > 1
       )
         return true;
 
       // Cek Isi Baris Pertama Tab 2
       $("#unit-skema-container .unit-skema-row:first")
-        .find("input")
-        .each(function () {
-          if ($(this).val().trim() !== "") {
-            isDirty = true;
-            return false;
-          }
-        });
-      if (isDirty) return true;
-
-      $("#unit-elemen-container .unit-elemen-row")
-        .find("input")
-        .each(function () {
-          if ($(this).val().trim() !== "") {
-            isDirty = true;
-            return false;
-          }
-        });
-      if (isDirty) return true;
-
-      $("#kuk-container .kuk-row")
         .find("input")
         .each(function () {
           if ($(this).val().trim() !== "") {
@@ -971,16 +600,4 @@ $(document).ready(function () {
       });
     });
   } // End if form exists
-
-  // ==========================================
-  // 7. INITIALIZE EDIT PAGE DATA
-  // ==========================================
-  // Jika ini halaman edit, jalankan update dropdowns agar terisi
-  // if ($formEdit.length > 0) {
-  //   setTimeout(function () {
-  //     updateUnitDropdowns(); // Isi dropdown unit di tab elemen
-  //     updateElementDropdowns(); // Isi dropdown elemen di tab kuk
-  //     console.log("Edit page initialized: Dropdowns updated.");
-  //   }, 500); // Delay sedikit untuk memastikan DOM siap
-  // }
 });

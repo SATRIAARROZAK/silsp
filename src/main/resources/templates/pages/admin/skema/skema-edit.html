@@ -1,242 +1,364 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-  layout:decorate="~{layouts/app}">
+<html
+  lang="en"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/app}"
+>
+  <head th:replace="~{fragments/header :: header('Edit Skema')}"></head>
 
-<head th:replace="~{fragments/header :: header('Edit Skema')}"></head>
+  <body>
+    <div layout:fragment="content">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-12">
+            <div class="card card-warning card-tabs">
+              <div class="card-header p-0 pt-1">
+                <ul class="nav nav-tabs" id="skema-tab" role="tablist">
+                  <li class="nav-item">
+                    <a
+                      class="nav-link active"
+                      id="skema-sertifikasi-tab"
+                      data-toggle="pill"
+                      href="#skema-sertifikasi"
+                      role="tab"
+                      >1. Skema Sertifikasi</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a
+                      class="nav-link"
+                      id="unit-skema-tab"
+                      data-toggle="pill"
+                      href="#unit-skema"
+                      role="tab"
+                      >2. Unit Skema</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a
+                      class="nav-link"
+                      id="persyaratan-tab"
+                      data-toggle="pill"
+                      href="#tab-persyaratan"
+                      role="tab"
+                      >3. Persyaratan Dasar</a
+                    >
+                  </li>
+                </ul>
+              </div>
 
-<body>
-  <div layout:fragment="content">
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-12">
-          <div class="card card-warning card-tabs">
-            <div class="card-header p-0 pt-1">
-              <ul class="nav nav-tabs" id="skema-tab" role="tablist">
-                <li class="nav-item"><a class="nav-link active" id="skema-sertifikasi-tab" data-toggle="pill"
-                    href="#skema-sertifikasi" role="tab">1. Skema Sertifikasi</a></li>
-                <li class="nav-item"><a class="nav-link" id="unit-skema-tab" data-toggle="pill" href="#unit-skema"
-                    role="tab">2. Unit Skema</a></li>
-                <li class="nav-item"><a class="nav-link" id="unit-elemen-tab" data-toggle="pill" href="#unit-elemen"
-                    role="tab">3. Elemen</a></li>
-                <li class="nav-item"><a class="nav-link" id="kuk-tab" data-toggle="pill" href="#kuk" role="tab">4.
-                    Kriteria Unjuk Kerja</a></li>
-                <li class="nav-item"><a class="nav-link" id="persyaratan-tab" data-toggle="pill" href="#tab-persyaratan"
-                    role="tab">5. Persyaratan</a></li>
-              </ul>
-            </div>
+              <div class="card-body">
+                <form
+                  id="form-edit-skema"
+                  th:action="@{/admin/skema/update}"
+                  method="post"
+                  enctype="multipart/form-data"
+                  novalidate
+                >
+                  <input type="hidden" name="id" th:value="${skema.id}" />
 
-            <div class="card-body">
-              <form id="form-edit-skema" th:action="@{/admin/skema/update}" method="post" enctype="multipart/form-data"
-                novalidate th:object="${skemaDto}">
-                <input type="hidden" th:field="*{id}" />
-
-                <div class="tab-content">
-
-                  <div class="tab-pane fade show active" id="skema-sertifikasi">
-                    <div class="row">
-                      <div class="col-12 text-right"><button type="button" class="btn btn-warning next-tab"
-                          data-target-tab="unit-skema-tab">Selanjutnya <i class="fas fa-arrow-right"></i></button></div>
-                    </div>
-
-                    <div class="row">
-                      <div class="col-md-12">
-                        <div class="form-group"><label>Nama Skema</label><input type="text" class="form-control"
-                            th:field="*{namaSkema}" required /></div>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-md-3">
-                        <div class="form-group"><label>Kode Skema</label><input type="text" class="form-control"
-                            th:field="*{kodeSkema}" required /></div>
-                      </div>
-                      <div class="col-md-3">
-                        <div class="form-group"><label>Level</label><input type="number" class="form-control"
-                            th:field="*{level}" required /></div>
-                      </div>
-                      <div class="col-md-3">
-                        <div class="form-group"><label>No SKKNI</label><input type="text" class="form-control"
-                            th:field="*{noSkkni}" required /></div>
-                      </div>
-                      <div class="col-md-3">
-                        <div class="form-group"><label>Tahun SKKNI</label><input type="text" class="form-control"
-                            th:field="*{tahunSkkni}" required /></div>
-                      </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-md-6">
-                        <div class="form-group"><label>Jenis Skema</label>
-                          <select class="form-control select2" th:field="*{jenisSkemaId}" style="width: 100%" required>
-                            <option th:each="type : ${types}" th:value="${type.id}" th:text="${type.name}"></option>
-                          </select>
+                  <div class="tab-content">
+                    <div
+                      class="tab-pane fade show active"
+                      id="skema-sertifikasi"
+                    >
+                      <div class="row">
+                        <div class="col-12 text-right">
+                          <button
+                            type="button"
+                            class="btn btn-warning next-tab"
+                            data-target-tab="unit-skema-tab"
+                          >
+                            Selanjutnya <i class="fas fa-arrow-right"></i>
+                          </button>
                         </div>
                       </div>
-                      <div class="col-md-6">
-                        <div class="form-group"><label>Mode Skema</label>
-                          <select class="form-control select2" th:field="*{modeSkemaId}" style="width: 100%" required>
-                            <option th:each="mode : ${modes}" th:value="${mode.id}" th:text="${mode.name}"></option>
-                          </select>
+
+                      <div class="row">
+                        <div class="col-md-12">
+                          <div class="form-group">
+                            <label>Nama Skema</label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              name="namaSkema"
+                              th:value="${skema.name}"
+                              required
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div class="row">
-                      <div class="col-md-6">
-                        <div class="form-group"><label>Tanggal Penetapan</label><input type="date" class="form-control"
-                            name="tanggalPenetapan" th:field="*{tanggalPenetapan}" required /></div>
+                      <div class="row">
+                        <div class="col-md-3">
+                          <div class="form-group">
+                            <label>Kode Skema</label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              name="kodeSkema"
+                              th:value="${skema.code}"
+                              required
+                            />
+                          </div>
+                        </div>
+                        <div class="col-md-3">
+                          <div class="form-group">
+                            <label>Level</label>
+                            <input
+                              type="number"
+                              class="form-control"
+                              name="level"
+                              th:value="${skema.level}"
+                              required
+                            />
+                          </div>
+                        </div>
+                        <div class="col-md-3">
+                          <div class="form-group">
+                            <label>No SKKNI</label>
+                            <input
+                              type="number"
+                              class="form-control"
+                              name="noSkkni"
+                              th:value="${skema.noSkkni}"
+                              required
+                            />
+                          </div>
+                        </div>
+                        <div class="col-md-3">
+                          <div class="form-group">
+                            <label>Tahun SKKNI</label>
+                            <input
+                              type="number"
+                              class="form-control"
+                              name="tahunSkkni"
+                              th:value="${skema.skkniYear}"
+                              required
+                            />
+                          </div>
+                        </div>
                       </div>
-                      <div class="col-md-6">
-                        <div class="form-group"><label>File Dokumen (PDF)</label>
-                          <div class="input-group">
-                            <div class="custom-file">
-                              <input type="file" class="custom-file-input" id="fileSkema" name="fileSkema"
-                                accept=".pdf" />
-                              <label class="custom-file-label" for="fileSkema">Ganti file (Opsional)</label>
+
+                      <div class="row">
+                        <div class="col-md-6">
+                          <div class="form-group">
+                            <label>Jenis Skema</label>
+                            <select
+                              class="form-control select2"
+                              name="jenisSkemaId"
+                              style="width: 100%"
+                              required
+                            >
+                              <option value="" disabled>
+                                Pilih Jenis Skema
+                              </option>
+                              <option
+                                th:each="type : ${types}"
+                                th:value="${type.id}"
+                                th:text="${type.name}"
+                                th:selected="${skema.schemaType != null and skema.schemaType.id == type.id}"
+                              ></option>
+                            </select>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="form-group">
+                            <label>Mode Skema</label>
+                            <select
+                              class="form-control select2"
+                              name="modeSkemaId"
+                              style="width: 100%"
+                              required
+                            >
+                              <option value="" disabled>
+                                Pilih Mode Skema
+                              </option>
+                              <option
+                                th:each="mode : ${modes}"
+                                th:value="${mode.id}"
+                                th:text="${mode.name}"
+                                th:selected="${skema.schemaMode != null and skema.schemaMode.id == mode.id}"
+                              ></option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="row">
+                        <div class="col-md-6">
+                          <div class="form-group">
+                            <label>Tanggal Penetapan</label>
+                            <input
+                              type="date"
+                              class="form-control"
+                              name="tanggalPenetapan"
+                              th:value="${skema.establishmentDate}"
+                              required
+                            />
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="form-group">
+                            <label>File Dokumen (PDF)</label>
+                            <div class="input-group">
+                              <div class="custom-file">
+                                <input
+                                  type="file"
+                                  class="custom-file-input"
+                                  id="fileSkema"
+                                  name="fileSkema"
+                                  accept=".pdf"
+                                />
+                                <label class="custom-file-label" for="fileSkema"
+                                  >Ganti file (Opsional)</label
+                                >
+                              </div>
+                            </div>
+                            <div class="mb-2" th:if="${skema.documentPath}">
+                              <small class="text-success"
+                                ><i class="fas fa-check"></i> File saat ini:
+                                <span th:text="${skema.name} + '.pdf'"></span
+                              ></small>
                             </div>
                           </div>
-                          <div class="mb-2" th:if="${existingSchema.documentPath}">
-                            <small class="text-success"><i class="fas fa-check"></i> File terupload: <span
-                                th:text="${existingSchema.documentPath}"></span></small>
-                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div class="tab-pane fade" id="unit-skema">
-                    <div class="row mb-3">
-                      <div class="col-6"><button type="button" class="btn btn-secondary prev-tab"
-                          data-target-tab="skema-sertifikasi-tab">Sebelumnya</button></div>
-                      <div class="col-6 text-right"><button type="button" class="btn btn-warning next-tab"
-                          data-target-tab="unit-elemen-tab">Selanjutnya</button></div>
-                    </div>
-
-                    <div id="unit-skema-container">
-                      <div class="unit-skema-row card card-body mb-3" th:each="unit, stat : *{units}">
-                        <div class="row">
-                          <div class="col-md-6">
-                            <div class="form-group"><label>Kode Unit</label><input type="text"
-                                class="form-control input-kode-unit" th:name="|units[${stat.index}].kodeUnit|"
-                                th:value="${unit.kodeUnit}" required /></div>
-                          </div>
-                          <div class="col-md-6">
-                            <div class="form-group"><label>Judul Unit</label><input type="text"
-                                class="form-control input-judul-unit" th:name="|units[${stat.index}].judulUnit|"
-                                th:value="${unit.judulUnit}" required /></div>
-                          </div>
+                    <div class="tab-pane fade" id="unit-skema">
+                      <div class="row mb-3">
+                        <div class="col-6">
+                          <button
+                            type="button"
+                            class="btn btn-secondary prev-tab"
+                            data-target-tab="skema-sertifikasi-tab"
+                          >
+                            <i class="fas fa-arrow-left"></i> Sebelumnya
+                          </button>
                         </div>
-                        <div class="row">
-                          <div class="col-12 text-right"><button type="button"
-                              class="btn btn-outline-danger btn-sm remove-unit-button"><i
-                                class="fas fa-trash"></i></button></div>
+                        <div class="col-6 text-right">
+                          <button
+                            type="button"
+                            class="btn btn-warning next-tab"
+                            data-target-tab="persyaratan-tab"
+                          >
+                            Selanjutnya <i class="fas fa-arrow-right"></i>
+                          </button>
                         </div>
                       </div>
 
-                      <div class="unit-skema-row card card-body mb-3" th:if="*{#lists.isEmpty(units)}">
-                        <div class="row">
-                          <div class="col-md-6">
-                            <div class="form-group"><label>Kode Unit</label><input type="text"
-                                class="form-control input-kode-unit" name="units[0].kodeUnit" required /></div>
-                          </div>
-                          <div class="col-md-6">
-                            <div class="form-group"><label>Judul Unit</label><input type="text"
-                                class="form-control input-judul-unit" name="units[0].judulUnit" required /></div>
-                          </div>
-                        </div>
-                        <div class="row">
-                          <div class="col-12 text-right"><button type="button"
-                              class="btn btn-outline-danger btn-sm remove-unit-button"><i
-                                class="fas fa-trash"></i></button></div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="text-center mt-2"><button type="button" id="add-unit-button"
-                        class="btn btn-outline-success"><i class="fas fa-plus"></i> Tambah Unit</button></div>
-                  </div>
-
-                  <div class="tab-pane fade" id="unit-elemen">
-                    <div class="row mb-3">
-                      <div class="col-6"><button type="button" class="btn btn-secondary prev-tab"
-                          data-target-tab="unit-skema-tab">Sebelumnya</button></div>
-                      <div class="col-6 text-right"><button type="button" class="btn btn-warning next-tab"
-                          data-target-tab="kuk-tab">Selanjutnya</button></div>
-                    </div>
-                    <div class="alert alert-info py-2 small"><i class="fas fa-info-circle"></i> Jika unit berubah,
-                      silakan sesuaikan dropdown induk.</div>
-
-                    <div id="unit-elemen-container">
-                      <div class="unit-elemen-row card card-body mb-3" th:each="el, stat : *{elements}">
-                        <div class="row">
-                          <div class="col-md-5">
-                            <div class="form-group"><label>Judul Unit</label>
-                              <select th:name="|elements[${stat.index}].unitIndex|"
-                                class="form-control select2 select-unit-ref" required style="width: 100%;">
-                                <option th:value="${el.unitIndex}" selected>Loading...</option>
-                              </select>
+                      <div id="unit-skema-container">
+                        <div
+                          class="unit-skema-row card card-body mb-3"
+                          th:each="unit : ${skema.units}"
+                        >
+                          <div class="row">
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label>Kode Unit</label>
+                                <input
+                                  type="text"
+                                  class="form-control"
+                                  name="kodeUnit[]"
+                                  th:value="${unit.code}"
+                                  required
+                                />
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label>Judul Unit</label>
+                                <input
+                                  type="text"
+                                  class="form-control"
+                                  name="judulUnit[]"
+                                  th:value="${unit.title}"
+                                  required
+                                />
+                              </div>
                             </div>
                           </div>
-                          <div class="col-md-2">
-                            <div class="form-group"><label>No</label><input type="number" class="form-control"
-                                th:name="|elements[${stat.index}].noElemen|" th:value="${el.noElemen}" required /></div>
-                          </div>
-                          <div class="col-md-5">
-                            <div class="form-group"><label>Elemen</label><input type="text"
-                                class="form-control input-nama-elemen" th:name="|elements[${stat.index}].namaElemen|"
-                                th:value="${el.namaElemen}" required /></div>
-                          </div>
-                        </div>
-                        <div class="row">
-                          <div class="col-12 text-right"><button type="button"
-                              class="btn btn-outline-danger btn-sm remove-elemen-button"><i
-                                class="fas fa-trash"></i></button></div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="text-center mt-2"><button type="button" id="add-elemen-button"
-                        class="btn btn-outline-success"><i class="fas fa-plus"></i> Tambah Elemen</button></div>
-                  </div>
-
-                  <div class="tab-pane fade" id="kuk">
-                    <div class="row mb-3">
-                      <div class="col-6"><button type="button" class="btn btn-secondary prev-tab"
-                          data-target-tab="unit-elemen-tab">Sebelumnya</button></div>
-                      <div class="col-6 text-right"><button type="button" class="btn btn-warning next-tab"
-                          data-target-tab="persyaratan-tab">Selanjutnya</button></div>
-                    </div>
-
-                    <div id="kuk-container">
-                      <div class="kuk-row card card-body mb-3" th:each="k, stat : *{kuks}">
-                        <div class="row">
-                          <div class="col-md-6">
-                            <div class="form-group"><label>Elemen</label>
-                              <select th:name="|kuks[${stat.index}].elementIndex|"
-                                class="form-control select2 select-element-ref" required style="width: 100%">
-                                <option th:value="${k.elementIndex}" selected>Loading...</option>
-                              </select>
+                          <div class="row">
+                            <div class="col-12 text-right">
+                              <button
+                                type="button"
+                                class="btn btn-outline-danger btn-sm remove-unit-button"
+                              >
+                                <i class="fas fa-trash"></i>
+                              </button>
                             </div>
                           </div>
-                          <div class="col-md-6">
-                            <div class="form-group"><label>Nama KUK</label><input type="text"
-                                class="form-control input-nama-kuk" th:name="|kuks[${stat.index}].namaKuk|"
-                                th:value="${k.namaKuk}" required /></div>
+                        </div>
+
+                        <div
+                          class="unit-skema-row card card-body mb-3"
+                          th:if="${#lists.isEmpty(skema.units)}"
+                        >
+                          <div class="row">
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label>Kode Unit</label
+                                ><input
+                                  type="text"
+                                  class="form-control"
+                                  name="kodeUnit[]"
+                                  required
+                                />
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="form-group">
+                                <label>Judul Unit</label
+                                ><input
+                                  type="text"
+                                  class="form-control"
+                                  name="judulUnit[]"
+                                  required
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          <div class="row">
+                            <div class="col-12 text-right">
+                              <button
+                                type="button"
+                                class="btn btn-outline-danger btn-sm remove-unit-button"
+                              >
+                                <i class="fas fa-trash"></i>
+                              </button>
+                            </div>
                           </div>
                         </div>
-                        <div class="row">
-                          <div class="col-12 text-right"><button type="button"
-                              class="btn btn-outline-danger btn-sm remove-kuk-button"><i
-                                class="fas fa-trash"></i></button></div>
+                      </div>
+
+                      <div class="row mb-3">
+                        <div class="col-12 text-center">
+                          <button
+                            type="button"
+                            id="add-unit-button"
+                            class="btn btn-outline-success"
+                          >
+                            <i class="fas fa-plus"></i> Tambah Unit
+                          </button>
                         </div>
                       </div>
                     </div>
-                    <div class="text-center mt-2"><button type="button" id="add-kuk-button"
-                        class="btn btn-outline-success"><i class="fas fa-plus"></i> Tambah KUK</button></div>
-                  </div>
 
-                  <div class="tab-pane fade" id="tab-persyaratan">
-                    <div class="row mb-3">
-                      <div class="col-12"><button type="button" class="btn btn-secondary prev-tab"
-                          data-target-tab="kuk-tab">Sebelumnya</button></div>
-                    </div>
+                    <div class="tab-pane fade" id="tab-persyaratan">
+                      <div class="row mb-3">
+                        <div class="col-12">
+                          <button
+                            type="button"
+                            class="btn btn-secondary prev-tab"
+                            data-target-tab="unit-skema-tab"
+                          >
+                            <i class="fas fa-arrow-left"></i> Sebelumnya
+                          </button>
+                        </div>
+                      </div>
 
-<div class="card card-outline card-info">
+                      <div class="card card-outline card-info">
                         <div class="card-header">
                           <h3 class="card-title">Format Teks Persyaratan</h3>
 
@@ -293,32 +415,79 @@
                         </div>
                       </div>
 
-                    <div id="persyaratan-container">
-                      <div class="persyaratan-row row align-items-center mb-3" th:each="req, stat : *{persyaratan}">
-                        <div class="col-11"><textarea class="form-control summernote-persyaratan" name="persyaratan[]"
-                            th:utext="${req}"></textarea></div>
-                        <div class="col-1"><button type="button"
-                            class="btn btn-outline-danger btn-sm remove-persyaratan-button"><i
-                              class="fas fa-trash"></i></button></div>
+                      <div id="persyaratan-container">
+                        <div
+                          class="persyaratan-row row align-items-center mb-3"
+                          th:each="req : ${skema.requirements}"
+                        >
+                          <div class="col-11">
+                            <textarea
+                              class="form-control summernote-persyaratan"
+                              name="persyaratan[]"
+                              th:utext="${req.description}"
+                              required
+                            ></textarea>
+                          </div>
+                          <div class="col-1">
+                            <button
+                              type="button"
+                              class="btn btn-outline-danger btn-sm remove-persyaratan-button"
+                            >
+                              <i class="fas fa-trash"></i>
+                            </button>
+                          </div>
+                        </div>
+
+                        <div
+                          class="persyaratan-row row align-items-center mb-3"
+                          th:if="${#lists.isEmpty(skema.requirements)}"
+                        >
+                          <div class="col-11">
+                            <textarea
+                              class="form-control summernote-persyaratan"
+                              name="persyaratan[]"
+                              required
+                            ></textarea>
+                          </div>
+                          <div class="col-1">
+                            <button
+                              type="button"
+                              class="btn btn-outline-danger btn-sm remove-persyaratan-button"
+                            >
+                              <i class="fas fa-trash"></i>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="row mt-3">
+                        <div class="col-12">
+                          <button
+                            type="button"
+                            id="add-persyaratan-button"
+                            class="btn btn-outline-success btn-block"
+                          >
+                            <i class="fas fa-plus"></i> Tambah Persyaratan
+                          </button>
+                        </div>
                       </div>
                     </div>
-                    <div class="mt-3"><button type="button" id="add-persyaratan-button"
-                        class="btn btn-outline-success btn-block"><i class="fas fa-plus"></i> Tambah
-                        Persyaratan</button></div>
                   </div>
 
-                </div>
-                <div class="card-footer mt-3 text-left">
-                  <button type="submit" class="btn btn-warning">Simpan Perubahan</button>
-                  <a th:href="@{/admin/skema}" class="btn btn-default">Batal</a>
-                </div>
-              </form>
+                  <div class="card-footer mt-3 text-left">
+                    <button type="submit" class="btn btn-warning">
+                      Simpan Perubahan
+                    </button>
+                    <a th:href="@{/admin/skema}" class="btn btn-default"
+                      >Batal</a
+                    >
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-</body>
-
+  </body>
 </html>

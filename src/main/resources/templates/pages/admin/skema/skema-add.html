@@ -51,18 +51,7 @@
                       >3. Elemen</a
                     >
                   </li>
-                  <li class="nav-item">
-                    <a
-                      class="nav-link"
-                      id="kuk-tab"
-                      data-toggle="pill"
-                      href="#kuk"
-                      role="tab"
-                      aria-controls="kuk"
-                      aria-selected="false"
-                      >4. Kriteria Untuk Kerja</a
-                    >
-                  </li>
+
                   <li class="nav-item">
                     <a
                       class="nav-link"
@@ -73,7 +62,7 @@
                       aria-controls="content-tab-persyaratan"
                       aria-selected="false"
                     >
-                      5. Persyaratan Dasar
+                      4. Persyaratan Dasar
                     </a>
                   </li>
                 </ul>
@@ -262,26 +251,6 @@
                         </div>
                         <div class="col-md-6">
                           <div class="form-group">
-                            <label>File Dokumen (PDF)</label>
-                            <div class="input-group">
-                              <div class="custom-file">
-                                <input
-                                  type="file"
-                                  required
-                                  class="custom-file-input"
-                                  id="fileSkema"
-                                  name="fileSkema"
-                                  accept=".pdf"
-                                />
-                                <label class="custom-file-label" for="fileSkema"
-                                  >Upload file</label
-                                >
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <!-- <div class="col-md-6">
-                          <div class="form-group">
                             <label>Upload File Dokumen (PDF)</label>
                             <div class="input-group">
                               <div class="custom-file">
@@ -293,13 +262,13 @@
                                   name="fileSkema"
                                   accept=".pdf"
                                 />
+                                <label class="custom-file-label" for="fileSkema"
+                                  >Pilih file</label
+                                >
                               </div>
-                              <label class="custom-file-label" for="fileSkema"
-                                >Pilih file</label
-                              >
                             </div>
                           </div>
-                        </div> -->
+                        </div>
                       </div>
                     </div>
 
@@ -323,7 +292,7 @@
                           <button
                             type="button"
                             class="btn btn-primary next-tab"
-                            data-target-tab="unit-elemen-tab"
+                            data-target-tab="persyaratan-tab"
                           >
                             Selanjutnya <i class="fas fa-arrow-right"></i>
                           </button>
@@ -334,41 +303,18 @@
                         <div class="unit-skema-row card card-body mb-3">
                           <div class="row">
                             <div class="col-md-6">
-                              <label>Kode Unit</label>
-                              <input
-                                type="text"
-                                class="form-control input-kode-unit"
-                                name="units[0].kodeUnit"
-                                placeholder="Kode Unit"
-                                required
-                              />
-                              <div class="invalid-feedback">
-                                Kode Unit Tidak Boleh Kosong!
-                              </div>
-                            </div>
-                            <div class="col-md-6">
-                              <label>Judul Unit</label>
-                              <input
-                                type="text"
-                                class="form-control input-judul-unit"
-                                name="units[0].judulUnit"
-                                placeholder="Judul Unit"
-                                required
-                              />
-                              <div class="invalid-feedback">
-                                Judul Unit Tidak Boleh Kosong!
-                              </div>
-                            </div>
-                            <!-- <div class="col-md-6">
                               <div class="form-group">
                                 <label>Kode Unit</label>
                                 <input
                                   type="text"
                                   required
-                                  class="form-control input-kode-unit"
+                                  class="form-control"
                                   name="kodeUnit[]"
                                   placeholder="Contoh: J.620100.001.01"
                                 />
+                                <div class="invalid-feedback">
+                                  Kode Unit Tidak Boleh Kosong!
+                                </div>
                               </div>
                             </div>
                             <div class="col-md-6">
@@ -377,12 +323,15 @@
                                 <input
                                   type="text"
                                   required
-                                  class="form-control input-judul-unit"
+                                  class="form-control"
                                   name="judulUnit[]"
                                   placeholder="Contoh: Mengimplementasikan User Interface"
                                 />
+                                <div class="invalid-feedback">
+                                  Judul Unit Tidak Boleh Kosong!
+                                </div>
                               </div>
-                            </div> -->
+                            </div>
                           </div>
 
                           <div class="row">
@@ -420,7 +369,7 @@
                           <button
                             type="button"
                             class="btn btn-secondary prev-tab"
-                            data-target-tab="unit-skema-tab"
+                            data-target-tab="skema-sertifikasi-tab"
                           >
                             <i class="fas fa-arrow-left"></i> Sebelumnya
                           </button>
@@ -429,7 +378,7 @@
                           <button
                             type="button"
                             class="btn btn-primary next-tab"
-                            data-target-tab="kuk-tab"
+                            data-target-tab="persyaratan-tab"
                           >
                             Selanjutnya <i class="fas fa-arrow-right"></i>
                           </button>
@@ -444,18 +393,17 @@
                                 <label>Judul Unit</label>
                                 <select
                                   required
-                                  name="elements[0].unitIndex"
-                                  class="form-control select2 select-unit-ref"
+                                  class="form-control select2"
                                   style="width: 100%"
                                 >
                                   <option value="" disabled selected>
                                     Pilih Judul Unit
                                   </option>
-                                  <!-- <option value="">Merancang Basis Data</option>
+                                  <option value="">Merancang Basis Data</option>
                                   <option value="">
                                     Mengelola Reference and Master Data
                                   </option>
-                                  <option value="">Mengelola Metadata</option> -->
+                                  <option value="">Mengelola Metadata</option>
                                 </select>
                                 <div class="invalid-feedback">
                                   Harapa Pilih Judul Unit!
@@ -468,7 +416,6 @@
                                 <input
                                   type="number"
                                   required
-                                  name="elements[0].noElemen"
                                   class="form-control"
                                 />
                                 <div class="invalid-feedback">
@@ -482,8 +429,7 @@
                                 <input
                                   type="text"
                                   required
-                                  name="elements[0].namaElemen"
-                                  class="form-control input-nama-elemen"
+                                  class="form-control"
                                 />
                                 <div class="invalid-feedback">
                                   Harap Isi Elemen!
@@ -519,108 +465,6 @@
 
                     <div
                       class="tab-pane fade"
-                      id="kuk"
-                      role="tabpanel"
-                      aria-labelledby="tab-kuk"
-                    >
-                      <div class="row mb-3">
-                        <div class="col-6 text-left">
-                          <button
-                            type="button"
-                            class="btn btn-secondary prev-tab"
-                            data-target-tab="unit-elemen-tab"
-                          >
-                            <i class="fas fa-arrow-left"></i> Sebelumnya
-                          </button>
-                        </div>
-                        <div class="col-6 text-right">
-                          <button
-                            type="button"
-                            class="btn btn-primary next-tab"
-                            data-target-tab="persyaratan-tab"
-                          >
-                            Selanjutnya <i class="fas fa-arrow-right"></i>
-                          </button>
-                        </div>
-                      </div>
-
-                      <div id="kuk-container">
-                        <div class="kuk-row card card-body mb-3">
-                          <div class="row">
-                            <div class="col-md-6">
-                              <div class="form-group">
-                                <label>Elemen</label>
-                                <select
-                                  required
-                                  class="form-control select2 select-element-ref"
-                                  style="width: 100%"
-                                  name="kuks[0].elementIndex"
-                                >
-                                  <option value="" disabled selected>
-                                    Pilih Elemen
-                                  </option>
-                                  <!-- <option value="">
-                                    Kebutuhan data diidentifikasi sesuai tujuan
-                                    teknis data science
-                                  </option>
-                                  <option value="">
-                                    Kebutuhan data diperiksa ketersediaannya
-                                    sesuai aturan yang berlaku.
-                                  </option>
-                                  <option value="">
-                                    Kebutuhan data ditentukan volumenya sesuai
-                                    tujuan teknis data science.
-                                  </option> -->
-                                </select>
-                                <div class="invalid-feedback">
-                                  Harapa Pilih Judul Unit!
-                                </div>
-                              </div>
-                            </div>
-
-                            <div class="col-md-6">
-                              <div class="form-group">
-                                <label>Nama KUK</label>
-                                <input
-                                  type="text"
-                                  required
-                                  class="form-control input-nama-kuk"
-                                  name="kuks[0].namaKuk"
-                                />
-                                <div class="invalid-feedback">
-                                  Harap Isi Elemen!
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div class="row">
-                            <div class="col-12 text-right">
-                              <button
-                                type="button"
-                                class="btn btn-outline-danger btn-sm remove-kuk-button"
-                              >
-                                <i class="fas fa-trash"></i>
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="row mb-3">
-                        <div class="col-12 text-center">
-                          <button
-                            type="button"
-                            id="add-kuk-button"
-                            class="btn btn-outline-success"
-                          >
-                            <i class="fas fa-plus"></i> Tambah Data
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div
-                      class="tab-pane fade"
                       id="tab-persyaratan"
                       role="tabpanel"
                       aria-labelledby="tab-persyaratan"
@@ -630,7 +474,7 @@
                           <button
                             type="button"
                             class="btn btn-secondary prev-tab"
-                            data-target-tab="kuk-tab"
+                            data-target-tab="unit-skema-tab"
                           >
                             <i class="fas fa-arrow-left"></i> Sebelumnya
                           </button>

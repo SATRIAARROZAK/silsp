@@ -2,6 +2,8 @@ package com.lsptddi.silsp.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -24,6 +26,18 @@ public class UnitSkema {
     private Skema skema;
 
     // TAMBAHAN: Relasi ke Element
+    // @OneToMany(mappedBy = "skemaUnit", cascade = CascadeType.ALL, orphanRemoval =
+    // true)
+    // private List<UnitElemenSkema> elements;
+
+    // --- TAMBAHAN RELASI KE ELEMEN ---
     @OneToMany(mappedBy = "skemaUnit", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<UnitElemenSkema> elements;
+    @ToString.Exclude
+    private List<UnitElemenSkema> elements = new ArrayList<>();
+
+    // Helper untuk set relasi 2 arah
+    public void addElement(UnitElemenSkema element) {
+        elements.add(element);
+        element.setSkemaUnit(this);
+    }
 }

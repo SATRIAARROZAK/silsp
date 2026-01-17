@@ -1,4 +1,3 @@
-
 // ========================================================
 // JAVASCRIPT UTAMA SKEMA ADMIN (LIST, ADD, EDIT, VIEW)
 // ========================================================
@@ -68,7 +67,7 @@ $(document).ready(function () {
   // ========================================================
 
   // Konfirmasi Delete
-  $(".delete-button-skema").on("click",  function (e) {
+  $(".delete-button-skema").on("click", function (e) {
     e.preventDefault();
     var link = $(this).attr("href");
 
@@ -111,8 +110,10 @@ $(document).ready(function () {
   var $formEdit = $("#form-edit-skema");
 
   if ($formAdd.length || $formEdit.length) {
-    // A. FORM DINAMIS (UNIT SKEMA)
-    // ----------------------------
+    // ========================================================
+    // LOGIKA TAB 2: FORM DINAMIS (UNIT SKEMA)
+    // ========================================================
+
     $(document).on("click", "#add-unit-button", function () {
       var template = $("#unit-skema-container .unit-skema-row:first");
       var newUnitRow = template.clone();
@@ -128,6 +129,87 @@ $(document).ready(function () {
         Toast.fire({
           icon: "error",
           title: "Minimal harus ada satu unit skema.",
+        });
+      }
+    });
+
+    // ========================================================
+    // LOGIKA TAB 3: ELEMEN (Sinkronisasi dengan Tab 2)
+    // ========================================================
+
+    // Fungsi untuk me-refresh opsi dropdown Unit di Tab 3
+    function syncUnitDropdowns() {
+      // 1. Ambil data dari Tab 2
+      var units = [];
+      $("#unit-skema-container .unit-skema-row").each(function () {
+        var code = $(this).find('input[name="kodeUnit[]"]').val();
+        var title = $(this).find('input[name="judulUnit[]"]').val();
+        if (code && title) {
+          units.push({ code: code, title: title });
+          // units.push({ code: code, title: code + " - " + title });
+        }
+      });
+
+      // 2. Loop semua dropdown di Tab 3 dan update opsinya
+      $("#unit-elemen-container .select-unit-ref").each(function () {
+        var currentVal = $(this).val(); // Simpan nilai yang sedang dipilih
+        var $select = $(this);
+        $select.empty(); // Kosongkan
+        $select.append(
+          '<option value="" disabled selected>-- Pilih Judul Unit --</option>'
+        );
+
+        units.forEach(function (u) {
+          $select.append(`<option value="${u.code}">${u.title}</option>`);
+        });
+
+        // Restore nilai jika masih ada
+        if (currentVal) {
+          $select.val(currentVal);
+        }
+      });
+    }
+
+    // Event saat Tab 3 (Elemen) diklik/ditampilkan
+    $('a[href="#unit-elemen"]').on("shown.bs.tab", function (e) {
+      syncUnitDropdowns();
+    });
+
+    // Juga panggil saat tombol "Selanjutnya" yang mengarah ke Unit Elemen diklik
+    $('.next-tab[data-target-tab="unit-elemen-tab"]').on("click", function () {
+      // Timeout kecil untuk memastikan tab render dulu (opsional)
+      setTimeout(syncUnitDropdowns, 100);
+    });
+
+    // Tambah Baris Elemen
+    $(document).on("click", "#add-elemen-button", function () {
+      // Clone baris pertama
+      var template = $("#unit-elemen-container .unit-elemen-row:first");
+      var newRow = template.clone();
+
+      // Reset inputan
+      newRow.find("input").val("");
+      newRow.find("select").val("");
+
+      // Pastikan tombol hapus terlihat
+      newRow.find(".remove-elemen-button").show();
+
+      // Append ke container
+      $("#unit-elemen-container").append(newRow);
+
+      // Sinkronkan dropdown di baris baru ini
+      // (Sebenarnya sudah tercopy opsinya dari clone, tapi untuk memastikan data terbaru)
+      syncUnitDropdowns();
+    });
+
+    // Hapus Baris Elemen
+    $(document).on("click", ".remove-elemen-button", function () {
+      if ($("#unit-elemen-container .unit-elemen-row").length > 1) {
+        $(this).closest(".unit-elemen-row").remove();
+      } else {
+        Toast.fire({
+          icon: "error",
+          title: "Minimal harus ada satu elemen.",
         });
       }
     });
@@ -253,11 +335,11 @@ $(document).ready(function () {
     });
 
     // --- D. LOCAL STORAGE (AUTO SAVE) - KHUSUS HALAMAN ADD ---
-    // Kita hanya aktifkan Auto Save di Form Tambah, jangan di Edit (agar data DB tidak tertimpa draft)
     if ($formAdd.length) {
       function saveFormDataToLocalStorage() {
         const formData = {};
-        // TAB 1
+
+        // --- TAB 1: DATA DASAR ---
         formData.namaSkema = $("#namaSkema").val();
         formData.kodeSkema = $("#kodeSkema").val();
         formData.noSkkni = $("#noSkkni").val();
@@ -266,11 +348,8 @@ $(document).ready(function () {
         formData.jenisSkema = $("#jenisSkema").val();
         formData.modeSkema = $("#modeSkema").val();
         formData.tanggal_penetapan = $("#tanggal_penetapan").val();
-        // // File nama saja (tidak bisa simpan file binary di localStorage)
-        // if ($("#fileSkema").val())
-        //   formData.fileSkemaName = $("#fileSkema").val().split("\\").pop();
 
-        // TAB 2 (Unit)
+        // --- TAB 2: UNIT SKEMA ---
         formData.unitSkema = [];
         $("#unit-skema-container .unit-skema-row").each(function () {
           const unit = {
@@ -280,7 +359,18 @@ $(document).ready(function () {
           formData.unitSkema.push(unit);
         });
 
-        // TAB 3 (Persyaratan)
+        // --- TAB 3: UNIT ELEMEN (BARU) ---
+        formData.unitElemen = [];
+        $("#unit-elemen-container .unit-elemen-row").each(function () {
+          const elemen = {
+            unitRef: $(this).find('select[name="elemenKodeUnitRef[]"]').val(), // Ambil value select
+            no: $(this).find('input[name="noElemen[]"]').val(),
+            nama: $(this).find('input[name="namaElemen[]"]').val(),
+          };
+          formData.unitElemen.push(elemen);
+        });
+
+        // --- TAB 4: PERSYARATAN ---
         formData.persyaratan = [];
         $("#persyaratan-container .persyaratan-row").each(function () {
           formData.persyaratan.push(
@@ -288,7 +378,9 @@ $(document).ready(function () {
           );
         });
 
+        // Simpan Tab Aktif
         formData.activeTab = $(".nav-tabs .nav-link.active").attr("id");
+
         localStorage.setItem(formKey, JSON.stringify(formData));
       }
 
@@ -298,7 +390,7 @@ $(document).ready(function () {
 
         const formData = JSON.parse(savedData);
 
-        // Restore Tab 1
+        // 1. Restore Tab 1
         if (formData.namaSkema) $("#namaSkema").val(formData.namaSkema);
         if (formData.kodeSkema) $("#kodeSkema").val(formData.kodeSkema);
         if (formData.noSkkni) $("#noSkkni").val(formData.noSkkni);
@@ -310,19 +402,16 @@ $(document).ready(function () {
           $("#jenisSkema").val(formData.jenisSkema).trigger("change");
         if (formData.modeSkema)
           $("#modeSkema").val(formData.modeSkema).trigger("change");
-        // if (formData.fileSkemaName)
-        //   $('.custom-file-label[for="fileSkema"]').text(formData.fileSkemaName);
-        // PERBAIKAN: RESET LABEL FILE KE DEFAULT
-        // Pastikan label selalu "Pilih file" saat refresh, karena input file pasti kosong
+
+        // Reset Label File
         $('.custom-file-label[for="fileSkema"]')
           .html("Pilih file")
           .removeClass("selected");
 
-        // Restore Tab 2 (Unit)
+        // 2. Restore Tab 2 (Unit)
         if (formData.unitSkema && formData.unitSkema.length > 0) {
           const unitContainer = $("#unit-skema-container");
-          // Sisakan 1, hapus sisanya (reset)
-          unitContainer.find(".unit-skema-row:not(:first)").remove();
+          unitContainer.find(".unit-skema-row:not(:first)").remove(); // Reset
 
           formData.unitSkema.forEach(function (unit, index) {
             var row;
@@ -336,17 +425,48 @@ $(document).ready(function () {
           });
         }
 
-        // Restore Tab 3 (Persyaratan)
+        // --- PENTING: SINKRONISASI DROPDOWN UNIT ---
+        // Karena Tab 3 butuh data Tab 2, kita wajib panggil syncUnitDropdowns()
+        // setelah Tab 2 direstore, agar dropdown di Tab 3 terisi opsinya.
+        syncUnitDropdowns();
+
+        // 3. Restore Tab 3 (Elemen) - (BARU)
+        if (formData.unitElemen && formData.unitElemen.length > 0) {
+          const elemenContainer = $("#unit-elemen-container");
+          elemenContainer.find(".unit-elemen-row:not(:first)").remove(); // Reset
+
+          formData.unitElemen.forEach(function (el, index) {
+            var row;
+            if (index === 0)
+              row = elemenContainer.find(".unit-elemen-row:first");
+            else {
+              row = elemenContainer.find(".unit-elemen-row:first").clone();
+              // Saat clone, opsi dropdown ikut ter-copy, jadi aman
+              elemenContainer.append(row);
+            }
+
+            // Set Nilai Input
+            row.find('input[name="noElemen[]"]').val(el.no);
+            row.find('input[name="namaElemen[]"]').val(el.nama);
+
+            // Set Nilai Select (Unit Reference)
+            if (el.unitRef) {
+              row.find('select[name="elemenKodeUnitRef[]"]').val(el.unitRef);
+            }
+          });
+        }
+
+        // 4. Restore Tab 4 (Persyaratan)
         if (formData.persyaratan && formData.persyaratan.length > 0) {
           const reqContainer = $("#persyaratan-container");
-          reqContainer.empty(); // Kosongkan dulu
+          reqContainer.empty();
 
           formData.persyaratan.forEach(function (reqContent) {
             var newRowHTML = `
-                        <div class="persyaratan-row row align-items-center mb-3">
-                            <div class="col-11"><textarea class="form-control summernote-persyaratan" name="persyaratan[]"></textarea></div>
-                            <div class="col-1"><button type="button" class="btn btn-outline-danger remove-persyaratan-button"><i class="fas fa-trash"></i></button></div>
-                        </div>`;
+                <div class="persyaratan-row row align-items-center mb-3">
+                    <div class="col-11"><textarea class="form-control summernote-persyaratan" name="persyaratan[]"></textarea></div>
+                    <div class="col-1"><button type="button" class="btn btn-outline-danger remove-persyaratan-button"><i class="fas fa-trash"></i></button></div>
+                </div>`;
             var newReqRow = $(newRowHTML);
             reqContainer.append(newReqRow);
             initializeSummernote(newReqRow.find(".summernote-persyaratan"));
@@ -356,6 +476,7 @@ $(document).ready(function () {
           });
         }
 
+        // Restore Tab Aktif
         if (formData.activeTab) $("#" + formData.activeTab).tab("show");
       }
 
@@ -379,20 +500,24 @@ $(document).ready(function () {
         "input, select, textarea",
         debouncedSave
       );
+
+      // Listener tombol tambah/hapus (Update untuk Elemen juga)
       $(document).on(
         "click",
-        "#add-unit-button, .remove-unit-button, #add-persyaratan-button, .remove-persyaratan-button",
+        "#add-unit-button, .remove-unit-button, #add-elemen-button, .remove-elemen-button, #add-persyaratan-button, .remove-persyaratan-button",
         function () {
           setTimeout(saveFormDataToLocalStorage, 200);
         }
       );
+
       $(".next-tab, .prev-tab").on("click", saveFormDataToLocalStorage);
-    } // End if form Add
+    }
 
     // --- E. FUNGSI DIRTY CHECK (UNTUK TOMBOL BATAL) ---
     function isFormDirty() {
       let isDirty = false;
-      // Cek Input Teks di Tab 1
+
+      // 1. Cek Tab 1
       $("#skema-sertifikasi")
         .find(
           'input[type="text"], input[type="number"], input[type="date"], select'
@@ -404,18 +529,17 @@ $(document).ready(function () {
           }
         });
       if (isDirty) return true;
-
-      // Cek File
       if ($("#fileSkema").val()) return true;
 
-      // Cek Jumlah Baris Tab 2 & 3
+      // 2. Cek Jumlah Baris (Unit, Elemen, Persyaratan)
       if (
         $("#unit-skema-container .unit-skema-row").length > 1 ||
+        $("#unit-elemen-container .unit-elemen-row").length > 1 || // Cek Elemen
         $("#persyaratan-container .persyaratan-row").length > 1
       )
         return true;
 
-      // Cek Isi Baris Pertama Tab 2
+      // 3. Cek Isi Baris Pertama Unit
       $("#unit-skema-container .unit-skema-row:first")
         .find("input")
         .each(function () {
@@ -426,7 +550,17 @@ $(document).ready(function () {
         });
       if (isDirty) return true;
 
-      // Cek Isi Summernote Pertama
+      // 4. Cek Isi Baris Pertama Elemen (BARU)
+      const firstElemenRow = $("#unit-elemen-container .unit-elemen-row:first");
+      if (
+        firstElemenRow.find('input[name="noElemen[]"]').val().trim() !== "" ||
+        firstElemenRow.find('input[name="namaElemen[]"]').val().trim() !== "" ||
+        firstElemenRow.find('select[name="elemenKodeUnitRef[]"]').val() !== null
+      ) {
+        return true;
+      }
+
+      // 5. Cek Isi Summernote
       const firstNote = $(
         "#persyaratan-container .summernote-persyaratan"
       ).first();
@@ -571,6 +705,50 @@ $(document).ready(function () {
         title: isEdit ? "Memperbarui Data..." : "Menyimpan Data...",
         didOpen: () => Swal.showLoading(),
       });
+
+      // A. Ambil Data Unit (Tab 2)
+      var unitsArray = [];
+      $("#unit-skema-container .unit-skema-row").each(function () {
+        var kode = $(this).find('input[name="kodeUnit[]"]').val();
+        var judul = $(this).find('input[name="judulUnit[]"]').val();
+        if (kode && judul) {
+          unitsArray.push({ kode: kode, judul: judul });
+        }
+      });
+
+      // B. Ambil Data Elemen (Tab 3)
+      var elementsArray = [];
+      $("#unit-elemen-container .unit-elemen-row").each(function () {
+        var unitRef = $(this).find('select[name="elemenKodeUnitRef[]"]').val();
+        var no = $(this).find('input[name="noElemen[]"]').val();
+        var nama = $(this).find('input[name="namaElemen[]"]').val();
+        if (unitRef && no && nama) {
+          elementsArray.push({ unitRef: unitRef, no: no, nama: nama });
+        }
+      });
+
+      // C. Ambil Data Persyaratan (Tab 4)
+      var reqArray = [];
+      $("#persyaratan-container .summernote-persyaratan").each(function () {
+        var content = $(this).summernote("code");
+        if (content && !$(this).summernote("isEmpty")) {
+          reqArray.push(content);
+        }
+      });
+
+      // 3. Masukkan JSON String ke FormData
+      formData.append("unitsJson", JSON.stringify(unitsArray));
+      formData.append("elementsJson", JSON.stringify(elementsArray));
+      formData.append("requirementsJson", JSON.stringify(reqArray));
+
+      // 4. Hapus Input Array Asli dari FormData (Agar tidak membebani limit server)
+      // Ini mencegah error "FileCountLimitExceeded" / "TooManyParameters"
+      formData.delete("kodeUnit[]");
+      formData.delete("judulUnit[]");
+      formData.delete("elemenKodeUnitRef[]");
+      formData.delete("noElemen[]");
+      formData.delete("namaElemen[]");
+      formData.delete("persyaratan[]");
 
       $.ajax({
         url: $(this).attr("action"),

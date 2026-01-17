@@ -23,6 +23,18 @@ public class SkemaDto {
     private List<String> kodeUnit;
     private List<String> judulUnit;
 
+    // -- TAMBAHAN TAB 3 (ELEMEN) ---
+    // elemenKodeUnitRef: Menyimpan 'kodeUnit' yang dipilih di dropdown Tab 3
+    // private List<String> elemenKodeUnitRef; 
+    // private List<String> noElemen;
+    // private List<String> namaElemen;
+
+    // --- TAB 2, 3, 4 (DATA JSON - PENGGANTI LIST ARRAY) ---
+    // Data ini dikirim sebagai String JSON dari JavaScript
+    private String unitsJson;       // Berisi: [{code: "...", title: "..."}, ...]
+    private String elementsJson;    // Berisi: [{unitRef: "...", no: "...", name: "..."}, ...]
+    private String requirementsJson;// Berisi: ["...", "..."]
+
     // --- TAB 5: PERSYARATAN (String List Sederhana) ---
     private List<String> persyaratan;
 

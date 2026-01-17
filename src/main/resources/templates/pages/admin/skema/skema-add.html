@@ -292,7 +292,7 @@
                           <button
                             type="button"
                             class="btn btn-primary next-tab"
-                            data-target-tab="persyaratan-tab"
+                            data-target-tab="unit-elemen-tab"
                           >
                             Selanjutnya <i class="fas fa-arrow-right"></i>
                           </button>
@@ -362,14 +362,14 @@
                       class="tab-pane fade"
                       id="unit-elemen"
                       role="tabpanel"
-                      aria-labelledby="tab-unit-elemen"
+                      aria-labelledby="unit-elemen-tab"
                     >
                       <div class="row mb-3">
                         <div class="col-6 text-left">
                           <button
                             type="button"
                             class="btn btn-secondary prev-tab"
-                            data-target-tab="skema-sertifikasi-tab"
+                            data-target-tab="unit-skema-tab"
                           >
                             <i class="fas fa-arrow-left"></i> Sebelumnya
                           </button>
@@ -390,49 +390,59 @@
                           <div class="row">
                             <div class="col-md-5">
                               <div class="form-group">
-                                <label>Judul Unit</label>
+                                <label
+                                  >Pilih Unit Kompetensi
+                                  <span class="text-danger">*</span></label
+                                >
                                 <select
+                                  class="form-control select-unit-ref"
+                                  name="elemenKodeUnitRef[]"
                                   required
-                                  class="form-control select2"
-                                  style="width: 100%"
                                 >
                                   <option value="" disabled selected>
-                                    Pilih Judul Unit
+                                    -- Pilih Judul Unit --
                                   </option>
-                                  <option value="">Merancang Basis Data</option>
-                                  <option value="">
-                                    Mengelola Reference and Master Data
-                                  </option>
-                                  <option value="">Mengelola Metadata</option>
                                 </select>
                                 <div class="invalid-feedback">
-                                  Harapa Pilih Judul Unit!
+                                  Harap Pilih Unit!
                                 </div>
                               </div>
                             </div>
+
                             <div class="col-md-2">
                               <div class="form-group">
-                                <label>No Elemen</label>
+                                <label
+                                  >No Elemen
+                                  <span class="text-danger">*</span></label
+                                >
                                 <input
                                   type="number"
-                                  required
                                   class="form-control"
+                                  name="noElemen[]"
+                                  placeholder="1"
+                                  required
                                 />
                                 <div class="invalid-feedback">
-                                  Harap Isi No Elemen!
+                                  Isi No Elemen!
                                 </div>
                               </div>
                             </div>
+
                             <div class="col-md-5">
                               <div class="form-group">
-                                <label>Elemen</label>
+                                <label
+                                  >Nama Elemen
+                                  <span class="text-danger">*</span></label
+                                >
                                 <input
                                   type="text"
-                                  required
                                   class="form-control"
+                                  name="namaElemen[]"
+                                  placeholder="Nama Elemen"
+                                  required
                                 />
                                 <div class="invalid-feedback">
-                                  Harap Isi Elemen!
+                                  Isi Nama Elemen!
                                 </div>
                               </div>
                             </div>
@@ -444,12 +454,13 @@
                                 type="button"
                                 class="btn btn-outline-danger btn-sm remove-elemen-button"
                               >
-                                <i class="fas fa-trash"></i>
+                                <i class="fas fa-trash"></i> Hapus Elemen
                               </button>
                             </div>
                           </div>
                         </div>
                       </div>
+
                       <div class="row mb-3">
                         <div class="col-12 text-center">
                           <button
@@ -457,7 +468,7 @@
                             id="add-elemen-button"
                             class="btn btn-outline-success"
                           >
-                            <i class="fas fa-plus"></i> Tambah Data
+                            <i class="fas fa-plus"></i> Tambah Elemen
                           </button>
                         </div>
                       </div>
@@ -474,7 +485,7 @@
                           <button
                             type="button"
                             class="btn btn-secondary prev-tab"
-                            data-target-tab="unit-skema-tab"
+                            data-target-tab="unit-elemen-tab"
                           >
                             <i class="fas fa-arrow-left"></i> Sebelumnya
                           </button>

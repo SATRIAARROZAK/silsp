@@ -215,6 +215,70 @@ $(document).ready(function () {
     });
 
     // ========================================================
+    // LOGIKA TAB 4: KUK (Sinkronisasi dengan Tab 3) - BARU!
+    // ========================================================
+    function syncElementDropdowns() {
+      // 1. Ambil data dari Tab 3 (Elemen)
+      var elements = [];
+      $("#unit-elemen-container .unit-elemen-row").each(function () {
+        var unitRef = $(this).find('select[name="elemenKodeUnitRef[]"]').val();
+        var no = $(this).find('input[name="noElemen[]"]').val();
+        var nama = $(this).find('input[name="namaElemen[]"]').val();
+
+        // Kita butuh Key Unik untuk menghubungkan KUK ke Elemen
+        // Key: KodeUnit + "||" + NoElemen
+        if (unitRef && no && nama) {
+          var uniqueKey = unitRef + "||" + no;
+          var label = `[Unit ${unitRef}] Elemen ${no}: ${nama}`;
+          elements.push({ value: uniqueKey, label: label });
+        }
+      });
+
+      // 2. Isi Dropdown di Tab 4
+      // Perhatikan selector: hanya cari .select-unit-ref yg ada di dalam #kuk-container
+      $("#kuk-container .select-kuk-ref").each(function () {
+        var currentVal = $(this).val();
+        var $select = $(this);
+        $select
+          .empty()
+          .append(
+            '<option value="" disabled selected>-- Pilih Nama Elemen --</option>'
+          );
+        elements.forEach(function (el) {
+          $select.append(`<option value="${el.value}">${el.label}</option>`);
+        });
+        if (currentVal) $select.val(currentVal);
+      });
+    }
+
+    // Trigger Sync saat Tab 4 dibuka
+    $('a[href="#kuk"]').on("shown.bs.tab", syncElementDropdowns);
+    $('.next-tab[data-target-tab="kuk-tab"]').on("click", function () {
+      setTimeout(syncElementDropdowns, 100);
+    });
+
+    // Tambah Row KUK
+    $(document).on("click", "#add-kuk-button", function () {
+      // Pastikan ID tombol di HTML adalah add-kuk-button
+      var template = $("#kuk-container .kuk-row:first");
+      var newRow = template.clone();
+      newRow.find("textarea").val("");
+      newRow.find("select").val("");
+      newRow.find(".remove-kuk-button").show(); // Pastikan class tombol hapus di HTML adalah remove-kuk-button
+      $("#kuk-container").append(newRow);
+      syncElementDropdowns();
+    });
+
+    // Hapus Row KUK
+    $(document).on("click", ".remove-kuk-button", function () {
+      if ($("#kuk-container .kuk-row").length > 1) {
+        $(this).closest(".kuk-row").remove();
+      } else {
+        Toast.fire({ icon: "error", title: "Minimal satu KUK." });
+      }
+    });
+
+    // ========================================================
     // B. SUMMERNOTE PERSYARATAN (SHARED TOOLBAR & HIGHLIGHT)
     // ========================================================
 
@@ -370,7 +434,16 @@ $(document).ready(function () {
           formData.unitElemen.push(elemen);
         });
 
-        // --- TAB 4: PERSYARATAN ---
+        // --- TAB 4 (KUK) ---
+        formData.kukData = [];
+        $("#kuk-container .kuk-row").each(function () {
+          formData.kukData.push({
+            elementRef: $(this).find('select[name="elemenKukRef[]"]').val(), // Value "Unit||No"
+            kuk: $(this).find('textarea[name="kuk"]').val(),
+          });
+        });
+
+        // Tab 5
         formData.persyaratan = [];
         $("#persyaratan-container .persyaratan-row").each(function () {
           formData.persyaratan.push(
@@ -456,6 +529,23 @@ $(document).ready(function () {
           });
         }
 
+        syncElementDropdowns(); // Sync untuk Tab 4
+
+        // --- RESTORE TAB 4 (KUK) ---
+        if (formData.kukData && formData.kukData.length > 0) {
+          const c = $("#kuk-container");
+          c.find(".kuk-row:not(:first)").remove();
+          formData.kukData.forEach((k, i) => {
+            var row =
+              i === 0
+                ? c.find(".kuk-row:first")
+                : c.find(".kuk-row:first").clone().appendTo(c);
+            row.find('textarea[name="kuk"]').val(k.kuk);
+            if (k.elementRef)
+              row.find('select[name="elemenKukRef[]"]').val(k.elementRef);
+          });
+        }
+
         // 4. Restore Tab 4 (Persyaratan)
         if (formData.persyaratan && formData.persyaratan.length > 0) {
           const reqContainer = $("#persyaratan-container");
@@ -502,14 +592,18 @@ $(document).ready(function () {
       );
 
       // Listener tombol tambah/hapus (Update untuk Elemen juga)
+      $("#form-tambah-skema").on(
+        "input change",
+        "input, select, textarea",
+        debouncedSave
+      );
       $(document).on(
         "click",
-        "#add-unit-button, .remove-unit-button, #add-elemen-button, .remove-elemen-button, #add-persyaratan-button, .remove-persyaratan-button",
+        "#add-unit-button, .remove-unit-button, #add-elemen-button, .remove-elemen-button, #add-kuk-button, .remove-kuk-button, #add-persyaratan-button, .remove-persyaratan-button",
         function () {
           setTimeout(saveFormDataToLocalStorage, 200);
         }
       );
-
       $(".next-tab, .prev-tab").on("click", saveFormDataToLocalStorage);
     }
 
@@ -535,6 +629,7 @@ $(document).ready(function () {
       if (
         $("#unit-skema-container .unit-skema-row").length > 1 ||
         $("#unit-elemen-container .unit-elemen-row").length > 1 || // Cek Elemen
+        $("#kuk-container .kuk-row").length > 1 || // Cek Elemen
         $("#persyaratan-container .persyaratan-row").length > 1
       )
         return true;
@@ -559,6 +654,14 @@ $(document).ready(function () {
       ) {
         return true;
       }
+
+      // 4. Cek Isi Baris Pertama Elemen (BARU)
+      const firstKuk = $("#kuk-container .kuk-row:first");
+      if (
+        firstKuk.find('textarea[name="kuk"]').val().trim() !== "" ||
+        firstKuk.find('select[name="elemenKukRef[]"]').val() !== null
+      )
+        return true;
 
       // 5. Cek Isi Summernote
       const firstNote = $(
@@ -727,6 +830,13 @@ $(document).ready(function () {
         }
       });
 
+      var kuksArray = [];
+      $("#kuk-container .kuk-row").each(function () {
+        var elRef = $(this).find('select[name="elemenKukRef[]"]').val(); // Value "UnitCode||NoElemen"
+        var kuk = $(this).find('textarea[name="kuk"]').val();
+        if (elRef && kuk) kuksArray.push({ elementRef: elRef, kuk: kuk });
+      });
+
       // C. Ambil Data Persyaratan (Tab 4)
       var reqArray = [];
       $("#persyaratan-container .summernote-persyaratan").each(function () {
@@ -739,6 +849,7 @@ $(document).ready(function () {
       // 3. Masukkan JSON String ke FormData
       formData.append("unitsJson", JSON.stringify(unitsArray));
       formData.append("elementsJson", JSON.stringify(elementsArray));
+      formData.append("kuksJson", JSON.stringify(kuksArray)); // Append KUK
       formData.append("requirementsJson", JSON.stringify(reqArray));
 
       // 4. Hapus Input Array Asli dari FormData (Agar tidak membebani limit server)
@@ -748,6 +859,8 @@ $(document).ready(function () {
       formData.delete("elemenKodeUnitRef[]");
       formData.delete("noElemen[]");
       formData.delete("namaElemen[]");
+      formData.delete("elemenKukRef[]");
+      formData.delete("kuk"); // Hapus input text area KUK
       formData.delete("persyaratan[]");
 
       $.ajax({

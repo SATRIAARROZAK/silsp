@@ -38,11 +38,32 @@
                   <li class="nav-item">
                     <a
                       class="nav-link"
+                      id="unit-elemen-tab"
+                      data-toggle="pill"
+                      href="#unit-elemen"
+                      role="tab"
+                      >3. Elemen</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a
+                      class="nav-link"
+                      id="unit-elemen-tab"
+                      data-toggle="pill"
+                      href="#unit-elemen"
+                      role="tab"
+                      >4. Kriteria Unit Kerja</a
+                    >
+                  </li>
+
+                  <li class="nav-item">
+                    <a
+                      class="nav-link"
                       id="persyaratan-tab"
                       data-toggle="pill"
                       href="#tab-persyaratan"
                       role="tab"
-                      >3. Persyaratan Dasar</a
+                      >5. Persyaratan Dasar</a
                     >
                   </li>
                 </ul>
@@ -340,6 +361,210 @@
                             class="btn btn-outline-success"
                           >
                             <i class="fas fa-plus"></i> Tambah Unit
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="unit-elemen">
+                      <div class="row mb-3">
+                        <div class="col-6">
+                          <button
+                            type="button"
+                            class="btn btn-secondary prev-tab"
+                            data-target-tab="unit-skema-tab"
+                          >
+                            <i class="fas fa-arrow-left"></i> Sebelumnya
+                          </button>
+                        </div>
+                        <div class="col-6 text-right">
+                          <button
+                            type="button"
+                            class="btn btn-warning next-tab"
+                            data-target-tab="kuk-tab"
+                          >
+                            Selanjutnya <i class="fas fa-arrow-right"></i>
+                          </button>
+                        </div>
+                      </div>
+
+                      <div id="unit-elemen-container">
+                        <div class="unit-elemen-row card card-body mb-3">
+                          <div class="row">
+                            <div class="col-md-5">
+                              <div class="form-group">
+                                <label
+                                  >Pilih Unit Kompetensi
+                                  <span class="text-danger">*</span></label
+                                >
+                                <select
+                                  class="form-control select-unit-ref"
+                                  name="elemenKodeUnitRef[]"
+                                  required
+                                >
+                                  <option value="" disabled selected>
+                                    -- Pilih Judul Unit --
+                                  </option>
+                                </select>
+                                <div class="invalid-feedback">
+                                  Harap Pilih Unit!
+                                </div>
+                              </div>
+                            </div>
+
+                            <div class="col-md-2">
+                              <div class="form-group">
+                                <label
+                                  >No Elemen
+                                  <span class="text-danger">*</span></label
+                                >
+                                <input
+                                  type="number"
+                                  class="form-control"
+                                  name="noElemen[]"
+                                  placeholder="1"
+                                  required
+                                />
+                                <div class="invalid-feedback">
+                                  Isi No Elemen!
+                                </div>
+                              </div>
+                            </div>
+
+                            <div class="col-md-5">
+                              <div class="form-group">
+                                <label
+                                  >Nama Elemen
+                                  <span class="text-danger">*</span></label
+                                >
+                                <input
+                                  type="text"
+                                  class="form-control"
+                                  name="namaElemen[]"
+                                  placeholder="Nama Elemen"
+                                  required
+                                />
+                                <div class="invalid-feedback">
+                                  Isi Nama Elemen!
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="row">
+                            <div class="col-12 text-right">
+                              <button
+                                type="button"
+                                class="btn btn-outline-danger btn-sm remove-elemen-button"
+                              >
+                                <i class="fas fa-trash"></i> Hapus Elemen
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="row mb-3">
+                        <div class="col-12 text-center">
+                          <button
+                            type="button"
+                            id="add-elemen-button"
+                            class="btn btn-outline-success"
+                          >
+                            <i class="fas fa-plus"></i> Tambah Elemen
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div
+                      class="tab-pane fade"
+                      id="kuk"
+                      role="tabpanel"
+                      aria-labelledby="kuk-tab"
+                    >
+                      <div class="row mb-3">
+                        <div class="col-6 text-left">
+                          <button
+                            type="button"
+                            class="btn btn-secondary prev-tab"
+                            data-target-tab="unit-elemen-tab"
+                          >
+                            <i class="fas fa-arrow-left"></i> Sebelumnya
+                          </button>
+                        </div>
+                        <div class="col-6 text-right">
+                          <button
+                            type="button"
+                            class="btn btn-primary next-tab"
+                            data-target-tab="persyaratan-tab"
+                          >
+                            Selanjutnya <i class="fas fa-arrow-right"></i>
+                          </button>
+                        </div>
+                      </div>
+
+                      <div id="kuk-container">
+                        <div class="kuk-row card card-body mb-3">
+                          <div class="row">
+                            <div class="col-md-5">
+                              <div class="form-group">
+                                <label
+                                  >Pilih Nama Elemen
+                                  <span class="text-danger">*</span></label
+                                >
+                                <select
+                                  class="form-control select-kuk-ref"
+                                  name="elemenKukRef[]"
+                                  required
+                                >
+                                  <option value="" disabled selected>
+                                    -- Pilih Nama Elemen --
+                                  </option>
+                                </select>
+                                <div class="invalid-feedback">
+                                  Harap Pilih Elemen!
+                                </div>
+                              </div>
+                            </div>
+
+                            <div class="col-md-5">
+                              <div class="form-group">
+                                <label
+                                  >Kriteria Unit Kerja (KUK)
+                                  <span class="text-danger">*</span></label
+                                >
+                                <textarea
+                                  class="form-control"
+                                  name="kuk"
+                                  required
+                                  placeholder="Masukkan KUK..."
+                                ></textarea>
+                                <div class="invalid-feedback">Isi KUK!</div>
+                              </div>
+                            </div>
+
+                            <div class="col-md-2 text-right">
+                              <label>&nbsp;</label>
+                              <button
+                                type="button"
+                                class="btn btn-outline-danger btn-block remove-kuk-button"
+                              >
+                                <i class="fas fa-trash"></i> Hapus
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="row mb-3">
+                        <div class="col-12 text-center">
+                          <button
+                            type="button"
+                            id="add-kuk-button"
+                            class="btn btn-outline-success"
+                          >
+                            <i class="fas fa-plus"></i> Tambah KUK
                           </button>
                         </div>
                       </div>

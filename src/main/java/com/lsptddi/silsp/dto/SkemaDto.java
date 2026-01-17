@@ -19,23 +19,17 @@ public class SkemaDto {
     private LocalDate tanggalPenetapan;
     private MultipartFile fileSkema;
 
-    // // Tab 2 (Array dari form name="kodeUnit[]" dan "judulUnit[]")
+ 
+
+    // Tab 2, 3, 4 (DATA JSON - PENGGANTI LIST ARRAY)
+    private String unitsJson; // Tab 2: Unit
+    private String elementsJson; // Tab 3: Elemen
+    private String kuksJson; // Tab 4: KUK (BARU)
+    private String requirementsJson;// Tab 5: Persyaratan
+
+    // Field helper lama (bisa diabaikan/dihapus jika sudah full JSON)
     private List<String> kodeUnit;
     private List<String> judulUnit;
-
-    // -- TAMBAHAN TAB 3 (ELEMEN) ---
-    // elemenKodeUnitRef: Menyimpan 'kodeUnit' yang dipilih di dropdown Tab 3
-    // private List<String> elemenKodeUnitRef; 
-    // private List<String> noElemen;
-    // private List<String> namaElemen;
-
-    // --- TAB 2, 3, 4 (DATA JSON - PENGGANTI LIST ARRAY) ---
-    // Data ini dikirim sebagai String JSON dari JavaScript
-    private String unitsJson;       // Berisi: [{code: "...", title: "..."}, ...]
-    private String elementsJson;    // Berisi: [{unitRef: "...", no: "...", name: "..."}, ...]
-    private String requirementsJson;// Berisi: ["...", "..."]
-
-    // --- TAB 5: PERSYARATAN (String List Sederhana) ---
     private List<String> persyaratan;
 
 }

@@ -70,7 +70,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -261,64 +260,65 @@ public class AdminController {
     // @PostMapping("/skema/save")
     // @ResponseBody
     // public ResponseEntity<?> saveSchema(@ModelAttribute SkemaDto dto) {
-    //     try {
-    //         Skema schema = new Skema();
+    // try {
+    // Skema schema = new Skema();
 
-    //         // A. Mapping Data Dasar
-    //         schema.setName(dto.getNamaSkema());
-    //         schema.setCode(dto.getKodeSkema());
-    //         schema.setLevel(dto.getLevel());
-    //         schema.setNoSkkni(dto.getNoSkkni());
-    //         schema.setSkkniYear(dto.getTahunSkkni());
-    //         schema.setEstablishmentDate(dto.getTanggalPenetapan());
+    // // A. Mapping Data Dasar
+    // schema.setName(dto.getNamaSkema());
+    // schema.setCode(dto.getKodeSkema());
+    // schema.setLevel(dto.getLevel());
+    // schema.setNoSkkni(dto.getNoSkkni());
+    // schema.setSkkniYear(dto.getTahunSkkni());
+    // schema.setEstablishmentDate(dto.getTanggalPenetapan());
 
-    //         // B. Mapping Relasi (3NF)
-    //         if (dto.getJenisSkemaId() != null) {
-    //             schema.setSchemaType(schemaTypeRepository.findById(dto.getJenisSkemaId()).orElse(null));
-    //         }
-    //         if (dto.getModeSkemaId() != null) {
-    //             schema.setSchemaMode(schemaModeRepository.findById(dto.getModeSkemaId()).orElse(null));
-    //         }
-
-    //         // C. Upload File
-    //         if (dto.getFileSkema() != null && !dto.getFileSkema().isEmpty()) {
-    //             String fileName = saveFile(dto.getFileSkema());
-    //             schema.setDocumentPath(fileName);
-    //         }
-
-    //         // D. Mapping Unit Skema (Looping Array)
-    //         if (dto.getKodeUnit() != null) {
-    //             for (int i = 0; i < dto.getKodeUnit().size(); i++) {
-    //                 UnitSkema unit = new UnitSkema();
-    //                 unit.setCode(dto.getKodeUnit().get(i));
-    //                 unit.setTitle(dto.getJudulUnit().get(i));
-    //                 schema.addUnit(unit); // Helper method handles relationship
-    //             }
-    //         }
-
-    //         // E. Mapping Persyaratan (Looping Array)
-    //         if (dto.getPersyaratan() != null) {
-    //             for (String reqText : dto.getPersyaratan()) {
-    //                 if (reqText != null && !reqText.trim().isEmpty()) {
-    //                     PersyaratanSkema req = new PersyaratanSkema();
-    //                     req.setDescription(reqText);
-    //                     schema.addRequirement(req);
-    //                 }
-    //             }
-    //         }
-
-    //         // Simpan Parent (Cascade akan menyimpan Unit & Req)
-    //         schemaRepository.save(schema);
-
-    //         return ResponseEntity.ok().body("{\"status\": \"success\", \"message\": \"Skema berhasil disimpan!\"}");
-
-    //     } catch (Exception e) {
-    //         e.printStackTrace();
-    //         return ResponseEntity.badRequest()
-    //                 .body("{\"status\": \"error\", \"message\": \"Gagal menyimpan: " + e.getMessage() + "\"}");
-    //     }
+    // // B. Mapping Relasi (3NF)
+    // if (dto.getJenisSkemaId() != null) {
+    // schema.setSchemaType(schemaTypeRepository.findById(dto.getJenisSkemaId()).orElse(null));
+    // }
+    // if (dto.getModeSkemaId() != null) {
+    // schema.setSchemaMode(schemaModeRepository.findById(dto.getModeSkemaId()).orElse(null));
     // }
 
+    // // C. Upload File
+    // if (dto.getFileSkema() != null && !dto.getFileSkema().isEmpty()) {
+    // String fileName = saveFile(dto.getFileSkema());
+    // schema.setDocumentPath(fileName);
+    // }
+
+    // // D. Mapping Unit Skema (Looping Array)
+    // if (dto.getKodeUnit() != null) {
+    // for (int i = 0; i < dto.getKodeUnit().size(); i++) {
+    // UnitSkema unit = new UnitSkema();
+    // unit.setCode(dto.getKodeUnit().get(i));
+    // unit.setTitle(dto.getJudulUnit().get(i));
+    // schema.addUnit(unit); // Helper method handles relationship
+    // }
+    // }
+
+    // // E. Mapping Persyaratan (Looping Array)
+    // if (dto.getPersyaratan() != null) {
+    // for (String reqText : dto.getPersyaratan()) {
+    // if (reqText != null && !reqText.trim().isEmpty()) {
+    // PersyaratanSkema req = new PersyaratanSkema();
+    // req.setDescription(reqText);
+    // schema.addRequirement(req);
+    // }
+    // }
+    // }
+
+    // // Simpan Parent (Cascade akan menyimpan Unit & Req)
+    // schemaRepository.save(schema);
+
+    // return ResponseEntity.ok().body("{\"status\": \"success\", \"message\":
+    // \"Skema berhasil disimpan!\"}");
+
+    // } catch (Exception e) {
+    // e.printStackTrace();
+    // return ResponseEntity.badRequest()
+    // .body("{\"status\": \"error\", \"message\": \"Gagal menyimpan: " +
+    // e.getMessage() + "\"}");
+    // }
+    // }
 
     @PostMapping("/skema/save")
     @ResponseBody
@@ -350,49 +350,105 @@ public class AdminController {
             // ============================================================
             // D. MAPPING JSON DATA (TAB 2 & 3) - SOLUSI ERROR MULTIPART
             // ============================================================
-            
+
             // Map untuk menyimpan Unit agar bisa dipanggil oleh Elemen (Key: Kode Unit)
             Map<String, UnitSkema> unitMap = new HashMap<>();
+            // Map 2: Simpan Elemen (Key: "KodeUnit||NoElemen") agar bisa dipanggil KUK
+            Map<String, UnitElemenSkema> elementMap = new HashMap<>();
 
             // 1. Parsing & Simpan UNITS dari JSON
             if (dto.getUnitsJson() != null && !dto.getUnitsJson().isEmpty()) {
                 // Konversi String JSON -> List of Map
-                List<Map<String, String>> unitsList = mapper.readValue(dto.getUnitsJson(), new TypeReference<List<Map<String, String>>>(){});
-                
+                List<Map<String, String>> unitsList = mapper.readValue(dto.getUnitsJson(),
+                        new TypeReference<List<Map<String, String>>>() {
+                        });
+
                 for (Map<String, String> uData : unitsList) {
                     UnitSkema unit = new UnitSkema();
                     String kode = uData.get("kode");
-                    
+
                     unit.setCode(kode);
                     unit.setTitle(uData.get("judul"));
-                    
+
                     schema.addUnit(unit); // Relasi ke Skema
                     unitMap.put(kode, unit); // Simpan ke Map sementara
                 }
             }
 
             // 2. Parsing & Simpan ELEMEN dari JSON
+            // if (dto.getElementsJson() != null && !dto.getElementsJson().isEmpty()) {
+            // List<Map<String, String>> elemsList = mapper.readValue(dto.getElementsJson(),
+            // new TypeReference<List<Map<String, String>>>(){});
+
+            // for (Map<String, String> eData : elemsList) {
+            // String refKodeUnit = eData.get("unitRef"); // Kode unit referensi
+            // UnitSkema parentUnit = unitMap.get(refKodeUnit);
+
+            // if (parentUnit != null) {
+            // UnitElemenSkema elemen = new UnitElemenSkema();
+            // elemen.setNoElemen(eData.get("no"));
+            // elemen.setNamaElemen(eData.get("nama"));
+
+            // parentUnit.addElement(elemen); // Relasi ke Unit
+            // }
+            // }
+            // }
+
+            // 2. Parsing & Simpan ELEMEN
             if (dto.getElementsJson() != null && !dto.getElementsJson().isEmpty()) {
-                List<Map<String, String>> elemsList = mapper.readValue(dto.getElementsJson(), new TypeReference<List<Map<String, String>>>(){});
-                
+                List<Map<String, String>> elemsList = mapper.readValue(dto.getElementsJson(),
+                        new TypeReference<List<Map<String, String>>>() {
+                        });
                 for (Map<String, String> eData : elemsList) {
-                    String refKodeUnit = eData.get("unitRef"); // Kode unit referensi
+                    String refKodeUnit = eData.get("unitRef");
                     UnitSkema parentUnit = unitMap.get(refKodeUnit);
-                    
+
                     if (parentUnit != null) {
                         UnitElemenSkema elemen = new UnitElemenSkema();
-                        elemen.setNoElemen(eData.get("no"));
+                        String noElemen = eData.get("no");
+                        elemen.setNoElemen(noElemen);
                         elemen.setNamaElemen(eData.get("nama"));
-                        
-                        parentUnit.addElement(elemen); // Relasi ke Unit
+                        parentUnit.addElement(elemen);
+
+                        // Simpan ke Map untuk referensi KUK
+                        // Key Unik = KodeUnit + "||" + NoElemen
+                        elementMap.put(refKodeUnit + "||" + noElemen, elemen);
+                    }
+                }
+            }
+
+            // --- 3. PARSING KUK (TAB 4) - PERBAIKAN DISINI ---
+            if (dto.getKuksJson() != null && !dto.getKuksJson().isEmpty()) {
+                List<Map<String, String>> kuksList = mapper.readValue(dto.getKuksJson(),
+                        new TypeReference<List<Map<String, String>>>() {
+                        });
+
+                for (Map<String, String> kData : kuksList) {
+                    String elRef = kData.get("elementRef"); // Value "Unit||No" dari JS
+                    UnitElemenSkema parentElement = elementMap.get(elRef);
+
+                    if (parentElement != null) {
+                        KukSkema kuk = new KukSkema();
+
+                        // FIX: Ambil dari key "kuk", lalu set ke field namaKuk
+                        kuk.setNamaKuk(kData.get("kuk"));
+
+                        kuk.setSchemaElement(parentElement); // Set Relasi ke Elemen
+
+                        // Tambahkan ke list parent manual (untuk memastikan cascade berjalan)
+                        if (parentElement.getKuks() == null) {
+                            parentElement.setKuks(new ArrayList<>());
+                        }
+                        parentElement.getKuks().add(kuk);
                     }
                 }
             }
 
             // E. Parsing Persyaratan (Tab 4)
             if (dto.getRequirementsJson() != null && !dto.getRequirementsJson().isEmpty()) {
-                List<String> reqList = mapper.readValue(dto.getRequirementsJson(), new TypeReference<List<String>>(){});
-                
+                List<String> reqList = mapper.readValue(dto.getRequirementsJson(), new TypeReference<List<String>>() {
+                });
+
                 for (String reqText : reqList) {
                     if (reqText != null && !reqText.trim().isEmpty()) {
                         PersyaratanSkema req = new PersyaratanSkema();
@@ -416,92 +472,95 @@ public class AdminController {
     // @PostMapping("/skema/save")
     // @ResponseBody
     // public ResponseEntity<?> saveSchema(@ModelAttribute SkemaDto dto) {
-    //     try {
-    //         Skema schema = new Skema();
+    // try {
+    // Skema schema = new Skema();
 
-    //         // A. Mapping Data Dasar (Tab 1) - SAMA SEPERTI SEBELUMNYA
-    //         schema.setName(dto.getNamaSkema());
-    //         schema.setCode(dto.getKodeSkema());
-    //         schema.setLevel(dto.getLevel());
-    //         schema.setNoSkkni(dto.getNoSkkni());
-    //         schema.setSkkniYear(dto.getTahunSkkni());
-    //         schema.setEstablishmentDate(dto.getTanggalPenetapan());
+    // // A. Mapping Data Dasar (Tab 1) - SAMA SEPERTI SEBELUMNYA
+    // schema.setName(dto.getNamaSkema());
+    // schema.setCode(dto.getKodeSkema());
+    // schema.setLevel(dto.getLevel());
+    // schema.setNoSkkni(dto.getNoSkkni());
+    // schema.setSkkniYear(dto.getTahunSkkni());
+    // schema.setEstablishmentDate(dto.getTanggalPenetapan());
 
-    //         if (dto.getJenisSkemaId() != null) {
-    //             schema.setSchemaType(schemaTypeRepository.findById(dto.getJenisSkemaId()).orElse(null));
-    //         }
-    //         if (dto.getModeSkemaId() != null) {
-    //             schema.setSchemaMode(schemaModeRepository.findById(dto.getModeSkemaId()).orElse(null));
-    //         }
+    // if (dto.getJenisSkemaId() != null) {
+    // schema.setSchemaType(schemaTypeRepository.findById(dto.getJenisSkemaId()).orElse(null));
+    // }
+    // if (dto.getModeSkemaId() != null) {
+    // schema.setSchemaMode(schemaModeRepository.findById(dto.getModeSkemaId()).orElse(null));
+    // }
 
-    //         if (dto.getFileSkema() != null && !dto.getFileSkema().isEmpty()) {
-    //             String fileName = saveFile(dto.getFileSkema());
-    //             schema.setDocumentPath(fileName);
-    //         }
+    // if (dto.getFileSkema() != null && !dto.getFileSkema().isEmpty()) {
+    // String fileName = saveFile(dto.getFileSkema());
+    // schema.setDocumentPath(fileName);
+    // }
 
-    //         // ============================================================
-    //         // D. MAPPING UNIT SKEMA & ELEMEN (TAB 2 & 3) - LOGIKA BARU
-    //         // ============================================================
-            
-    //         // Map sementara untuk menyimpan object Unit berdasarkan Kodenya
-    //         // Key: Kode Unit, Value: Entity UnitSkema
-    //         Map<String, UnitSkema> unitMap = new HashMap<>();
+    // // ============================================================
+    // // D. MAPPING UNIT SKEMA & ELEMEN (TAB 2 & 3) - LOGIKA BARU
+    // // ============================================================
 
-    //         if (dto.getKodeUnit() != null) {
-    //             for (int i = 0; i < dto.getKodeUnit().size(); i++) {
-    //                 UnitSkema unit = new UnitSkema();
-    //                 String kode = dto.getKodeUnit().get(i);
-                    
-    //                 unit.setCode(kode);
-    //                 unit.setTitle(dto.getJudulUnit().get(i));
-                    
-    //                 // Tambahkan ke Skema
-    //                 schema.addUnit(unit);
-                    
-    //                 // Simpan ke Map agar bisa dipanggil saat loop Elemen
-    //                 unitMap.put(kode, unit);
-    //             }
-    //         }
+    // // Map sementara untuk menyimpan object Unit berdasarkan Kodenya
+    // // Key: Kode Unit, Value: Entity UnitSkema
+    // Map<String, UnitSkema> unitMap = new HashMap<>();
 
-    //         // PROSES ELEMEN (TAB 3)
-    //         if (dto.getElemenKodeUnitRef() != null) {
-    //             for (int i = 0; i < dto.getElemenKodeUnitRef().size(); i++) {
-    //                 String refKodeUnit = dto.getElemenKodeUnitRef().get(i); // Kode unit yang dipilih di dropdown
-                    
-    //                 // Ambil UnitSkema parent dari Map
-    //                 UnitSkema parentUnit = unitMap.get(refKodeUnit);
-                    
-    //                 if (parentUnit != null) {
-    //                     UnitElemenSkema elemen = new UnitElemenSkema();
-    //                     elemen.setNoElemen(dto.getNoElemen().get(i));
-    //                     elemen.setNamaElemen(dto.getNamaElemen().get(i));
-                        
-    //                     // Tambahkan Elemen ke Unit (Helper method di UnitSkema)
-    //                     parentUnit.addElement(elemen);
-    //                 }
-    //             }
-    //         }
+    // if (dto.getKodeUnit() != null) {
+    // for (int i = 0; i < dto.getKodeUnit().size(); i++) {
+    // UnitSkema unit = new UnitSkema();
+    // String kode = dto.getKodeUnit().get(i);
 
-    //         // E. Mapping Persyaratan (Tab 4) - SAMA SEPERTI SEBELUMNYA
-    //         if (dto.getPersyaratan() != null) {
-    //             for (String reqText : dto.getPersyaratan()) {
-    //                 if (reqText != null && !reqText.trim().isEmpty()) {
-    //                     PersyaratanSkema req = new PersyaratanSkema();
-    //                     req.setDescription(reqText);
-    //                     schema.addRequirement(req);
-    //                 }
-    //             }
-    //         }
+    // unit.setCode(kode);
+    // unit.setTitle(dto.getJudulUnit().get(i));
 
-    //         schemaRepository.save(schema);
+    // // Tambahkan ke Skema
+    // schema.addUnit(unit);
 
-    //         return ResponseEntity.ok().body("{\"status\": \"success\", \"message\": \"Skema, Unit, dan Elemen berhasil disimpan!\"}");
+    // // Simpan ke Map agar bisa dipanggil saat loop Elemen
+    // unitMap.put(kode, unit);
+    // }
+    // }
 
-    //     } catch (Exception e) {
-    //         e.printStackTrace();
-    //         return ResponseEntity.badRequest()
-    //                 .body("{\"status\": \"error\", \"message\": \"Gagal menyimpan: " + e.getMessage() + "\"}");
-    //     }
+    // // PROSES ELEMEN (TAB 3)
+    // if (dto.getElemenKodeUnitRef() != null) {
+    // for (int i = 0; i < dto.getElemenKodeUnitRef().size(); i++) {
+    // String refKodeUnit = dto.getElemenKodeUnitRef().get(i); // Kode unit yang
+    // dipilih di dropdown
+
+    // // Ambil UnitSkema parent dari Map
+    // UnitSkema parentUnit = unitMap.get(refKodeUnit);
+
+    // if (parentUnit != null) {
+    // UnitElemenSkema elemen = new UnitElemenSkema();
+    // elemen.setNoElemen(dto.getNoElemen().get(i));
+    // elemen.setNamaElemen(dto.getNamaElemen().get(i));
+
+    // // Tambahkan Elemen ke Unit (Helper method di UnitSkema)
+    // parentUnit.addElement(elemen);
+    // }
+    // }
+    // }
+
+    // // E. Mapping Persyaratan (Tab 4) - SAMA SEPERTI SEBELUMNYA
+    // if (dto.getPersyaratan() != null) {
+    // for (String reqText : dto.getPersyaratan()) {
+    // if (reqText != null && !reqText.trim().isEmpty()) {
+    // PersyaratanSkema req = new PersyaratanSkema();
+    // req.setDescription(reqText);
+    // schema.addRequirement(req);
+    // }
+    // }
+    // }
+
+    // schemaRepository.save(schema);
+
+    // return ResponseEntity.ok().body("{\"status\": \"success\", \"message\":
+    // \"Skema, Unit, dan Elemen berhasil disimpan!\"}");
+
+    // } catch (Exception e) {
+    // e.printStackTrace();
+    // return ResponseEntity.badRequest()
+    // .body("{\"status\": \"error\", \"message\": \"Gagal menyimpan: " +
+    // e.getMessage() + "\"}");
+    // }
     // }
 
     // Helper untuk simpan file

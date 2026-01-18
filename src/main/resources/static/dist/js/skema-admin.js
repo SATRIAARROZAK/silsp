@@ -229,7 +229,7 @@ $(document).ready(function () {
         // Key: KodeUnit + "||" + NoElemen
         if (unitRef && no && nama) {
           var uniqueKey = unitRef + "||" + no;
-          var label = `[Unit ${unitRef}] Elemen ${no}: ${nama}`;
+          var label = ` ${no}. Elemen : ${nama}`;
           elements.push({ value: uniqueKey, label: label });
         }
       });

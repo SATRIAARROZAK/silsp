@@ -596,7 +596,9 @@ public class AdminController {
             Skema schema = schemaRepository.findById(dto.getId())
                     .orElseThrow(() -> new RuntimeException("Skema tidak ditemukan"));
 
-            // A. Update Data Dasar
+            ObjectMapper mapper = new ObjectMapper(); // Jackson Mapper
+
+            // A. Update Data Dasar & File
             schema.setName(dto.getNamaSkema());
             schema.setCode(dto.getKodeSkema());
             schema.setLevel(dto.getLevel());
@@ -604,7 +606,6 @@ public class AdminController {
             schema.setSkkniYear(dto.getTahunSkkni());
             schema.setEstablishmentDate(dto.getTanggalPenetapan());
 
-            // B. Update Relasi Master (Jenis & Mode)
             if (dto.getJenisSkemaId() != null) {
                 schema.setSchemaType(schemaTypeRepository.findById(dto.getJenisSkemaId()).orElse(null));
             }
@@ -612,30 +613,91 @@ public class AdminController {
                 schema.setSchemaMode(schemaModeRepository.findById(dto.getModeSkemaId()).orElse(null));
             }
 
-            // C. Update File (Hanya jika ada upload baru)
             if (dto.getFileSkema() != null && !dto.getFileSkema().isEmpty()) {
-                // Hapus file lama jika perlu (opsional)
-                // ... logic hapus file lama ...
-
                 String fileName = saveFile(dto.getFileSkema());
                 schema.setDocumentPath(fileName);
             }
 
-            // D. Update Unit Skema (Strategi: Clear & Add All)
-            schema.getUnits().clear(); // Hapus unit lama
-            if (dto.getKodeUnit() != null) {
-                for (int i = 0; i < dto.getKodeUnit().size(); i++) {
+            // ============================================================
+            // B. UPDATE RELASI (CLEAR ALL & INSERT NEW FROM JSON)
+            // ============================================================
+
+            // 1. Bersihkan Data Lama
+            // Karena CascadeType.ALL + orphanRemoval=true, ini akan menghapus data di DB
+            schema.getUnits().clear();
+            schema.getRequirements().clear();
+
+            // Map untuk relasi
+            Map<String, UnitSkema> unitMap = new HashMap<>();
+            Map<String, UnitElemenSkema> elementMap = new HashMap<>();
+
+            // 2. Insert UNITS Baru (dari JSON)
+            if (dto.getUnitsJson() != null && !dto.getUnitsJson().isEmpty()) {
+                List<Map<String, String>> unitsList = mapper.readValue(dto.getUnitsJson(),
+                        new TypeReference<List<Map<String, String>>>() {
+                        });
+                for (Map<String, String> uData : unitsList) {
                     UnitSkema unit = new UnitSkema();
-                    unit.setCode(dto.getKodeUnit().get(i));
-                    unit.setTitle(dto.getJudulUnit().get(i));
-                    schema.addUnit(unit); // Tambahkan yang baru
+                    String kode = uData.get("kode");
+                    unit.setCode(kode);
+                    unit.setTitle(uData.get("judul"));
+
+                    schema.addUnit(unit); // Bind ke Skema
+                    unitMap.put(kode, unit);
                 }
             }
 
-            // E. Update Persyaratan (Strategi: Clear & Add All)
-            schema.getRequirements().clear(); // Hapus req lama
-            if (dto.getPersyaratan() != null) {
-                for (String reqText : dto.getPersyaratan()) {
+            // 3. Insert ELEMEN Baru (dari JSON)
+            if (dto.getElementsJson() != null && !dto.getElementsJson().isEmpty()) {
+                List<Map<String, String>> elemsList = mapper.readValue(dto.getElementsJson(),
+                        new TypeReference<List<Map<String, String>>>() {
+                        });
+                for (Map<String, String> eData : elemsList) {
+                    String refKodeUnit = eData.get("unitRef");
+                    UnitSkema parentUnit = unitMap.get(refKodeUnit);
+
+                    if (parentUnit != null) {
+                        UnitElemenSkema elemen = new UnitElemenSkema();
+                        String noElemen = eData.get("no");
+                        elemen.setNoElemen(noElemen);
+                        elemen.setNamaElemen(eData.get("nama"));
+
+                        parentUnit.addElement(elemen); // Bind ke Unit
+
+                        // Simpan ke Map untuk referensi KUK
+                        elementMap.put(refKodeUnit + "||" + noElemen, elemen);
+                    }
+                }
+            }
+
+            // 4. Insert KUK Baru (dari JSON)
+            if (dto.getKuksJson() != null && !dto.getKuksJson().isEmpty()) {
+                List<Map<String, String>> kuksList = mapper.readValue(dto.getKuksJson(),
+                        new TypeReference<List<Map<String, String>>>() {
+                        });
+                for (Map<String, String> kData : kuksList) {
+                    String elRef = kData.get("elementRef"); // Key "Unit||No"
+                    UnitElemenSkema parentElement = elementMap.get(elRef);
+
+                    if (parentElement != null) {
+                        KukSkema kuk = new KukSkema();
+                        kuk.setNamaKuk(kData.get("kuk")); // Key "kuk" dari JS
+
+                        kuk.setSchemaElement(parentElement); // Bind ke Elemen
+
+                        // Add manual ke list parent
+                        if (parentElement.getKuks() == null)
+                            parentElement.setKuks(new ArrayList<>());
+                        parentElement.getKuks().add(kuk);
+                    }
+                }
+            }
+
+            // 5. Insert Persyaratan Baru
+            if (dto.getRequirementsJson() != null && !dto.getRequirementsJson().isEmpty()) {
+                List<String> reqList = mapper.readValue(dto.getRequirementsJson(), new TypeReference<List<String>>() {
+                });
+                for (String reqText : reqList) {
                     if (reqText != null && !reqText.trim().isEmpty()) {
                         PersyaratanSkema req = new PersyaratanSkema();
                         req.setDescription(reqText);

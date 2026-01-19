@@ -34,6 +34,7 @@
                     <option
                       value=""
                       th:selected="${selectedRole == null || selectedRole == ''}"
+                      disabled selected
                     >
                       Pilih Role
                     </option>
@@ -55,12 +56,12 @@
                     >
                       Asesor
                     </option>
-                    <option
+                    <!-- <option
                       value="Direktur"
                       th:selected="${selectedRole == 'Direktur'}"
                     >
                       Direktur
-                    </option>
+                    </option> -->
                   </select>
                 </div>
               </div>

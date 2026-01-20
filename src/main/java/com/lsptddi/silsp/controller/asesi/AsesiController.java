@@ -1,8 +1,17 @@
 package com.lsptddi.silsp.controller.asesi;
 
+// DTO (DATA TRANFERS OBJECK)
 import com.lsptddi.silsp.dto.UserProfileDto;
+
+// MODEL
 import com.lsptddi.silsp.model.User; // Import Model User Asli
+
+// REPOSITORY
 import com.lsptddi.silsp.repository.UserRepository; // Import Repo
+import com.lsptddi.silsp.repository.SkemaRepository;
+import com.lsptddi.silsp.repository.TypePekerjaanRepository;
+
+// LIBLARY UMUM
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,6 +26,12 @@ public class AsesiController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private SkemaRepository skemaRepository;
+
+    @Autowired
+    private TypePekerjaanRepository typePekerjaanRepository;
 
     // Method ini akan dijalankan sebelum setiap request di controller ini
     // Fungsinya mengambil User asli dari database berdasarkan siapa yang login
@@ -95,9 +110,60 @@ public class AsesiController {
         return "pages/asesi/sertifikasi/sertifikasi-list";
     }
 
+    // HALAMAN PENDAFTARAN (FORM WIZARD)
     @GetMapping("/daftar")
-    public String showDaftarUji() {
+    public String showDaftarUji(Model model, Principal principal) {
+        // 1. Load Data User untuk Tab 2 (Data Pemohon)
+        User user = userRepository.findByUsername(principal.getName()).orElseThrow();
+
+        // Mapping User ke DTO agar mudah ditampilkan di form (Read-only / Auto-fill)
+        UserProfileDto userDto = new UserProfileDto();
+        userDto.setNik(user.getNik());
+        userDto.setFullName(user.getFullName());
+        userDto.setBirthPlace(user.getBirthPlace());
+        userDto.setBirthDate(user.getBirthDate());
+        userDto.setGender(user.getGender());
+        userDto.setAddress(user.getAddress());
+        userDto.setPostalCode(user.getPostalCode());
+        // userDto.setPhoneNumber(user.getPhoneNumber());
+        userDto.setEmail(user.getEmail());
+
+        // 2. NO TELP: Hapus '0' di depan agar di form jadi (811...)
+        if (user.getPhoneNumber() != null && user.getPhoneNumber().startsWith("0")) {
+            userDto.setPhoneNumber(user.getPhoneNumber().substring(1));
+        } else {
+            userDto.setPhoneNumber(user.getPhoneNumber());
+        }
+
+        // Data Pekerjaan
+        userDto.setCompanyName(user.getCompanyName());
+        userDto.setPosition(user.getPosition());
+        userDto.setOfficeAddress(user.getOfficeAddress());
+        userDto.setOfficePhone(user.getOfficePhone());
+        userDto.setOfficeEmail(user.getOfficeEmail());
+        userDto.setOfficeFax(user.getOfficeFax());
+
+        // ID Relasi
+        if (user.getJobTypeId() != null)
+            userDto.setJobTypeId(user.getJobTypeId().getId());
+        if (user.getEducationId() != null)
+            userDto.setEducationId(user.getEducationId().getId());
+
+        
+        userDto.setProvinceId(user.getProvinceId());
+        userDto.setCityId(user.getCityId());
+        userDto.setDistrictId(user.getDistrictId());
+
+        // Kirim Data
+        model.addAttribute("asesiDto", userDto);
+
+        // 2. Load List Skema (Untuk Dropdown Tab 1)
+        model.addAttribute("listSkema", skemaRepository.findAll());
+
+        // 3. Load Referensi Pekerjaan (Untuk Dropdown Tab 2)
+        model.addAttribute("listPekerjaan", typePekerjaanRepository.findAll());
+
         return "pages/asesi/sertifikasi/sertifikasi-add";
     }
-    
+
 }

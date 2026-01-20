@@ -1,5 +1,7 @@
 package com.lsptddi.silsp.controller;
 
+import com.lsptddi.silsp.model.KukSkema;
+import com.lsptddi.silsp.model.PersyaratanSkema;
 // model
 import com.lsptddi.silsp.model.Schedule;
 import com.lsptddi.silsp.model.ScheduleAssessor;
@@ -26,6 +28,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
@@ -45,7 +48,7 @@ public class ApiController {
 
     @Autowired
     private NotificationRepository notificationRepository;
-    
+
     // API GET NOTIFIKASI USER
     @GetMapping("/notifications/unread")
     public ResponseEntity<?> getUnreadNotifications(Principal principal) {
@@ -87,16 +90,18 @@ public class ApiController {
     // API MARK AS READ (Saat lonceng diklik)
     // @PostMapping("/notifications/mark-read")
     // public ResponseEntity<?> markAllRead(Principal principal) {
-    //     // Logic untuk menandai semua sudah dibaca (Optional, bisa dikembangkan nanti)
-    //     // Untuk sekarang biarkan count tetap ada atau reset saat dropdown dibuka
-    //     return ResponseEntity.ok().build();
+    // // Logic untuk menandai semua sudah dibaca (Optional, bisa dikembangkan
+    // nanti)
+    // // Untuk sekarang biarkan count tetap ada atau reset saat dropdown dibuka
+    // return ResponseEntity.ok().build();
     // }
 
     @PostMapping("/notifications/mark-read")
     public ResponseEntity<?> markAllRead(Principal principal) {
-        if (principal == null) return ResponseEntity.ok().build();
+        if (principal == null)
+            return ResponseEntity.ok().build();
         User user = userRepository.findByUsername(principal.getName()).orElse(null);
-        
+
         if (user != null) {
             notificationRepository.markAllAsRead(user.getId());
         }
@@ -108,6 +113,89 @@ public class ApiController {
     public ResponseEntity<?> markOneRead(@PathVariable Long id) {
         notificationRepository.markAsRead(id);
         return ResponseEntity.ok().build();
+    }
+
+    // 1. API: Ambil Jadwal berdasarkan ID Skema
+    // Logic: Cari jadwal yang mengandung skema tersebut
+    @GetMapping("/jadwal-by-skema/{skemaId}")
+    public ResponseEntity<?> getJadwalBySkema(@PathVariable Long skemaId) {
+        // Cari semua jadwal, filter yang punya skemaId ini
+        // Note: Idealnya pake Custom Query JPQL agar performa bagus, tapi stream juga
+        // oke untuk data sedikit
+        List<Schedule> allSchedules = scheduleRepository.findAll();
+
+        List<Map<String, Object>> filteredJadwal = allSchedules.stream()
+                .filter(s -> s.getSchemas().stream().anyMatch(ss -> ss.getSchema().getId().equals(skemaId)))
+                .map(s -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("id", s.getId());
+                    map.put("text", s.getName() + " - " + s.getTuk().getName() + " (" + s.getStartDate() + ")");
+                    return map;
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(filteredJadwal);
+    }
+
+    // 2. API: Ambil Detail Jadwal (Untuk Sumber Anggaran & Pemberi Anggaran)
+    @GetMapping("/jadwal-detail/{id}")
+    public ResponseEntity<?> getJadwalDetail(@PathVariable Long id) {
+        Optional<Schedule> scheduleOpt = scheduleRepository.findById(id);
+        if (scheduleOpt.isPresent()) {
+            Schedule s = scheduleOpt.get();
+            Map<String, Object> map = new HashMap<>();
+            map.put("sumberAnggaran", s.getBudgetSource() != null ? s.getBudgetSource().getName() : "-");
+            map.put("pemberiAnggaran", s.getBudgetProvider() != null ? s.getBudgetProvider().getName() : "-");
+            return ResponseEntity.ok(map);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    // 3. API: Ambil Detail Skema Lengkap (Unit, Elemen, KUK, Persyaratan)
+    // Ini PENTING untuk render Tab 3, 6, dan 7 secara dinamis
+    @GetMapping("/skema-detail/{id}")
+    public ResponseEntity<?> getSkemaDetail(@PathVariable Long id) {
+        Optional<Skema> skemaOpt = skemaRepository.findById(id);
+        if (skemaOpt.isPresent()) {
+            Skema skema = skemaOpt.get();
+            Map<String, Object> response = new HashMap<>();
+
+            // Persyaratan (Tab 3)
+            List<String> requirements = skema.getRequirements().stream()
+                    .map(PersyaratanSkema::getDescription)
+                    .collect(Collectors.toList());
+            response.put("requirements", requirements);
+
+            // Unit, Elemen, KUK (Tab 6 & 7)
+            List<Map<String, Object>> units = skema.getUnits().stream().map(unit -> {
+                Map<String, Object> unitMap = new HashMap<>();
+                unitMap.put("code", unit.getCode());
+                unitMap.put("title", unit.getTitle());
+
+                // Elements
+                List<Map<String, Object>> elements = unit.getElements().stream().map(el -> {
+                    Map<String, Object> elMap = new HashMap<>();
+                    elMap.put("no", el.getNoElemen());
+                    elMap.put("name", el.getNamaElemen());
+
+                    // KUKs
+                    List<String> kuks = el.getKuks().stream()
+                            .map(KukSkema::getNamaKuk)
+                            .collect(Collectors.toList());
+                    elMap.put("kuks", kuks);
+
+                    return elMap;
+                }).collect(Collectors.toList());
+
+                unitMap.put("elements", elements);
+                return unitMap;
+            }).collect(Collectors.toList());
+
+            response.put("units", units);
+
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.notFound().build();
     }
 
     // try {

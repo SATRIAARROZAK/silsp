@@ -112,8 +112,8 @@
                             >
                             <select
                               class="form-control select2"
-                              id="selectSkema"
-                              name="skemaId"
+                              id="selectSkema2"
+                              name="skemaId2"
                               required
                               style="width: 100%"
                             >
@@ -134,18 +134,34 @@
                               >Pilih Jadwal Kegiatan
                               <span class="text-danger">*</span></label
                             >
-                            <select
-                              class="form-control select2"
-                              id="selectJadwal"
-                              name="jadwalId"
-                              required
-                              disabled
-                              style="width: 100%"
-                            >
-                              <option value="">
-                                -- Pilih Skema Terlebih Dahulu --
-                              </option>
-                            </select>
+                            <div class="input-group">
+                              <select
+                                class="form-control select2"
+                                id="selectJadwal"
+                                name="jadwalId"
+                                required
+                                disabled
+                                style="width: 85%"
+                              >
+                                <option value="">
+                                  -- Pilih Skema Terlebih Dahulu --
+                                </option>
+                              </select>
+                              <div
+                                class="input-group-append"
+                                id="wrapperBtnReset"
+                                style="display: none"
+                              >
+                                <button
+                                  class="btn btn-danger"
+                                  type="button"
+                                  id="btnResetJadwal"
+                                  title="Ganti Skema/Jadwal"
+                                >
+                                  <i class="fas fa-times"></i>
+                                </button>
+                              </div>
+                            </div>
                           </div>
                         </div>
                         <div class="col-md-6">
@@ -440,7 +456,7 @@
 
                         <div class="row">
                           <div
-                            id="jobDetailsSection"
+                            id="jobDetailsSection1"
                             class="col-12"
                             style="display: none"
                           >
@@ -564,15 +580,13 @@
                                 </td>
                                 <td class="align-middle">
                                   <div class="action-buttons">
-                                    <a
-                                      th:href="@{/}"
-                                      class="btn btn-sm btn-outline-info"
-                                      title="Lihat"
+                                    <button
+                                      class="btn btn-sm btn-outline-primary btn-upload-modal"
+                                      data-id="administrasi_1"
+                                      data-type="administrasi"
                                     >
-                                      <i class="fas fa-upload me-2"
-                                        >Upload File</i
-                                      >
-                                    </a>
+                                      <i class="fas fa-upload mr-1"></i> Upload
+                                    </button>
                                   </div>
                                 </td>
                               </tr>
@@ -584,15 +598,13 @@
                                 </td>
                                 <td class="align-middle">
                                   <div class="action-buttons">
-                                    <a
-                                      th:href="@{/}"
-                                      class="btn btn-sm btn-outline-info"
-                                      title="Lihat"
+                                    <button
+                                      class="btn btn-sm btn-outline-primary btn-upload-modal"
+                                      data-id="administrasi_2"
+                                      data-type="administrasi"
                                     >
-                                      <i class="fas fa-upload me-2"
-                                        >Upload File</i
-                                      >
-                                    </a>
+                                      <i class="fas fa-upload mr-1"></i> Upload
+                                    </button>
                                   </div>
                                 </td>
                               </tr>
@@ -620,15 +632,13 @@
                                 <td class="align-middle">Laporan Projek</td>
                                 <td class="align-middle">
                                   <div class="action-buttons">
-                                    <a
-                                      th:href="@{/}"
-                                      class="btn btn-sm btn-outline-info"
-                                      title="Lihat"
+                                    <button
+                                      class="btn btn-sm btn-outline-primary btn-upload-modal"
+                                      data-id="portofolio_1"
+                                      data-type="portofolio"
                                     >
-                                      <i class="fas fa-upload me-2"
-                                        >Upload File</i
-                                      >
-                                    </a>
+                                      <i class="fas fa-upload mr-1"></i> Upload
+                                    </button>
                                   </div>
                                 </td>
                               </tr>
@@ -639,15 +649,13 @@
                                 </td>
                                 <td class="align-middle">
                                   <div class="action-buttons">
-                                    <a
-                                      th:href="@{/}"
-                                      class="btn btn-sm btn-outline-info"
-                                      title="Lihat"
+                                    <button
+                                      class="btn btn-sm btn-outline-primary btn-upload-modal"
+                                      data-id="portofolio_2"
+                                      data-type="portofolio"
                                     >
-                                      <i class="fas fa-upload me-2"
-                                        >Upload File</i
-                                      >
-                                    </a>
+                                      <i class="fas fa-upload mr-1"></i> Upload
+                                    </button>
                                   </div>
                                 </td>
                               </tr>
@@ -657,15 +665,13 @@
                                 <td class="align-middle">Surat Tugas</td>
                                 <td class="align-middle">
                                   <div class="action-buttons">
-                                    <a
-                                      th:href="@{/}"
-                                      class="btn btn-sm btn-outline-info"
-                                      title="Lihat"
+                                    <button
+                                      class="btn btn-sm btn-outline-primary btn-upload-modal"
+                                      data-id="portofolio_3"
+                                      data-type="portofolio"
                                     >
-                                      <i class="fas fa-upload me-2"
-                                        >Upload File</i
-                                      >
-                                    </a>
+                                      <i class="fas fa-upload mr-1"></i> Upload
+                                    </button>
                                   </div>
                                 </td>
                               </tr>
@@ -680,10 +686,11 @@
                         <div class="table-responsive">
                           <h6 class="text-primary font-weight-bold mb-2">
                             <i class="fas fa-layer-group mr-1"></i>
-
                             Daftar Unit Skema:
-
-                            <span>Digital Marketing</span>
+                            <span
+                              id="namaSkemaLabel"
+                              class="text-dark ml-2"
+                            ></span>
                           </h6>
 
                           <table
@@ -834,6 +841,66 @@
                     >
                   </div>
                 </form>
+                <div
+                  class="modal fade"
+                  id="uploadModal"
+                  tabindex="-1"
+                  role="dialog"
+                  aria-labelledby="uploadModalLabel"
+                  aria-hidden="true"
+                >
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="uploadModalLabel">
+                          Upload Dokumen
+                        </h5>
+                        <button
+                          type="button"
+                          class="close"
+                          data-dismiss="modal"
+                          aria-label="Close"
+                        >
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <input type="hidden" id="uploadTargetId" />
+                        <input type="hidden" id="uploadType" />
+                        <div class="form-group">
+                          <label>Pilih File (PDF/JPG/PNG)</label>
+                          <div class="custom-file">
+                            <input
+                              type="file"
+                              class="custom-file-input"
+                              id="fileInput"
+                            />
+                            <label class="custom-file-label" for="fileInput"
+                              >Pilih file</label
+                            >
+                          </div>
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button
+                          type="button"
+                          class="btn btn-secondary"
+                          id="btnBatalUpload"
+                          data-dismiss="modal"
+                        >
+                          Batal
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-primary"
+                          id="btnSimpanUpload"
+                        >
+                          Simpan
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

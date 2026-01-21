@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.security.Principal;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -117,22 +118,50 @@ public class ApiController {
 
     // 1. API: Ambil Jadwal berdasarkan ID Skema
     // Logic: Cari jadwal yang mengandung skema tersebut
+    // @GetMapping("/jadwal-by-skema/{skemaId}")
+    // public ResponseEntity<?> getJadwalBySkema(@PathVariable Long skemaId) {
+    //     // Cari semua jadwal, filter yang punya skemaId ini
+    //     // Note: Idealnya pake Custom Query JPQL agar performa bagus, tapi stream juga
+    //     // oke untuk data sedikit
+    //     List<Schedule> allSchedules = scheduleRepository.findAll();
+
+    //     List<Map<String, Object>> filteredJadwal = allSchedules.stream()
+    //             .filter(s -> s.getSchemas().stream().anyMatch(ss -> ss.getSchema().getId().equals(skemaId)))
+    //             .map(s -> {
+    //                 Map<String, Object> map = new HashMap<>();
+    //                 map.put("id", s.getId());
+    //                 map.put("text", s.getName() + " - " + s.getTuk().getName() + " (" + s.getStartDate() + ")");
+    //                 return map;
+    //             })
+    //             .collect(Collectors.toList());
+
+    //     return ResponseEntity.ok(filteredJadwal);
+    // }
+
+
     @GetMapping("/jadwal-by-skema/{skemaId}")
     public ResponseEntity<?> getJadwalBySkema(@PathVariable Long skemaId) {
-        // Cari semua jadwal, filter yang punya skemaId ini
-        // Note: Idealnya pake Custom Query JPQL agar performa bagus, tapi stream juga
-        // oke untuk data sedikit
         List<Schedule> allSchedules = scheduleRepository.findAll();
+        
+        // Ambil tanggal hari ini
+        LocalDate today = LocalDate.now();
 
         List<Map<String, Object>> filteredJadwal = allSchedules.stream()
-                .filter(s -> s.getSchemas().stream().anyMatch(ss -> ss.getSchema().getId().equals(skemaId)))
-                .map(s -> {
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("id", s.getId());
-                    map.put("text", s.getName() + " - " + s.getTuk().getName() + " (" + s.getStartDate() + ")");
-                    return map;
-                })
-                .collect(Collectors.toList());
+            .filter(s -> 
+                // 1. Cek kesesuaian Skema
+                s.getSchemas().stream().anyMatch(ss -> ss.getSchema().getId().equals(skemaId)) && 
+                // 2. Cek Tanggal: Harus SETELAH hari ini (Besok dst). 
+                // Jika hari ini tgl 21, jadwal tgl 21 tidak muncul.
+                s.getStartDate().isAfter(today)
+            )
+            .map(s -> {
+                Map<String, Object> map = new HashMap<>();
+                map.put("id", s.getId());
+                // Format tampilan: Nama Jadwal - TUK (Tanggal)
+                map.put("text", s.getName() + " - " + s.getTuk().getName() + " (" + s.getStartDate() + ")");
+                return map;
+            })
+            .collect(Collectors.toList());
 
         return ResponseEntity.ok(filteredJadwal);
     }
@@ -159,6 +188,9 @@ public class ApiController {
         if (skemaOpt.isPresent()) {
             Skema skema = skemaOpt.get();
             Map<String, Object> response = new HashMap<>();
+
+            // Tambahan: Nama Skema untuk Tab 6
+            response.put("namaSkema", skema.getName());
 
             // Persyaratan (Tab 3)
             List<String> requirements = skema.getRequirements().stream()

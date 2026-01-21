@@ -209,29 +209,69 @@ $(document).ready(function () {
   // ==========================================
   // 2. TOGGLE PEKERJAAN (ASESI) - DIPERBAIKI
   // ==========================================
+  // function toggleJobDetails() {
+  //   // Ambil value, pastikan konversi ke string untuk perbandingan aman
+  //   var jobTypeId = String($("#selectPekerjaan").val());
+
+  //   // Debugging (Opsional: Cek di console browser)
+  //   // console.log("Job Type ID:", jobTypeId);
+
+  //   // Asumsi: ID '1' adalah 'Tidak Bekerja'
+  //   // Jika jobTypeId ada isinya DAN bukan "1" -> Tampilkan Detail
+  //   if (jobTypeId && jobTypeId !== "1") {
+  //     $("#jobDetailsSection").slideDown();
+
+  //     // Set required pada input di dalamnya agar tidak lolos validasi kosong
+  //   } else {
+  //     $("#jobDetailsSection").slideUp();
+
+  //     // Hapus required jika disembunyikan
+  //     $("#jobDetailsSection input").prop("required", false);
+  //   }
+  // }
+
+  // // PENTING: Jalankan saat halaman selesai dimuat (untuk edit data lama)
+  // // Beri sedikit delay (100ms) untuk memastikan Select2 sudah me-load data
+  // setTimeout(function () {
+  //   toggleJobDetails();
+  // }, 100);
+
+  // // Jalankan setiap kali dropdown berubah
+  // $("#selectPekerjaan").on("change", toggleJobDetails);
+
   function toggleJobDetails() {
-    // Ambil value, pastikan konversi ke string untuk perbandingan aman
+    // Ambil value dropdown pekerjaan
     var jobTypeId = String($("#selectPekerjaan").val());
 
-    // Debugging (Opsional: Cek di console browser)
-    // console.log("Job Type ID:", jobTypeId);
+    // Ambil elemen container dan semua input didalamnya
+    var $section = $("#jobDetailsSection");
+    var $inputs = $section.find("input, textarea");
 
-    // Asumsi: ID '1' adalah 'Tidak Bekerja'
-    // Jika jobTypeId ada isinya DAN bukan "1" -> Tampilkan Detail
+    // Asumsi: ID '1' adalah 'Tidak Bekerja' di database TypePekerjaan
+    // Sesuaikan ID ini jika di database Anda berbeda
     if (jobTypeId && jobTypeId !== "1") {
-      $("#jobDetailsSection").slideDown();
+      // KONDISI: BEKERJA
+      $section.slideDown();
 
-      // Set required pada input di dalamnya agar tidak lolos validasi kosong
+      // 1. Reset required semua dulu
+      $inputs.prop("required", false);
+
+      // 2. Set HANYA Company Name yang wajib
+      $section.find('input[name="companyName"]').prop("required", true);
     } else {
-      $("#jobDetailsSection").slideUp();
+      // KONDISI: TIDAK BEKERJA / BELUM PILIH
+      $section.slideUp();
 
-      // Hapus required jika disembunyikan
-      $("#jobDetailsSection input").prop("required", false);
+      // 1. Hapus validasi required
+      $inputs.prop("required", false);
+
+      // 2. BERSIHKAN DATA (PENTING!)
+      // Ini memastikan data yang sempat diisi jadi kosong lagi agar tidak terkirim ke DB
+      $inputs.val("");
     }
   }
 
-  // PENTING: Jalankan saat halaman selesai dimuat (untuk edit data lama)
-  // Beri sedikit delay (100ms) untuk memastikan Select2 sudah me-load data
+  // PENTING: Jalankan saat halaman selesai dimuat (untuk handle data edit/validasi error)
   setTimeout(function () {
     toggleJobDetails();
   }, 100);

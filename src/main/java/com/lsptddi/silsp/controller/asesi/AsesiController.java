@@ -1,20 +1,9 @@
 package com.lsptddi.silsp.controller.asesi;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lsptddi.silsp.dto.PermohonanDto;
 // import com.lsptddi.silsp.dto.SertifikasiRequestDto;
 // DTO (DATA TRANFERS OBJECK)
 import com.lsptddi.silsp.dto.UserProfileDto;
-import com.lsptddi.silsp.model.Permohonan;
-import com.lsptddi.silsp.model.PermohonanAsesmen;
-import com.lsptddi.silsp.model.PermohonanBukti;
 // import com.lsptddi.silsp.model.PermohonanSertifikasi;
-import com.lsptddi.silsp.model.Schedule;
-import com.lsptddi.silsp.model.Skema;
-// import com.lsptddi.silsp.model.AsesmenMandiri;
-// import com.lsptddi.silsp.model.Pendaftaran;
-// import com.lsptddi.silsp.model.PendaftaranBukti;
-// import com.lsptddi.silsp.model.PendaftaranSyarat;
 // MODEL
 import com.lsptddi.silsp.model.User; // Import Model User Asli
 
@@ -25,21 +14,17 @@ import com.lsptddi.silsp.repository.*;
 // import com.lsptddi.silsp.repository.TypePekerjaanRepository;
 
 // Service
-import com.lsptddi.silsp.service.FileStorageService;
+import com.lsptddi.silsp.service.PermohonanService;
 
 // Import java
-import java.io.IOException;
 import java.security.Principal;
-import java.util.ArrayList;
+import java.time.LocalDate;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.List;
 
 // LIBLARY UMUM org
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -49,13 +34,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 
 // librarry umum com
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.type.TypeReference;
 
 @Controller
 @RequestMapping("/asesi")
@@ -71,23 +51,7 @@ public class AsesiController {
     private TypePekerjaanRepository typePekerjaanRepository;
 
     @Autowired
-    private PermohonanRepository permohonanRepository;
-
-    // @Autowired
-    // private PendaftaranRepository pendaftaranRepository;
-    // @Autowired
-    // private PendaftaranSyaratRepository pendaftaranSyaratRepository;
-    @Autowired
-    private PermohonanBuktiRepository permohonanBuktiRepository;
-    @Autowired
-    private PermohonanAsesmenRepository permohonanAsesmenRepository;
-    @Autowired
-    private TypeEducationRepository educationRepository;
-    @Autowired
-    private ScheduleRepository scheduleRepository;
-
-    @Autowired
-    private FileStorageService saveFileService;
+    private PermohonanService permohonanService;
 
     // Method ini akan dijalankan sebelum setiap request di controller ini
     // Fungsinya mengambil User asli dari database berdasarkan siapa yang login
@@ -221,88 +185,143 @@ public class AsesiController {
         return "pages/asesi/sertifikasi/sertifikasi-add";
     }
 
+    // Helper untuk parsing Long dengan aman (mencegah error Cannot parse null
+    // string)
+    private Long parseLongSafe(String value) {
+        if (value == null || value.trim().isEmpty() || value.equals("null")) {
+            return null;
+        }
+        try {
+            return Long.parseLong(value);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
     @PostMapping("/sertifikasi/save")
     @ResponseBody
-    public ResponseEntity<?> savePermohonan(
-            @RequestPart("data") String dataJson, // JSON String dari DTO
-            @RequestPart(value = "files", required = false) List<MultipartFile> files // Semua file
-    ) {
+    public ResponseEntity<?> saveSertifikasi(
+            MultipartHttpServletRequest request,
+            Principal principal) {
+
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            PermohonanDto dto = mapper.readValue(dataJson, PermohonanDto.class);
-            User user = userRepository.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName())
-                    .get();
+            User user = userRepository.findByUsername(principal.getName()).orElseThrow();
 
-            // 1. UPDATE DATA PEMOHON (Tab 2)
-            // Logic update user profile berdasarkan dto.getDataPemohon()...
-            if (dto.getDataPemohon().getCompanyName() == null || dto.getDataPemohon().getCompanyName().isEmpty()) {
-                // Jika tidak bekerja, set detail null
-                user.setCompanyName(null);
-                user.setPosition(null);
-                // ... set null field lain
-            } else {
-                user.setCompanyName(dto.getDataPemohon().getCompanyName());
-                // ... update field lain
+            // 1. Ambil Data Dasar dengan Parsing Aman
+            Long skemaId = parseLongSafe(request.getParameter("skemaId"));
+            Long jadwalId = parseLongSafe(request.getParameter("jadwalId"));
+
+            // Validasi Manual: Skema & Jadwal Wajib Ada
+            if (skemaId == null || jadwalId == null) {
+                return ResponseEntity.badRequest()
+                        .body("{\"status\": \"error\", \"message\": \"Skema dan Jadwal wajib dipilih!\"}");
             }
-            userRepository.save(user);
 
-            // 2. SAVE HEADER PERMOHONAN
-            Permohonan permohonan = new Permohonan();
-            permohonan.setAsesi(user);
-            permohonan.setSkema(skemaRepository.findById(dto.getSkemaId()).get());
-            permohonan.setJadwal(scheduleRepository.findById(dto.getJadwalId()).get());
-            permohonan.setTujuanAsesmen(dto.getTujuanAsesmen());
-            permohonan.setStatus("MENUNGGU_VERIFIKASI");
-            permohonan = permohonanRepository.save(permohonan); // Save dulu untuk dapat ID
+            Long sumberId = parseLongSafe(request.getParameter("sumberAnggaranId"));
+            Long pemberiId = parseLongSafe(request.getParameter("pemberiAnggaranId"));
+            String tujuanAsesmen = request.getParameter("tujuanAsesmen");
 
-            // 3. HANDLE FILE & BUKTI (Tab 3, 4, 5)
-            // Ini tricky. Kita harus mencocokkan urutan File di List<MultipartFile>
-            // dengan urutan di dto.getListBukti() atau menggunakan logika penamaan file.
-            // Solusi sederhana: Asumsikan urutan listBukti DTO sama dengan urutan Files
-            // yang dikirim.
+            // 2. Ambil Data Pemohon (Update Profile)
+            UserProfileDto userDto = new UserProfileDto();
+            userDto.setNik(request.getParameter("nik"));
+            userDto.setFullName(request.getParameter("fullName"));
+            userDto.setBirthPlace(request.getParameter("birthPlace"));
 
-            if (files != null && dto.getListBukti() != null) {
-                int fileIndex = 0;
-                for (PermohonanDto.BuktiDto bDto : dto.getListBukti()) {
-                    if (fileIndex < files.size()) {
-                        MultipartFile file = files.get(fileIndex);
-                        String path = saveFileService.save(file); // Method simpan file Anda
+            // Handle Tanggal Lahir Aman
+            String tglLahirStr = request.getParameter("birthDate");
+            if (tglLahirStr != null && !tglLahirStr.isEmpty()) {
+                userDto.setBirthDate(LocalDate.parse(tglLahirStr));
+            }
 
-                        PermohonanBukti bukti = new PermohonanBukti();
-                        bukti.setPermohonan(permohonan);
-                        bukti.setJenisBukti(bDto.getJenis());
-                        bukti.setNamaBukti(bDto.getNama());
-                        bukti.setFilePath(path);
-                        permohonanBuktiRepository.save(bukti);
+            userDto.setGender(request.getParameter("gender"));
+            // ... set field lainnya ...
 
-                        fileIndex++;
-                    }
+            // Handle Job Type & Education Aman
+            userDto.setJobTypeId(parseLongSafe(request.getParameter("jobType")));
+            userDto.setEducationId(parseLongSafe(request.getParameter("educationId"))); // Pastikan name di HTML
+                                                                                        // educationId bukan
+                                                                                        // selectPendidikan
+
+            userDto.setCompanyName(request.getParameter("companyName"));
+            userDto.setPosition(request.getParameter("position"));
+            userDto.setOfficePhone(request.getParameter("officePhone"));
+            userDto.setOfficeEmail(request.getParameter("officeEmail"));
+            userDto.setOfficeFax(request.getParameter("officeFax"));
+            userDto.setOfficeAddress(request.getParameter("officeAddress"));
+
+            // ... Mapping wilayah ...
+            userDto.setProvinceId(request.getParameter("provinceId"));
+            userDto.setCityId(request.getParameter("cityId"));
+            userDto.setDistrictId(request.getParameter("districtId"));
+            userDto.setAddress(request.getParameter("address"));
+            userDto.setPostalCode(request.getParameter("postalCode"));
+            userDto.setPhoneNumber(request.getParameter("phoneNumber"));
+            userDto.setEmail(request.getParameter("email"));
+
+            // 3. Pisahkan File dan Data Text APL-02
+            // Map<String, MultipartFile> fileMap = request.getFileMap();
+            // Map<String, String> apl02Data = new HashMap<>();
+
+            // // Loop parameter untuk mencari data kompetensi (K/BK) dan link bukti
+            // request.getParameterMap().forEach((key, value) -> {
+            // if (key.startsWith("kompeten_") || key.startsWith("bukti_")) {
+            // apl02Data.put(key, value[0]);
+            // }
+            // });
+
+            // // 4. Panggil Service
+            // permohonanService.processPermohonan(
+            // user, skemaId, jadwalId, sumberAnggaran, pemberiAnggaran, tujuanAsesmen,
+            // userDto, fileMap, apl02Data);
+
+            // 3. Pisahkan File dan Data Text APL-02
+            // Map<String, MultipartFile> fileMap = request.getFileMap();
+            // Map<String, String> apl02Data = new HashMap<>(); // K/BK
+            // Map<String, String[]> apl02Bukti = new HashMap<>(); // Bukti (Array string)
+
+            // Loop parameter request
+            // Format JS: "kompeten_elemen_12" -> Value "K"
+            // Format JS: "bukti_elemen_12" -> Value ["portofolio_1", "portofolio_2"]
+
+            // request.getParameterMap().forEach((key, value) -> {
+            // if (key.startsWith("kompeten_elemen_")) {
+            // apl02Data.put(key, value[0]);
+            // } else if (key.startsWith("bukti_elemen_")) {
+            // // Karena select2 multiple, value adalah array
+            // // Kita simpan di map khusus bukti
+            // apl02Bukti.put(key, value);
+            // }
+            // });
+
+            // 4. Panggil Service (Update parameter service)
+            // permohonanService.processPermohonan(
+            // user, skemaId, jadwalId, sumberAnggaran, pemberiAnggaran, tujuanAsesmen,
+            // userDto, fileMap, apl02Data, apl02Bukti);
+
+            Map<String, MultipartFile> fileMap = request.getFileMap();
+            Map<String, String> apl02Data = new HashMap<>(); // Untuk K/BK
+            Map<String, String[]> apl02Bukti = new HashMap<>(); // Untuk Bukti (Array)
+
+            // Parsing Parameter
+            request.getParameterMap().forEach((key, value) -> {
+                if (key.startsWith("kompeten_elemen_")) {
+                    apl02Data.put(key, value[0]);
+                } else if (key.startsWith("bukti_elemen_")) {
+                    apl02Bukti.put(key, value); // Select2 multiple kirim array string
                 }
-            }
+            });
 
-            // 4. SAVE ASESMEN (Tab 7)
-            if (dto.getListAsesmen() != null) {
-                for (PermohonanDto.AsesmenDto aDto : dto.getListAsesmen()) {
-                    PermohonanAsesmen asesmen = new PermohonanAsesmen();
-                    asesmen.setPermohonan(permohonan);
-                    asesmen.setKodeUnit(aDto.getKodeUnit());
-                    asesmen.setNoElemen(aDto.getNoElemen());
-                    asesmen.setStatusKompetensi(aDto.getStatus());
-
-                    // Join list ID menjadi string misal "portofolio_1,portofolio_2"
-                    if (aDto.getBuktiRefIds() != null) {
-                        asesmen.setBuktiRelevanIds(String.join(",", aDto.getBuktiRefIds()));
-                    }
-                    permohonanAsesmenRepository.save(asesmen);
-                }
-            }
-
+            // 3. Panggil Service (Kirim ID bukan String untuk anggaran)
+            permohonanService.processPermohonan(
+                    user, skemaId, jadwalId, sumberId, pemberiId, tujuanAsesmen,
+                    userDto, fileMap, apl02Data, apl02Bukti);
             return ResponseEntity.ok()
                     .body("{\"status\": \"success\", \"message\": \"Pendaftaran berhasil dikirim!\"}");
 
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.badRequest().body("Gagal: " + e.getMessage());
+            return ResponseEntity.badRequest()
+                    .body("{\"status\": \"error\", \"message\": \"Gagal: " + e.getMessage() + "\"}");
         }
     }
 

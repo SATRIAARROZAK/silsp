@@ -174,8 +174,15 @@
                               readonly
                               placeholder="Otomatis dari Jadwal"
                             />
+
+                            <input
+                              type="hidden"
+                              name="sumberAnggaranId"
+                              id="hiddenSumberAnggaranId"
+                            />
                           </div>
                         </div>
+
                         <div class="col-md-6">
                           <div class="form-group">
                             <label>Pemberi Anggaran</label>
@@ -185,6 +192,12 @@
                               id="inputPemberiAnggaran"
                               readonly
                               placeholder="Otomatis dari Jadwal"
+                            />
+
+                            <input
+                              type="hidden"
+                              name="pemberiAnggaranId"
+                              id="hiddenPemberiAnggaranId"
                             />
                           </div>
                         </div>
@@ -826,11 +839,7 @@
                     </div>
                   </div>
                   <div class="card-footer mt-3 text-left">
-                    <button
-                      type="submit"
-                      id="save-button"
-                      class="btn btn-outline-warning"
-                    >
+                    <button type="submit" class="btn btn-outline-warning">
                       Kirim
                     </button>
                     <a

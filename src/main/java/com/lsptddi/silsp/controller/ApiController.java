@@ -170,17 +170,18 @@ public class ApiController {
     // 2. API: Ambil Detail Jadwal (Untuk Sumber Anggaran & Pemberi Anggaran)
     // @GetMapping("/jadwal-detail/{id}")
     // public ResponseEntity<?> getJadwalDetail(@PathVariable Long id) {
-    //     Optional<Schedule> scheduleOpt = scheduleRepository.findById(id);
-    //     if (scheduleOpt.isPresent()) {
-    //         Schedule s = scheduleOpt.get();
-    //         Map<String, Object> map = new HashMap<>();
-    //         map.put("sumberAnggaran", s.getBudgetSource() != null ? s.getBudgetSource().getName() : "-");
-    //         map.put("pemberiAnggaran", s.getBudgetProvider() != null ? s.getBudgetProvider().getName() : "-");
-    //         return ResponseEntity.ok(map);
-    //     }
-    //     return ResponseEntity.notFound().build();
+    // Optional<Schedule> scheduleOpt = scheduleRepository.findById(id);
+    // if (scheduleOpt.isPresent()) {
+    // Schedule s = scheduleOpt.get();
+    // Map<String, Object> map = new HashMap<>();
+    // map.put("sumberAnggaran", s.getBudgetSource() != null ?
+    // s.getBudgetSource().getName() : "-");
+    // map.put("pemberiAnggaran", s.getBudgetProvider() != null ?
+    // s.getBudgetProvider().getName() : "-");
+    // return ResponseEntity.ok(map);
     // }
-
+    // return ResponseEntity.notFound().build();
+    // }
 
     @GetMapping("/jadwal-detail/{id}")
     public ResponseEntity<?> getJadwalDetail(@PathVariable Long id) {
@@ -188,80 +189,19 @@ public class ApiController {
         if (scheduleOpt.isPresent()) {
             Schedule s = scheduleOpt.get();
             Map<String, Object> map = new HashMap<>();
-            
+
             // Kirim Nama (untuk display)
             map.put("sumberAnggaranNama", s.getBudgetSource() != null ? s.getBudgetSource().getName() : "-");
             map.put("pemberiAnggaranNama", s.getBudgetProvider() != null ? s.getBudgetProvider().getName() : "-");
-            
+
             // Kirim ID (untuk value hidden input) -> PERBAIKAN PENTING
             map.put("sumberAnggaranId", s.getBudgetSource() != null ? s.getBudgetSource().getId() : null);
             map.put("pemberiAnggaranId", s.getBudgetProvider() != null ? s.getBudgetProvider().getId() : null);
-            
+
             return ResponseEntity.ok(map);
         }
         return ResponseEntity.notFound().build();
     }
-
-    // 3. API: Ambil Detail Skema Lengkap (Unit, Elemen, KUK, Persyaratan)
-    // Ini PENTING untuk render Tab 3, 6, dan 7 secara dinamis
-    // @GetMapping("/skema-detail/{id}")
-    // public ResponseEntity<?> getSkemaDetail(@PathVariable Long id) {
-    // Optional<Skema> skemaOpt = skemaRepository.findById(id);
-    // if (skemaOpt.isPresent()) {
-    // Skema skema = skemaOpt.get();
-    // Map<String, Object> response = new HashMap<>();
-
-    // // Tambahan: Nama Skema untuk Tab 6
-    // response.put("namaSkema", skema.getName());
-
-    // // Persyaratan (Tab 3)
-    // List<String> requirements = skema.getRequirements().stream()
-    // .map(PersyaratanSkema::getDescription)
-    // .collect(Collectors.toList());
-    // response.put("requirements", requirements);
-
-    // // Unit, Elemen, KUK (Tab 6 & 7)
-    // List<Map<String, Object>> units = skema.getUnits().stream().map(unit -> {
-    // Map<String, Object> unitMap = new HashMap<>();
-    // unitMap.put("code", unit.getCode());
-    // unitMap.put("title", unit.getTitle());
-
-    // // Elements
-    // List<Map<String, Object>> elements = unit.getElements().stream().map(el -> {
-    // Map<String, Object> elMap = new HashMap<>();
-    // elMap.put("no", el.getNoElemen());
-    // elMap.put("name", el.getNamaElemen());
-
-    // // KUKs
-    // List<String> kuks = el.getKuks().stream()
-
-    // .map(KukSkema::getNamaKuk)
-    // .collect(Collectors.toList());
-    // elMap.put("kuks", kuks);
-
-    // return elMap;
-    // }).collect(Collectors.toList());
-
-    // // List<Map<String, Object>> kuks = el.getKuks().stream()
-    // // .map(kuk -> {
-    // // Map<String, Object> kukMap = new HashMap<>();
-    // // kukMap.put("id", kuk.getId());
-    // // kukMap.put("name", kuk.getNamaKuk());
-    // // return kukMap;
-    // // })
-    // // .collect(Collectors.toList());
-    // // elMap.put("kuks", kuks);
-
-    // unitMap.put("elements", elements);
-    // return unitMap;
-    // }).collect(Collectors.toList());
-
-    // response.put("units", units);
-
-    // return ResponseEntity.ok(response);
-    // }
-    // return ResponseEntity.notFound().build();
-    // }
 
     @GetMapping("/skema-detail/{id}")
     public ResponseEntity<?> getSkemaDetail(@PathVariable Long id) {
@@ -269,7 +209,7 @@ public class ApiController {
         if (skemaOpt.isPresent()) {
             Skema skema = skemaOpt.get();
             Map<String, Object> response = new HashMap<>();
-            
+
             response.put("namaSkema", skema.getName());
 
             List<String> requirements = skema.getRequirements().stream()
@@ -282,74 +222,30 @@ public class ApiController {
                 Map<String, Object> unitMap = new HashMap<>();
                 unitMap.put("code", unit.getCode());
                 unitMap.put("title", unit.getTitle());
-                
+
                 List<Map<String, Object>> elements = unit.getElements().stream().map(el -> {
                     Map<String, Object> elMap = new HashMap<>();
                     elMap.put("id", el.getId()); // PENTING: Kirim ID Elemen
                     elMap.put("no", el.getNoElemen());
                     elMap.put("name", el.getNamaElemen());
-                    
+
                     List<String> kuks = el.getKuks().stream()
                             .map(KukSkema::getNamaKuk)
                             .collect(Collectors.toList());
                     elMap.put("kuks", kuks);
-                    
+
                     return elMap;
                 }).collect(Collectors.toList());
-                
+
                 unitMap.put("elements", elements);
                 return unitMap;
             }).collect(Collectors.toList());
-            
+
             response.put("units", units);
             return ResponseEntity.ok(response);
         }
         return ResponseEntity.notFound().build();
     }
-
-    // @GetMapping("/skema-detail/{id}")
-    // public ResponseEntity<?> getSkemaDetail(@PathVariable Long id) {
-    //     Optional<Skema> skemaOpt = skemaRepository.findById(id);
-    //     if (skemaOpt.isPresent()) {
-    //         Skema skema = skemaOpt.get();
-    //         Map<String, Object> response = new HashMap<>();
-
-    //         response.put("namaSkema", skema.getName());
-
-    //         List<String> requirements = skema.getRequirements().stream()
-    //                 .map(PersyaratanSkema::getDescription)
-    //                 .collect(Collectors.toList());
-    //         response.put("requirements", requirements);
-
-    //         // Mapping Units -> Elements -> KUK
-    //         List<Map<String, Object>> units = skema.getUnits().stream().map(unit -> {
-    //             Map<String, Object> unitMap = new HashMap<>();
-    //             unitMap.put("code", unit.getCode());
-    //             unitMap.put("title", unit.getTitle());
-
-    //             List<Map<String, Object>> elements = unit.getElements().stream().map(el -> {
-    //                 Map<String, Object> elMap = new HashMap<>();
-    //                 elMap.put("id", el.getId()); // PENTING: Kirim ID Elemen
-    //                 elMap.put("no", el.getNoElemen());
-    //                 elMap.put("name", el.getNamaElemen());
-
-    //                 List<String> kuks = el.getKuks().stream()
-    //                         .map(KukSkema::getNamaKuk)
-    //                         .collect(Collectors.toList());
-    //                 elMap.put("kuks", kuks);
-
-    //                 return elMap;
-    //             }).collect(Collectors.toList());
-
-    //             unitMap.put("elements", elements);
-    //             return unitMap;
-    //         }).collect(Collectors.toList());
-
-    //         response.put("units", units);
-    //         return ResponseEntity.ok(response);
-    //     }
-    //     return ResponseEntity.notFound().build();
-    // }
     // try {
     // // Ambil data mentah dari BNSP dan teruskan ke Frontend
     // Object response = restTemplate.getForObject(url, Object.class);

@@ -546,7 +546,7 @@ $(document).ready(function () {
       container.append(tableHtml);
     });
 
-    $(".select2").select2({ theme: "bootstrap4" });
+    $(".select2").select2({ theme: "bootstrap4", placeholder: "Pilih Bukti" });
     refreshBuktiRelevanDropdown();
   }
 

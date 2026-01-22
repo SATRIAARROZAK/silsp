@@ -33,14 +33,14 @@ public class PermohonanService {
     private ScheduleRepository scheduleRepository;
     @Autowired
     private PersyaratanSkemaRepository persyaratanSkemaRepository;
-    @Autowired
-    private KukSkemaRepository kukSkemaRepository;
+    // @Autowired
+    // private KukSkemaRepository kukSkemaRepository;
     @Autowired
     private TypePekerjaanRepository jobTypeRepository;
     @Autowired
     private TypeEducationRepository educationRepository;
     @Autowired
-    private UnitElemenSkemaRepository elemenSkemaRepository;
+    private UnitElemenSkemaRepository unitElemenSkemaRepository;
     @Autowired
     private TypeSumberAnggaranRepository sumberAnggaranRepository;
     @Autowired
@@ -75,6 +75,20 @@ public class PermohonanService {
             Map<String, String> apl02Data, // Data K/BK
             Map<String, String[]> apl02Bukti // Data Bukti (Array)
     ) throws IOException {
+
+        // @Transactional
+        // public void processPermohonan(
+        // User user,
+        // Long skemaId,
+        // Long jadwalId,
+        // Long sumberAnggaranId, // Ubah parameter jadi Long ID
+        // Long pemberiAnggaranId, // Ubah parameter jadi Long ID
+        // String tujuanAsesmen,
+        // UserProfileDto userUpdateData,
+        // Map<String, MultipartFile> files,
+        // Map<String, String> apl02Data, // Data K/BK
+        // Map<String, String[]> apl02Bukti // Data Bukti (Array)
+        // ) throws IOException {
 
         // 1. UPDATE DATA PEMOHON (USER PROFILE)
         updateUserData(user, userUpdateData);
@@ -154,86 +168,86 @@ public class PermohonanService {
         // Format Key Bukti: "bukti_{kukId}" -> Value "portofolio_1,portofolio_2" (comma
         // separated)
 
-        // for (String key : apl02Data.keySet()) {
-        //     if (key.startsWith("kompeten_elemen_")) {
-
-        //         // Parsing ID Elemen (Aman karena split index 2)
-        //         // "kompeten" "elemen" "12"
-        //         String[] parts = key.split("_");
-        //         Long elemenId = Long.parseLong(parts[2]);
-        //         String rekomendasi = apl02Data.get(key); // "K" atau "BK"
-
-        //         AsesmenMandiri am = new AsesmenMandiri();
-        //         am.setPermohonan(permohonan);
-
-        //         // Set Elemen (Bukan KUK lagi)
-        //         am.setUnitElemen(elemenSkemaRepository.findById(elemenId).orElse(null));
-
-        //         am.setRekomendasiAsesi(rekomendasi);
-
-        //         // Link ke Bukti Relevan
-        //         // Format key bukti: "bukti_elemen_{elemenId}"
-        //         String buktiKey = "bukti_elemen_" + elemenId;
-
-        //         if (apl02Bukti.containsKey(buktiKey)) {
-        //             String[] buktiIds = apl02Bukti.get(buktiKey); // Dapat array dari select2
-        //             List<BuktiPortofolio> buktiList = new ArrayList<>();
-
-        //             if (buktiIds != null) {
-        //                 for (String bId : buktiIds) {
-        //                     // bId contoh: "portofolio_1"
-        //                     if (portofolioMap.containsKey(bId)) {
-        //                         buktiList.add(portofolioMap.get(bId));
-        //                     }
-        //                 }
-        //             }
-        //             am.setBuktiRelevan(buktiList);
-        //         }
-
-        //         asesmenMandiriRepository.save(am);
-        //     }
-        // }
-
         for (String key : apl02Data.keySet()) {
             if (key.startsWith("kompeten_elemen_")) {
-                try {
-                    // Parsing ID Elemen yang aman (Split string)
-                    // "kompeten" "elemen" "123"
-                    String[] parts = key.split("_");
-                    Long elemenId = Long.parseLong(parts[2]); 
-                    String rekomendasi = apl02Data.get(key);
 
-                    AsesmenMandiri am = new AsesmenMandiri();
-                    am.setPermohonan(permohonan);
-                    
-                    // Set Unit Elemen (Bukan KUK lagi)
-                    UnitElemenSkema elem = elemenSkemaRepository.findById(elemenId).orElse(null);
-                    am.setUnitElemen(elem); 
-                    
-                    am.setRekomendasiAsesi(rekomendasi);
+                // Parsing ID Elemen (Aman karena split index 2)
+                // "kompeten" "elemen" "12"
+                String[] parts = key.split("_");
+                Long elemenId = Long.parseLong(parts[2]);
+                String rekomendasi = apl02Data.get(key); // "K" atau "BK"
 
-                    // Link Bukti (Many-to-Many)
-                    String buktiKey = "bukti_elemen_" + elemenId;
-                    if (apl02Bukti.containsKey(buktiKey)) {
-                        String[] buktiIds = apl02Bukti.get(buktiKey);
-                        List<BuktiPortofolio> listBukti = new ArrayList<>();
-                        if(buktiIds != null) {
-                            for(String bId : buktiIds) {
-                                if(portofolioMap.containsKey(bId)) {
-                                    listBukti.add(portofolioMap.get(bId));
-                                }
+                AsesmenMandiri am = new AsesmenMandiri();
+                am.setPermohonan(permohonan);
+
+                // Set Elemen (Bukan KUK lagi)
+                am.setUnitElemen(unitElemenSkemaRepository.findById(elemenId).orElse(null));
+
+                am.setRekomendasiAsesi(rekomendasi);
+
+                // Link ke Bukti Relevan
+                // Format key bukti: "bukti_elemen_{elemenId}"
+                String buktiKey = "bukti_elemen_" + elemenId;
+
+                if (apl02Bukti.containsKey(buktiKey)) {
+                    String[] buktiIds = apl02Bukti.get(buktiKey); // Dapat array dari select2
+                    List<BuktiPortofolio> buktiList = new ArrayList<>();
+
+                    if (buktiIds != null) {
+                        for (String bId : buktiIds) {
+                            // bId contoh: "portofolio_1"
+                            if (portofolioMap.containsKey(bId)) {
+                                buktiList.add(portofolioMap.get(bId));
                             }
                         }
-                        am.setBuktiRelevan(listBukti);
                     }
-
-                    asesmenMandiriRepository.save(am);
-                } catch (NumberFormatException e) {
-                    System.out.println("Gagal parsing ID Elemen dari key: " + key);
+                    am.setBuktiRelevan(buktiList);
                 }
+
+                asesmenMandiriRepository.save(am);
             }
         }
     }
+
+    // for (String key : apl02Data.keySet()) {
+    // if (key.startsWith("kompeten_elemen_")) {
+    // try {
+    // // Parsing ID Elemen yang aman (Split string)
+    // // "kompeten" "elemen" "123"
+    // String[] parts = key.split("_");
+    // Long elemenId = Long.parseLong(parts[2]);
+    // String rekomendasi = apl02Data.get(key);
+
+    // AsesmenMandiri am = new AsesmenMandiri();
+    // am.setPermohonan(permohonan);
+
+    // // Set Unit Elemen (Bukan KUK lagi)
+    // UnitElemenSkema elem = elemenSkemaRepository.findById(elemenId).orElse(null);
+    // am.setUnitElemen(elem);
+
+    // am.setRekomendasiAsesi(rekomendasi);
+
+    // // Link Bukti (Many-to-Many)
+    // String buktiKey = "bukti_elemen_" + elemenId;
+    // if (apl02Bukti.containsKey(buktiKey)) {
+    // String[] buktiIds = apl02Bukti.get(buktiKey);
+    // List<BuktiPortofolio> listBukti = new ArrayList<>();
+    // if(buktiIds != null) {
+    // for(String bId : buktiIds) {
+    // if(portofolioMap.containsKey(bId)) {
+    // listBukti.add(portofolioMap.get(bId));
+    // }
+    // }
+    // }
+    // am.setBuktiRelevan(listBukti);
+    // }
+
+    // asesmenMandiriRepository.save(am);
+    // } catch (NumberFormatException e) {
+    // System.out.println("Gagal parsing ID Elemen dari key: " + key);
+    // }
+    // }
+    // }
 
     private void updateUserData(User user, UserProfileDto dto) {
         // Update field yang diperbolehkan

@@ -279,9 +279,9 @@ public class AsesiController {
             // Map<String, String> apl02Data = new HashMap<>(); // K/BK
             // Map<String, String[]> apl02Bukti = new HashMap<>(); // Bukti (Array string)
 
-            // Loop parameter request
-            // Format JS: "kompeten_elemen_12" -> Value "K"
-            // Format JS: "bukti_elemen_12" -> Value ["portofolio_1", "portofolio_2"]
+            // // Loop parameter request
+            // // Format JS: "kompeten_elemen_12" -> Value "K"
+            // // Format JS: "bukti_elemen_12" -> Value ["portofolio_1", "portofolio_2"]
 
             // request.getParameterMap().forEach((key, value) -> {
             // if (key.startsWith("kompeten_elemen_")) {
@@ -293,28 +293,56 @@ public class AsesiController {
             // }
             // });
 
-            // 4. Panggil Service (Update parameter service)
+            // // 4. Panggil Service (Update parameter service)
             // permohonanService.processPermohonan(
-            // user, skemaId, jadwalId, sumberAnggaran, pemberiAnggaran, tujuanAsesmen,
+            // user, skemaId, jadwalId, sumberId, pemberiId, tujuanAsesmen,
             // userDto, fileMap, apl02Data, apl02Bukti);
 
             Map<String, MultipartFile> fileMap = request.getFileMap();
-            Map<String, String> apl02Data = new HashMap<>(); // Untuk K/BK
-            Map<String, String[]> apl02Bukti = new HashMap<>(); // Untuk Bukti (Array)
+            Map<String, String> apl02Data = new HashMap<>(); // K/BK
+            Map<String, String[]> apl02Bukti = new HashMap<>(); // Bukti (Array string)
 
-            // Parsing Parameter
+            // Loop parameter request
+            // Format JS: "kompeten_elemen_12" -> Value "K"
+            // Format JS: "bukti_elemen_12" -> Value ["portofolio_1", "portofolio_2"]
+
             request.getParameterMap().forEach((key, value) -> {
                 if (key.startsWith("kompeten_elemen_")) {
                     apl02Data.put(key, value[0]);
                 } else if (key.startsWith("bukti_elemen_")) {
-                    apl02Bukti.put(key, value); // Select2 multiple kirim array string
+                    // Karena select2 multiple, value adalah array
+                    // Kita simpan di map khusus bukti
+                    apl02Bukti.put(key, value);
                 }
             });
 
-            // 3. Panggil Service (Kirim ID bukan String untuk anggaran)
+            // 4. Panggil Service (Update parameter service)
             permohonanService.processPermohonan(
                     user, skemaId, jadwalId, sumberId, pemberiId, tujuanAsesmen,
                     userDto, fileMap, apl02Data, apl02Bukti);
+
+            // Map<String, MultipartFile> fileMap = request.getFileMap();
+            // Map<String, String> apl02Data = new HashMap<>(); // K/BK
+            // Map<String, String[]> apl02Bukti = new HashMap<>(); // Bukti (Array string)
+
+            // // Loop parameter request
+            // // Format JS: "kompeten_elemen_12" -> Value "K"
+            // // Format JS: "bukti_elemen_12" -> Value ["portofolio_1", "portofolio_2"]
+
+            // request.getParameterMap().forEach((key, value) -> {
+            // if (key.startsWith("kompeten_elemen_")) {
+            // apl02Data.put(key, value[0]);
+            // } else if (key.startsWith("bukti_elemen_")) {
+            // // Karena select2 multiple, value adalah array
+            // // Kita simpan di map khusus bukti
+            // apl02Bukti.put(key, value);
+            // }
+            // });
+
+            // // 4. Panggil Service (Update parameter service)
+            // permohonanService.processPermohonan(
+            // user, skemaId, jadwalId, sumberId, pemberiId, tujuanAsesmen,
+            // userDto, fileMap, apl02Data, apl02Bukti);
             return ResponseEntity.ok()
                     .body("{\"status\": \"success\", \"message\": \"Pendaftaran berhasil dikirim!\"}");
 

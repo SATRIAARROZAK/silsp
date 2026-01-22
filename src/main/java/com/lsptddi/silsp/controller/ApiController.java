@@ -269,7 +269,7 @@ public class ApiController {
         if (skemaOpt.isPresent()) {
             Skema skema = skemaOpt.get();
             Map<String, Object> response = new HashMap<>();
-
+            
             response.put("namaSkema", skema.getName());
 
             List<String> requirements = skema.getRequirements().stream()
@@ -282,30 +282,74 @@ public class ApiController {
                 Map<String, Object> unitMap = new HashMap<>();
                 unitMap.put("code", unit.getCode());
                 unitMap.put("title", unit.getTitle());
-
+                
                 List<Map<String, Object>> elements = unit.getElements().stream().map(el -> {
                     Map<String, Object> elMap = new HashMap<>();
                     elMap.put("id", el.getId()); // PENTING: Kirim ID Elemen
                     elMap.put("no", el.getNoElemen());
                     elMap.put("name", el.getNamaElemen());
-
+                    
                     List<String> kuks = el.getKuks().stream()
                             .map(KukSkema::getNamaKuk)
                             .collect(Collectors.toList());
                     elMap.put("kuks", kuks);
-
+                    
                     return elMap;
                 }).collect(Collectors.toList());
-
+                
                 unitMap.put("elements", elements);
                 return unitMap;
             }).collect(Collectors.toList());
-
+            
             response.put("units", units);
             return ResponseEntity.ok(response);
         }
         return ResponseEntity.notFound().build();
     }
+
+    // @GetMapping("/skema-detail/{id}")
+    // public ResponseEntity<?> getSkemaDetail(@PathVariable Long id) {
+    //     Optional<Skema> skemaOpt = skemaRepository.findById(id);
+    //     if (skemaOpt.isPresent()) {
+    //         Skema skema = skemaOpt.get();
+    //         Map<String, Object> response = new HashMap<>();
+
+    //         response.put("namaSkema", skema.getName());
+
+    //         List<String> requirements = skema.getRequirements().stream()
+    //                 .map(PersyaratanSkema::getDescription)
+    //                 .collect(Collectors.toList());
+    //         response.put("requirements", requirements);
+
+    //         // Mapping Units -> Elements -> KUK
+    //         List<Map<String, Object>> units = skema.getUnits().stream().map(unit -> {
+    //             Map<String, Object> unitMap = new HashMap<>();
+    //             unitMap.put("code", unit.getCode());
+    //             unitMap.put("title", unit.getTitle());
+
+    //             List<Map<String, Object>> elements = unit.getElements().stream().map(el -> {
+    //                 Map<String, Object> elMap = new HashMap<>();
+    //                 elMap.put("id", el.getId()); // PENTING: Kirim ID Elemen
+    //                 elMap.put("no", el.getNoElemen());
+    //                 elMap.put("name", el.getNamaElemen());
+
+    //                 List<String> kuks = el.getKuks().stream()
+    //                         .map(KukSkema::getNamaKuk)
+    //                         .collect(Collectors.toList());
+    //                 elMap.put("kuks", kuks);
+
+    //                 return elMap;
+    //             }).collect(Collectors.toList());
+
+    //             unitMap.put("elements", elements);
+    //             return unitMap;
+    //         }).collect(Collectors.toList());
+
+    //         response.put("units", units);
+    //         return ResponseEntity.ok(response);
+    //     }
+    //     return ResponseEntity.notFound().build();
+    // }
     // try {
     // // Ambil data mentah dari BNSP dan teruskan ke Frontend
     // Object response = restTemplate.getForObject(url, Object.class);

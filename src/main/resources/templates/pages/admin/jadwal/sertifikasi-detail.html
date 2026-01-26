@@ -24,6 +24,193 @@
         </div>
       </div>
 
+      <div class="card-body table-responsive p-0">
+        <table class="table table-hover text-nowrap table-bordered">
+          <thead class="bg-light text-center">
+            <tr>
+              <th>No</th>
+              <th>Nama Lengkap</th>
+              <th>NIK</th>
+              <th>Tempat Lahir</th>
+              <th>Tanggal Lahir</th>
+              <th>Jenis Kelamin</th>
+              <th>Kebangsaan</th>
+              <th>Alamat</th>
+              <th>Kode Pos</th>
+              <th>No. Telp</th>
+              <th>Email</th>
+              <th>Pendidikan Terakhir</th>
+              <th>Nama Perusahaan/Institusi/Universitas</th>
+              <th>Telp Kantor</th>
+              <th>Email Kantor</th>
+              <th>Tujuan Asesmen</th>
+              <th>Bukti Persyaratan Dasar</th>
+              <th>Bukti Administrasi</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-center align-middle">1</td>
+              <td class="align-middle">Nama Lengkap</td>
+              <td class="align-middle text-center">NIK</td>
+              <td class="align-middle text-center">Tempat Lahir</td>
+              <td class="align-middle text-center">Tanggal Lahir</td>
+              <td class="align-middle">Laki-laki</td>
+              <td class="align-middle text-center">Indonesia</td>
+              <td class="align-middle">Alamat</td>
+              <td class="align-middle text-center">Kode Pos</td>
+              <td class="align-middle">No. Telp</td>
+              <td class="align-middle">Email</td>
+              <td class="align-middle text-center">Pendidikan Terakhir</td>
+              <td class="align-middle">
+                Nama Perusahaan/Institusi/Universitas
+              </td>
+              <td class="align-middle">Telp Kantor</td>
+              <td class="align-middle">Email Kantor</td>
+              <td class="align-middle">Tujuan Asesmen</td>
+              <td class="align-middle text-center">
+                <button
+                  type="button"
+                  class="btn btn-xs btn-outline-info btn-expand"
+                >
+                  <span>2</span>
+                </button>
+              </td>
+              <td class="align-middle text-center">
+                <button
+                  class="btn btn-primary btn-sm btn-expand-unit"
+                  type="button"
+                  data-toggle="collapse"
+                  aria-expanded="false"
+                >
+                  <i class="fas fa-folder-plus"></i>
+                </button>
+              </td>
+              <td class="align-middle">
+                <div class="action-buttons">
+                  <a
+                    th:href="@{'/'}"
+                    class="btn btn-sm btn-info"
+                    title="Terima"
+                  >
+                    <i class="fas fa-check-circle"></i>
+                  </a>
+                  <a
+                    th:href="@{'/'}"
+                    class="btn btn-sm btn-warning"
+                    title="Revisi"
+                  >
+                    <i class="fas fa-pencil-alt"></i>
+                  </a>
+                  <a
+                    th:href="@{'/'}"
+                    class="btn btn-sm btn-danger"
+                    title="Tolak"
+                    ><i class="fas fa-times"></i
+                  ></a>
+                </div>
+              </td>
+            </tr>
+            <tr class="d-none bg-light">
+              <td colspan="18" class="p-4">
+                <div class="row">
+                  <div class="col-md-12">
+                    <div
+                      class="card card-outline card-success shadow-none mb-0"
+                    >
+                      <div class="card-header py-2">
+                        <h3 class="card-title text-sm font-weight-bold">
+                          <i class="fas fa-book mr-1"></i> Daftar Persyaratan
+                          Dasar
+                        </h3>
+                      </div>
+                      <div class="card-body p-0">
+                        <table class="table table-sm table-bordered mb-0">
+                          <thead class="bg-white text-center">
+                            <tr>
+                              <th width="5px">No</th>
+                              <th>Nama Persyaratan</th>
+                              <th>Aksi</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td class="text-center align-middle">1</td>
+                              <td class="align-middle">Nama Persyaratan</td>
+                              <td class="text-center align-middle">
+                                <a
+                                  th:href="@{'/'}"
+                                  target="_blank"
+                                  class="btn btn-xs btn-outline-secondary"
+                                  title="Lihat Bukti"
+                                >
+                                  <i class="fas fa-file-pdf fa-lg"></i>
+                                </a>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr class="collapse bg-light">
+              <td colspan="18" class="p-0">
+                <div class="p-3">
+                  <h6 class="text-primary font-weight-bold mb-2">
+                    <i class="fas fa-file mr-1"></i>
+                    Bukti Administrasi
+                  </h6>
+
+                  <table
+                    class="table table-sm table-bordered table-valign-middle bg-white"
+                  >
+                    <thead class="thead-light">
+                      <tr>
+                        <th style="width: 50px" class="text-center">No</th>
+                        <th style="width: 200px">Nama Bukti Administrasi</th>
+                        <th>File</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td class="text-center">1</td>
+                        <td class="font-weight-bold">
+                          Nama Bukti Administrasi
+                        </td>
+                        <td class="text-center">
+                          <a
+                            th:href="@{'/'}"
+                            target="_blank"
+                            class="btn btn-xs btn-outline-secondary"
+                            title="Lihat File"
+                          >
+                            <i class="fas fa-file fa-lg"></i>
+                          </a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card-footer">
+        <button type="submit" class="btn btn-success">
+          <i class="fas fa-file-excel"></i> Download Excel
+        </button>
+        <a
+          th:href="@{/admin/jadwal-sertifikasi}"
+          class="btn btn-outline-secondary"
+          >Kembali</a
+        >
+      </div>
+
       <!-- /.modal -->
     </div>
   </body>

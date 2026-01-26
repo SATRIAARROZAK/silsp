@@ -13,6 +13,7 @@ import java.util.List;
 
 @Repository
 public interface PermohonanSertifikasiRepository extends JpaRepository<PermohonanSertifikasi, Long> {
+    List<PermohonanSertifikasi> findByAsesiOrderByTanggalPermohonanDesc(User asesi);
 
     // Hitung jumlah pendaftar di jadwal tertentu
     long countByJadwal(Schedule jadwal);

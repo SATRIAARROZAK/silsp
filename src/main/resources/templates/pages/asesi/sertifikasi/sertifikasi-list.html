@@ -1,235 +1,104 @@
 <!DOCTYPE html>
-<html
-  lang="en"
-  xmlns:th="http://www.thymeleaf.org"
-  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-  layout:decorate="~{layouts/app}"
->
-  <head th:replace="~{fragments/header :: header('Pengajuan')}"></head>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layouts/app}">
+<head th:replace="~{fragments/header :: header('Daftar Sertifikasi')}"></head>
 
-  <body>
-    <div layout:fragment="page-title">
-      <h1 class="m-0">Pendaftaran Sertfikasi</h1>
-    </div>
-    <div layout:fragment="breadcrumb">
-      <ol class="breadcrumb float-sm-right">
-        <li class="breadcrumb-item"><a href="#">Home</a></li>
-        <li class="breadcrumb-item active">Pendaftaran Sertifkasi</li>
-      </ol>
-    </div>
+<body>
+<div layout:fragment="page-title">
+  <h1 class="m-0">Riwayat Pendaftaran Sertifikasi</h1>
+</div>
+<div layout:fragment="breadcrumb">
+  <ol class="breadcrumb float-sm-right">
+    <li class="breadcrumb-item"><a href="#">Home</a></li>
+    <li class="breadcrumb-item active">Daftar Sertifikasi</li>
+  </ol>
+</div>
 
-    <div layout:fragment="content">
-      <div class="card">
-        <div class="card-header">
-          <div
-            class="d-flex flex-column-reverse flex-w flex-md-row justify-content-md-between align-items-md-center gap-2 mb-3"
-          >
-            <form
-              th:action="@{/}"
-              method=""
-              class="d-flex"
-              style="width: 100%; max-width: 450px"
-            >
-              <input
-                type="text"
-                name="keyword"
-                class="form-control me-2"
-                placeholder="Cari Skema"
-                th:value="${keyword}"
-                aria-label="Search"
-              />
-              <button type="submit" class="btn btn-outline-info">Cari</button>
-              <a
-                th:href="@{/}"
-                class="btn btn-outline-danger ms-2"
-                title="Reset Pencarian"
-                >Reset</a
-              >
-            </form>
-
-            <a
-              th:href="@{/asesi/daftar}"
-              class="btn btn-outline-primary"
-            >
-              <i class="fas fa-calendar-plus me-1"></i>Daftar Sertifikasi
-            </a>
-          </div>
-        </div>
-        <!-- /.card-header -->
-        <div class="card-body responsive">
-          <table class="table table-bordered table-hover table-responsive-md">
-            <thead>
-              <tr class="text-center">
-                <th>No</th>
-                <th>Detail Jadwal</th>
-                <th>Asesor</th>
-                <th>Skema</th>
-                <th>Nama TUK</th>
-                <th>Aksi</th>
-              </tr>
-            </thead>
-            <tbody class="align-middle">
-              <tr>
-                <td>1</td>
-                <td>
-                  <div class="plan-profile">
-                    <strong>Nama Jadwal</strong>
-                    <p class="mb-3">Sertifikasi Digital Marketing</p>
-
-                    <div class="plan-details">
-                      <div class="jadwal-item">
-                        <strong>Kode Jadwal</strong>
-                        <strong>Kode Jadwal BNSP</strong>
-                        <strong>Tanggal Asesmen</strong>
-                        <!-- <span>TUK-LSPTDDI-001</span> -->
-                      </div>
-
-                      <div class="jadwal-item">
-                        <!-- <strong>Tanggal Asesmen</strong> -->
-                        <span>20250510-SKM01-UNBRAW</span>
-                        <span>BNSP.UJK.202505050488</span>
-                        <span>09 September 2025</span>
-                      </div>
-                    </div>
-                  </div>
-                </td>
-                <td class="align-middle text-center">Erlin Irosa</td>
-                <td class="align-middle text-center">Associate Data Science</td>
-                <td class="align-middle">
-                  Fakultas Ilmu Komputer Universitas Brawijaya
-                </td>
-                <td class="align-middle">
-                  <div class="action-buttons">
-                    <a
-                      class="btn btn-outline-primary btn-sm"
-                      th:href="@{/admin/jadwal-sertifikasi/jadwal-view}"
-                      title="View"
-                    >
-                      <i class="fas fa-eye"> </i>
-                    </a>
-                    <a
-                      class="btn btn-outline-info btn-sm"
-                      th:href="@{/admin/skema/edit-skema}"
-                      title="Edit"
-                    >
-                      <i class="fas fa-pencil-alt"> </i>
-                    </a>
-                    <a
-                      class="btn btn-outline-danger btn-sm"
-                      href="#"
-                      title="Delete"
-                    >
-                      <i class="fas fa-trash"> </i>
-                    </a>
-                  </div>
-                </td>
-              </tr>
-              <tr class="expandable-content-row" id="asesor-list">
-                <td colspan="8">
-                  <div class="expandable-content-wrapper">
-                    <h5>Daftar Asesor Bertugas</h5>
-                    <div class="table-responsive">
-                      <table
-                        class="table table-valign-middle table-sm table-bordered nested-table"
-                      >
-                        <thead class="thead-light text-center">
-                          <tr>
-                            <th>No</th>
-                            <th>No. MET</th>
-                            <th>Nama Asesor</th>
-                            <th>Surat Tugas</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td class="text-center">1</td>
-                            <td>MET.000.002580.2024</td>
-                            <td>Erlin Irosa</td>
-                            <td>
-                              <a
-                                th:href="@{/dist/doc/st_erlin.pdf}"
-                                target="_blank"
-                                >01/ST/LSPTDDI/V/2025</a
-                              >
-                            </td>
-                          </tr>
-                          <tr>
-                            <td class="text-center">2</td>
-                            <td>MET.000.002584.2024</td>
-                            <td>Sigit Mareta</td>
-                            <td>
-                              <a
-                                th:href="@{/dist/doc/st_sigit.pdf}"
-                                target="_blank"
-                                >02/ST/LSPTDDI/V/2025</a
-                              >
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <!-- /.card-body -->
-        <div class="card-footer clearfix">
-          <ul class="pagination pagination-sm m-0 float-right">
-            <li class="page-item"><a class="page-link" href="#">&laquo;</a></li>
-            <li class="page-item"><a class="page-link" href="#">1</a></li>
-            <li class="page-item"><a class="page-link" href="#">2</a></li>
-            <li class="page-item"><a class="page-link" href="#">3</a></li>
-            <li class="page-item"><a class="page-link" href="#">&raquo;</a></li>
-          </ul>
-        </div>
+<div layout:fragment="content">
+  <div class="card">
+    <div class="card-header">
+      <div class="d-flex justify-content-between align-items-center">
+        <h3 class="card-title">List Pengajuan</h3>
+        <a th:href="@{/asesi/daftar}" class="btn btn-primary btn-sm">
+          <i class="fas fa-plus-circle mr-1"></i> Daftar Baru
+        </a>
       </div>
-      <div
-        class="modal fade"
-        id="previewModal"
-        tabindex="-1"
-        role="dialog"
-        aria-labelledby="previewModalLabel"
-        aria-hidden="true"
-      >
-        <div class="modal-dialog modal-xl" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="previewModalLabel">
-                Preview Dokumen Skema
-              </h5>
-              <button
-                type="button"
-                class="close"
-                data-dismiss="modal"
-                aria-label="Close"
-              >
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-              <iframe
-                id="pdf-viewer"
-                src="about:blank"
-                frameborder="0"
-                style="width: 100%; height: 75vh"
-              ></iframe>
-            </div>
-            <div class="modal-footer">
-              <button
-                type="button"
-                class="btn btn-secondary"
-                data-dismiss="modal"
-              >
-                Tutup
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- /.modal -->
     </div>
-  </body>
+    
+    <div class="card-body table-responsive p-0">
+      <table class="table table-hover text-nowrap table-bordered">
+        <thead class="bg-light text-center">
+          <tr>
+            <th width="5%">No</th>
+            <th>Detail Jadwal</th>
+            <th>Asesor</th>
+            <th>Skema</th>
+            <th>TUK</th>
+            <th>Status</th>
+            <th width="15%">Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="p, iter : ${listPermohonan}">
+            <td class="text-center align-middle" th:text="${iter.count}">1</td>
+            
+            <td class="align-middle">
+               <strong class="d-block text-primary" th:text="${p.jadwal.name}">Nama Jadwal</strong>
+               <small class="text-muted d-block">
+                 Kode Jadwal: <span th:text="${p.jadwal.code}">KODE-001</span>
+               </small>
+               <small class="text-muted">
+                 Tgl Uji: <span th:text="${#temporals.format(p.jadwal.startDate, 'dd MMM yyyy')}">01 Jan 2025</span>
+               </small>
+            </td>
+
+            <td class="text-center align-middle">
+               <span class="text-muted font-italic">-</span>
+            </td>
+
+            <td class="align-middle">
+               <span th:text="${p.skema.name}">Nama Skema</span><br>
+               <small class="text-muted" th:text="${p.skema.code}">SKM-001</small>
+            </td>
+
+            <td class="align-middle" th:text="${p.jadwal.tuk.name}">Nama TUK</td>
+
+            <td class="text-center align-middle">
+               <span th:if="${p.status == 'SUBMITTED'}" class="badge badge-warning">Menunggu Verifikasi</span>
+               <span th:if="${p.status == 'VERIFIED'}" class="badge badge-info">Terverifikasi</span>
+               <span th:if="${p.status == 'ACCEPTED'}" class="badge badge-success">Diterima</span>
+               <span th:if="${p.status == 'REJECTED'}" class="badge badge-danger">Ditolak</span>
+            </td>
+
+            <td class="text-center align-middle">
+               <div class="btn-group">
+                 <a th:href="@{'/asesi/sertifikasi/detail/' + ${p.id}}" class="btn btn-sm btn-info" title="Detail">
+                    <i class="fas fa-eye"></i>
+                 </a>
+                 
+                 <a th:if="${p.status == 'SUBMITTED'}" href="#" class="btn btn-sm btn-danger btn-delete" 
+                    th:data-id="${p.id}" title="Batalkan">
+                    <i class="fas fa-trash"></i>
+                 </a>
+               </div>
+            </td>
+          </tr>
+
+          <tr th:if="${#lists.isEmpty(listPermohonan)}">
+            <td colspan="7" class="text-center py-4 text-muted">
+              <i class="fas fa-inbox fa-3x mb-3"></i><br>
+              Belum ada riwayat pendaftaran sertifikasi.
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+    
+    <div class="card-footer clearfix" th:if="${!#lists.isEmpty(listPermohonan)}">
+       <small class="text-muted float-left">Menampilkan semua data.</small>
+    </div>
+
+  </div>
+</div>
+</body>
 </html>

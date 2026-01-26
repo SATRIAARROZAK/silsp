@@ -14,6 +14,7 @@ import com.lsptddi.silsp.repository.ScheduleRepository;
 import com.lsptddi.silsp.repository.SuratTugasRepository;
 import com.lsptddi.silsp.repository.UserRepository;
 import com.lsptddi.silsp.repository.NotificationRepository;
+import com.lsptddi.silsp.repository.PermohonanSertifikasiRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -46,6 +47,9 @@ public class ApiController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PermohonanSertifikasiRepository permohonanSertifikasiRepository;
 
     @Autowired
     private NotificationRepository notificationRepository;
@@ -141,25 +145,86 @@ public class ApiController {
     // return ResponseEntity.ok(filteredJadwal);
     // }
 
-    @GetMapping("/jadwal-by-skema/{skemaId}")
-    public ResponseEntity<?> getJadwalBySkema(@PathVariable Long skemaId) {
-        List<Schedule> allSchedules = scheduleRepository.findAll();
+    // @GetMapping("/jadwal-by-skema/{skemaId}")
+    // public ResponseEntity<?> getJadwalBySkema(@PathVariable Long skemaId) {
+    // List<Schedule> allSchedules = scheduleRepository.findAll();
 
-        // Ambil tanggal hari ini
+    // // Ambil tanggal hari ini
+    // LocalDate today = LocalDate.now();
+
+    // List<Map<String, Object>> filteredJadwal = allSchedules.stream()
+    // .filter(s ->
+    // // 1. Cek kesesuaian Skema
+    // s.getSchemas().stream().anyMatch(ss ->
+    // ss.getSchema().getId().equals(skemaId)) &&
+    // // 2. Cek Tanggal: Harus SETELAH hari ini (Besok dst).
+    // // Jika hari ini tgl 21, jadwal tgl 21 tidak muncul.
+    // s.getStartDate().isAfter(today))
+    // .map(s -> {
+    // Map<String, Object> map = new HashMap<>();
+    // map.put("id", s.getId());
+    // // Format tampilan: Nama Jadwal - TUK (Tanggal)
+    // map.put("text", s.getName() + " - " + s.getTuk().getName() + " (" +
+    // s.getStartDate() + ")");
+    // return map;
+    // })
+    // .collect(Collectors.toList());
+
+    // return ResponseEntity.ok(filteredJadwal);
+    // }
+
+    @GetMapping("/jadwal-by-skema/{skemaId}")
+    public ResponseEntity<?> getJadwalBySkema(@PathVariable Long skemaId, Principal principal) {
+
+        // 1. Ambil User Login
+        User currentUser = userRepository.findByUsername(principal.getName()).orElseThrow();
         LocalDate today = LocalDate.now();
 
+        List<Schedule> allSchedules = scheduleRepository.findAll();
+
         List<Map<String, Object>> filteredJadwal = allSchedules.stream()
-                .filter(s ->
-                // 1. Cek kesesuaian Skema
-                s.getSchemas().stream().anyMatch(ss -> ss.getSchema().getId().equals(skemaId)) &&
-                // 2. Cek Tanggal: Harus SETELAH hari ini (Besok dst).
-                // Jika hari ini tgl 21, jadwal tgl 21 tidak muncul.
-                        s.getStartDate().isAfter(today))
+                // A. Filter Skema: Harus jadwal untuk skema ini
+                .filter(s -> s.getSchemas().stream().anyMatch(ss -> ss.getSchema().getId().equals(skemaId)))
+
+                // B. Filter Tanggal: Hanya tanggal masa depan (besok ke atas)
+                .filter(s -> s.getStartDate().isAfter(today))
+
+                // C. Filter Kuota: Hitung jumlah pendaftar saat ini vs Kuota Jadwal
+                .filter(s -> {
+                    long pendaftarCount = permohonanSertifikasiRepository.countByJadwal(s);
+                    return pendaftarCount < s.getQuota(); // Masuk jika masih ada slot
+                })
+
+                // D. Filter Duplikasi Tanggal: Cek apakah user sudah daftar di tanggal ini
+                // (Jadwal lain)
+                .filter(s -> {
+                    // Cek apakah user sudah terdaftar di JADWAL INI
+                    boolean registeredInThisSchedule = permohonanSertifikasiRepository
+                            .existsByAsesiAndJadwal(currentUser, s);
+                    if (registeredInThisSchedule)
+                        return false; // Hide jika sudah daftar
+
+                    // Cek apakah user sudah terdaftar di JADWAL LAIN pada TANGGAL YANG SAMA
+                    boolean hasScheduleOnSameDate = permohonanSertifikasiRepository.existsByAsesiAndJadwalDate(
+                            currentUser,
+                            s.getStartDate());
+                    return !hasScheduleOnSameDate; // Hide jika tanggal bentrok
+                })
+
                 .map(s -> {
                     Map<String, Object> map = new HashMap<>();
                     map.put("id", s.getId());
-                    // Format tampilan: Nama Jadwal - TUK (Tanggal)
-                    map.put("text", s.getName() + " - " + s.getTuk().getName() + " (" + s.getStartDate() + ")");
+
+                    // Tambahkan info sisa kuota di teks agar informatif (Opsional)
+                    // long terisi = permohonanSertifikasiRepository.countByJadwal(s);
+                    // long sisa = s.getQuota() - terisi;
+
+                    // map.put("text", s.getName() + " - " + " - " + s.getTuk().getName() + " (" +
+                    // s.getStartDate()
+                    // + ") - Sisa Kuota: " + sisa);
+
+                    map.put("text",
+                            s.getName() + " - " + " Di " + s.getTuk().getName() + " - " + " Tgl Asesmen: " + s.getStartDate());
                     return map;
                 })
                 .collect(Collectors.toList());

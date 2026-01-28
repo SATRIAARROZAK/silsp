@@ -1165,9 +1165,9 @@ public class PermohonanService {
         permohonan.setSkema(skemaRepository.findById(dto.getSkemaId()).orElseThrow());
         permohonan.setJadwal(scheduleRepository.findById(dto.getJadwalId()).orElseThrow());
         if (dto.getSumberAnggaranId() != null)
-        permohonan.setSumberAnggaran(sumberAnggaranRepository.findById(dto.getSumberAnggaranId()).orElse(null));
+            permohonan.setSumberAnggaran(sumberAnggaranRepository.findById(dto.getSumberAnggaranId()).orElse(null));
         if (dto.getPemberiAnggaranId() != null)
-        permohonan.setPemberiAnggaran(pemberiAnggaranRepository.findById(dto.getPemberiAnggaranId()).orElse(null));
+            permohonan.setPemberiAnggaran(pemberiAnggaranRepository.findById(dto.getPemberiAnggaranId()).orElse(null));
         // permohonan.setSumberAnggaran(dto.getSumberAnggaran());
         // permohonan.setPemberiAnggaran(dto.getPemberiAnggaran());
         permohonan.setTujuanAsesmen(dto.getTujuanAsesmen());
@@ -1176,37 +1176,101 @@ public class PermohonanService {
         // 3. SIMPAN FILES (Persyaratan, Admin, Portofolio)
         // Kita simpan mapping TempID ("portofolio_1") ke Entity Database agar bisa
         // dipakai di APL-02
+        // Map<String, BuktiPortofolio> portofolioMap = new HashMap<>();
+
+        // for (String key : files.keySet()) {
+        // MultipartFile file = files.get(key);
+        // String fileName = saveFile(file, user.getUsername() + "_" + key);
+
+        // if (key.startsWith("syarat_")) {
+        // Long syaratId = Long.parseLong(key.split("_")[1]);
+        // BuktiPersyaratan pp = new BuktiPersyaratan();
+        // pp.setPermohonan(permohonan);
+        // pp.setPersyaratanSkema(persyaratanSkemaRepository.findById(syaratId).orElse(null));
+        // pp.setFilePath(fileName);
+        // pp.setStatus("PENDING");
+        // persyaratanRepository.save(pp);
+        // }
+        // else if (key.startsWith("administrasi_")) {
+        // String jenis = key.contains("1") ? "KTP" : "FOTO";
+        // BuktiAdministrasi ba = new BuktiAdministrasi();
+        // ba.setPermohonan(permohonan);
+        // ba.setJenisBukti(jenis);
+        // ba.setFilePath(fileName);
+        // buktiAdminRepository.save(ba);
+        // } else if (key.startsWith("portofolio_")) {
+        // // Simpan Portofolio
+        // BuktiPortofolio bp = new BuktiPortofolio();
+        // bp.setPermohonan(permohonan);
+        // bp.setNamaDokumen(file.getOriginalFilename());
+        // bp.setFilePath(fileName);
+        // bp.setTempId(key); // simpan key sementara
+        // bp = portofolioRepository.save(bp);
+
+        // // Masukkan ke Map untuk lookup APL-02
+        // portofolioMap.put(key, bp);
+        // }
+        // }
+
         Map<String, BuktiPortofolio> portofolioMap = new HashMap<>();
 
         for (String key : files.keySet()) {
             MultipartFile file = files.get(key);
+
+            // Simpan fisik file ke folder
             String fileName = saveFile(file, user.getUsername() + "_" + key);
 
+            // A. Handle Persyaratan Dasar
+            // Format key dari Frontend: "syarat_{ID_DATABASE}" (Contoh: syarat_15)
             if (key.startsWith("syarat_")) {
-                Long syaratId = Long.parseLong(key.split("_")[1]);
-                BuktiPersyaratan pp = new BuktiPersyaratan();
-                pp.setPermohonan(permohonan);
-                pp.setPersyaratanSkema(persyaratanSkemaRepository.findById(syaratId).orElse(null));
-                pp.setFilePath(fileName);
-                pp.setStatus("PENDING");
-                persyaratanRepository.save(pp);
-            } else if (key.startsWith("administrasi_")) {
-                String jenis = key.contains("1") ? "KTP" : "FOTO";
+                try {
+                    // Ambil ID dari string key
+                    Long syaratId = Long.parseLong(key.split("_")[1]);
+
+                    BuktiPersyaratan bp = new BuktiPersyaratan();
+                    bp.setPermohonan(permohonan);
+
+                    // PENTING: Cari Data Master Persyaratan berdasarkan ID
+                    PersyaratanSkema masterSyarat = persyaratanSkemaRepository.findById(syaratId).orElse(null);
+
+                    if (masterSyarat != null) {
+                        bp.setPersyaratanSkema(masterSyarat); // Relasikan ke Master
+                        bp.setFilePath(fileName);
+                        bp.setStatus("PENDING");
+                        persyaratanRepository.save(bp); // Simpan
+                    } else {
+                        System.out.println("Warning: Persyaratan ID " + syaratId + " tidak ditemukan di database.");
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Error parsing ID Persyaratan dari key: " + key);
+                }
+            }
+
+            // B. Handle Bukti Administrasi
+            // Format key: "administrasi_1" (KTP) atau "administrasi_2" (Foto)
+            else if (key.startsWith("administrasi_")) {
+                String jenis = key.contains("1") ? "KTP" : "PASFOTO";
+
                 BuktiAdministrasi ba = new BuktiAdministrasi();
                 ba.setPermohonan(permohonan);
                 ba.setJenisBukti(jenis);
                 ba.setFilePath(fileName);
                 buktiAdminRepository.save(ba);
-            } else if (key.startsWith("portofolio_")) {
-                // Simpan Portofolio
+            }
+
+            // C. Handle Portofolio
+            // Format key: "portofolio_{TEMP_ID}" (Contoh: portofolio_1, portofolio_2)
+            else if (key.startsWith("portofolio_")) {
                 BuktiPortofolio bp = new BuktiPortofolio();
                 bp.setPermohonan(permohonan);
                 bp.setNamaDokumen(file.getOriginalFilename());
                 bp.setFilePath(fileName);
-                bp.setTempId(key); // simpan key sementara
+                bp.setTempId(key); // Simpan key sementara (opsional, tapi berguna)
+
+                // Simpan ke DB
                 bp = portofolioRepository.save(bp);
 
-                // Masukkan ke Map untuk lookup APL-02
+                // PENTING: Masukkan ke Map agar bisa dipakai di loop APL-02 (Tab 7) nanti
                 portofolioMap.put(key, bp);
             }
         }

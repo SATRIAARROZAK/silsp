@@ -19,6 +19,23 @@ $(document).ready(function () {
     }
   });
 
+  // Script sederhana untuk handle expand collapse agar tombol berubah warna/icon jika diperlukan
+  // (Optional, karena Bootstrap data-toggle sudah menangani fungsi utamanya)
+  // $(".collapse").on("show.bs.collapse", function () {
+  //   var id = $(this).attr("id");
+  //   $('button[data-target="#' + id + '"]')
+  //     .removeClass("btn-outline-info btn-outline-secondary")
+  //     .addClass("btn-primary");
+  // });
+  // $(".collapse").on("hide.bs.collapse", function () {
+  //   var id = $(this).attr("id");
+  //   // Reset class (Sederhana saja)
+  //   $('button[data-target="#' + id + '"]')
+  //     .removeClass("btn-primary")
+  //     .addClass("btn-outline-info");
+  //   // Note: Anda bisa spesifikkan logic warna berdasarkan tipe tombol (info vs secondary)
+  // });
+
   var selectedAsesorIds = [];
   var selectedSchemaIds = [];
 

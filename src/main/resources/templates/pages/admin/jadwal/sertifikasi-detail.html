@@ -5,213 +5,338 @@
   xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
   layout:decorate="~{layouts/app}"
 >
-  <head th:replace="~{fragments/header :: header('Jadwal Asesmen')}"></head>
+  <head th:replace="~{fragments/header :: header('Detail Jadwal')}"></head>
 
   <body>
     <div layout:fragment="page-title">
-      <h1 class="m-0">Jadwal Sertifikasi</h1>
+      <h1 class="m-0">Detail Jadwal & List Asesi</h1>
     </div>
     <div layout:fragment="breadcrumb">
       <ol class="breadcrumb float-sm-right">
         <li class="breadcrumb-item"><a href="#">Home</a></li>
-        <li class="breadcrumb-item active">Jadwal Asesmen</li>
+        <li class="breadcrumb-item">
+          <a th:href="@{/admin/jadwal-sertifikasi}">Jadwal</a>
+        </li>
+        <li class="breadcrumb-item active">Detail</li>
       </ol>
     </div>
+
     <div layout:fragment="content">
-      <div class="card">
+      <div class="card card-primary card-outline">
         <div class="card-header">
-          <h3 class="card-title">Detail Jadwal Sertifikasi</h3>
+          <h3 class="card-title">
+            <i class="fas fa-calendar-alt mr-1"></i>
+            <span th:text="${jadwal.name}">Nama Jadwal</span>
+          </h3>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-3">
+              <strong>Kode Jadwal:</strong> <br />
+              <span th:text="${jadwal.code}"></span>
+            </div>
+            <div class="col-md-3">
+              <strong>Kode BNSP:</strong> <br />
+              <span th:text="${jadwal.bnspCode}"></span>
+            </div>
+            <div class="col-md-3">
+              <strong>Tanggal Pelaksanaan:</strong> <br />
+              <span
+                th:text="${#temporals.format(jadwal.startDate, 'dd MMMM yyyy')}"
+              ></span>
+            </div>
+            <div class="col-md-3">
+              <strong>TUK:</strong> <br />
+              <span th:text="${jadwal.tuk.name}"></span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="card-body table-responsive p-0">
-        <table class="table table-hover text-nowrap table-bordered">
-          <thead class="bg-light text-center">
-            <tr>
-              <th>No</th>
-              <th>Nama Lengkap</th>
-              <th>NIK</th>
-              <th>Tempat Lahir</th>
-              <th>Tanggal Lahir</th>
-              <th>Jenis Kelamin</th>
-              <th>Kebangsaan</th>
-              <th>Alamat</th>
-              <th>Kode Pos</th>
-              <th>No. Telp</th>
-              <th>Email</th>
-              <th>Pendidikan Terakhir</th>
-              <th>Nama Perusahaan/Institusi/Universitas</th>
-              <th>Telp Kantor</th>
-              <th>Email Kantor</th>
-              <th>Tujuan Asesmen</th>
-              <th>Bukti Persyaratan Dasar</th>
-              <th>Bukti Administrasi</th>
-              <th>Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="text-center align-middle">1</td>
-              <td class="align-middle">Nama Lengkap</td>
-              <td class="align-middle text-center">NIK</td>
-              <td class="align-middle text-center">Tempat Lahir</td>
-              <td class="align-middle text-center">Tanggal Lahir</td>
-              <td class="align-middle">Laki-laki</td>
-              <td class="align-middle text-center">Indonesia</td>
-              <td class="align-middle">Alamat</td>
-              <td class="align-middle text-center">Kode Pos</td>
-              <td class="align-middle">No. Telp</td>
-              <td class="align-middle">Email</td>
-              <td class="align-middle text-center">Pendidikan Terakhir</td>
-              <td class="align-middle">
-                Nama Perusahaan/Institusi/Universitas
-              </td>
-              <td class="align-middle">Telp Kantor</td>
-              <td class="align-middle">Email Kantor</td>
-              <td class="align-middle">Tujuan Asesmen</td>
-              <td class="align-middle text-center">
-                <button
-                  type="button"
-                  class="btn btn-xs btn-outline-info btn-expand"
-                >
-                  <span>2</span>
-                </button>
-              </td>
-              <td class="align-middle text-center">
-                <button
-                  class="btn btn-primary btn-sm btn-expand-unit"
-                  type="button"
-                  data-toggle="collapse"
-                  aria-expanded="false"
-                >
-                  <i class="fas fa-folder-plus"></i>
-                </button>
-              </td>
-              <td class="align-middle">
-                <div class="action-buttons">
-                  <a
-                    th:href="@{'/'}"
-                    class="btn btn-sm btn-info"
-                    title="Terima"
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title font-weight-bold">Daftar Peserta (Asesi)</h3>
+        </div>
+
+        <div class="card-body table-responsive p-0">
+          <table
+            class="table table-hover text-nowrap table-bordered table-valign-middle"
+          >
+            <thead class="bg-light text-center">
+              <tr>
+                <th width="5%">No</th>
+                <th>Nama Lengkap</th>
+                <th>NIK</th>
+                <th>TTL</th>
+                <th>Jenis Kelamin</th>
+                <th>Kebangsaan</th>
+                <th>Alamat</th>
+                <th>Kontak</th>
+                <th>Pendidikan</th>
+                <th>Nama Institusi/Perusahaan/Sekolah</th>
+                <th>Jabatan</th>
+                <th>No Telp Kantor</th>
+                <th>Email Kantor</th>
+                <th>Alamat Kantor</th>
+                <th>Tujuan Asesmen</th>
+                <th>Persyaratan</th>
+                <th>Administrasi</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              <th:block th:each="p, iter : ${listAsesi}">
+                <tr>
+                  <td class="text-center" th:text="${iter.count}">1</td>
+
+                  <td th:text="${p.asesi?.fullName}">Nama</td>
+                  <td th:text="${p.asesi?.nik}">NIK</td>
+
+                  <td>
+                    <span th:text="${p.asesi?.birthPlace}"></span>,
+                    <span
+                      th:if="${p.asesi?.birthDate != null}"
+                      th:text="${#temporals.format(p.asesi.birthDate, 'dd MMMM yyyy')}"
+                    ></span>
+                  </td>
+
+                  <td
+                    class="text-center"
+                    th:text="${p.asesi?.gender == 'L' ? 'Laki-laki' : 'Perempuan'}"
                   >
-                    <i class="fas fa-check-circle"></i>
-                  </a>
-                  <a
-                    th:href="@{'/'}"
-                    class="btn btn-sm btn-warning"
-                    title="Revisi"
+                    Laki-laki
+                  </td>
+                  <td class="text-center">Indonesia</td>
+
+                  <td
+                    th:title="${p.asesi?.address} + ', ' + ${p.asesi?.postalCode}"
                   >
-                    <i class="fas fa-pencil-alt"></i>
-                  </a>
-                  <a
-                    th:href="@{'/'}"
-                    class="btn btn-sm btn-danger"
-                    title="Tolak"
-                    ><i class="fas fa-times"></i
-                  ></a>
-                </div>
-              </td>
-            </tr>
-            <tr class="d-none bg-light">
-              <td colspan="18" class="p-4">
-                <div class="row">
-                  <div class="col-md-12">
-                    <div
-                      class="card card-outline card-success shadow-none mb-0"
+                    <span
+                      th:text="${#strings.abbreviate(p.asesi?.address ?: '-', 20)}"
+                      >Alamat...</span
                     >
-                      <div class="card-header py-2">
+                  </td>
+
+                  <td>
+                    <i class="fas fa-phone mr-1 text-muted"></i>
+                    <span th:text="${p.asesi?.phoneNumber}"></span><br />
+                    <i class="fas fa-envelope mr-1 text-muted"></i>
+                    <span th:text="${p.asesi?.email}"></span>
+                  </td>
+
+                  <td th:text="${p.asesi?.educationId?.name ?: '-'}">S1</td>
+
+                  <td>
+                    <strong th:text="${p.asesi?.companyName ?: '-'}"
+                      >PT...</strong
+                    >
+                  </td>
+
+                  <td th:text="${p.asesi?.position ?: '-'}">Jabatan</td>
+                  <td th:text="${p.asesi?.officePhone?: '-'}">021-xxxx</td>
+                  <td th:text="${p.asesi?.officeEmail ?: '-'}"></td>
+                  <td
+                    th:title="${p.asesi?.officeAddress} + ', ' + ${p.asesi?.officeFax}"
+                  >
+                    <span
+                      th:text="${#strings.abbreviate(p.asesi?.officeAddress ?: '-', 20)}"
+                      >Alamat...</span
+                    >
+                  </td>
+
+                  <td th:text="${p.tujuanAsesmen}">Sertifikasi</td>
+
+                  <td class="text-center">
+                    <button
+                      type="button"
+                      class="btn btn-outline-info btn-xs btn-expand-row"
+                      data-toggle="collapse"
+                      th:data-target="'#collapse-syarat-' + ${p.id}"
+                      aria-expanded="false"
+                    >
+                      <i class="fas fa-folder mr-1"></i>
+                      <span
+                        class="badge badge-info"
+                        th:text="${#lists.size(p.persyaratanList)}"
+                        >0</span
+                      >
+                    </button>
+                  </td>
+
+                  <td class="text-center">
+                    <button
+                      type="button"
+                      class="btn btn-outline-secondary btn-xs btn-expand-row"
+                      data-toggle="collapse"
+                      th:data-target="'#collapse-admin-' + ${p.id}"
+                      aria-expanded="false"
+                    >
+                      <i class="fas fa-id-card mr-1"></i>
+                      <span
+                        class="badge badge-secondary"
+                        th:text="${#lists.size(p.buktiAdminList)}"
+                        >0</span
+                      >
+                    </button>
+                  </td>
+
+                  <td class="align-middle">
+                    <div class="action-buttons">
+                      <a href="#" class="btn btn-outline-success" title="Terima"
+                        ><i class="fas fa-check-circle"></i
+                      ></a>
+                      <a href="#" class="btn btn-outline-warning" title="Revisi"
+                        ><i class="fas fa-edit"></i
+                      ></a>
+                      <a href="#" class="btn btn-outline-danger" title="Tolak"
+                        ><i class="fas fa-times"></i
+                      ></a>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr
+                  class="collapse bg-light"
+                  th:id="'collapse-syarat-' + ${p.id}"
+                >
+                  <td colspan="18" class="p-3">
+                    <div class="card card-outline card-info shadow-none mb-0">
+                      <div class="card-header py-1">
                         <h3 class="card-title text-sm font-weight-bold">
-                          <i class="fas fa-book mr-1"></i> Daftar Persyaratan
-                          Dasar
+                          Bukti Persyaratan Dasar
                         </h3>
                       </div>
                       <div class="card-body p-0">
-                        <table class="table table-sm table-bordered mb-0">
-                          <thead class="bg-white text-center">
-                            <tr>
-                              <th width="5px">No</th>
+                        <table class="table table-sm mb-0">
+                          <thead>
+                            <tr class="text-center align-middle">
+                              <th>No</th>
                               <th>Nama Persyaratan</th>
-                              <th>Aksi</th>
+                              <th>File</th>
                             </tr>
                           </thead>
                           <tbody>
-                            <tr>
-                              <td class="text-center align-middle">1</td>
-                              <td class="align-middle">Nama Persyaratan</td>
-                              <td class="text-center align-middle">
-                                <a
-                                  th:href="@{'/'}"
-                                  target="_blank"
-                                  class="btn btn-xs btn-outline-secondary"
-                                  title="Lihat Bukti"
+                            <tr th:each="syarat, sIter : ${p.persyaratanList}">
+                              <td class="text-center" th:text="${sIter.count}">
+                                1
+                              </td>
+
+                              <td>
+                                <span
+                                  th:if="${syarat.persyaratanSkema != null}"
+                                  th:utext="${syarat.persyaratanSkema.description}"
+                                ></span>
+                                <span
+                                  th:unless="${syarat.persyaratanSkema != null}"
+                                  class="text-danger font-italic"
+                                  >Data persyaratan induk hilang</span
                                 >
-                                  <i class="fas fa-file-pdf fa-lg"></i>
+                              </td>
+
+                              <td class="text-center">
+                                <a
+                                  th:href="@{'/uploads/permohonan/' + ${syarat.filePath}}"
+                                  target="_blank"
+                                  class="btn btn-xs btn-primary"
+                                >
+                                  <i class="fas fa-file"></i>
                                 </a>
+                              </td>
+                            </tr>
+
+                            <tr th:if="${#lists.isEmpty(p.persyaratanList)}">
+                              <td colspan="3" class="text-center text-muted">
+                                Belum ada persyaratan yang diupload.
                               </td>
                             </tr>
                           </tbody>
                         </table>
                       </div>
                     </div>
-                  </div>
-                </div>
-              </td>
-            </tr>
-            <tr class="collapse bg-light">
-              <td colspan="18" class="p-0">
-                <div class="p-3">
-                  <h6 class="text-primary font-weight-bold mb-2">
-                    <i class="fas fa-file mr-1"></i>
-                    Bukti Administrasi
-                  </h6>
+                  </td>
+                </tr>
 
-                  <table
-                    class="table table-sm table-bordered table-valign-middle bg-white"
-                  >
-                    <thead class="thead-light">
-                      <tr>
-                        <th style="width: 50px" class="text-center">No</th>
-                        <th style="width: 200px">Nama Bukti Administrasi</th>
-                        <th>File</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td class="text-center">1</td>
-                        <td class="font-weight-bold">
-                          Nama Bukti Administrasi
-                        </td>
-                        <td class="text-center">
-                          <a
-                            th:href="@{'/'}"
-                            target="_blank"
-                            class="btn btn-xs btn-outline-secondary"
-                            title="Lihat File"
-                          >
-                            <i class="fas fa-file fa-lg"></i>
-                          </a>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="card-footer">
-        <button type="submit" class="btn btn-success">
-          <i class="fas fa-file-excel"></i> Download Excel
-        </button>
-        <a
-          th:href="@{/admin/jadwal-sertifikasi}"
-          class="btn btn-outline-secondary"
-          >Kembali</a
-        >
-      </div>
+                <tr
+                  class="collapse bg-light"
+                  th:id="'collapse-admin-' + ${p.id}"
+                >
+                  <td colspan="18" class="p-3">
+                    <div
+                      class="card card-outline card-secondary shadow-none mb-0"
+                    >
+                      <div class="card-header py-1">
+                        <h3 class="card-title text-sm font-weight-bold">
+                          Bukti Administrasi
+                        </h3>
+                      </div>
+                      <div class="card-body p-0">
+                        <table class="table table-sm mb-0">
+                          <thead>
+                            <tr class="text-center align-middle">
+                              <th>No</th>
+                              <th>Jenis Bukti</th>
+                              <th>File</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr th:each="admin, aIter : ${p.buktiAdminList}">
+                              <td class="text-center" th:text="${aIter.count}">
+                                1
+                              </td>
+                              <td th:text="${admin.jenisBukti}">KTP</td>
+                              <td class="text-center">
+                                <a
+                                  th:href="@{'/uploads/permohonan/' + ${admin.filePath}}"
+                                  target="_blank"
+                                  class="btn btn-xs btn-primary"
+                                  ><i class="fas fa-file"></i
+                                ></a>
+                              </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(p.buktiAdminList)}">
+                              <td colspan="3" class="text-center text-muted">
+                                Tidak ada data.
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </th:block>
+              <tr th:if="${#lists.isEmpty(listAsesi)}">
+                <td colspan="18" class="text-center py-5 text-muted">
+                  Belum ada peserta yang mendaftar pada jadwal ini.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-      <!-- /.modal -->
+        <div class="card-footer">
+          <a th:href="@{/admin/jadwal-sertifikasi}" class="btn btn-default"
+            >Kembali</a
+          >
+        </div>
+      </div>
     </div>
   </body>
+  <!-- 
+<th:block layout:fragment="script">
+<script>
+    // Script sederhana untuk handle expand collapse agar tombol berubah warna/icon jika diperlukan
+    // (Optional, karena Bootstrap data-toggle sudah menangani fungsi utamanya)
+    $('.collapse').on('show.bs.collapse', function () {
+        var id = $(this).attr('id');
+        $('button[data-target="#' + id + '"]').removeClass('btn-outline-info btn-outline-secondary').addClass('btn-primary');
+    });
+    $('.collapse').on('hide.bs.collapse', function () {
+        var id = $(this).attr('id');
+        // Reset class (Sederhana saja)
+        $('button[data-target="#' + id + '"]').removeClass('btn-primary').addClass('btn-outline-info'); 
+        // Note: Anda bisa spesifikkan logic warna berdasarkan tipe tombol (info vs secondary)
+    });
+</script>
+</th:block> -->
 </html>

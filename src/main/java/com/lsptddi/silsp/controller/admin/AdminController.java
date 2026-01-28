@@ -34,6 +34,7 @@ import com.lsptddi.silsp.repository.UnitSkemaRepository;
 import com.lsptddi.silsp.repository.PersyaratanSkemaRepository;
 import com.lsptddi.silsp.repository.UnitElemenSkemaRepository;
 import com.lsptddi.silsp.repository.KukSkemaRepository;
+import com.lsptddi.silsp.repository.PermohonanSertifikasiRepository;
 import com.lsptddi.silsp.repository.UserRepository;
 import com.lsptddi.silsp.service.TukService;
 import com.lsptddi.silsp.service.ScheduleService;
@@ -120,6 +121,9 @@ public class AdminController {
     private TypeSumberAnggaranRepository typeSumberAnggaranRepository;
     @Autowired
     private TypePemberiAnggaranRepository typePemberiAnggaranRepository;
+
+    @Autowired
+    private PermohonanSertifikasiRepository permohonanRepository; // Inject Repository baru
 
     @Autowired
     private UnitSkemaRepository unitSkemaRepository;
@@ -934,10 +938,26 @@ public class AdminController {
         return "pages/admin/jadwal/sertifikasi-list";
     }
 
-    @GetMapping("/jadwal-sertifikasi/detail")
-    public String showDetailJadwalAsesmen(Model model) { // 1. Tambahkan Model sebagai parameter
+    // @GetMapping("/jadwal-sertifikasi/detail")
+    // public String showDetailJadwalAsesmen(Model model) { // 1. Tambahkan Model
+    // sebagai parameter
 
-        return "pages/admin/jadwal/sertifikasi-detail";
+    // return "pages/admin/jadwal/sertifikasi-detail";
+    // }
+
+    @GetMapping("/jadwal-sertifikasi/detail/{id}")
+    public String detailJadwal(@PathVariable Long id, Model model) {
+        // 1. Ambil Data Jadwal
+        Schedule jadwal = scheduleRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Jadwal tidak ditemukan"));
+
+        // 2. Ambil List Asesi yang mendaftar di jadwal ini
+        List<PermohonanSertifikasi> listAsesi = permohonanRepository.findByJadwalWithDetails(jadwal);
+
+        model.addAttribute("jadwal", jadwal);
+        model.addAttribute("listAsesi", listAsesi);
+
+        return "pages/admin/jadwal/sertifikasi-detail"; // Sesuaikan dengan lokasi file HTML Anda
     }
 
     // HALAMAN TAMBAH JADWAL

@@ -553,16 +553,44 @@ $(document).ready(function () {
   }
 
   // Helper Tab 3
+  //   function renderPersyaratan(reqs) {
+  //     var html = "";
+  //     if (reqs && reqs.length > 0) {
+  //       reqs.forEach(function (r, idx) {
+  //         html += `
+  //             <tr>
+  //                 <td class="text-center">${idx + 1}</td>
+  //                 <td>${r} <input type="hidden" name="nama_syarat_${idx}" value="${r}"></td>
+  //                 <td class="text-center align-middle">
+  //                     <button class="btn btn-sm btn-outline-primary btn-upload-modal" data-id="syarat_${idx}" data-type="syarat">
+  //                         <i class="fas fa-upload mr-1"></i> Upload
+  //                     </button>
+  //                 </td>
+  //             </tr>`;
+  //       });
+  //     } else {
+  //       html =
+  //         '<tr><td colspan="3" class="text-center">Tidak ada persyaratan khusus.</td></tr>';
+  //     }
+  //     $("#tablePersyaratanBody").html(html);
+  //   }
+
+  // Helper Tab 3
   function renderPersyaratan(reqs) {
     var html = "";
     if (reqs && reqs.length > 0) {
       reqs.forEach(function (r, idx) {
+        // r sekarang adalah object {id: 1, description: "..."}
+        // Kita gunakan r.id sebagai key unik
+
         html += `
             <tr>
                 <td class="text-center">${idx + 1}</td>
-                <td>${r} <input type="hidden" name="nama_syarat_${idx}" value="${r}"></td>
+                <td>${r.description}</td> 
                 <td class="text-center align-middle">
-                    <button class="btn btn-sm btn-outline-primary btn-upload-modal" data-id="syarat_${idx}" data-type="syarat">
+                    <button class="btn btn-sm btn-outline-primary btn-upload-modal" 
+                            data-id="syarat_${r.id}" 
+                            data-type="syarat">
                         <i class="fas fa-upload mr-1"></i> Upload
                     </button>
                 </td>

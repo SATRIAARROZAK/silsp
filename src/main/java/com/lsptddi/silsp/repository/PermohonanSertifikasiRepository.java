@@ -13,6 +13,16 @@ import java.util.List;
 
 @Repository
 public interface PermohonanSertifikasiRepository extends JpaRepository<PermohonanSertifikasi, Long> {
+    // QUERY FETCH LENGKAP (Solusi Data Tidak Tampil)
+    @Query("SELECT DISTINCT p FROM PermohonanSertifikasi p " +
+            "LEFT JOIN FETCH p.asesi " +
+            "LEFT JOIN FETCH p.persyaratanList pl " +
+            "LEFT JOIN FETCH pl.persyaratanSkema " + // Fetch Persyaratan Skema juga
+            "WHERE p.jadwal = :jadwal")
+    List<PermohonanSertifikasi> findByJadwalWithDetails(@Param("jadwal") Schedule jadwal);
+
+    // List<PermohonanSertifikasi> findByJadwal(Schedule jadwal);
+
     List<PermohonanSertifikasi> findByAsesiOrderByTanggalPermohonanDesc(User asesi);
 
     // Hitung jumlah pendaftar di jadwal tertentu

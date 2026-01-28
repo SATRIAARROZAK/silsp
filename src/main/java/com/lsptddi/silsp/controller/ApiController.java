@@ -224,7 +224,8 @@ public class ApiController {
                     // + ") - Sisa Kuota: " + sisa);
 
                     map.put("text",
-                            s.getName() + " - " + " Di " + s.getTuk().getName() + " - " + " Tgl Asesmen: " + s.getStartDate());
+                            s.getName() + " - " + " Di " + s.getTuk().getName() + " - " + " Tgl Asesmen: "
+                                    + s.getStartDate());
                     return map;
                 })
                 .collect(Collectors.toList());
@@ -277,9 +278,20 @@ public class ApiController {
 
             response.put("namaSkema", skema.getName());
 
-            List<String> requirements = skema.getRequirements().stream()
-                    .map(PersyaratanSkema::getDescription)
+            // List<String> requirements = skema.getRequirements().stream()
+            // .map(PersyaratanSkema::getDescription)
+            // .collect(Collectors.toList());
+            // response.put("requirements", requirements);
+
+            List<Map<String, Object>> requirements = skema.getRequirements().stream()
+                    .map(req -> {
+                        Map<String, Object> map = new HashMap<>();
+                        map.put("id", req.getId()); // ID DARI DB
+                        map.put("description", req.getDescription());
+                        return map;
+                    })
                     .collect(Collectors.toList());
+
             response.put("requirements", requirements);
 
             // Mapping Units -> Elements -> KUK

@@ -61,6 +61,9 @@ public class SecurityConfig {
 
                                                 // IZINKAN AKSES KE SWITCH ROLE BAGI YANG SUDAH LOGIN
                                                 .requestMatchers("/switch-role").authenticated()
+                                                .requestMatchers("/api/user/current-role").authenticated()
+                                                .requestMatchers("/api/user/switch-role").authenticated()
+                                                // .requestMatchers("/admin/jadwal-sertifikasi/detail/**").hasRole("Admin")
 
                                                 // Halaman khusus ADMIN
                                                 .requestMatchers("/admin/**").hasAuthority("Admin")

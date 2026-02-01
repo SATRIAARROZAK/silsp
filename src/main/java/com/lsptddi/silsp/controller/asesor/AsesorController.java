@@ -2,6 +2,7 @@ package com.lsptddi.silsp.controller.asesor;
 
 // DATA TRANSFER OBJECK
 import com.lsptddi.silsp.dto.UserProfileDto;
+import com.lsptddi.silsp.model.PermohonanSertifikasi;
 // MODEL (DATABASE)
 import com.lsptddi.silsp.model.Schedule;
 import com.lsptddi.silsp.model.SuratTugas;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -27,6 +29,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Page;
 
 import java.security.Principal;
+import java.util.List;
 
 @Controller
 @RequestMapping("/asesor")
@@ -150,4 +153,10 @@ public class AsesorController {
         return "pages/asesor/jadwal/jadwal-list";
     }
 
+    @GetMapping("/berkas-asesi")
+    public String showBerkasAsesi(Model model, Principal principal) {
+        // 1. Ambil Data Jadwal
+
+        return "pages/asesor/jadwal/berkas-asesi"; // Sesuaikan dengan lokasi file HTML Anda
+    }
 }

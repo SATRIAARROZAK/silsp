@@ -1,6 +1,8 @@
 package com.lsptddi.silsp.controller;
 
+import com.lsptddi.silsp.dto.NotificationDto;
 import com.lsptddi.silsp.model.KukSkema;
+import com.lsptddi.silsp.model.Notification;
 import com.lsptddi.silsp.model.PersyaratanSkema;
 // model
 import com.lsptddi.silsp.model.Schedule;
@@ -55,39 +57,71 @@ public class ApiController {
     private NotificationRepository notificationRepository;
 
     // API GET NOTIFIKASI USER
+    // @GetMapping("/notifications/unread")
+    // public ResponseEntity<?> getUnreadNotifications(Principal principal) {
+    //     if (principal == null)
+    //         return ResponseEntity.ok().build();
+
+    //     User user = userRepository.findByUsername(principal.getName()).orElse(null);
+    //     if (user == null)
+    //         return ResponseEntity.ok().build();
+
+    //     Map<String, Object> response = new HashMap<>();
+
+    //     // Hitung Jumlah Belum Baca
+    //     Long count = notificationRepository.countUnread(user.getId());
+
+    //     // Ambil 5 Notifikasi Terakhir
+    //     // (Bisa pakai Pageable limit 5 agar tidak berat)
+    //     // Disini saya ambil semua lalu stream limit 5 untuk simpel
+    //     List<Map<String, Object>> notifs = notificationRepository.findByUserIdOrderByCreatedAtDesc(user.getId())
+    //             .stream().limit(5).map(n -> {
+    //                 Map<String, Object> map = new HashMap<>();
+    //                 map.put("id", n.getId());
+    //                 map.put("title", n.getTitle());
+    //                 map.put("message", n.getMessage());
+    //                 map.put("url", n.getTargetUrl());
+    //                 map.put("isRead", n.isRead());
+    //                 // Hitung waktu (misal: "2 menit yang lalu") bisa dihandle JS atau Java.
+    //                 // Kirim raw date dulu
+    //                 map.put("time", n.getCreatedAt().toString());
+    //                 return map;
+    //             }).collect(Collectors.toList());
+
+    //     response.put("count", count);
+    //     response.put("data", notifs);
+
+    //     return ResponseEntity.ok(response);
+    // }
+
     @GetMapping("/notifications/unread")
-    public ResponseEntity<?> getUnreadNotifications(Principal principal) {
+    public ResponseEntity<Map<String, Object>> getUnreadNotifications(Principal principal) {
         if (principal == null)
             return ResponseEntity.ok().build();
 
-        User user = userRepository.findByUsername(principal.getName()).orElse(null);
+        User user = userRepository.findByUsername(principal.getName()).orElseThrow();
         if (user == null)
             return ResponseEntity.ok().build();
 
-        Map<String, Object> response = new HashMap<>();
-
-        // Hitung Jumlah Belum Baca
+        // Ambil Data Entity
+        List<Notification> list = notificationRepository.findByUserIdOrderByCreatedAtDesc(user.getId());
         Long count = notificationRepository.countUnread(user.getId());
 
-        // Ambil 5 Notifikasi Terakhir
-        // (Bisa pakai Pageable limit 5 agar tidak berat)
-        // Disini saya ambil semua lalu stream limit 5 untuk simpel
-        List<Map<String, Object>> notifs = notificationRepository.findByUserIdOrderByCreatedAtDesc(user.getId())
-                .stream().limit(5).map(n -> {
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("id", n.getId());
-                    map.put("title", n.getTitle());
-                    map.put("message", n.getMessage());
-                    map.put("url", n.getTargetUrl());
-                    map.put("isRead", n.isRead());
-                    // Hitung waktu (misal: "2 menit yang lalu") bisa dihandle JS atau Java.
-                    // Kirim raw date dulu
-                    map.put("time", n.getCreatedAt().toString());
-                    return map;
-                }).collect(Collectors.toList());
+        // Konversi ke DTO
+        List<NotificationDto> dtoList = list.stream().map(n -> {
+            NotificationDto dto = new NotificationDto();
+            dto.setId(n.getId());
+            dto.setTitle(n.getTitle());
+            dto.setMessage(n.getMessage());
+            dto.setRead(n.isRead());
+            dto.setUrl(n.getTargetUrl());
+            dto.setTimeAndFormat(n.getCreatedAt()); // Logika format di sini
+            return dto;
+        }).collect(Collectors.toList());
 
+        Map<String, Object> response = new HashMap<>();
         response.put("count", count);
-        response.put("data", notifs);
+        response.put("data", dtoList); // Kirim DTO
 
         return ResponseEntity.ok(response);
     }

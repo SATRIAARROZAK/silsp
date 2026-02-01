@@ -90,29 +90,51 @@ function fetchNotifications() {
         let html = "";
         data.data.forEach((n) => {
           // Logic Warna: Jika isRead=false -> 'notif-unread' (Biru Muda), else -> Putih
-          const itemClass = n.isRead ? "" : "notif-unread";
+
+          const isRead = n.read !== undefined ? n.read : n.isRead;
+
+          // Terapkan class background
+          const itemClass = isRead ? "" : "notif-unread";
 
           // Hitung waktu relatif (contoh sederhana)
-          const date = new Date(n.time);
-          const timeStr = date.toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          });
+          const timeStr = n.formattedTime;
+          //   const date = new Date(n.time);
+          //   const timeStr = date.toLocaleTimeString([], {
+          //     hour: "2-digit",
+          //     minute: "2-digit",
+          //   });
+
+          //   html += `
+          //     <a href="${n.url}" class="dropdown-item ${itemClass}" onclick="markOneAsRead(${n.id})">
+          //         <div class="media">
+          //             <div class="media-body">
+          //                 <h3 class="dropdown-item-title font-weight-bold text-sm text-wrap">
+          //                     ${n.title}
+          //                 </h3>
+          //                 <p class="text-sm text-muted text-wrap mb-1">${n.message}</p>
+          //                 <p class="text-xs text-muted mb-0"><i class="far fa-clock mr-1"></i> ${timeStr}</p>
+          //             </div>
+          //         </div>
+          //     </a>
+          //     <div class="dropdown-divider"></div>
+          //     `;
 
           html += `
-          <a href="${n.url}" class="dropdown-item ${itemClass}" onclick="markOneAsRead(${n.id})">
-              <div class="media">
-                  <div class="media-body">
-                      <h3 class="dropdown-item-title font-weight-bold text-sm text-wrap">
-                          ${n.title}
-                      </h3>
-                      <p class="text-sm text-muted text-wrap mb-1">${n.message}</p>
-                      <p class="text-xs text-muted mb-0"><i class="far fa-clock mr-1"></i> ${timeStr}</p>
-                  </div>
-              </div>
-          </a>
-          <div class="dropdown-divider"></div>
-          `;
+            <a href="${n.url}" class="dropdown-item ${itemClass}" onclick="markOneAsRead(${n.id})">
+                <div class="media">
+                    <div class="media-body">
+                        <h3 class="dropdown-item-title font-weight-bold text-sm text-wrap">
+                            ${n.title}
+                        </h3>
+                        <p class="text-sm text-muted text-wrap mb-1">${n.message}</p>
+                        <p class="text-xs text-muted mb-0">
+                          <i class="far fa-clock mr-1"></i> ${timeStr}
+                        </p>
+                    </div>
+                </div>
+            </a>
+            <div class="dropdown-divider"></div>
+            `;
         });
         listContainer.innerHTML = html;
       } else {

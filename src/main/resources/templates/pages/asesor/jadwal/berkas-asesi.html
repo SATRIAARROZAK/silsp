@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html
+  lang="en"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/app}"
+>
+  <head th:replace="~{fragments/header :: header('Berkas Asesi')}"></head>
+
+  <body>
+    <div layout:fragment="page-title">
+      <h1 class="m-0">Detail Jadwal & List Asesi</h1>
+    </div>
+    <div layout:fragment="breadcrumb">
+      <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item"><a href="#">Home</a></li>
+        <li class="breadcrumb-item">
+          <a th:href="@{/asesor/jadwal}">Penugasan</a>
+        </li>
+        <li class="breadcrumb-item active">Detail</li>
+      </ol>
+    </div>
+
+    <div layout:fragment="content">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title font-weight-bold">Daftar Peserta (Asesi)</h3>
+        </div>
+
+        <div class="card-body table-responsive p-0">
+          <table
+            class="table table-hover text-nowrap table-bordered table-valign-middle"
+          >
+            <thead class="bg-light text-center">
+              <tr>
+                <th rowspan="2">No</th>
+                <th rowspan="2">Nama Asesi</th>
+                <th colspan="2">Rekomendasi</th>
+                <th rowspan="2">Bukti Asesi</th>
+              </tr>
+              <tr>
+                <th>K</th>
+                <th>BK</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>Muhammad Satria</td>
+
+                <td class="text-center align-middle">
+                  <input type="radio" />
+                </td>
+                <td class="text-center align-middle">
+                  <input type="radio" />
+                </td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>Andi Prasetyo</td>
+                <td class="text-center align-middle">
+                  <input type="radio" />
+                </td>
+                <td class="text-center align-middle">
+                  <input type="radio" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card-footer">
+          <a th:href="@{/asesor/jadwal}" class="btn btn-default">Kembali</a>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

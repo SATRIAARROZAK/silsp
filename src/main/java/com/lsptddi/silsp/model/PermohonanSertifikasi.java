@@ -43,6 +43,9 @@ public class PermohonanSertifikasi {
     @Column(name = "status_permohonan")
     private String status = "SUBMITTED";
 
+    @Column(name = "catatan_revisi", columnDefinition = "TEXT")
+    private String catatanRevisi;
+
     // Relasi ke Child Tables (Biarkan Tetap)
     @OneToMany(mappedBy = "permohonan", cascade = CascadeType.ALL)
     private List<BuktiPersyaratan> persyaratanList;

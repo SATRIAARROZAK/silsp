@@ -1132,7 +1132,8 @@ public class PermohonanService {
     private ScheduleRepository scheduleRepository;
     @Autowired
     private PersyaratanSkemaRepository persyaratanSkemaRepository;
-
+    @Autowired
+    private NotificationService notificationService;
     @Autowired
     private UnitElemenSkemaRepository unitElemenSkemaRepository;
     @Autowired
@@ -1172,6 +1173,12 @@ public class PermohonanService {
         // permohonan.setPemberiAnggaran(dto.getPemberiAnggaran());
         permohonan.setTujuanAsesmen(dto.getTujuanAsesmen());
         permohonan = permohonanRepository.save(permohonan);
+
+        String msgAdmin = "Asesi " + user.getFullName() + " mengajukan pendaftaran pada jadwal " +
+                permohonan.getJadwal().getName() + " dengan skema " + permohonan.getSkema()
+                        .getName();
+        notificationService.notifyAllAdmins("Asesi Mengajukan Jadwal", msgAdmin,
+                "/admin/jadwal-sertifikasi/detail/" + permohonan.getJadwal().getId());
 
         // 3. SIMPAN FILES (Persyaratan, Admin, Portofolio)
         // Kita simpan mapping TempID ("portofolio_1") ke Entity Database agar bisa
@@ -1297,6 +1304,8 @@ public class PermohonanService {
             }
         }
     }
+
+    // KIRIM NOTIFIKASI KE ADMIN
 
     // @Transactional
     // public void processPermohonan(

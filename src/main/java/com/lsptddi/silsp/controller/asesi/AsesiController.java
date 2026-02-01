@@ -142,12 +142,24 @@ public class AsesiController {
         User user = userRepository.findByUsername(principal.getName()).orElseThrow();
 
         // Ambil list permohonan user ini
-        List<PermohonanSertifikasi> listPermohonan = permohonanRepository.findByAsesiOrderByTanggalPermohonanDesc(user);
+        // List<PermohonanSertifikasi> listPermohonan = permohonanRepository.findByAsesiOrderByTanggalPermohonanDesc(user);
+         List<PermohonanSertifikasi> listPermohonan = permohonanRepository.findByAsesiWithDetails(user);
 
         model.addAttribute("listPermohonan", listPermohonan);
 
         return "pages/asesi/sertifikasi/sertifikasi-list";
     }
+
+    // @GetMapping("/daftar-sertifikasi")
+    // public String showSertifikasiList(Model model, Principal principal) {
+    //     User user = userRepository.findByUsername(principal.getName()).orElseThrow();
+        
+    //     // GUNAKAN METHOD BARU YANG SUDAH DI-FETCH
+       
+        
+    //     model.addAttribute("listPermohonan", listPermohonan);
+    //     return "pages/asesi/sertifikasi/sertifikasi-list";
+    // }
 
     // HALAMAN PENDAFTARAN (FORM WIZARD)
     @GetMapping("/daftar")

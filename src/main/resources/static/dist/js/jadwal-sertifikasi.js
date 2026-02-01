@@ -19,6 +19,25 @@ $(document).ready(function () {
     }
   });
 
+  // Inisialisasi Summernote di dalam Modal
+  $("#summernote-revisi").summernote({
+    height: 150,
+    toolbar: [
+      ["style", ["bold", "italic", "underline", "clear"]],
+      ["para", ["ul", "ol", "paragraph"]],
+      ["view", ["fullscreen"]],
+    ],
+  });
+
+  // Handler Tombol Revisi (Buka Modal)
+  $(document).on("click", ".btn-revisi", function () {
+    var id = $(this).data("id");
+    $("#revisiPermohonanId").val(id);
+    // Reset isi summernote jika perlu
+    $("#summernote-revisi").summernote("code", "");
+    $("#revisiModal").modal("show");
+  });
+
   // Script sederhana untuk handle expand collapse agar tombol berubah warna/icon jika diperlukan
   // (Optional, karena Bootstrap data-toggle sudah menangani fungsi utamanya)
   // $(".collapse").on("show.bs.collapse", function () {
@@ -530,4 +549,12 @@ $(document).ready(function () {
       }
     });
   });
+
+  $(document).on("click", ".btn-revisi", function () {
+    var id = $(this).data("id");
+    $("#revisiPermohonanId").val(id);
+    $("#revisiModal").modal("show");
+  });
+  // Aktifkan Tooltip Bootstrap
+  $('[data-toggle="tooltip"]').tooltip();
 });

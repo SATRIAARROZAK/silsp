@@ -1,4 +1,12 @@
 $(document).ready(function () {
+  $(".btn-lihat-revisi").on("click", function () {
+    var catatan = $(this).attr("data-catatan"); // Ambil isi HTML
+    var editUrl = $(this).closest("tr").find(".btn-info").attr("href"); // Ambil link detail/edit
+
+    $("#kontenCatatanRevisi").html(catatan); // Render HTML
+    $("#btnPerbaikiSekarang").attr("href", editUrl); // Set link tombol
+    $("#modalLihatRevisi").modal("show");
+  });
   // Inisialisasi Select2
   $(".select2").select2({ theme: "bootstrap4" });
   var fileStore = {}; // Simpan file yang diupload

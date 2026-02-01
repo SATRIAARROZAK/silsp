@@ -21,6 +21,15 @@ public interface PermohonanSertifikasiRepository extends JpaRepository<Permohona
             "WHERE p.jadwal = :jadwal")
     List<PermohonanSertifikasi> findByJadwalWithDetails(@Param("jadwal") Schedule jadwal);
 
+    @Query("SELECT DISTINCT p FROM PermohonanSertifikasi p " +
+           "JOIN FETCH p.jadwal j " +
+           "JOIN FETCH j.tuk " +
+           "JOIN FETCH p.skema " +
+           "WHERE p.asesi = :asesi " +
+           "ORDER BY p.tanggalPermohonan DESC")
+    List<PermohonanSertifikasi> findByAsesiWithDetails(@Param("asesi") User asesi);
+
+
     // List<PermohonanSertifikasi> findByJadwal(Schedule jadwal);
 
     List<PermohonanSertifikasi> findByAsesiOrderByTanggalPermohonanDesc(User asesi);

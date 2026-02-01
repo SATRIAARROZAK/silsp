@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.RequestMapping;
+
 import com.lsptddi.silsp.dto.SkemaDto;
 import com.lsptddi.silsp.dto.SuratTugasDto;
 import com.lsptddi.silsp.dto.TukDto;
@@ -17,27 +18,29 @@ import com.lsptddi.silsp.dto.UserProfileDto;
 import com.lsptddi.silsp.model.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder; // Pastikan ada ini
-import com.lsptddi.silsp.repository.TypeEducationRepository;
-import com.lsptddi.silsp.repository.TypePekerjaanRepository;
-import com.lsptddi.silsp.repository.TypePengajuanSkemaRepository;
-import com.lsptddi.silsp.repository.TypeSkemaRepository;
-import com.lsptddi.silsp.repository.TypeTukRepository;
-import com.lsptddi.silsp.repository.ScheduleRepository;
-import com.lsptddi.silsp.repository.TypeSumberAnggaranRepository;
-import com.lsptddi.silsp.repository.TypePemberiAnggaranRepository;
-import com.lsptddi.silsp.repository.RoleRepository;
-import com.lsptddi.silsp.repository.SkemaRepository;
-import com.lsptddi.silsp.repository.TukRepository;
+// import com.lsptddi.silsp.repository.TypeEducationRepository;
+// import com.lsptddi.silsp.repository.TypePekerjaanRepository;
+// import com.lsptddi.silsp.repository.TypePengajuanSkemaRepository;
+// import com.lsptddi.silsp.repository.TypeSkemaRepository;
+// import com.lsptddi.silsp.repository.TypeTukRepository;
+// import com.lsptddi.silsp.repository.ScheduleRepository;
+// import com.lsptddi.silsp.repository.TypeSumberAnggaranRepository;
+// import com.lsptddi.silsp.repository.TypePemberiAnggaranRepository;
+// import com.lsptddi.silsp.repository.RoleRepository;
+// import com.lsptddi.silsp.repository.SkemaRepository;
+// import com.lsptddi.silsp.repository.TukRepository;
 import com.lsptddi.silsp.service.SuratTugasService;
-import com.lsptddi.silsp.repository.SuratTugasRepository;
-import com.lsptddi.silsp.repository.UnitSkemaRepository;
-import com.lsptddi.silsp.repository.PersyaratanSkemaRepository;
-import com.lsptddi.silsp.repository.UnitElemenSkemaRepository;
-import com.lsptddi.silsp.repository.KukSkemaRepository;
-import com.lsptddi.silsp.repository.PermohonanSertifikasiRepository;
-import com.lsptddi.silsp.repository.UserRepository;
+// import com.lsptddi.silsp.repository.SuratTugasRepository;
+// import com.lsptddi.silsp.repository.UnitSkemaRepository;
+// import com.lsptddi.silsp.repository.PersyaratanSkemaRepository;
+// import com.lsptddi.silsp.repository.UnitElemenSkemaRepository;
+// import com.lsptddi.silsp.repository.KukSkemaRepository;
+// import com.lsptddi.silsp.repository.PermohonanSertifikasiRepository;
+import com.lsptddi.silsp.repository.*;
+// import com.lsptddi.silsp.repository.UserRepository;
 import com.lsptddi.silsp.service.TukService;
 import com.lsptddi.silsp.service.ScheduleService;
+import com.lsptddi.silsp.service.NotificationService;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -145,6 +148,9 @@ public class AdminController {
 
     @Autowired
     private ScheduleService scheduleService;
+
+    @Autowired
+    private NotificationService notificationService;
 
     // Di dalam class AsesiController
 
@@ -1091,6 +1097,66 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("error", "Gagal menghapus jadwal.");
         }
         return "redirect:/admin/jadwal-sertifikasi";
+    }
+
+    // TERIMA (ACCEPTED)
+    @GetMapping("/accept/{id}")
+    public String acceptPermohonan(@PathVariable Long id, RedirectAttributes ra) {
+        return updateStatus(id, "ACCEPTED", null, ra);
+    }
+
+    // TOLAK (REJECTED)
+    @GetMapping("/reject/{id}")
+    public String rejectPermohonan(@PathVariable Long id, RedirectAttributes ra) {
+        return updateStatus(id, "REJECTED", null, ra);
+    }
+
+    // REVISI (REVISION) - Menerima catatan dari Modal
+    @PostMapping("/revise")
+    public String revisePermohonan(@RequestParam("id") Long id,
+            @RequestParam("catatan") String catatan,
+            RedirectAttributes ra) {
+        return updateStatus(id, "REVISION", catatan, ra);
+    }
+
+    private String updateStatus(Long id, String status, String catatan, RedirectAttributes ra) {
+        PermohonanSertifikasi p = permohonanRepository.findById(id).orElse(null);
+        if (p == null) {
+            ra.addFlashAttribute("error", "Data permohonan tidak ditemukan.");
+            return "redirect:/admin/jadwal-sertifikasi";
+        }
+
+        p.setStatus(status);
+        if (catatan != null)
+            p.setCatatanRevisi(catatan);
+        permohonanRepository.save(p);
+
+        // KIRIM NOTIFIKASI KE ASESI
+        String judul = "";
+        String pesan = "";
+
+        switch (status) {
+            case "ACCEPTED":
+                judul = "Pendaftaran Diterima";
+                pesan = "Admin telah menerima berkas pendaftaran Anda.";
+                break;
+            case "REJECTED":
+                judul = "Pendaftaran Ditolak";
+                pesan = "Pengajuan Anda ditolak. Silakan ajukan di lain hari.";
+                break;
+            case "REVISION":
+                judul = "Revisi Diperlukan";
+                // pesan = "Terdapat revisi yang harus Anda lakukan: " + catatan;
+                pesan = "Terdapat revisi yang harus Anda lakukan pada pendaftaran Anda. Silakan cek catatan dari admin.";
+
+                break;
+        }
+
+        notificationService.createNotification(p.getAsesi(), judul, pesan, "/asesi/daftar-sertifikasi");
+
+        ra.addFlashAttribute("success", "Status berhasil diubah menjadi " + status);
+        // Redirect kembali ke halaman detail jadwal asalnya
+        return "redirect:/admin/jadwal-sertifikasi/detail/" + p.getJadwal().getId();
     }
 
     // @GetMapping("/surat-tugas-asesor")

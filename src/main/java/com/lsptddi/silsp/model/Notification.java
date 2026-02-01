@@ -31,4 +31,18 @@ public class Notification {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    // Method Helper untuk View
+    public String getFormattedTime() {
+        LocalDateTime now = LocalDateTime.now();
+        if (createdAt.toLocalDate().isEqual(now.toLocalDate())) {
+            // Hari ini: Tampilkan jam saja
+            return createdAt.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"));
+        } else {
+            // Hari lain: Tampilkan tanggal lengkap
+            return createdAt.format(java.time.format.DateTimeFormatter.ofPattern("dd MMMM yyyy HH:mm",
+                    new java.util.Locale("id", "ID")));
+        }
+    }
+
 }

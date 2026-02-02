@@ -19,7 +19,7 @@ import com.lsptddi.silsp.repository.*;
 // import com.lsptddi.silsp.repository.TypePekerjaanRepository;
 
 // Service
-import com.lsptddi.silsp.service.PermohonanService;
+import com.lsptddi.silsp.service.*;
 
 // Import java
 import java.security.Principal;
@@ -64,6 +64,9 @@ public class AsesiController {
 
     @Autowired
     private PermohonanService permohonanService;
+
+    @Autowired
+    private OCRService ocrService;
 
     // Method ini akan dijalankan sebelum setiap request di controller ini
     // Fungsinya mengambil User asli dari database berdasarkan siapa yang login
@@ -142,8 +145,9 @@ public class AsesiController {
         User user = userRepository.findByUsername(principal.getName()).orElseThrow();
 
         // Ambil list permohonan user ini
-        // List<PermohonanSertifikasi> listPermohonan = permohonanRepository.findByAsesiOrderByTanggalPermohonanDesc(user);
-         List<PermohonanSertifikasi> listPermohonan = permohonanRepository.findByAsesiWithDetails(user);
+        // List<PermohonanSertifikasi> listPermohonan =
+        // permohonanRepository.findByAsesiOrderByTanggalPermohonanDesc(user);
+        List<PermohonanSertifikasi> listPermohonan = permohonanRepository.findByAsesiWithDetails(user);
 
         model.addAttribute("listPermohonan", listPermohonan);
 
@@ -152,13 +156,12 @@ public class AsesiController {
 
     // @GetMapping("/daftar-sertifikasi")
     // public String showSertifikasiList(Model model, Principal principal) {
-    //     User user = userRepository.findByUsername(principal.getName()).orElseThrow();
-        
-    //     // GUNAKAN METHOD BARU YANG SUDAH DI-FETCH
-       
-        
-    //     model.addAttribute("listPermohonan", listPermohonan);
-    //     return "pages/asesi/sertifikasi/sertifikasi-list";
+    // User user = userRepository.findByUsername(principal.getName()).orElseThrow();
+
+    // // GUNAKAN METHOD BARU YANG SUDAH DI-FETCH
+
+    // model.addAttribute("listPermohonan", listPermohonan);
+    // return "pages/asesi/sertifikasi/sertifikasi-list";
     // }
 
     // HALAMAN PENDAFTARAN (FORM WIZARD)
@@ -243,6 +246,39 @@ public class AsesiController {
 
             // 2. AMBIL FILES
             Map<String, MultipartFile> fileMap = request.getFileMap();
+
+            // --- MULAI LOGIKA OCR ---
+            // Cari file KTP di map (asumsi key dari frontend adalah 'administrasi_1' untuk
+            // KTP)
+            MultipartFile ktpFile = fileMap.get("administrasi_1");
+
+            if (ktpFile != null && !ktpFile.isEmpty()) {
+                System.out.println("Memulai Validasi OCR KTP...");
+
+                // Panggil Service OCR
+                // Kita bandingkan file KTP dengan dataPemohon yang diinput user
+                var ocrResult = ocrService.validateKtp(ktpFile, payload.getDataPemohon());
+
+                if (ocrResult.getError() != null) {
+                    System.out.println("OCR Error: " + ocrResult.getError());
+                    // Opsional: Return error atau lanjut warning
+                } else {
+                    System.out.println("Validasi NIK: " + ocrResult.isNikValid());
+                    System.out.println("Validasi Nama: " + ocrResult.isNameValid());
+
+                    // LOGIKA GATEKEEPER
+                    // Jika NIK terbaca TAPI beda dengan inputan -> TOLAK / Warning
+                    if (!ocrResult.isNikValid()) {
+                        // Opsi A: Tolak Keras
+                        // return ResponseEntity.badRequest().body("{\"status\": \"error\", \"message\":
+                        // \"Validasi OCR Gagal: NIK pada foto KTP tidak sesuai dengan inputan!\"}");
+
+                        // Opsi B: Lanjut tapi catat di log/status (Recommended for demo agar ga macet)
+                        System.out.println("WARNING: NIK Tidak Cocok (OCR vs Input)");
+                    }
+                }
+            }
+            // --- SELESAI LOGIKA OCR ---
 
             // 3. PANGGIL SERVICE (Kirim Payload + Files)
             permohonanService.processPermohonanJson(user, payload, fileMap);

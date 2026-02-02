@@ -184,7 +184,7 @@
                   <td class="align-middle text-center">
                     <a
                       class="btn btn-outline-warning btn-sm"
-                      th:href="@{/asesor/berkas-asesi}"
+                      th:href="@{/asesor/berkas-asesi/{jadwalId}(jadwalId=${row.id})}"
                       title="Lihat Berkas"
                     >
                       <i class="fas fa-folder"> </i>

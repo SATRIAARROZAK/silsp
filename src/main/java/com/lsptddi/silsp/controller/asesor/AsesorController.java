@@ -9,9 +9,10 @@ import com.lsptddi.silsp.model.SuratTugas;
 import com.lsptddi.silsp.model.User;
 
 // REPOSITORY
-import com.lsptddi.silsp.repository.UserRepository;
-import com.lsptddi.silsp.repository.SuratTugasRepository;
-import com.lsptddi.silsp.repository.ScheduleRepository;
+import com.lsptddi.silsp.repository.*;
+// import com.lsptddi.silsp.repository.UserRepository;
+// import com.lsptddi.silsp.repository.SuratTugasRepository;
+// import com.lsptddi.silsp.repository.ScheduleRepository;
 
 // UMUM
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Page;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -43,6 +45,9 @@ public class AsesorController {
 
     @Autowired
     private ScheduleRepository scheduleRepository;
+
+    @Autowired
+    private PermohonanSertifikasiRepository permohonanRepository;
 
     @ModelAttribute
     public void addGlobalAttributes(Model model, Principal principal) {
@@ -153,10 +158,30 @@ public class AsesorController {
         return "pages/asesor/jadwal/jadwal-list";
     }
 
-    @GetMapping("/berkas-asesi")
-    public String showBerkasAsesi(Model model, Principal principal) {
-        // 1. Ambil Data Jadwal
+    // @GetMapping("/berkas-asesi")
+    // public String showBerkasAsesi(Model model, Principal principal) {
+    // // 1. Ambil Data Jadwal
 
-        return "pages/asesor/jadwal/berkas-asesi"; // Sesuaikan dengan lokasi file HTML Anda
+    // return "pages/asesor/jadwal/berkas-asesi"; // Sesuaikan dengan lokasi file
+    // HTML Anda
+    // }
+
+    @GetMapping("/berkas-asesi/{jadwalId}")
+    public String showBerkasAsesi(@PathVariable Long jadwalId, Model model, Principal principal) {
+        User asesor = userRepository.findByUsername(principal.getName()).orElseThrow();
+
+        List<PermohonanSertifikasi> listAsesi = new ArrayList<>();
+
+        if (jadwalId != null) {
+            Schedule jadwal = scheduleRepository.findById(jadwalId).orElse(null);
+            if (jadwal != null) {
+                // Ambil asesi yang SUDAH DITERIMA dan DITUGASKAN ke asesor ini
+                listAsesi = permohonanRepository.findByJadwalAndAsesorAndStatus(jadwal, asesor, "ACCEPTED");
+                model.addAttribute("selectedJadwal", jadwal);
+            }
+        }
+
+        model.addAttribute("listAsesi", listAsesi);
+        return "pages/asesor/jadwal/berkas-asesi";
     }
 }

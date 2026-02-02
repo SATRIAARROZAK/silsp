@@ -1131,32 +1131,92 @@ public class AdminController {
             p.setCatatanRevisi(catatan);
         permohonanRepository.save(p);
 
+        if ("ACCEPTED".equals(status)) {
+            assignAsesorToAsesi(p);
+        }
+
         // KIRIM NOTIFIKASI KE ASESI
         String judul = "";
         String pesan = "";
 
-        switch (status) {
-            case "ACCEPTED":
-                judul = "Pendaftaran Diterima";
-                pesan = "Admin telah menerima berkas pendaftaran Anda.";
-                break;
-            case "REJECTED":
-                judul = "Pendaftaran Ditolak";
-                pesan = "Pengajuan Anda ditolak. Silakan ajukan di lain hari.";
-                break;
-            case "REVISION":
-                judul = "Revisi Diperlukan";
-                // pesan = "Terdapat revisi yang harus Anda lakukan: " + catatan;
-                pesan = "Terdapat revisi yang harus Anda lakukan pada pendaftaran Anda. Silakan cek catatan dari admin.";
-
-                break;
+        if ("ACCEPTED".equals(status)) {
+            judul = "Pendaftaran Diterima";
+            // Jika asesor sudah dapat, tampilkan namanya di pesan (opsional)
+            String namaAsesor = (p.getAsesor() != null) ? p.getAsesor().getFullName() : "Menunggu penetapan";
+            pesan = "Admin menyetujui berkas Anda. Data dikirim ke Asesor: " + namaAsesor;
+        } else if ("REJECTED".equals(status)) {
+            judul = "Pendaftaran Ditolak";
+            pesan = "Pengajuan Anda ditolak. Silakan ajukan di lain hari.";
+        } else if ("REVISION".equals(status)) {
+            judul = "Revisi Diperlukan";
+            // pesan = "Terdapat revisi yang harus Anda lakukan: " + catatan;
+            pesan = "Terdapat revisi yang harus Anda lakukan pada pendaftaran Anda. Silakan cek catatan dari admin.";
         }
+
+        // switch (status) {
+        // case "ACCEPTED":
+        // judul = "Pendaftaran Diterima";
+        // pesan = "Admin telah menerima berkas pendaftaran Anda.";
+        // break;
+        // case "REJECTED":
+        // judul = "Pendaftaran Ditolak";
+        // pesan = "Pengajuan Anda ditolak. Silakan ajukan di lain hari.";
+        // break;
+        // case "REVISION":
+        // judul = "Revisi Diperlukan";
+        // // pesan = "Terdapat revisi yang harus Anda lakukan: " + catatan;
+        // pesan = "Terdapat revisi yang harus Anda lakukan pada pendaftaran Anda.
+        // Silakan cek catatan dari admin.";
+
+        // break;
+        // }
 
         notificationService.createNotification(p.getAsesi(), judul, pesan, "/asesi/daftar-sertifikasi");
 
         ra.addFlashAttribute("success", "Status berhasil diubah menjadi " + status);
         // Redirect kembali ke halaman detail jadwal asalnya
         return "redirect:/admin/jadwal-sertifikasi/detail/" + p.getJadwal().getId();
+    }
+
+    // --- ALGORITMA ROUND ROBIN SEDERHANA ---
+    private void assignAsesorToAsesi(PermohonanSertifikasi p) {
+        // 1. Ambil List Asesor di Jadwal ini
+        List<ScheduleAssessor> listAsesorJadwal = p.getJadwal().getAssessors();
+
+        if (listAsesorJadwal == null || listAsesorJadwal.isEmpty()) {
+            System.out.println("WARNING: Tidak ada asesor di jadwal ini!");
+            return;
+        }
+
+        // 2. Cari Asesor dengan beban kerja paling sedikit saat ini (Load Balancing)
+        // Ini lebih adil daripada Round Robin murni sequence index
+        User selectedAsesor = null;
+        long minLoad = Long.MAX_VALUE;
+
+        for (ScheduleAssessor sa : listAsesorJadwal) {
+            User asesor = sa.getAsesor();
+            // Hitung berapa asesi yang sudah dipegang asesor ini di jadwal ini
+            long currentLoad = permohonanRepository.countByJadwalAndAsesorAndStatus(p.getJadwal(), asesor, "ACCEPTED");
+
+            if (currentLoad < minLoad) {
+                minLoad = currentLoad;
+                selectedAsesor = asesor;
+            }
+        }
+
+        // 3. Simpan & Kirim Notif ke Asesor Terpilih
+        if (selectedAsesor != null) {
+            p.setAsesor(selectedAsesor);
+
+            // Notif ke Asesor
+            String judul = "Admin Mengirimi Anda Asesi";
+            String pesan = "Asesi " + p.getAsesi().getFullName() + " terdaftar pada jadwal Anda tgl "
+                    + p.getJadwal().getStartDate();
+            // Link ke halaman berkas asesi
+            String link = "/asesor/berkas-asesi/" + p.getJadwal().getId();
+
+            notificationService.createNotification(selectedAsesor, judul, pesan, link);
+        }
     }
 
     // @GetMapping("/surat-tugas-asesor")

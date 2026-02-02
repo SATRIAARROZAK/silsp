@@ -22,17 +22,22 @@ public interface PermohonanSertifikasiRepository extends JpaRepository<Permohona
     List<PermohonanSertifikasi> findByJadwalWithDetails(@Param("jadwal") Schedule jadwal);
 
     @Query("SELECT DISTINCT p FROM PermohonanSertifikasi p " +
-           "JOIN FETCH p.jadwal j " +
-           "JOIN FETCH j.tuk " +
-           "JOIN FETCH p.skema " +
-           "WHERE p.asesi = :asesi " +
-           "ORDER BY p.tanggalPermohonan DESC")
+            "JOIN FETCH p.jadwal j " +
+            "JOIN FETCH j.tuk " +
+            "JOIN FETCH p.skema " +
+            "WHERE p.asesi = :asesi " +
+            "ORDER BY p.tanggalPermohonan DESC")
     List<PermohonanSertifikasi> findByAsesiWithDetails(@Param("asesi") User asesi);
-
 
     // List<PermohonanSertifikasi> findByJadwal(Schedule jadwal);
 
     List<PermohonanSertifikasi> findByAsesiOrderByTanggalPermohonanDesc(User asesi);
+
+    // Hitung beban kerja (untuk Round Robin / Load Balancing)
+    long countByJadwalAndAsesorAndStatus(Schedule jadwal, User asesor, String status);
+
+    // Ambil list asesi milik asesor tertentu di jadwal tertentu
+    List<PermohonanSertifikasi> findByJadwalAndAsesorAndStatus(Schedule jadwal, User asesor, String status);
 
     // Hitung jumlah pendaftar di jadwal tertentu
     long countByJadwal(Schedule jadwal);

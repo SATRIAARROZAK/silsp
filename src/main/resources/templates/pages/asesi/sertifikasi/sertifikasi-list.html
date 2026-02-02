@@ -67,8 +67,23 @@
                   </small>
                 </td>
 
-                <td class="text-center align-middle">
+                <!-- <td class="text-center align-middle">
                   <span class="text-muted font-italic">-</span>
+                </td> -->
+
+                <td class="text-center align-middle">
+                  <span
+                    th:if="${p.asesor != null}"
+                    th:text="${p.asesor.fullName}"
+                    class="font-weight-bold"
+                    >Budi Santoso</span
+                  >
+
+                  <span
+                    th:if="${p.asesor == null}"
+                    class="text-muted font-italic"
+                    >-</span
+                  >
                 </td>
 
                 <td class="align-middle">

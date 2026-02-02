@@ -44,25 +44,37 @@
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>1</td>
-                <td>Muhammad Satria</td>
+              <th:block th:each="p, iter : ${listAsesi}">
+                <tr>
+                  <td th:text="${iter.count}">1</td>
+                  <td th:text="${p.asesi.fullName}">Nama Peserta</td>
 
-                <td class="text-center align-middle">
-                  <input type="radio" />
-                </td>
-                <td class="text-center align-middle">
-                  <input type="radio" />
-                </td>
-              </tr>
-              <tr>
-                <td>2</td>
-                <td>Andi Prasetyo</td>
-                <td class="text-center align-middle">
-                  <input type="radio" />
-                </td>
-                <td class="text-center align-middle">
-                  <input type="radio" />
+                  <td class="text-center align-middle">
+                    <input
+                      type="radio"
+                      th:name="'rekomendasi_' + ${p.id}"
+                      value="K"
+                    />
+                  </td>
+                  <td class="text-center align-middle">
+                    <input
+                      type="radio"
+                      th:name="'rekomendasi_' + ${p.id}"
+                      value="BK"
+                    />
+                  </td>
+
+                  <td class="text-center">
+                    <a href="#" class="btn btn-sm btn-info">
+                      <i class="fas fa-folder-open"></i> Buka Berkas
+                    </a>
+                  </td>
+                </tr>
+              </th:block>
+
+              <tr th:if="${#lists.isEmpty(listAsesi)}">
+                <td colspan="5" class="text-center text-muted py-4">
+                  Belum ada asesi yang ditugaskan pada jadwal ini.
                 </td>
               </tr>
             </tbody>

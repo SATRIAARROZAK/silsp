@@ -46,6 +46,10 @@ public class PermohonanSertifikasi {
     @Column(name = "catatan_revisi", columnDefinition = "TEXT")
     private String catatanRevisi;
 
+    @ManyToOne
+    @JoinColumn(name = "asesor_id")
+    private User asesor;
+
     // Relasi ke Child Tables (Biarkan Tetap)
     @OneToMany(mappedBy = "permohonan", cascade = CascadeType.ALL)
     private List<BuktiPersyaratan> persyaratanList;

@@ -59,39 +59,40 @@ public class ApiController {
     // API GET NOTIFIKASI USER
     // @GetMapping("/notifications/unread")
     // public ResponseEntity<?> getUnreadNotifications(Principal principal) {
-    //     if (principal == null)
-    //         return ResponseEntity.ok().build();
+    // if (principal == null)
+    // return ResponseEntity.ok().build();
 
-    //     User user = userRepository.findByUsername(principal.getName()).orElse(null);
-    //     if (user == null)
-    //         return ResponseEntity.ok().build();
+    // User user = userRepository.findByUsername(principal.getName()).orElse(null);
+    // if (user == null)
+    // return ResponseEntity.ok().build();
 
-    //     Map<String, Object> response = new HashMap<>();
+    // Map<String, Object> response = new HashMap<>();
 
-    //     // Hitung Jumlah Belum Baca
-    //     Long count = notificationRepository.countUnread(user.getId());
+    // // Hitung Jumlah Belum Baca
+    // Long count = notificationRepository.countUnread(user.getId());
 
-    //     // Ambil 5 Notifikasi Terakhir
-    //     // (Bisa pakai Pageable limit 5 agar tidak berat)
-    //     // Disini saya ambil semua lalu stream limit 5 untuk simpel
-    //     List<Map<String, Object>> notifs = notificationRepository.findByUserIdOrderByCreatedAtDesc(user.getId())
-    //             .stream().limit(5).map(n -> {
-    //                 Map<String, Object> map = new HashMap<>();
-    //                 map.put("id", n.getId());
-    //                 map.put("title", n.getTitle());
-    //                 map.put("message", n.getMessage());
-    //                 map.put("url", n.getTargetUrl());
-    //                 map.put("isRead", n.isRead());
-    //                 // Hitung waktu (misal: "2 menit yang lalu") bisa dihandle JS atau Java.
-    //                 // Kirim raw date dulu
-    //                 map.put("time", n.getCreatedAt().toString());
-    //                 return map;
-    //             }).collect(Collectors.toList());
+    // // Ambil 5 Notifikasi Terakhir
+    // // (Bisa pakai Pageable limit 5 agar tidak berat)
+    // // Disini saya ambil semua lalu stream limit 5 untuk simpel
+    // List<Map<String, Object>> notifs =
+    // notificationRepository.findByUserIdOrderByCreatedAtDesc(user.getId())
+    // .stream().limit(5).map(n -> {
+    // Map<String, Object> map = new HashMap<>();
+    // map.put("id", n.getId());
+    // map.put("title", n.getTitle());
+    // map.put("message", n.getMessage());
+    // map.put("url", n.getTargetUrl());
+    // map.put("isRead", n.isRead());
+    // // Hitung waktu (misal: "2 menit yang lalu") bisa dihandle JS atau Java.
+    // // Kirim raw date dulu
+    // map.put("time", n.getCreatedAt().toString());
+    // return map;
+    // }).collect(Collectors.toList());
 
-    //     response.put("count", count);
-    //     response.put("data", notifs);
+    // response.put("count", count);
+    // response.put("data", notifs);
 
-    //     return ResponseEntity.ok(response);
+    // return ResponseEntity.ok(response);
     // }
 
     @GetMapping("/notifications/unread")
@@ -207,6 +208,8 @@ public class ApiController {
     // return ResponseEntity.ok(filteredJadwal);
     // }
 
+    // JADWAL YANG MUNCUL HANYA YANG MASIH ADA SLOT & TIDAK BENTROK DENGAN JADWAL
+
     @GetMapping("/jadwal-by-skema/{skemaId}")
     public ResponseEntity<?> getJadwalBySkema(@PathVariable Long skemaId, Principal principal) {
 
@@ -221,29 +224,30 @@ public class ApiController {
                 .filter(s -> s.getSchemas().stream().anyMatch(ss -> ss.getSchema().getId().equals(skemaId)))
 
                 // B. Filter Tanggal: Hanya tanggal masa depan (besok ke atas)
-                .filter(s -> s.getStartDate().isAfter(today))
+                // .filter(s -> s.getStartDate().isAfter(today))
 
                 // C. Filter Kuota: Hitung jumlah pendaftar saat ini vs Kuota Jadwal
-                .filter(s -> {
-                    long pendaftarCount = permohonanSertifikasiRepository.countByJadwal(s);
-                    return pendaftarCount < s.getQuota(); // Masuk jika masih ada slot
-                })
+                // .filter(s -> {
+                // long pendaftarCount = permohonanSertifikasiRepository.countByJadwal(s);
+                // return pendaftarCount < s.getQuota(); // Masuk jika masih ada slot
+                // })
 
                 // D. Filter Duplikasi Tanggal: Cek apakah user sudah daftar di tanggal ini
                 // (Jadwal lain)
-                .filter(s -> {
-                    // Cek apakah user sudah terdaftar di JADWAL INI
-                    boolean registeredInThisSchedule = permohonanSertifikasiRepository
-                            .existsByAsesiAndJadwal(currentUser, s);
-                    if (registeredInThisSchedule)
-                        return false; // Hide jika sudah daftar
+                // .filter(s -> {
+                // // Cek apakah user sudah terdaftar di JADWAL INI
+                // boolean registeredInThisSchedule = permohonanSertifikasiRepository
+                // .existsByAsesiAndJadwal(currentUser, s);
+                // if (registeredInThisSchedule)
+                // return false; // Hide jika sudah daftar
 
-                    // Cek apakah user sudah terdaftar di JADWAL LAIN pada TANGGAL YANG SAMA
-                    boolean hasScheduleOnSameDate = permohonanSertifikasiRepository.existsByAsesiAndJadwalDate(
-                            currentUser,
-                            s.getStartDate());
-                    return !hasScheduleOnSameDate; // Hide jika tanggal bentrok
-                })
+                // // Cek apakah user sudah terdaftar di JADWAL LAIN pada TANGGAL YANG SAMA
+                // boolean hasScheduleOnSameDate =
+                // permohonanSertifikasiRepository.existsByAsesiAndJadwalDate(
+                // currentUser,
+                // s.getStartDate());
+                // return !hasScheduleOnSameDate; // Hide jika tanggal bentrok
+                // })
 
                 .map(s -> {
                     Map<String, Object> map = new HashMap<>();

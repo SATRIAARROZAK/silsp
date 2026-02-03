@@ -256,84 +256,266 @@ $(document).ready(function () {
     $(".custom-file-label").text("Pilih file");
   });
 
-  // Handle Simpan Upload
   $("#btnSimpanUpload").on("click", function () {
     var fileInput = $("#fileInput")[0];
-
     if (fileInput.files.length === 0) {
       Swal.fire("Error", "Pilih file terlebih dahulu!", "error");
       return;
     }
 
     var file = fileInput.files[0];
-    var targetId = $("#uploadTargetId").val();
+    var targetId = $("#uploadTargetId").val(); // ex: administrasi_1
     var type = $("#uploadType").val();
 
-    // SIMPAN FILE KE MEMORI
-    fileStore[targetId] = file;
+    // --- LOGIKA BARU: VALIDASI OCR KTP ---
+    if (targetId === "administrasi_1") {
+      // KTP
 
+      // Ambil Data Inputan Tab 2
+      // var nik = $("input[name='nik']").val();
+      var nama = $("input[name='fullName']").val();
+      var tmpLahir = $("input[name='birthPlace']").val();
+      var tglLahir = $("input[name='birthDate']").val();
+      var gender = $("select[name='gender']").val();
+
+      if (!nik || !nama || !tmpLahir || !tglLahir || !gender) {
+        Swal.fire(
+          "Data Belum Lengkap",
+          "Mohon lengkapi data diri di Tab 2 sebelum upload KTP agar bisa divalidasi.",
+          "warning"
+        );
+        $("#uploadModal").modal("hide");
+        $("#tab2-link").tab("show"); // Pindah ke tab 2
+        return;
+      }
+
+      // Siapkan FormData untuk API Check
+      var ocrData = new FormData();
+      ocrData.append("ktpFile", file);
+      ocrData.append("nik", nik);
+      ocrData.append("fullName", nama);
+      ocrData.append("birthPlace", tmpLahir);
+      ocrData.append("birthDate", tglLahir);
+      ocrData.append("gender", gender);
+
+      Swal.fire({
+        title: "Memvalidasi KTP...",
+        text: "Sistem sedang mencocokkan data KTP dengan inputan Anda.",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      // AJAX Check
+      $.ajax({
+        url: "/asesi/api/validate-ktp", // Sesuaikan endpoint
+        type: "POST",
+        data: ocrData,
+        processData: false,
+        contentType: false,
+        success: function (res) {
+          // res = OcrValidationResult JSON
+          var errors = [];
+
+          // if (!res.nikValid) {
+          //   setError(
+          //     $("input[name='nik']"),
+          //     "NIK tidak cocok dengan KTP! Silakan perbaiki."
+          //   );
+          //   errors.push("NIK");
+          // } else clearError($("input[name='nik']"));
+
+          if (!res.nameValid) {
+            setError(
+              $("input[name='fullName']"),
+              "Nama Lengkap tidak cocok dengan KTP!"
+            );
+            errors.push("Nama");
+          } else clearError($("input[name='fullName']"));
+
+          if (!res.birthPlaceValid) {
+            setError(
+              $("input[name='birthPlace']"),
+              "Tempat Lahir tidak cocok dengan KTP!"
+            );
+            errors.push("Tempat Lahir");
+          } else clearError($("input[name='birthPlace']"));
+
+          if (!res.birthDateValid) {
+            setError(
+              $("input[name='birthDate']"),
+              "Tanggal Lahir tidak cocok dengan KTP!"
+            );
+            errors.push("Tanggal Lahir");
+          } else clearError($("input[name='birthDate']"));
+
+          if (!res.genderValid) {
+            setError(
+              $("select[name='gender']"),
+              "Jenis Kelamin tidak cocok dengan KTP!"
+            );
+            errors.push("Jenis Kelamin");
+          } else clearError($("select[name='gender']"));
+
+          if (errors.length > 0) {
+            Swal.fire({
+              icon: "error",
+              title: "Validasi OCR Gagal",
+              text:
+                "Terdapat ketidakcocokan data: " +
+                errors.join(", ") +
+                ". Mohon sesuaikan inputan dengan KTP.",
+              footer: "Pastikan foto KTP jelas dan tidak buram.",
+            });
+
+            $("#uploadModal").modal("hide");
+            $("#tab2-link").tab("show"); // Lempar user ke Tab 2 untuk memperbaiki
+            // File JANGAN disimpan ke fileStore agar user upload ulang nanti
+          } else {
+            Swal.fire({
+              icon: "success",
+              title: "Validasi Berhasil",
+              text: "Data KTP cocok dengan inputan.",
+              timer: 1500,
+              showConfirmButton: false,
+            });
+            // LANJUT SIMPAN FILE (Proses Normal)
+            processSaveFile(targetId, type, file);
+          }
+        },
+        error: function () {
+          Swal.fire(
+            "Error",
+            "Gagal memproses validasi OCR. Coba lagi.",
+            "error"
+          );
+        },
+      });
+    } else {
+      // Bukan KTP, langsung simpan
+      processSaveFile(targetId, type, file);
+    }
+  });
+
+  // Fungsi Ekstraksi Simpan File (Refactoring)
+  function processSaveFile(targetId, type, file) {
+    fileStore[targetId] = file;
     var blobUrl = URL.createObjectURL(file);
 
-    // Update UI Tombol
     var btnHtml = `
-            <div class="action-buttons">
-                <a href="${blobUrl}" target="_blank" class="btn btn-sm btn-outline-info" title="Lihat File">
-                    <i class="fas fa-file"></i>
-                </a>
-                <button type="button" class="btn btn-sm btn-outline-danger btn-delete-upload" data-id="${targetId}" data-type="${type}">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </div>
-            <input type="hidden" name="upload_status_${targetId}" value="1">
-        `;
-
-    // $('.btn-upload-modal[data-id="' + targetId + '"]')
-    //   .parent()
-    //   .html(btnHtml);
+        <div class="action-buttons">
+            <a href="${blobUrl}" target="_blank" class="btn btn-sm btn-info" title="Lihat File"><i class="fas fa-eye"></i></a>
+            <button type="button" class="btn btn-sm btn-outline-danger btn-delete-upload" data-id="${targetId}" data-type="${type}"><i class="fas fa-trash"></i></button>
+        </div>
+        <input type="hidden" name="upload_status_${targetId}" value="1"> 
+    `;
 
     var $btnOrigin = $('.btn-upload-modal[data-id="' + targetId + '"]');
     var $td = $btnOrigin.closest("td");
     $td.html(btnHtml);
-    $td.find(".text-danger").remove(); // Hapus pesan error di row ini
-    clearUploadError($btnOrigin);
+    $td.find(".text-danger").remove();
 
-    // LOGIKA TAB 7: Tambahkan ke list Bukti Relevan jika tipe Portofolio
-    // Logic Khusus Portofolio (Tab 5 -> Tab 7)
+    // LOGIKA TAB 5: Tambahkan ke list Bukti Relevan jika tipe Portofolio
     if (type === "portofolio") {
       var docName = $("#uploadModalLabel").text().replace("Upload ", "");
       uploadedPortofolio.push({ id: targetId, text: docName });
       refreshBuktiRelevanDropdown();
-
-      // Jika sudah ada 1 portofolio, bersihkan error global di Tab 5
-      if (uploadedPortofolio.length >= 1) {
-        // $("#tab5 .table").removeClass("border border-danger");
-        $("#error-tab5-global").remove();
+      if (uploadedPortofolio.length >= 1)
         setAllUploadButtonsError("#tab5", false);
-      }
     }
 
-    // Logic Khusus Persyaratan (Tab 3) - Cek minimal 1
     if (type === "syarat") {
-      // Cek jumlah syarat terupload
-      if ($('input[name^="upload_status_syarat_"]').length >= 1) {
-        // $("#tab3 .table").removeClass("border border-danger");
-        $("#error-tab3-global").remove();
+      if ($('input[name^="upload_status_syarat_"]').length >= 1)
         setAllUploadButtonsError("#tab3", false);
-      }
     }
 
-    // Logic Khusus Administrasi (Tab 4) - Cek Semua
-    if (type === "administrasi") {
-      // Cek apakah KTP dan Foto sudah ada
-      // (Asumsi ID administrasi_1 dan administrasi_2)
-      // Kita bisa cek via fileStore keys atau DOM
-      // Nanti divalidasi ulang saat submit akhir
+    // Admin 2 (Foto) juga langsung clear error
+    if (targetId === "administrasi_2") {
+      clearUploadError($('.btn-upload-modal[data-id="administrasi_2"]'));
     }
 
     $("#uploadModal").modal("hide");
     $("#fileInput").val("");
     $(".custom-file-label").text("Pilih file");
-  });
+  }
+
+  // Handle Simpan Upload
+  // $("#btnSimpanUpload").on("click", function () {
+  //   var fileInput = $("#fileInput")[0];
+
+  //   if (fileInput.files.length === 0) {
+  //     Swal.fire("Error", "Pilih file terlebih dahulu!", "error");
+  //     return;
+  //   }
+
+  //   var file = fileInput.files[0];
+  //   var targetId = $("#uploadTargetId").val();
+  //   var type = $("#uploadType").val();
+
+  //   // SIMPAN FILE KE MEMORI
+  //   fileStore[targetId] = file;
+
+  //   var blobUrl = URL.createObjectURL(file);
+
+  //   // Update UI Tombol
+  //   var btnHtml = `
+  //           <div class="action-buttons">
+  //               <a href="${blobUrl}" target="_blank" class="btn btn-sm btn-outline-info" title="Lihat File">
+  //                   <i class="fas fa-file"></i>
+  //               </a>
+  //               <button type="button" class="btn btn-sm btn-outline-danger btn-delete-upload" data-id="${targetId}" data-type="${type}">
+  //                   <i class="fas fa-trash"></i>
+  //               </button>
+  //           </div>
+  //           <input type="hidden" name="upload_status_${targetId}" value="1">
+  //       `;
+
+  //   // $('.btn-upload-modal[data-id="' + targetId + '"]')
+  //   //   .parent()
+  //   //   .html(btnHtml);
+
+  //   var $btnOrigin = $('.btn-upload-modal[data-id="' + targetId + '"]');
+  //   var $td = $btnOrigin.closest("td");
+  //   $td.html(btnHtml);
+  //   $td.find(".text-danger").remove(); // Hapus pesan error di row ini
+  //   clearUploadError($btnOrigin);
+
+  //   // LOGIKA TAB 7: Tambahkan ke list Bukti Relevan jika tipe Portofolio
+  //   // Logic Khusus Portofolio (Tab 5 -> Tab 7)
+  //   if (type === "portofolio") {
+  //     var docName = $("#uploadModalLabel").text().replace("Upload ", "");
+  //     uploadedPortofolio.push({ id: targetId, text: docName });
+  //     refreshBuktiRelevanDropdown();
+
+  //     // Jika sudah ada 1 portofolio, bersihkan error global di Tab 5
+  //     if (uploadedPortofolio.length >= 1) {
+  //       // $("#tab5 .table").removeClass("border border-danger");
+  //       $("#error-tab5-global").remove();
+  //       setAllUploadButtonsError("#tab5", false);
+  //     }
+  //   }
+
+  //   // Logic Khusus Persyaratan (Tab 3) - Cek minimal 1
+  //   if (type === "syarat") {
+  //     // Cek jumlah syarat terupload
+  //     if ($('input[name^="upload_status_syarat_"]').length >= 1) {
+  //       // $("#tab3 .table").removeClass("border border-danger");
+  //       $("#error-tab3-global").remove();
+  //       setAllUploadButtonsError("#tab3", false);
+  //     }
+  //   }
+
+  //   // Logic Khusus Administrasi (Tab 4) - Cek Semua
+  //   if (type === "administrasi") {
+  //     // Cek apakah KTP dan Foto sudah ada
+  //     // (Asumsi ID administrasi_1 dan administrasi_2)
+  //     // Kita bisa cek via fileStore keys atau DOM
+  //     // Nanti divalidasi ulang saat submit akhir
+  //   }
+
+  //   $("#uploadModal").modal("hide");
+  //   $("#fileInput").val("");
+  //   $(".custom-file-label").text("Pilih file");
+  // });
 
   // Handle Hapus Upload
   $(document).on("click", ".btn-delete-upload", function () {

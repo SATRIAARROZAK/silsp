@@ -38,6 +38,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -138,6 +139,35 @@ public class AsesiController {
 
         model.addAttribute("userDto", dto);
         return "pages/asesi/asesi-profile"; // Mengarah ke file HTML shared
+    }
+
+    @PostMapping("/api/validate-ktp")
+    @ResponseBody
+    public ResponseEntity<?> validateKtp(
+            @RequestParam("ktpFile") MultipartFile ktpFile,
+            @RequestParam("nik") String nik,
+            @RequestParam("fullName") String fullName,
+            @RequestParam("birthPlace") String birthPlace,
+            @RequestParam("birthDate") String birthDate, // String YYYY-MM-DD
+            @RequestParam("gender") String gender) {
+        try {
+            // Construct DTO Manual
+            UserProfileDto dto = new UserProfileDto();
+            dto.setNik(nik);
+            dto.setFullName(fullName);
+            dto.setBirthPlace(birthPlace);
+            dto.setGender(gender);
+            if (birthDate != null && !birthDate.isEmpty()) {
+                dto.setBirthDate(LocalDate.parse(birthDate));
+            }
+
+            var result = ocrService.validateKtp(ktpFile, dto);
+
+            return ResponseEntity.ok(result);
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 
     @GetMapping("/daftar-sertifikasi")
@@ -263,19 +293,19 @@ public class AsesiController {
                     System.out.println("OCR Error: " + ocrResult.getError());
                     // Opsional: Return error atau lanjut warning
                 } else {
-                    System.out.println("Validasi NIK: " + ocrResult.isNikValid());
+                    // System.out.println("Validasi NIK: " + ocrResult.isNikValid());
                     System.out.println("Validasi Nama: " + ocrResult.isNameValid());
 
                     // LOGIKA GATEKEEPER
                     // Jika NIK terbaca TAPI beda dengan inputan -> TOLAK / Warning
-                    if (!ocrResult.isNikValid()) {
-                        // Opsi A: Tolak Keras
-                        // return ResponseEntity.badRequest().body("{\"status\": \"error\", \"message\":
-                        // \"Validasi OCR Gagal: NIK pada foto KTP tidak sesuai dengan inputan!\"}");
+                    // if (!ocrResult.isNikValid()) {
+                    //     // Opsi A: Tolak Keras
+                    //     // return ResponseEntity.badRequest().body("{\"status\": \"error\", \"message\":
+                    //     // \"Validasi OCR Gagal: NIK pada foto KTP tidak sesuai dengan inputan!\"}");
 
-                        // Opsi B: Lanjut tapi catat di log/status (Recommended for demo agar ga macet)
-                        System.out.println("WARNING: NIK Tidak Cocok (OCR vs Input)");
-                    }
+                    //     // Opsi B: Lanjut tapi catat di log/status (Recommended for demo agar ga macet)
+                    //     System.out.println("WARNING: NIK Tidak Cocok (OCR vs Input)");
+                    // }
                 }
             }
             // --- SELESAI LOGIKA OCR ---

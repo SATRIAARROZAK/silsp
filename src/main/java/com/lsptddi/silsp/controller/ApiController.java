@@ -224,30 +224,29 @@ public class ApiController {
                 .filter(s -> s.getSchemas().stream().anyMatch(ss -> ss.getSchema().getId().equals(skemaId)))
 
                 // B. Filter Tanggal: Hanya tanggal masa depan (besok ke atas)
-                // .filter(s -> s.getStartDate().isAfter(today))
+                .filter(s -> s.getStartDate().isAfter(today))
 
                 // C. Filter Kuota: Hitung jumlah pendaftar saat ini vs Kuota Jadwal
-                // .filter(s -> {
-                // long pendaftarCount = permohonanSertifikasiRepository.countByJadwal(s);
-                // return pendaftarCount < s.getQuota(); // Masuk jika masih ada slot
-                // })
+                .filter(s -> {
+                    long pendaftarCount = permohonanSertifikasiRepository.countByJadwal(s);
+                    return pendaftarCount < s.getQuota(); // Masuk jika masih ada slot
+                })
 
                 // D. Filter Duplikasi Tanggal: Cek apakah user sudah daftar di tanggal ini
                 // (Jadwal lain)
-                // .filter(s -> {
-                // // Cek apakah user sudah terdaftar di JADWAL INI
-                // boolean registeredInThisSchedule = permohonanSertifikasiRepository
-                // .existsByAsesiAndJadwal(currentUser, s);
-                // if (registeredInThisSchedule)
-                // return false; // Hide jika sudah daftar
+                .filter(s -> {
+                    // Cek apakah user sudah terdaftar di JADWAL INI
+                    boolean registeredInThisSchedule = permohonanSertifikasiRepository
+                            .existsByAsesiAndJadwal(currentUser, s);
+                    if (registeredInThisSchedule)
+                        return false; // Hide jika sudah daftar
 
-                // // Cek apakah user sudah terdaftar di JADWAL LAIN pada TANGGAL YANG SAMA
-                // boolean hasScheduleOnSameDate =
-                // permohonanSertifikasiRepository.existsByAsesiAndJadwalDate(
-                // currentUser,
-                // s.getStartDate());
-                // return !hasScheduleOnSameDate; // Hide jika tanggal bentrok
-                // })
+                    // // Cek apakah user sudah terdaftar di JADWAL LAIN pada TANGGAL YANG SAMA
+                    boolean hasScheduleOnSameDate = permohonanSertifikasiRepository.existsByAsesiAndJadwalDate(
+                            currentUser,
+                            s.getStartDate());
+                    return !hasScheduleOnSameDate; // Hide jika tanggal bentrok
+                })
 
                 .map(s -> {
                     Map<String, Object> map = new HashMap<>();

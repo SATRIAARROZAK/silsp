@@ -145,7 +145,7 @@ public class AsesiController {
     @ResponseBody
     public ResponseEntity<?> validateKtp(
             @RequestParam("ktpFile") MultipartFile ktpFile,
-            @RequestParam("nik") String nik,
+            // @RequestParam("nik") String nik,
             @RequestParam("fullName") String fullName,
             @RequestParam("birthPlace") String birthPlace,
             @RequestParam("birthDate") String birthDate, // String YYYY-MM-DD
@@ -153,7 +153,7 @@ public class AsesiController {
         try {
             // Construct DTO Manual
             UserProfileDto dto = new UserProfileDto();
-            dto.setNik(nik);
+            // dto.setNik(nik);
             dto.setFullName(fullName);
             dto.setBirthPlace(birthPlace);
             dto.setGender(gender);

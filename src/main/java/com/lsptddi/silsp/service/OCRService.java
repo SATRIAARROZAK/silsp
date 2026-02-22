@@ -1,7 +1,6 @@
 package com.lsptddi.silsp.service;
 
 import com.lsptddi.silsp.dto.UserProfileDto;
-
 import lombok.Data;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
@@ -13,175 +12,167 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.RescaleOp;
+import java.io.InputStream;
 import java.io.File;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service
 public class OCRService {
 
-    // Lokasi folder tessdata (Sesuaikan dengan struktur projectmu)
     private static final String TESSDATA_PATH = "tessdata";
 
+    // --- CORE OCR FUNCTION ---
+    // public String extractText(MultipartFile file) throws IOException,
+    // TesseractException {
+    // File convFile = File.createTempFile("ocr-", ".jpg");
+    // file.transferTo(convFile);
+
+    // BufferedImage image = ImageIO.read(convFile);
     public String extractText(MultipartFile file) throws IOException, TesseractException {
-        // 1. Konversi MultipartFile ke File temporary
-        File convFile = File.createTempFile("ocr-", ".jpg");
-        file.transferTo(convFile);
+        // PERBAIKAN: Langsung baca dari InputStream tanpa transferTo()
+        // Ini tidak akan merusak file temporary Tomcat, sehingga bisa disimpan ke DB
+        // nantinya.
+        BufferedImage image;
+        try (InputStream inputStream = file.getInputStream()) {
+            image = ImageIO.read(inputStream);
+        }
 
-        // 2. Pre-processing Gambar (Agar lebih mudah dibaca Tesseract)
-        // Kita ubah jadi Grayscale dan perbesar sedikit
-        BufferedImage image = ImageIO.read(convFile);
-        BufferedImage processedImage = preprocessImage(image);
+        if (image == null) {
+            throw new IOException("File tidak dapat dibaca sebagai gambar yang valid.");
+        }
+        // 1. Scaling: Perbesar gambar 3x lipat
+        BufferedImage scaledImage = scaleImage(image, 3.0);
 
-        // 3. Setup Tesseract
+        // 2. Grayscale & Contrast Boosting
+        BufferedImage processedImage = toGrayscale(scaledImage);
+
         ITesseract instance = new Tesseract();
         instance.setDatapath(TESSDATA_PATH);
-        instance.setLanguage("ind"); // Pakai bahasa Indonesia
+        instance.setLanguage("ind");
 
-        // 4. Eksekusi OCR
+        // Whitelist: Hanya izinkan huruf, angka, dan simbol KTP dasar
+        instance.setTessVariable("tessedit_char_whitelist", "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/.-:, '");
+
         String result = instance.doOCR(processedImage);
+        // convFile.delete();
 
-        // Bersihkan file temp
-        convFile.delete();
-
-        return result.toUpperCase(); // Biar mudah dibandingin
+        return result.toUpperCase();
     }
 
-    // Algoritma Validasi
+    // --- LOGIKA VALIDASI UTAMA ---
     public OcrValidationResult validateKtp(MultipartFile ktpFile, UserProfileDto inputData) {
         OcrValidationResult result = new OcrValidationResult();
         try {
-            String ocrText = extractText(ktpFile).toUpperCase();
-            // Bersihkan simbol aneh agar pencarian lebih akurat
-            ocrText = ocrText.replaceAll("[^A-Z0-9\\s\\:\\/\\-\\.]", "");
+            // 1. Ekstrak teks mentah dari gambar
+            String rawOcr = extractText(ktpFile).toUpperCase();
 
+            // Clean baris kosong untuk log yang rapi
+            String ocrText = rawOcr.replaceAll("(?m)^\\s+$", "");
             result.setRawText(ocrText);
-
-            // 1. Ekstrak Teks
-            // String ocrText = extractText(ktpFile);
-            // result.setRawText(ocrText);
 
             System.out.println("--- HASIL OCR KTP ---");
             System.out.println(ocrText);
             System.out.println("---------------------");
 
-            // 1. VALIDASI NIK (Strict)
-            // Cari 16 digit angka
-            // Pattern nikPattern = Pattern.compile("\\b\\d{16}\\b");
-            // Matcher nikMatcher = nikPattern.matcher(ocrText);
-            // boolean nikMatch = false;
-            // while (nikMatcher.find()) {
-            //     if (nikMatcher.group().equals(inputData.getNik())) {
-            //         nikMatch = true;
-            //         break;
-            //     }
-            // }
-            // result.setNikValid(nikMatch);
-            // 2. VALIDASI NAMA (Fuzzy)
-            // LevenshteinDistance levenshtein = new LevenshteinDistance();
-            // boolean nameMatch = false;
-            // // Cari baris yang mengandung "NAMA"
-            // String[] lines = ocrText.split("\\r?\\n");
-            // for(String line : lines) {
-            // if(line.contains("NAMA")) {
-            // String nameLine = line.replace("NAMA", "").replace(":", "").trim();
-            // int distance = levenshtein.apply(nameLine,
-            // inputData.getFullName().toUpperCase());
-            // // Toleransi jarak <= 3
-            // if(distance <= 3) {
-            // nameMatch = true;
-            // }
-            // }
-            // }
-            // // Fallback: Cek keseluruhan teks
-            // if(!nameMatch && ocrText.contains(inputData.getFullName().toUpperCase())) {
-            // nameMatch = true;
-            // }
-            // result.setNameValid(nameMatch);
+            // --- A. VALIDASI NAMA (LOGIKA COMPACT STRING) ---
+            // Ubah input nama user menjadi format padat (tanpa spasi/simbol)
+            // Contoh: "Muhammad Satria" -> "MUHAMMADSATRIA"
+            String inputNamaCompact = getCompactString(inputData.getFullName());
 
-            LevenshteinDistance dist = new LevenshteinDistance();
-            String inputNama = inputData.getFullName().toUpperCase();
-            boolean namaMatch = false;
+            boolean nameMatch = false;
+            double maxScore = 0.0;
 
-            // Coba cari per baris (lebih akurat daripada full text)
             for (String line : ocrText.split("\\n")) {
-                // Hapus label "NAMA" dan simbol
-                String cleanLine = line.replace("NAMA", "").replace(":", "").trim();
-                if (cleanLine.isEmpty())
+                // 1. Hapus label "NAMA" dan titik dua ":"
+                String lineNoLabel = line.replace("NAMA", "").replace(":", "").trim();
+
+                // 2. PADATKAN STRING (Hapus semua spasi & simbol aneh)
+                // Contoh OCR: "S A T R I A" -> "SATRIA"
+                // Contoh OCR: "BUDI_SANT0SO" -> "BUDISANTOSO" (Angka 0 dibuang jika mode huruf
+                // only)
+                String lineCompact = getCompactString(lineNoLabel);
+
+                // 3. Filter Anomali: Jika sisa huruf kurang dari 3, anggap sampah/noise
+                if (lineCompact.length() < 3)
                     continue;
 
-                // Jika input nama pendek (< 5 char), harus exact match. Jika panjang, toleransi
-                // 3 typo.
-                int threshold = inputNama.length() < 5 ? 0 : 3;
+                // 4. Cek Contains (Pencocokan Pasti)
+                if (lineCompact.contains(inputNamaCompact) || inputNamaCompact.contains(lineCompact)) {
+                    nameMatch = true;
+                    maxScore = 1.0; // Perfect match secara logika
+                    break;
+                }
 
-                if (dist.apply(cleanLine, inputNama) <= threshold) {
-                    namaMatch = true;
-                    break;
-                }
-                // Cek contains juga (misal: "MUHAMMAD SATRIA ARROZAK" vs "SATRIA ARROZAK")
-                if (cleanLine.contains(inputNama) || inputNama.contains(cleanLine)) {
-                    namaMatch = true;
-                    break;
-                }
+                // 5. Cek Similarity (Levenshtein pada string padat)
+                double score = calculateSimilarity(inputNamaCompact, lineCompact);
+                if (score > maxScore)
+                    maxScore = score;
             }
-            result.setNameValid(namaMatch);
 
-            // 3. VALIDASI TANGGAL LAHIR
-            // if(inputData.getBirthDate() != null) {
-            // String dobInput =
-            // inputData.getBirthDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
-            // if(ocrText.contains(dobInput)) {
-            // result.setDobValid(true);
-            // }
-            // }
+            // Ambang batas 80%
+            if (!nameMatch && maxScore >= 0.99)
+                nameMatch = true;
 
-            // 3. TEMPAT LAHIR & TGL LAHIR
-            // Format KTP: "BEKASI, 20-01-2000"
+            System.out.println("Input Compact: " + inputNamaCompact + " | Max Score: " + maxScore);
+            result.setNameValid(nameMatch);
+
+            // --- B. VALIDASI TEMPAT & TGL LAHIR ---
             boolean tempatMatch = false;
             boolean tglMatch = false;
 
             String inputTempat = inputData.getBirthPlace().toUpperCase();
+            // Format Tanggal: "20-01-2000" atau "20012000" (untuk pencarian fleksibel)
             String inputTgl = "";
+            String inputTglCompact = "";
+
             if (inputData.getBirthDate() != null) {
-                // Ubah YYYY-MM-DD (Input) jadi dd-MM-yyyy (KTP)
                 inputTgl = inputData.getBirthDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+                inputTglCompact = inputTgl.replace("-", ""); // "20012000"
             }
 
-            // Cari baris yang mengandung tanggal lahir
             for (String line : ocrText.split("\\n")) {
-                if (line.contains(inputTgl)) {
-                    tglMatch = true; // Tanggal ketemu di baris ini
+                // Bersihkan spasi di baris ini untuk pencarian tanggal yang terpisah
+                String lineCompact = line.replaceAll("\\s+", ""); // Hapus semua spasi
 
-                    // Cek tempat lahir di baris yang SAMA (sebelum tanda koma)
-                    if (line.toUpperCase().contains(inputTempat)) {
+                // Cek Tanggal (Flexible: format pakai strip atau gabung)
+                if (!inputTgl.isEmpty() && (line.contains(inputTgl) || lineCompact.contains(inputTglCompact))) {
+                    tglMatch = true;
+
+                    // Jika tanggal ketemu, cek tempat lahir di baris ASLI (karena tempat lahir
+                    // butuh spasi kadang)
+                    // Atau cek di baris compact juga bisa
+                    if (line.toUpperCase().contains(inputTempat)
+                            || lineCompact.contains(getCompactString(inputTempat))) {
                         tempatMatch = true;
                     }
                 }
             }
-            // Fallback: cari tempat lahir di seluruh teks jika format baris hancur
+            // Fallback tempat lahir (global scan)
             if (!tempatMatch && ocrText.contains(inputTempat))
                 tempatMatch = true;
 
             result.setBirthPlaceValid(tempatMatch);
             result.setBirthDateValid(tglMatch);
 
-            // 4. VALIDASI JENIS KELAMIN
-            // String genderInput = inputData.getGender().equals("L") ? "LAKI-LAKI" :
-            // "PEREMPUAN";
-            // if(ocrText.contains(genderInput)) {
-            // result.setGenderValid(true);
-            // }
-            // } catch (Exception e) {
-            // e.printStackTrace();
-            // result.setError("Gagal memproses OCR: " + e.getMessage());
-            // }
-            // return result;
+            // --- 3. JENIS KELAMIN (FLEXIBLE) ---
+            boolean genderMatch = false;
+            String cleanText = cleanString(ocrText); // Hapus spasi/simbol untuk deteksi global
 
-            // 4. JENIS KELAMIN
-            String genderKtp = inputData.getGender().equals("L") ? "LAKI-LAKI" : "PEREMPUAN";
-            result.setGenderValid(ocrText.contains(genderKtp));
+            if (inputData.getGender().equals("L")) {
+                // Laki-Laki sering terbaca: LAKI, LAK1, LAKL, LAK
+                if (cleanText.contains("LAKI") || cleanText.contains("LAK1") || cleanText.contains("LAKL")
+                        || cleanText.contains("LAK")) {
+                    genderMatch = true;
+                }
+            } else if (inputData.getGender().equals("P")) {
+                // Perempuan: PEREM, P3REM, WANITA
+                if (cleanText.contains("PEREM") || cleanText.contains("P3REM") || cleanText.contains("WANITA")) {
+                    genderMatch = true;
+                }
+            }
+            result.setGenderValid(genderMatch);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -191,172 +182,367 @@ public class OCRService {
         // }
     }
 
-    // public OcrValidationResult validateKtp(MultipartFile ktpFile, UserProfileDto
-    // inputData) {
-    // OcrValidationResult result = new OcrValidationResult();
-    // try {
-    // // 1. Ekstrak Teks
-    // String ocrText = extractText(ktpFile);
-    // result.setRawText(ocrText);
+    private String cleanString(String text) {
+        if (text == null)
+            return "";
+        return text.toUpperCase().replaceAll("[^A-Z0-9]", "");
+    }
 
-    // System.out.println("--- HASIL OCR KTP ---");
-    // System.out.println(ocrText);
-    // System.out.println("---------------------");
+    // --- HELPER METHODS ---
 
-    // // 2. Validasi NIK (Cari 16 digit angka)
-    // // Menggunakan Regex yang mentolerir kesalahan baca (misal 'B' jadi '8' jika
-    // // perlu, tapi kita strict dulu)
-    // String nikRegex = "\\b\\d{16}\\b";
-    // Pattern patternNik = Pattern.compile(nikRegex);
-    // Matcher matcherNik = patternNik.matcher(ocrText);
+    private String getCompactString(String text) {
+        if (text == null)
+            return "";
+        return text.toUpperCase()
+                .replaceAll("[^A-Z0-9]", ""); // Hapus APA PUN yang bukan huruf A-Z
+    }
 
-    // boolean nikFound = false;
-    // while (matcherNik.find()) {
-    // String foundNik = matcherNik.group();
-    // if (foundNik.equals(inputData.getNik())) {
-    // nikFound = true;
-    // break;
-    // }
-    // }
-    // result.setNikValid(nikFound);
-
-    // // 3. Validasi Nama (Fuzzy Logic)
-    // // Cari baris yang mengandung "NAMA"
-    // LevenshteinDistance distance = new LevenshteinDistance();
-    // boolean nameMatch = false;
-
-    // // Pecah per baris untuk cari Nama
-    // String[] lines = ocrText.split("\\r?\\n");
-    // for (String line : lines) {
-    // if (line.contains("NAMA")) {
-    // String cleanLine = line.replace("NAMA", "").replace(":", "").trim();
-    // // Hitung kemiripan
-    // int dist = distance.apply(cleanLine, inputData.getFullName().toUpperCase());
-    // // Toleransi: Jika perbedaan karakter <= 3, anggap valid
-    // if (dist <= 3) {
-    // nameMatch = true;
-    // }
-    // }
-    // }
-    // // Fallback: Jika tidak ada label "NAMA", cari string yang mirip banget di
-    // // seluruh teks
-    // if (!nameMatch && ocrText.contains(inputData.getFullName().toUpperCase())) {
-    // nameMatch = true;
-    // }
-    // result.setNameValid(nameMatch);
-
-    // // 4. Validasi Tanggal Lahir
-    // // Format Input: YYYY-MM-DD
-    // // Format KTP: DD-MM-YYYY
-    // if (inputData.getBirthDate() != null) {
-    // String tglLahirInput =
-    // inputData.getBirthDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
-    // if (ocrText.contains(tglLahirInput)) {
-    // result.setDobValid(true);
-    // }
+    // Membersihkan Nama dari angka/simbol aneh agar perbandingan fair
+    // private String getCompactString(String text) {
+    // if (text == null)
+    // return "";
+    // // Hanya sisakan Huruf A-Z dan Spasi. Angka di Nama dianggap sampah OCR.
+    // // Ganti titik (.) dengan spasi jika ada gelar
+    // return text.toUpperCase()
+    // .replace(".", " ")
+    // .replaceAll("[^A-Z0-9\\s]", "") // Hapus angka & simbol
+    // .replaceAll("\\s+", " ") // Hapus spasi ganda
+    // .trim(); // Jangan trim karena spasi di awal/akhir bisa jadi penting untuk
+    // deteksi contains
     // }
 
-    // // 5. Validasi Jenis Kelamin
-    // String genderInput = inputData.getGender().equals("L") ? "LAKI-LAKI" :
-    // "PEREMPUAN";
-    // if (ocrText.contains(genderInput)) {
-    // result.setGenderValid(true);
-    // }
+    private double calculateSimilarity(String s1, String s2) {
+        if (s1 == null || s2 == null)
+            return 0.0;
+        LevenshteinDistance dist = new LevenshteinDistance();
+        int maxLength = Math.max(s1.length(), s2.length());
+        if (maxLength == 0)
+            return 1.0;
+        int distance = dist.apply(s1, s2);
+        return 1.0 - ((double) distance / maxLength);
+    }
 
-    // } catch (Exception e) {
-    // e.printStackTrace();
-    // result.setError("Gagal memproses OCR: " + e.getMessage());
-    // }
-    // return result;
-    // }
-
-    // Helper: Image Pre-processing sederhana
-    private BufferedImage preprocessImage(BufferedImage original) {
-        // Ubah ke Grayscale
-        BufferedImage grayscale = new BufferedImage(original.getWidth(), original.getHeight(),
-                BufferedImage.TYPE_BYTE_GRAY);
-        Graphics g = grayscale.getGraphics();
+    // Pre-processing Gambar
+    private BufferedImage toGrayscale(BufferedImage original) {
+        BufferedImage gray = new BufferedImage(original.getWidth(), original.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+        Graphics g = gray.getGraphics();
         g.drawImage(original, 0, 0, null);
         g.dispose();
-        return grayscale;
+
+        // Contrast Boosting (Untuk Fotokopi/KTP Pudar)
+        try {
+            RescaleOp rescaleOp = new RescaleOp(1.7f, 15.0f, null);
+            rescaleOp.filter(gray, gray);
+        } catch (Exception e) {
+            System.out.println("Gagal boost contrast, fallback ke raw grayscale.");
+        }
+        return gray;
+    }
+
+    private BufferedImage scaleImage(BufferedImage original, double factor) {
+        int w = (int) (original.getWidth() * factor);
+        int h = (int) (original.getHeight() * factor);
+        BufferedImage scaled = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = scaled.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+        g.drawImage(original, 0, 0, w, h, null);
+        g.dispose();
+        return scaled;
     }
 
     @Data
     public static class OcrValidationResult {
-        // private boolean nikValid;
         private boolean nameValid;
-        private boolean birthPlaceValid; // Baru
-        private boolean birthDateValid; // Baru
+        private boolean birthPlaceValid;
+        private boolean birthDateValid;
         private boolean genderValid;
         private String rawText;
         private String error;
 
         public boolean isValid() {
-            // Semua harus valid
             return nameValid && birthPlaceValid && birthDateValid && genderValid;
         }
     }
-    // Inner Class untuk Hasil
-    // public static class OcrValidationResult {
-    // private boolean nikValid;
-    // private boolean nameValid;
-    // private boolean dobValid;
-    // private boolean genderValid;
-    // private String rawText;
-    // private String error;
-
-    // public boolean isValid() {
-    // // Valid jika NIK Cocok DAN Nama Cocok (Minimal)
-    // return nikValid && nameValid;
-    // }
-
-    // // Getter Setter
-    // public boolean isNikValid() {
-    // return nikValid;
-    // }
-
-    // public void setNikValid(boolean nikValid) {
-    // this.nikValid = nikValid;
-    // }
-
-    // public boolean isNameValid() {
-    // return nameValid;
-    // }
-
-    // public void setNameValid(boolean nameValid) {
-    // this.nameValid = nameValid;
-    // }
-
-    // public boolean isDobValid() {
-    // return dobValid;
-    // }
-
-    // public void setDobValid(boolean dobValid) {
-    // this.dobValid = dobValid;
-    // }
-
-    // public boolean isGenderValid() {
-    // return genderValid;
-    // }
-
-    // public void setGenderValid(boolean genderValid) {
-    // this.genderValid = genderValid;
-    // }
-
-    // public String getRawText() {
-    // return rawText;
-    // }
-
-    // public void setRawText(String rawText) {
-    // this.rawText = rawText;
-    // }
-
-    // public String getError() {
-    // return error;
-    // }
-
-    // public void setError(String error) {
-    // this.error = error;
-    // }
-    // }
 }
+
+// package com.lsptddi.silsp.service;
+
+// import com.lsptddi.silsp.dto.UserProfileDto;
+// import lombok.Data;
+// import net.sourceforge.tess4j.ITesseract;
+// import net.sourceforge.tess4j.Tesseract;
+// import net.sourceforge.tess4j.TesseractException;
+// import org.apache.commons.text.similarity.LevenshteinDistance;
+// import org.springframework.stereotype.Service;
+// import org.springframework.web.multipart.MultipartFile;
+
+// import javax.imageio.ImageIO;
+// import java.awt.*;
+// import java.awt.image.BufferedImage;
+// import java.io.File;
+// import java.io.IOException;
+// import java.time.format.DateTimeFormatter;
+// import java.util.regex.Matcher;
+// import java.util.regex.Pattern;
+// import java.awt.image.RescaleOp;
+
+// @Service
+// public class OCRService {
+
+// // Lokasi folder tessdata (Sesuaikan dengan struktur projectmu)
+// private static final String TESSDATA_PATH = "tessdata";
+
+// public String extractText(MultipartFile file) throws IOException,
+// TesseractException {
+// // 1. Konversi MultipartFile ke File temporary
+// File convFile = File.createTempFile("ocr-", ".jpg");
+// file.transferTo(convFile);
+
+// // 2. Pre-processing Gambar (Agar lebih mudah dibaca Tesseract)
+// // Kita ubah jadi Grayscale dan perbesar sedikit
+// BufferedImage image = ImageIO.read(convFile);
+// BufferedImage scaledImage = scaleImage(image, 3.0);
+// // BufferedImage processedImage = preprocessImage(scaledImage);
+
+// // 2. Convert ke Grayscale
+// BufferedImage grayImage = toGrayscale(scaledImage);
+
+// // 3. Contrast Boosting (Penting untuk Fotokopi Pudar)
+// // Menerangkan yang terang, menggelapkan yang gelap sebelum binarisasi
+// // BufferedImage highContrastImage = boostContrast(grayImage);
+
+// // 4. Binarization (Hitam Putih) dengan OTSU'S METHOD (Dynamic Threshold)
+// // Ini kunci agar support KTP Warna & Fotokopi sekaligus
+// // BufferedImage processedImage = applyOtsuBinarization(grayImage);
+// // 3. Setup Tesseract
+// ITesseract instance = new Tesseract();
+// instance.setDatapath(TESSDATA_PATH);
+// instance.setLanguage("ind"); // Pakai bahasa Indonesia
+
+// // Izinkan A-Z, 0-9, spasi, dan simbol umum KTP
+// instance.setTessVariable("tessedit_char_whitelist",
+// "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/.-:, '");
+
+// // 4. Eksekusi OCR
+// String result = instance.doOCR(grayImage);
+
+// // Bersihkan file temp
+// convFile.delete();
+
+// return result.toUpperCase(); // Biar mudah dibandingin
+
+// }
+
+// // Algoritma Validasi
+// public OcrValidationResult validateKtp(MultipartFile ktpFile, UserProfileDto
+// inputData) {
+// OcrValidationResult result = new OcrValidationResult();
+// try {
+// // String ocrText = extractText(ktpFile).toUpperCase();
+// // Bersihkan simbol aneh agar pencarian lebih akurat
+// // ocrText = ocrText.replaceAll("[^A-Z0-9\\s\\:\\/\\-\\.]", "");
+
+// // result.setRawText(ocrText);
+// String rawOcr = extractText(ktpFile).toUpperCase();
+
+// // CLEANING EKSTRA: Hapus baris kosong & karakter sampah di awal/akhir
+// String ocrText = rawOcr.replaceAll("(?m)^\\s+$", "");
+
+// // 1. Ekstrak Teks
+// // String ocrText = extractText(ktpFile);
+// // result.setRawText(ocrText);
+
+// System.out.println("--- HASIL OCR KTP ---");
+// System.out.println(ocrText);
+// System.out.println("---------------------");
+
+// // LevenshteinDistance dist = new LevenshteinDistance();
+// String inputNama =
+// cleanNameForComparison(inputData.getFullName().toUpperCase());
+// // String inputNama = inputData.getFullName();
+
+// boolean nameMatch = false;
+// double maxScore = 0.0;
+
+// // Coba cari per baris (lebih akurat daripada full text)
+// for (String line : ocrText.split("\\n")) {
+// // Hapus label "NAMA" dan simbol
+// String cleanLine = line.replace("NAMA", "").replace(":", "").trim();
+// // if (cleanLine.isEmpty())
+// // continue;
+
+// // Bersihkan anomali karakter di baris nama (Hapus angka/simbol aneh)
+// // Contoh: "SATR1A" -> "SATRA", "BUDI_ANT0" -> "BUDI ANTO"
+// String cleanLineFinal = cleanNameForComparison(cleanLine);
+
+// if (cleanLineFinal.length() < 3)
+// continue;
+
+// // Cek contains juga (misal: "MUHAMMAD SATRIA ARROZAK" vs "SATRIA ARROZAK")
+// if (cleanLineFinal.contains(inputNama) || inputNama.contains(cleanLineFinal))
+// {
+// nameMatch = true;
+// maxScore = 1.0; // Perfect match secara logika
+// break;
+// }
+
+// // Hitung Similarity (0.0 - 1.0)
+// double score = calculateSimilarity(inputNama, cleanLineFinal);
+// if (score > maxScore) // Ambang batas 90% untuk nama
+// maxScore = score;
+
+// }
+
+// // Threshold kemiripan minimal 0.8 (80%)
+// if (!nameMatch && maxScore >= 0.99)
+// nameMatch = true;
+
+// System.out.println("Input Nama: " + inputNama + " | Max OCR Score: " +
+// maxScore);
+// result.setNameValid(nameMatch);
+
+// // 3. TEMPAT LAHIR & TGL LAHIR
+// // Format KTP: "BEKASI, 20-01-2000"
+// boolean tempatMatch = false;
+// boolean tglMatch = false;
+
+// String inputTempat = inputData.getBirthPlace().toUpperCase();
+// String inputTgl = "";
+// if (inputData.getBirthDate() != null) {
+// // Ubah YYYY-MM-DD (Input) jadi dd-MM-yyyy (KTP)
+// inputTgl =
+// inputData.getBirthDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+// }
+
+// // Cari baris yang mengandung tanggal lahir
+// for (String line : ocrText.split("\\n")) {
+// if (line.contains(inputTgl)) {
+// tglMatch = true; // Tanggal ketemu di baris ini
+
+// // Cek tempat lahir di baris yang SAMA (sebelum tanda koma)
+// if (line.toUpperCase().contains(inputTempat)) {
+// tempatMatch = true;
+// }
+// }
+// }
+// // Fallback: cari tempat lahir di seluruh teks jika format baris hancur
+// if (!tempatMatch && ocrText.contains(inputTempat))
+// tempatMatch = true;
+
+// result.setBirthPlaceValid(tempatMatch);
+// result.setBirthDateValid(tglMatch);
+
+// // --- 3. JENIS KELAMIN (FLEXIBLE) ---
+// boolean genderMatch = false;
+// String cleanText = cleanString(ocrText); // Hapus spasi/simbol untuk
+// deteksiglobal
+
+// if (inputData.getGender().equals("L")) {
+// // Laki-Laki sering terbaca: LAKI, LAK1, LAKL, LAK
+// if (cleanText.contains("LAKI") || cleanText.contains("LAK1") ||
+// cleanText.contains("LAKL")) {
+// genderMatch = true;
+// }
+// } else if (inputData.getGender().equals("P")) {
+// // Perempuan: PEREM, P3REM, WANITA
+// if (cleanText.contains("PEREM") || cleanText.contains("P3REM") ||
+// cleanText.contains("WANITA")) {
+// genderMatch = true;
+// }
+// }
+// result.setGenderValid(genderMatch);
+
+// } catch (Exception e) {
+// e.printStackTrace();
+// result.setError("Gagal baca OCR: " + e.getMessage());
+// }
+// return result;
+// // }
+// }
+
+// private String cleanString(String text) {
+// if (text == null)
+// return "";
+// return text.toUpperCase().replaceAll("[^A-Z0-9]", "");
+// }
+
+// // Helper: Image Pre-processing sederhana
+// private BufferedImage toGrayscale(BufferedImage original) {
+// // Ubah ke Grayscale
+// BufferedImage gray = new BufferedImage(original.getWidth(),
+// original.getHeight(),
+// BufferedImage.TYPE_BYTE_GRAY);
+// Graphics g = gray.getGraphics();
+// g.drawImage(original, 0, 0, null);
+// g.dispose();
+
+// try {
+// RescaleOp rescaleOp = new RescaleOp(1.7f, 15.0f, null);
+// rescaleOp.filter(gray, gray); // Apply filter langsung ke image gray
+// } catch (Exception e) {
+// // Fallback jika gagal filter (jarang terjadi), kembalikan raw grayscale
+// System.out.println("Gagal boost contrast, menggunakan raw grayscale.");
+// }
+
+// return gray;
+// }
+
+// // --- HELPER METHODS ---
+
+// // Membersihkan Nama dari angka/simbol aneh agar perbandingan fair
+// private String cleanNameForComparison(String text) {
+// if (text == null)
+// return "";
+// // Hanya sisakan Huruf A-Z dan Spasi. Angka di Nama dianggap sampah OCR.
+// // Ganti titik (.) dengan spasi jika ada gelar
+// return text.toUpperCase()
+// .replace(".", " ")
+// .replaceAll("[^A-Z0-9\\s]", "") // Hapus angka & simbol
+// .replaceAll("\\s+", " ") // Hapus spasi ganda
+// .trim();
+// }
+
+// // --- HELPER FUNCTIONS ---
+
+// // // 2. Hitung Kemiripan String (Jaro-Winkler / Levenshtein Normalized)
+// private double calculateSimilarity(String s1, String s2) {
+// if (s1 == null || s2 == null)
+// return 0.0;
+// LevenshteinDistance dist = new LevenshteinDistance();
+// int maxLength = Math.max(s1.length(), s2.length());
+// if (maxLength == 0)
+// return 1.0;
+// int distance = dist.apply(s1, s2);
+// return 1.0 - ((double) distance / maxLength);
+// }
+
+// // 3. Scale Image (Perbesar)
+// private BufferedImage scaleImage(BufferedImage original, double factor) {
+// int w = (int) (original.getWidth() * factor);
+// int h = (int) (original.getHeight() * factor);
+// BufferedImage scaled = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+// Graphics2D g = scaled.createGraphics();
+// g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+// RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+// g.drawImage(original, 0, 0, w, h, null);
+// g.dispose();
+// return scaled;
+// }
+
+// @Data
+// public static class OcrValidationResult {
+// // private boolean nikValid;
+// private boolean nameValid;
+// private boolean birthPlaceValid; // Baru
+// private boolean birthDateValid; // Baru
+// private boolean genderValid;
+// private String rawText;
+// private String error;
+
+// public boolean isValid() {
+// // Semua harus valid
+// return nameValid && birthPlaceValid && birthDateValid && genderValid;
+// }
+// }
+
+// }

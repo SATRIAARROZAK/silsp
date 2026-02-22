@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.5</version>
+		<version>3.5.10</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.lsptddi</groupId>
@@ -128,7 +128,7 @@
 			<artifactId>jsoup</artifactId>
 			<version>1.15.3</version>
 		</dependency>
-	<!-- OCR LIBRARY -->
+		<!-- OCR LIBRARY -->
 		<dependency>
 			<groupId>net.sourceforge.tess4j</groupId>
 			<artifactId>tess4j</artifactId>

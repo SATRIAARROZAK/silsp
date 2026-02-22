@@ -14,6 +14,10 @@ $(document).ready(function () {
   // Simpan data bukti yang sudah diupload (untuk Tab 7)
   var uploadedPortofolio = [];
 
+  // VARIABLE BARU UNTUK TRACKING KEGAGALAN OCR
+  var ocrFailedCount = 0;
+  let loadingTimer;
+
   // --- HELPER: FUNGSI SET ERROR ---
   function setError(input, message) {
     var formGroup = input.closest(".form-group");
@@ -22,7 +26,7 @@ $(document).ready(function () {
     formGroup.find(".invalid-feedback").remove();
     // Tambah pesan baru
     formGroup.append(
-      '<div class="invalid-feedback d-block">' + message + "</div>"
+      '<div class="invalid-feedback d-block">' + message + "</div>",
     );
   }
 
@@ -43,7 +47,7 @@ $(document).ready(function () {
       td.append(
         '<small class="text-danger text-center d-block mt-1">' +
           message +
-          "</small>"
+          "</small>",
       );
     }
   }
@@ -102,7 +106,7 @@ $(document).ready(function () {
           $jadwal.append('<option value="">-- Pilih Jadwal --</option>');
           data.forEach(function (item) {
             $jadwal.append(
-              '<option value="' + item.id + '">' + item.text + "</option>"
+              '<option value="' + item.id + '">' + item.text + "</option>",
             );
           });
           $jadwal.prop("disabled", false);
@@ -196,14 +200,14 @@ $(document).ready(function () {
   // 2. DATA PEMOHON (LOGIKA PEKERJAAN & CLEAR DATA)
   // ============================================
   $(
-    "#tab2 input[required], #tab2 select[required], #tab2 textarea[required]"
+    "#tab2 input[required], #tab2 select[required], #tab2 textarea[required]",
   ).on("input change", function () {
     if ($(this).val()) {
       clearError($(this));
       // Khusus Select2
       if ($(this).hasClass("select2-hidden-accessible")) {
         clearError(
-          $(this).next(".select2-container").find(".select2-selection")
+          $(this).next(".select2-container").find(".select2-selection"),
         );
       }
     }
@@ -267,9 +271,37 @@ $(document).ready(function () {
     var targetId = $("#uploadTargetId").val(); // ex: administrasi_1
     var type = $("#uploadType").val();
 
+    var validImageTypes = ["image/jpeg", "image/png", "image/jpg"];
+
+    // Cek jika tipe file user tidak ada di list
+    if (targetId === "administrasi_1" && !validImageTypes.includes(file.type)) {
+      Swal.fire({
+        icon: "warning",
+        title: "Format File Salah",
+        text: "Untuk KTP, mohon upload file gambar asli (JPG, JPEG, atau PNG). Dokumen PDF tidak dapat dipindai.",
+        footer: "Silakan screenshot atau foto ulang KTP Anda.",
+      });
+      // Reset input file agar user memilih ulang
+      $("#fileInput").val("");
+      $(".custom-file-label").text("Pilih file");
+      return;
+    }
+
     // --- LOGIKA BARU: VALIDASI OCR KTP ---
     if (targetId === "administrasi_1") {
-      // KTP
+      if (ocrFailedCount >= 5) {
+        Swal.fire({
+          icon: "warning",
+          title: "Validasi Otomatis Dilewati",
+          text: "Sistem mengalami kesulitan membaca KTP Anda. Kami akan meloloskan upload ini, namun pastikan data yang Anda input sudah sesuai dengan KTP.",
+          confirmButtonText: "Ya, Saya Yakin Sesuai",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            processSaveFile(targetId, type, file); // Simpan manual
+          }
+        });
+        return;
+      }
 
       // Ambil Data Inputan Tab 2
       // var nik = $("input[name='nik']").val();
@@ -282,7 +314,7 @@ $(document).ready(function () {
         Swal.fire(
           "Data Belum Lengkap",
           "Mohon lengkapi data diri di Tab 2 sebelum upload KTP agar bisa divalidasi.",
-          "warning"
+          "warning",
         );
         $("#uploadModal").modal("hide");
         $("#tab2-link").tab("show"); // Pindah ke tab 2
@@ -298,11 +330,63 @@ $(document).ready(function () {
       ocrData.append("birthDate", tglLahir);
       ocrData.append("gender", gender);
 
+      // Swal.fire({
+      //   title: "Memvalidasi KTP...",
+      //   text: "Sistem sedang mencocokkan data KTP dengan inputan Anda.",
+      //   allowOutsideClick: false,
+      //   didOpen: () => Swal.showLoading(),
+      // });
+
       Swal.fire({
-        title: "Memvalidasi KTP...",
-        text: "Sistem sedang mencocokkan data KTP dengan inputan Anda.",
+        title: "Sedang Memproses KTP",
+        html: `
+              <div class="mb-3">Mohon jangan tutup halaman ini.</div>
+              <div class="progress mb-2" style="height: 6px;">
+                <div id="ocr-progress-bar" class="progress-bar bg-primary progress-bar-striped progress-bar-animated" role="progressbar" style="width: 10%"></div>
+              </div>
+              <div class="d-flex justify-content-between mt-1">
+                 <span id="ocr-status-text" class="text-primary font-weight-bold small">Mengunggah Gambar...</span>
+                 <span id="ocr-percentage-text" class="text-primary font-weight-bold small">10%</span>
+              </div>
+              <small class="text-muted mt-3 d-block border-top pt-2">Percobaan Validasi ke-${
+                ocrFailedCount + 1
+              }</small>
+            `,
         allowOutsideClick: false,
-        didOpen: () => Swal.showLoading(),
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        didOpen: () => {
+          Swal.showLoading();
+          const statusText =
+            Swal.getHtmlContainer().querySelector("#ocr-status-text");
+          const percentText = Swal.getHtmlContainer().querySelector(
+            "#ocr-percentage-text",
+          );
+          const progressBar =
+            Swal.getHtmlContainer().querySelector("#ocr-progress-bar");
+
+          // Simulasi Progress Bar & Persentase
+          setTimeout(() => {
+            if (statusText)
+              statusText.textContent = "Meningkatkan Kualitas Gambar...";
+            if (percentText) percentText.textContent = "35%";
+            if (progressBar) progressBar.style.width = "35%";
+          }, 1000);
+
+          setTimeout(() => {
+            if (statusText)
+              statusText.textContent = "Mengekstrak Teks (OCR)...";
+            if (percentText) percentText.textContent = "65%";
+            if (progressBar) progressBar.style.width = "65%";
+          }, 2800);
+
+          setTimeout(() => {
+            if (statusText)
+              statusText.textContent = "Mencocokkan Data Nama & TTL...";
+            if (percentText) percentText.textContent = "90%";
+            if (progressBar) progressBar.style.width = "90%";
+          }, 5000);
+        },
       });
 
       // AJAX Check
@@ -327,7 +411,7 @@ $(document).ready(function () {
           if (!res.nameValid) {
             setError(
               $("input[name='fullName']"),
-              "Nama Lengkap tidak cocok dengan KTP!"
+              "Nama Lengkap tidak cocok dengan KTP!",
             );
             errors.push("Nama");
           } else clearError($("input[name='fullName']"));
@@ -335,7 +419,7 @@ $(document).ready(function () {
           if (!res.birthPlaceValid) {
             setError(
               $("input[name='birthPlace']"),
-              "Tempat Lahir tidak cocok dengan KTP!"
+              "Tempat Lahir tidak cocok dengan KTP!",
             );
             errors.push("Tempat Lahir");
           } else clearError($("input[name='birthPlace']"));
@@ -343,7 +427,7 @@ $(document).ready(function () {
           if (!res.birthDateValid) {
             setError(
               $("input[name='birthDate']"),
-              "Tanggal Lahir tidak cocok dengan KTP!"
+              "Tanggal Lahir tidak cocok dengan KTP!",
             );
             errors.push("Tanggal Lahir");
           } else clearError($("input[name='birthDate']"));
@@ -351,26 +435,33 @@ $(document).ready(function () {
           if (!res.genderValid) {
             setError(
               $("select[name='gender']"),
-              "Jenis Kelamin tidak cocok dengan KTP!"
+              "Jenis Kelamin tidak cocok dengan KTP!",
             );
             errors.push("Jenis Kelamin");
           } else clearError($("select[name='gender']"));
 
           if (errors.length > 0) {
+            // TAMBAH COUNTER GAGAL
+            ocrFailedCount++;
+            var sisa = 5 - ocrFailedCount;
+
             Swal.fire({
               icon: "error",
-              title: "Validasi OCR Gagal",
-              text:
-                "Terdapat ketidakcocokan data: " +
-                errors.join(", ") +
-                ". Mohon sesuaikan inputan dengan KTP.",
+              title: "Validasi Gagal",
+              html: `Data berikut tidak sesuai dengan KTP: <b>${errors.join(
+                ", ",
+              )}</b>.<br>
+                               Mohon perbaiki inputan atau upload foto KTP yang lebih jelas.<br><br>
+                               <span class="text-danger font-weight-bold">Sisa percobaan validasi: ${sisa}x lagi.</span>`,
               footer: "Pastikan foto KTP jelas dan tidak buram.",
             });
 
             $("#uploadModal").modal("hide");
-            $("#tab2-link").tab("show"); // Lempar user ke Tab 2 untuk memperbaiki
-            // File JANGAN disimpan ke fileStore agar user upload ulang nanti
+            $("#tab2-link").tab("show");
+            // File TIDAK disimpan
           } else {
+            // SUKSES
+            ocrFailedCount = 0; // Reset counter
             Swal.fire({
               icon: "success",
               title: "Validasi Berhasil",
@@ -378,15 +469,15 @@ $(document).ready(function () {
               timer: 1500,
               showConfirmButton: false,
             });
-            // LANJUT SIMPAN FILE (Proses Normal)
             processSaveFile(targetId, type, file);
           }
         },
         error: function () {
+          ocrFailedCount++;
           Swal.fire(
             "Error",
             "Gagal memproses validasi OCR. Coba lagi.",
-            "error"
+            "error",
           );
         },
       });
@@ -406,7 +497,7 @@ $(document).ready(function () {
             <a href="${blobUrl}" target="_blank" class="btn btn-sm btn-info" title="Lihat File"><i class="fas fa-eye"></i></a>
             <button type="button" class="btn btn-sm btn-outline-danger btn-delete-upload" data-id="${targetId}" data-type="${type}"><i class="fas fa-trash"></i></button>
         </div>
-        <input type="hidden" name="upload_status_${targetId}" value="1"> 
+        <input type="hidden" name="upload_status_${targetId}" value="1">
     `;
 
     var $btnOrigin = $('.btn-upload-modal[data-id="' + targetId + '"]');
@@ -419,13 +510,17 @@ $(document).ready(function () {
       var docName = $("#uploadModalLabel").text().replace("Upload ", "");
       uploadedPortofolio.push({ id: targetId, text: docName });
       refreshBuktiRelevanDropdown();
-      if (uploadedPortofolio.length >= 1)
+      if (uploadedPortofolio.length >= 1) {
+        $("#error-tab5-global").remove();
         setAllUploadButtonsError("#tab5", false);
+      }
     }
 
     if (type === "syarat") {
-      if ($('input[name^="upload_status_syarat_"]').length >= 1)
+      if ($('input[name^="upload_status_syarat_"]').length >= 1) {
+        $("#error-tab3-global").remove();
         setAllUploadButtonsError("#tab3", false);
+      }
     }
 
     // Admin 2 (Foto) juga langsung clear error
@@ -437,6 +532,465 @@ $(document).ready(function () {
     $("#fileInput").val("");
     $(".custom-file-label").text("Pilih file");
   }
+
+  // ==============================
+  // KODE 3
+  // ==============================
+
+  // $("#btnSimpanUpload").on("click", async function () {
+  //   var fileInput = $("#fileInput")[0];
+  //   if (fileInput.files.length === 0) {
+  //     Swal.fire("Error", "Pilih file terlebih dahulu!", "error");
+  //     return;
+  //   }
+
+  //   var file = fileInput.files[0];
+  //   var targetId = $("#uploadTargetId").val();
+  //   var type = $("#uploadType").val();
+
+  //   // --- LOGIKA OCR CLIENT-SIDE (TESSERACT.JS) ---
+  //   if (targetId === "administrasi_1") {
+  //     // KTP
+
+  //     // 1. Cek Bypass (Jika sudah gagal 3x)
+  //     if (ocrFailedCount >= 3) {
+  //       Swal.fire({
+  //         icon: "warning",
+  //         title: "Validasi Otomatis Dilewati",
+  //         text: "Sistem kesulitan membaca KTP Anda. Kami meloloskan upload ini, mohon pastikan data inputan sudah benar.",
+  //         confirmButtonText: "Ya, Lanjutkan",
+  //       }).then((result) => {
+  //         if (result.isConfirmed) {
+  //           processSaveFile(targetId, type, file);
+  //         }
+  //       });
+  //       return;
+  //     }
+
+  //     // 2. Ambil Data Form Tab 2
+  //     var namaInput = $("input[name='fullName']").val();
+  //     var tglLahirInput = $("input[name='birthDate']").val(); // YYYY-MM-DD
+  //     var genderInput = $("select[name='gender']").val();
+
+  //     // Validasi Kelengkapan Data
+  //     if (!namaInput || !tglLahirInput || !genderInput) {
+  //       Swal.fire(
+  //         "Data Belum Lengkap",
+  //         "Mohon lengkapi Nama, Tgl Lahir, dan Gender di Tab 2 dahulu.",
+  //         "warning"
+  //       );
+  //       $("#uploadModal").modal("hide");
+  //       $("#tab2-link").tab("show");
+  //       return;
+  //     }
+
+  //     // Format Tanggal Input (YYYY-MM-DD) jadi format KTP (DD-MM-YYYY)
+  //     // ex: 2000-01-20 -> 20-01-2000
+  //     var parts = tglLahirInput.split("-");
+  //     var tglLahirKtp = parts[2] + "-" + parts[1] + "-" + parts[0];
+
+  //     // Tampilkan Loading Progress
+  //     Swal.fire({
+  //       title: "Memindai KTP...",
+  //       html: 'Sedang membaca teks... <b id="ocr-percentage">0%</b><br><small>Proses ini dilakukan di browser Anda.</small>',
+  //       allowOutsideClick: false,
+  //       didOpen: () => Swal.showLoading(),
+  //     });
+
+  //     try {
+  //       // A. PRE-PROCESSING IMAGE (PENTING AGAR AKURAT)
+  //       // Ubah ke Hitam Putih & High Contrast via Canvas
+  //       const processedImageBlob = await preprocessImage(file);
+
+  //       // B. JALANKAN TESSERACT
+  //       const worker = Tesseract.createWorker({
+  //         logger: (m) => {
+  //           if (m.status === "recognizing text") {
+  //             $("#ocr-percentage").text(Math.round(m.progress * 100) + "%");
+  //           }
+  //         },
+  //       });
+
+  //       await worker.load();
+  //       await worker.loadLanguage("ind");
+  //       await worker.initialize("ind");
+  //       // Whitelist karakter (Hanya huruf angka dan simbol dasar)
+  //       await worker.setParameters({
+  //         tessedit_char_whitelist: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/.-: ",
+  //       });
+
+  //       const {
+  //         data: { text },
+  //       } = await worker.recognize(processedImageBlob);
+  //       await worker.terminate();
+
+  //       const ocrText = text.toUpperCase();
+  //       console.log("HASIL OCR:", ocrText); // Debug di Console Browser
+
+  //       // C. VALIDASI LOGIC
+  //       var errors = [];
+  //       var cleanNama = namaInput.toUpperCase().replace(/[^A-Z]/g, ""); // Hapus spasi/gelar
+
+  //       // 1. Validasi Nama (Partial Match)
+  //       // Mencari apakah nama input ada di dalam teks OCR
+  //       // Menggunakan logic sederhana: Jika minimal 1 kata (panjang > 3) ketemu, anggap Valid
+  //       var isNameValid = false;
+
+  //       // Cek Full Name
+  //       if (ocrText.replace(/[^A-Z]/g, "").includes(cleanNama)) {
+  //         isNameValid = true;
+  //       } else {
+  //         // Cek Per Kata (antisipasi nama panjang terpotong)
+  //         var namaParts = namaInput.toUpperCase().split(" ");
+  //         var matchCount = 0;
+  //         namaParts.forEach((part) => {
+  //           if (part.length > 3 && ocrText.includes(part)) {
+  //             matchCount++;
+  //           }
+  //         });
+  //         if (matchCount >= 1) isNameValid = true;
+  //       }
+
+  //       if (!isNameValid) errors.push("Nama Lengkap");
+
+  //       // 2. Validasi Tgl Lahir
+  //       // Cari string "20-01-2000" atau "20 01 2000"
+  //       var isTglValid = false;
+  //       if (
+  //         ocrText.includes(tglLahirKtp) ||
+  //         ocrText.replace(/ /g, "").includes(tglLahirKtp)
+  //       ) {
+  //         isTglValid = true;
+  //       }
+  //       // Fallback: Cari tanpa tahun (tgl-bulan saja)
+  //       else if (ocrText.includes(parts[2] + "-" + parts[1])) {
+  //         isTglValid = true;
+  //       }
+
+  //       if (!isTglValid) errors.push("Tanggal Lahir");
+
+  //       // 3. Validasi Gender
+  //       var isGenderValid = false;
+  //       if (genderInput === "L") {
+  //         if (
+  //           ocrText.includes("LAKI") ||
+  //           ocrText.includes("LAK1") ||
+  //           ocrText.includes("LAK")
+  //         )
+  //           isGenderValid = true;
+  //       } else {
+  //         if (
+  //           ocrText.includes("PEREM") ||
+  //           ocrText.includes("WANITA") ||
+  //           ocrText.includes("P3REM")
+  //         )
+  //           isGenderValid = true;
+  //       }
+
+  //       if (!isGenderValid) errors.push("Jenis Kelamin");
+
+  //       // D. KEPUTUSAN AKHIR
+  //       if (errors.length > 0) {
+  //         // GAGAL
+  //         ocrFailedCount++;
+  //         var sisa = 3 - ocrFailedCount;
+
+  //         Swal.fire({
+  //           icon: "error",
+  //           title: "Validasi Gagal",
+  //           html: `Data tidak cocok: <b>${errors.join(", ")}</b>.<br>
+  //                          Mohon pastikan foto KTP jelas, tegak lurus, dan tidak buram.<br><br>
+  //                          <span class="text-danger">Sisa percobaan: ${sisa}x lagi.</span>`,
+  //         }).then(() => {
+  //           $("#uploadModal").modal("hide");
+  //           $("#tab2-link").tab("show");
+  //         });
+  //       } else {
+  //         // SUKSES
+  //         ocrFailedCount = 0;
+  //         Swal.fire({
+  //           icon: "success",
+  //           title: "Validasi Sukses",
+  //           text: "Data KTP Valid.",
+  //           timer: 1500,
+  //           showConfirmButton: false,
+  //         });
+  //         processSaveFile(targetId, type, file);
+  //       }
+  //     } catch (err) {
+  //       console.error(err);
+  //       ocrFailedCount++;
+  //       Swal.fire(
+  //         "Error",
+  //         "Gagal memproses gambar. Pastikan format JPG/PNG.",
+  //         "error"
+  //       );
+  //     }
+  //   } else {
+  //     // Bukan KTP (Foto/Portofolio/Syarat) -> Langsung Simpan
+  //     processSaveFile(targetId, type, file);
+  //   }
+  // });
+
+  // // --- HELPER IMAGE PROCESSING (CANVAS) ---
+  // // Fungsi ini mengubah gambar jadi Hitam Putih (Binarization) sebelum dibaca OCR
+  // function preprocessImage(file) {
+  //   return new Promise((resolve) => {
+  //     const reader = new FileReader();
+  //     reader.onload = function (e) {
+  //       const img = new Image();
+  //       img.onload = function () {
+  //         const canvas = document.createElement("canvas");
+  //         const ctx = canvas.getContext("2d");
+
+  //         // 1. Resize (Perbesar 2x agar teks kecil terbaca)
+  //         const scale = 3.5;
+  //         canvas.width = img.width * scale;
+  //         canvas.height = img.height * scale;
+
+  //         // Gambar ke canvas
+  //         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+  //         // 2. Manipulasi Pixel (Grayscale & Threshold)
+  //         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  //         const data = imageData.data; // Array pixel [R, G, B, A, R, G, B, A...]
+
+  //         for (let i = 0; i < data.length; i += 4) {
+  //           // Hitung rata-rata RGB (Grayscale)
+  //           const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+
+  //           // Thresholding (Mirip Binarization di Java)
+  //           // Jika terang (>130) jadi Putih (255), jika gelap jadi Hitam (0)
+  //           const color = avg > 130 ? 255 : 0;
+
+  //           data[i] = color; // R
+  //           data[i + 1] = color; // G
+  //           data[i + 2] = color; // B
+  //         }
+
+  //         ctx.putImageData(imageData, 0, 0);
+
+  //         // Convert Canvas balik ke Blob/File
+  //         canvas.toBlob(
+  //           (blob) => {
+  //             resolve(blob);
+  //           },
+  //           "image/jpeg",
+  //           0.95
+  //         );
+  //       };
+  //       img.src = e.target.result;
+  //     };
+  //     reader.readAsDataURL(file);
+  //   });
+  // }
+
+  // // Fungsi Simpan File (UI Update & Memory Store)
+  // function processSaveFile(targetId, type, file) {
+  //   fileStore[targetId] = file;
+  //   var blobUrl = URL.createObjectURL(file);
+
+  //   var btnHtml = `
+  //       <div class="action-buttons">
+  //           <a href="${blobUrl}" target="_blank" class="btn btn-sm btn-info" title="Lihat File"><i class="fas fa-file"></i></a>
+  //           <button type="button" class="btn btn-sm btn-outline-danger btn-delete-upload" data-id="${targetId}" data-type="${type}"><i class="fas fa-trash"></i></button>
+  //       </div>
+  //       <input type="hidden" name="upload_status_${targetId}" value="1">
+  //   `;
+
+  //   var $btnOrigin = $('.btn-upload-modal[data-id="' + targetId + '"]');
+  //   var $td = $btnOrigin.closest("td");
+  //   $td.html(btnHtml);
+  //   $td.find(".text-danger").remove();
+
+  //   if (type === "portofolio") {
+  //     var docName = $("#uploadModalLabel").text().replace("Upload ", "");
+  //     uploadedPortofolio.push({ id: targetId, text: docName });
+  //     refreshBuktiRelevanDropdown();
+  //     if (uploadedPortofolio.length >= 1)
+  //       setAllUploadButtonsError("#tab5", false);
+  //   }
+
+  //   if (type === "syarat") {
+  //     if ($('input[name^="upload_status_syarat_"]').length >= 1)
+  //       setAllUploadButtonsError("#tab3", false);
+  //   }
+
+  //   // Clear error specific button
+  //   if (targetId === "administrasi_1" || targetId === "administrasi_2") {
+  //     clearUploadError($('.btn-upload-modal[data-id="' + targetId + '"]'));
+  //   }
+
+  //   $("#uploadModal").modal("hide");
+  //   $("#fileInput").val("");
+  //   $(".custom-file-label").text("Pilih file");
+  // }
+
+  // ======================================================
+  // -----------KODE 4 Tanpa Validasi Percobaan -----------
+  // ======================================================
+
+  // $("#btnSimpanUpload").on("click", function () {
+  //   var fileInput = $("#fileInput")[0];
+  //   if (fileInput.files.length === 0) {
+  //     Swal.fire("Error", "Pilih file terlebih dahulu!", "error");
+  //     return;
+  //   }
+
+  //   var file = fileInput.files[0];
+  //   var targetId = $("#uploadTargetId").val();
+  //   var type = $("#uploadType").val();
+
+  //   // === VALIDASI OCR KHUSUS KTP ===
+  //   if (targetId === "administrasi_1") {
+
+  //       // 1. Ambil Data Form Tab 2
+  //       var nik = $("input[name='nik']").val();
+  //       var nama = $("input[name='fullName']").val();
+  //       var tmpLahir = $("input[name='birthPlace']").val();
+  //       var tglLahir = $("input[name='birthDate']").val();
+  //       var gender = $("select[name='gender']").val();
+
+  //       // Cek Kelengkapan Data sebelum OCR
+  //       if(!nik || !nama || !tmpLahir || !tglLahir || !gender) {
+  //           Swal.fire({
+  //               icon: 'warning',
+  //               title: 'Data Belum Lengkap',
+  //               text: 'Mohon lengkapi NIK, Nama, TTL, dan Gender di Tab 2 sebelum upload KTP.'
+  //           }).then(() => {
+  //               $("#uploadModal").modal("hide");
+  //               $('#tab2-link').tab('show');
+  //           });
+  //           return;
+  //       }
+
+  //       var ocrData = new FormData();
+  //       ocrData.append("ktpFile", file);
+  //       ocrData.append("nik", nik);
+  //       ocrData.append("fullName", nama);
+  //       ocrData.append("birthPlace", tmpLahir);
+  //       ocrData.append("birthDate", tglLahir);
+  //       ocrData.append("gender", gender);
+
+  //       Swal.fire({
+  //           title: 'Memverifikasi KTP...',
+  //           html: 'Sistem sedang membaca dan mencocokkan data KTP.<br><small>Mohon tunggu, proses ini membutuhkan ketelitian.</small>',
+  //           allowOutsideClick: false,
+  //           didOpen: () => Swal.showLoading()
+  //       });
+
+  //       $.ajax({
+  //           url: "/asesi/api/validate-ktp",
+  //           type: "POST",
+  //           data: ocrData,
+  //           processData: false,
+  //           contentType: false,
+  //           success: function(res) {
+  //               var errorList = [];
+
+  //               // 2. Cek Validasi Balikan Server
+  //               // Note: NIK sudah tidak divalidasi OCR sesuai request sebelumnya
+
+  //               if (!res.nameValid) {
+  //                   setError($("input[name='fullName']"), "Nama Lengkap tidak cocok dengan KTP! Silakan ubah sesuai KTP.");
+  //                   errorList.push("Nama Lengkap");
+  //               } else clearError($("input[name='fullName']"));
+
+  //               if (!res.birthPlaceValid) {
+  //                   setError($("input[name='birthPlace']"), "Tempat Lahir tidak cocok dengan KTP! Silakan ubah sesuai KTP.");
+  //                   errorList.push("Tempat Lahir");
+  //               } else clearError($("input[name='birthPlace']"));
+
+  //               if (!res.birthDateValid) {
+  //                   setError($("input[name='birthDate']"), "Tanggal Lahir tidak cocok dengan KTP! Silakan ubah sesuai KTP.");
+  //                   errorList.push("Tanggal Lahir");
+  //               } else clearError($("input[name='birthDate']"));
+
+  //               if (!res.genderValid) {
+  //                   // Khusus Select2
+  //                   setError($("select[name='gender']").next('.select2-container').find('.select2-selection'), "Jenis Kelamin salah! Silakan ubah sesuai KTP.");
+  //                   errorList.push("Jenis Kelamin");
+  //               } else {
+  //                   clearError($("select[name='gender']").next('.select2-container').find('.select2-selection'));
+  //               }
+
+  //               // 3. Keputusan Akhir
+  //               if (errorList.length > 0) {
+  //                   Swal.fire({
+  //                       icon: 'error',
+  //                       title: 'Validasi KTP Gagal',
+  //                       html: `Data berikut tidak sesuai dengan KTP:<br><b>${errorList.join(", ")}</b>.<br><br>Mohon perbaiki data di form atau upload foto KTP yang lebih jelas.`,
+  //                       confirmButtonText: 'Perbaiki Data'
+  //                   }).then(() => {
+  //                       $("#uploadModal").modal("hide");
+  //                       $('#tab2-link').tab('show'); // Redirect ke Tab 2
+  //                   });
+  //                   // FILE TIDAK DISIMPAN KE STORE
+  //               } else {
+  //                   Swal.fire({
+  //                       icon: 'success',
+  //                       title: 'Terverifikasi',
+  //                       text: 'Data KTP valid dan sesuai.',
+  //                       timer: 1500,
+  //                       showConfirmButton: false
+  //                   });
+  //                   // LANJUT SIMPAN
+  //                   processSaveFile(targetId, type, file);
+  //               }
+  //           },
+  //           error: function() {
+  //               Swal.fire("Gagal", "Terjadi kesalahan saat memproses OCR. Pastikan format gambar JPG/PNG dan ukurannya tidak terlalu besar.", "error");
+  //           }
+  //       });
+
+  //   } else {
+  //       // Bukan KTP, langsung simpan
+  //       processSaveFile(targetId, type, file);
+  //   }
+  // });
+
+  // // Fungsi helper simpan file ke memory & update UI
+  // function processSaveFile(targetId, type, file) {
+  //   fileStore[targetId] = file;
+  //   var blobUrl = URL.createObjectURL(file);
+
+  //   var btnHtml = `
+  //       <div class="action-buttons">
+  //           <a href="${blobUrl}" target="_blank" class="btn btn-sm btn-info" title="Lihat File"><i class="fas fa-eye"></i></a>
+  //           <button type="button" class="btn btn-sm btn-outline-danger btn-delete-upload" data-id="${targetId}" data-type="${type}"><i class="fas fa-trash"></i></button>
+  //       </div>
+  //       <input type="hidden" name="upload_status_${targetId}" value="1">
+  //   `;
+
+  //   var $btnOrigin = $('.btn-upload-modal[data-id="' + targetId + '"]');
+  //   var $td = $btnOrigin.closest("td");
+  //   $td.html(btnHtml);
+  //   $td.find(".text-danger").remove(); // Hapus pesan error di bawah tombol
+
+  //   // Clear error specific per row
+  //   if (type === "administrasi") {
+  //        clearUploadError($('.btn-upload-modal[data-id="' + targetId + '"]'));
+  //   }
+
+  //   if (type === "portofolio") {
+  //     var docName = $("#uploadModalLabel").text().replace("Upload ", "");
+  //     uploadedPortofolio.push({ id: targetId, text: docName });
+  //     refreshBuktiRelevanDropdown();
+  //     if (uploadedPortofolio.length >= 1) setAllUploadButtonsError("#tab5", false);
+  //   }
+
+  //   if (type === "syarat") {
+  //        if($('input[name^="upload_status_syarat_"]').length >= 1) setAllUploadButtonsError("#tab3", false);
+  //   }
+
+  //   $("#uploadModal").modal("hide");
+  //   $("#fileInput").val("");
+  //   $(".custom-file-label").text("Pilih file");
+  // }
+
+  // ==============================
+  // ---------KODE ORIGINAL--------
+  // ==============================
 
   // Handle Simpan Upload
   // $("#btnSimpanUpload").on("click", function () {
@@ -489,7 +1043,7 @@ $(document).ready(function () {
   //     // Jika sudah ada 1 portofolio, bersihkan error global di Tab 5
   //     if (uploadedPortofolio.length >= 1) {
   //       // $("#tab5 .table").removeClass("border border-danger");
-  //       $("#error-tab5-global").remove();
+
   //       setAllUploadButtonsError("#tab5", false);
   //     }
   //   }
@@ -516,6 +1070,10 @@ $(document).ready(function () {
   //   $("#fileInput").val("");
   //   $(".custom-file-label").text("Pilih file");
   // });
+
+  // ==================================
+  // ---------END KODE ORIGINAL--------
+  // ==================================
 
   // Handle Hapus Upload
   $(document).on("click", ".btn-delete-upload", function () {
@@ -603,9 +1161,9 @@ $(document).ready(function () {
         "Rekomendasi dipilih:",
         $(this).attr("name"),
         "=",
-        $(this).val()
+        $(this).val(),
       );
-    }
+    },
   );
 
   // Fungsi validasi per baris elemen
@@ -656,7 +1214,7 @@ $(document).ready(function () {
           var isSelected =
             currentVal && currentVal.includes(item.id) ? "selected" : "";
           $sel.append(
-            `<option value="${item.id}" ${isSelected}>${item.text}</option>`
+            `<option value="${item.id}" ${isSelected}>${item.text}</option>`,
           );
         });
       }
@@ -808,7 +1366,7 @@ $(document).ready(function () {
         $("#selectSkema2")
           .next(".select2-container")
           .find(".select2-selection"),
-        "Pilih Skema terlebih dahulu."
+        "Pilih Skema terlebih dahulu.",
       );
       isValid = false;
       if (!firstErrorTab) firstErrorTab = "#tab1-link";
@@ -818,7 +1376,7 @@ $(document).ready(function () {
         $("#selectJadwal")
           .next(".select2-container")
           .find(".select2-selection"),
-        "Pilih Jadwal terlebih dahulu."
+        "Pilih Jadwal terlebih dahulu.",
       );
       isValid = false;
       if (!firstErrorTab) firstErrorTab = "#tab1-link";
@@ -829,7 +1387,7 @@ $(document).ready(function () {
       Swal.fire(
         "Peringatan",
         "Mohon pilih Skema dan Jadwal terlebih dahulu.",
-        "warning"
+        "warning",
       );
       return;
     }
@@ -837,7 +1395,7 @@ $(document).ready(function () {
     // --- VALIDASI TAB 2: DATA PEMOHON ---
     // Gunakan HTML5 checkValidity untuk input required standard
     var tab2Inputs = $("#tab2").find(
-      "input[required], select[required], textarea[required]"
+      "input[required], select[required], textarea[required]",
     );
     tab2Inputs.each(function () {
       if (!$(this).val()) {
@@ -846,7 +1404,7 @@ $(document).ready(function () {
         if ($(this).hasClass("select2-hidden-accessible")) {
           setError(
             $(this).next(".select2-container").find(".select2-selection"),
-            "Wajib dipilih."
+            "Wajib dipilih.",
           );
         }
         isValid = false;
@@ -864,7 +1422,7 @@ $(document).ready(function () {
     if (syaratCount < 1) {
       $("#error-tab3-global").remove();
       $("#tab3 .table").before(
-        '<div id="error-tab3-global" class="alert alert-danger p-2">Wajib mengupload minimal 1 Persyaratan Dasar!</div>'
+        '<div id="error-tab3-global" class="alert alert-danger p-2">Wajib mengupload minimal 1 Persyaratan Dasar!</div>',
       );
       $("#tab3 .table").addClass("border border-danger");
 
@@ -889,7 +1447,7 @@ $(document).ready(function () {
     if (!admin1) {
       setUploadError(
         $('.btn-upload-modal[data-id="administrasi_1"]'),
-        "KTP Wajib diupload!"
+        "KTP Wajib diupload!",
       );
       isValid = false;
       if (!firstErrorTab) firstErrorTab = "#tab4-link";
@@ -900,7 +1458,7 @@ $(document).ready(function () {
     if (!admin2) {
       setUploadError(
         $('.btn-upload-modal[data-id="administrasi_2"]'),
-        "Pas Foto Wajib diupload!"
+        "Pas Foto Wajib diupload!",
       );
       isValid = false;
       if (!firstErrorTab) firstErrorTab = "#tab4-link";
@@ -917,7 +1475,7 @@ $(document).ready(function () {
     if (portofolioCount < 1) {
       $("#error-tab5-global").remove();
       $("#tab5 .table").before(
-        '<div id="error-tab5-global" class="alert alert-danger p-2">Wajib mengupload minimal 1 Bukti Portofolio!</div>'
+        '<div id="error-tab5-global" class="alert alert-danger p-2">Wajib mengupload minimal 1 Bukti Portofolio!</div>',
       );
       $("#tab5 .table").addClass("border border-danger");
       $("#tab5 .btn-upload-modal")
@@ -934,7 +1492,7 @@ $(document).ready(function () {
     if (!$("input[name='tujuanAsesmen']:checked").val()) {
       $("#error-tujuan-asesmen").remove();
       $("#tab6 .form-group").append(
-        '<div id="error-tujuan-asesmen" class="text-danger mt-2">Harap pilih tujuan asesmen.</div>'
+        '<div id="error-tujuan-asesmen" class="text-danger mt-2">Harap pilih tujuan asesmen.</div>',
       );
       isValid = false;
       if (!firstErrorTab) firstErrorTab = "#tab6-link";
@@ -946,7 +1504,7 @@ $(document).ready(function () {
       Swal.fire(
         "Gagal",
         "Mohon isi semua data pada formulir pendaftaran.",
-        "error"
+        "error",
       );
       return;
     }

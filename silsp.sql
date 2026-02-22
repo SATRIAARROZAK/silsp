@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS `jadwal_ujiasesor` (
   KEY `FKchjdprv572gnv70hjex470x2a` (`id_jadwal`),
   CONSTRAINT `FK8ykgqmp0638gm55y8slbdkcn` FOREIGN KEY (`id_asesor`) REFERENCES `users` (`id_user`),
   CONSTRAINT `FKchjdprv572gnv70hjex470x2a` FOREIGN KEY (`id_jadwal`) REFERENCES `jadwal_ujisertifikasi` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
 
 -- Data exporting was unselected.
 
@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS `jadwal_ujisertifikasi` (
   CONSTRAINT `FKcb3nhi0l0acuon9oibrbu8rd9` FOREIGN KEY (`id_tuk`) REFERENCES `tuk` (`id_tuk`),
   CONSTRAINT `FKitsj64mx1d369lwv4nd6tyt3g` FOREIGN KEY (`id_pemberi_anggaran`) REFERENCES `tb_pemberi_anggaran` (`id`),
   CONSTRAINT `FKqsw616b5rxl5duec8npcc27vk` FOREIGN KEY (`id_sumber_anggaran`) REFERENCES `tb_sumber_anggaran` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
 
 -- Data exporting was unselected.
 
@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS `jadwal_ujiskema` (
   KEY `FKqhv31bgk0vddstdbptsvn1gma` (`id_skema`),
   CONSTRAINT `FKggrb3aph8hkivjsnef0e9crh9` FOREIGN KEY (`id_jadwal`) REFERENCES `jadwal_ujisertifikasi` (`id`),
   CONSTRAINT `FKqhv31bgk0vddstdbptsvn1gma` FOREIGN KEY (`id_skema`) REFERENCES `skema` (`id_skema`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
 
 -- Data exporting was unselected.
 
@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS `persyaratan_skema` (
   PRIMARY KEY (`id_persyaratan_skema`),
   KEY `FKkpcg63cduobex93g9pv89nhrq` (`id_skema`),
   CONSTRAINT `FKkpcg63cduobex93g9pv89nhrq` FOREIGN KEY (`id_skema`) REFERENCES `skema` (`id_skema`)
-) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=43 DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
 
 -- Data exporting was unselected.
 
@@ -109,7 +109,7 @@ CREATE TABLE IF NOT EXISTS `skema` (
   KEY `FK12avep2gj6girhtxpj2ql1pkd` (`id_jenis_skema`),
   CONSTRAINT `FK12avep2gj6girhtxpj2ql1pkd` FOREIGN KEY (`id_jenis_skema`) REFERENCES `type_skema` (`id_jenis_skema`),
   CONSTRAINT `FKgbvg2po9hlroxnvytodjf09ej` FOREIGN KEY (`id_pengajuan_skema`) REFERENCES `type_skema_pengajuan` (`id_pengajuan_skema`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
 
 -- Data exporting was unselected.
 
@@ -141,12 +141,139 @@ CREATE TABLE IF NOT EXISTS `spring_session_attributes` (
 
 -- Data exporting was unselected.
 
+-- Dumping structure for table silsp_db.tb_asesmen_bukti_relasi
+CREATE TABLE IF NOT EXISTS `tb_asesmen_bukti_relasi` (
+  `asesmen_id` bigint NOT NULL,
+  `portofolio_id` bigint NOT NULL,
+  KEY `FKk621xx6f64g89i7s8qmhkk50k` (`portofolio_id`),
+  KEY `FKpjatfkmtv3udkwpahqivdt210` (`asesmen_id`),
+  CONSTRAINT `FKk621xx6f64g89i7s8qmhkk50k` FOREIGN KEY (`portofolio_id`) REFERENCES `tb_bukti_portofolio` (`id`),
+  CONSTRAINT `FKpjatfkmtv3udkwpahqivdt210` FOREIGN KEY (`asesmen_id`) REFERENCES `tb_asesmen_mandiri` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table silsp_db.tb_asesmen_mandiri
+CREATE TABLE IF NOT EXISTS `tb_asesmen_mandiri` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `rekomendasi_asesi` varchar(255) COLLATE latin1_bin DEFAULT NULL,
+  `permohonan_id` bigint DEFAULT NULL,
+  `unit_elemen_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK3d7gl34rqxggxevq9l4aq92ox` (`permohonan_id`),
+  KEY `FKjsokkssyrx0q1dhwk9g05m6d5` (`unit_elemen_id`),
+  CONSTRAINT `FK3d7gl34rqxggxevq9l4aq92ox` FOREIGN KEY (`permohonan_id`) REFERENCES `tb_permohonan_sertifikasi` (`id`),
+  CONSTRAINT `FKjsokkssyrx0q1dhwk9g05m6d5` FOREIGN KEY (`unit_elemen_id`) REFERENCES `tb_unit_elemen` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table silsp_db.tb_bukti_administrasi
+CREATE TABLE IF NOT EXISTS `tb_bukti_administrasi` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `file_path` varchar(255) COLLATE latin1_bin DEFAULT NULL,
+  `jenis_bukti` varchar(255) COLLATE latin1_bin DEFAULT NULL,
+  `permohonan_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKrxafnuml33knyk3mmpc1uxokx` (`permohonan_id`),
+  CONSTRAINT `FKrxafnuml33knyk3mmpc1uxokx` FOREIGN KEY (`permohonan_id`) REFERENCES `tb_permohonan_sertifikasi` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table silsp_db.tb_bukti_persyaratan
+CREATE TABLE IF NOT EXISTS `tb_bukti_persyaratan` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `file_path` varchar(255) COLLATE latin1_bin DEFAULT NULL,
+  `status` varchar(255) COLLATE latin1_bin DEFAULT NULL,
+  `permohonan_id` bigint DEFAULT NULL,
+  `persyaratan_skema_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKge75x1gq5sq3pq9iwhec34qk8` (`permohonan_id`),
+  KEY `FKoax2wn3pgp3rgqmfl140fjg0q` (`persyaratan_skema_id`),
+  CONSTRAINT `FKge75x1gq5sq3pq9iwhec34qk8` FOREIGN KEY (`permohonan_id`) REFERENCES `tb_permohonan_sertifikasi` (`id`),
+  CONSTRAINT `FKoax2wn3pgp3rgqmfl140fjg0q` FOREIGN KEY (`persyaratan_skema_id`) REFERENCES `persyaratan_skema` (`id_persyaratan_skema`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table silsp_db.tb_bukti_portofolio
+CREATE TABLE IF NOT EXISTS `tb_bukti_portofolio` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `file_path` varchar(255) COLLATE latin1_bin DEFAULT NULL,
+  `nama_dokumen` varchar(255) COLLATE latin1_bin DEFAULT NULL,
+  `permohonan_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK6hvkkinet8v4tj05w4opb2emi` (`permohonan_id`),
+  CONSTRAINT `FK6hvkkinet8v4tj05w4opb2emi` FOREIGN KEY (`permohonan_id`) REFERENCES `tb_permohonan_sertifikasi` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table silsp_db.tb_kuk_skema
+CREATE TABLE IF NOT EXISTS `tb_kuk_skema` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `nama_kuk` text COLLATE latin1_bin,
+  `id_elemen` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKs7hnepmijf6f4hl3fdr9ofmk1` (`id_elemen`),
+  CONSTRAINT `FKs7hnepmijf6f4hl3fdr9ofmk1` FOREIGN KEY (`id_elemen`) REFERENCES `tb_unit_elemen` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=138 DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table silsp_db.tb_notification
+CREATE TABLE IF NOT EXISTS `tb_notification` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `dibuat` datetime(6) DEFAULT NULL,
+  `status` bit(1) DEFAULT NULL,
+  `deskripsi` varchar(255) COLLATE latin1_bin NOT NULL,
+  `link` varchar(255) COLLATE latin1_bin DEFAULT NULL,
+  `judul` varchar(255) COLLATE latin1_bin NOT NULL,
+  `user_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKs69itqf43ptalbocpylwetaar` (`user_id`),
+  CONSTRAINT `FKs69itqf43ptalbocpylwetaar` FOREIGN KEY (`user_id`) REFERENCES `users` (`id_user`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
+
+-- Data exporting was unselected.
+
 -- Dumping structure for table silsp_db.tb_pemberi_anggaran
 CREATE TABLE IF NOT EXISTS `tb_pemberi_anggaran` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `nama_instansi` varchar(255) COLLATE latin1_bin NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=161 DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table silsp_db.tb_permohonan_sertifikasi
+CREATE TABLE IF NOT EXISTS `tb_permohonan_sertifikasi` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `status_permohonan` varchar(255) COLLATE latin1_bin DEFAULT NULL,
+  `tanggal_permohonan` datetime(6) DEFAULT NULL,
+  `tujuan_asesmen` varchar(255) COLLATE latin1_bin DEFAULT NULL,
+  `user_id` bigint DEFAULT NULL,
+  `jadwal_id` bigint DEFAULT NULL,
+  `pemberi_anggaran_id` bigint DEFAULT NULL,
+  `skema_id` bigint DEFAULT NULL,
+  `sumber_anggaran_id` bigint DEFAULT NULL,
+  `catatan_revisi` text COLLATE latin1_bin,
+  `asesor_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK5nxv5v616e5q8inksxv7hhnvy` (`user_id`),
+  KEY `FK8xnvky65ox7y4adpfb27k63h3` (`jadwal_id`),
+  KEY `FK3r1vu3pdotbege63cwf27u3lm` (`pemberi_anggaran_id`),
+  KEY `FKbdh3qfa65pw3glxpcqls9e5k3` (`skema_id`),
+  KEY `FK8mvhb7hr504uy7dxpefsd64ks` (`sumber_anggaran_id`),
+  KEY `FKna5ql1e9lsc1usfrgmethffh0` (`asesor_id`),
+  CONSTRAINT `FK3r1vu3pdotbege63cwf27u3lm` FOREIGN KEY (`pemberi_anggaran_id`) REFERENCES `tb_pemberi_anggaran` (`id`),
+  CONSTRAINT `FK5nxv5v616e5q8inksxv7hhnvy` FOREIGN KEY (`user_id`) REFERENCES `users` (`id_user`),
+  CONSTRAINT `FK8mvhb7hr504uy7dxpefsd64ks` FOREIGN KEY (`sumber_anggaran_id`) REFERENCES `tb_sumber_anggaran` (`id`),
+  CONSTRAINT `FK8xnvky65ox7y4adpfb27k63h3` FOREIGN KEY (`jadwal_id`) REFERENCES `jadwal_ujisertifikasi` (`id`),
+  CONSTRAINT `FKbdh3qfa65pw3glxpcqls9e5k3` FOREIGN KEY (`skema_id`) REFERENCES `skema` (`id_skema`),
+  CONSTRAINT `FKna5ql1e9lsc1usfrgmethffh0` FOREIGN KEY (`asesor_id`) REFERENCES `users` (`id_user`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
 
 -- Data exporting was unselected.
 
@@ -168,13 +295,30 @@ CREATE TABLE IF NOT EXISTS `tb_surat_tugas` (
   `tanggal_surat` date DEFAULT NULL,
   `id_asesor` bigint DEFAULT NULL,
   `id_jadwal` bigint DEFAULT NULL,
+  `id_skema` bigint DEFAULT NULL,
+  `file_path` varchar(255) COLLATE latin1_bin DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UKiwm9reweysuc9eeogwdigrp8w` (`nomor_surat`),
   KEY `FKaqplf72huaftahhn42xhljarq` (`id_asesor`),
-  KEY `FK80se83dh3etnbiv7udfq914r1` (`id_jadwal`),
-  CONSTRAINT `FK80se83dh3etnbiv7udfq914r1` FOREIGN KEY (`id_jadwal`) REFERENCES `jadwal_sertifikasi` (`id`),
-  CONSTRAINT `FKaqplf72huaftahhn42xhljarq` FOREIGN KEY (`id_asesor`) REFERENCES `users` (`id_user`)
+  KEY `FKb6jua0ljo60snw979i2myoeje` (`id_jadwal`),
+  KEY `FK5msr2p1eds7l1f7vs67eeqi7l` (`id_skema`),
+  CONSTRAINT `FK5msr2p1eds7l1f7vs67eeqi7l` FOREIGN KEY (`id_skema`) REFERENCES `skema` (`id_skema`),
+  CONSTRAINT `FKaqplf72huaftahhn42xhljarq` FOREIGN KEY (`id_asesor`) REFERENCES `users` (`id_user`),
+  CONSTRAINT `FKb6jua0ljo60snw979i2myoeje` FOREIGN KEY (`id_jadwal`) REFERENCES `jadwal_ujisertifikasi` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
+
+-- Data exporting was unselected.
+
+-- Dumping structure for table silsp_db.tb_unit_elemen
+CREATE TABLE IF NOT EXISTS `tb_unit_elemen` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `nama_elemen` text COLLATE latin1_bin,
+  `no_elemen` varchar(255) COLLATE latin1_bin DEFAULT NULL,
+  `id_unit_skema` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKs4jcopai7dc5y4dfjaunnyfug` (`id_unit_skema`),
+  CONSTRAINT `FKs4jcopai7dc5y4dfjaunnyfug` FOREIGN KEY (`id_unit_skema`) REFERENCES `unit_skema` (`id_unit_skema`)
+) ENGINE=InnoDB AUTO_INCREMENT=194 DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
 
 -- Data exporting was unselected.
 
@@ -187,7 +331,7 @@ CREATE TABLE IF NOT EXISTS `token_reset_password` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `UKt8m99d83rc0n18v8yqgvgi649` (`user_id`),
   CONSTRAINT `FK2fipv3ct5o0fnl4ijti9jdbf2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id_user`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
 
 -- Data exporting was unselected.
 
@@ -206,7 +350,7 @@ CREATE TABLE IF NOT EXISTS `tuk` (
   UNIQUE KEY `UKp0ay50xd5u9cl88wb3p0nm42o` (`kode_tuk`),
   KEY `FKhpwi93rb84gokq2p7qapqwmh7` (`id_jenis_tuk`),
   CONSTRAINT `FKhpwi93rb84gokq2p7qapqwmh7` FOREIGN KEY (`id_jenis_tuk`) REFERENCES `type_tuk` (`id_jenis_tuk`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
 
 -- Data exporting was unselected.
 
@@ -267,7 +411,7 @@ CREATE TABLE IF NOT EXISTS `unit_skema` (
   PRIMARY KEY (`id_unit_skema`),
   KEY `FKa7pwd5xp0s6ewuq4b61vnsn3j` (`id_skema`),
   CONSTRAINT `FKa7pwd5xp0s6ewuq4b61vnsn3j` FOREIGN KEY (`id_skema`) REFERENCES `skema` (`id_skema`)
-) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=88 DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
 
 -- Data exporting was unselected.
 
@@ -307,7 +451,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   KEY `FKl5vq8fmv3511ldmv4a0at69bg` (`id_jenis_pekerjaan`),
   CONSTRAINT `FKl5vq8fmv3511ldmv4a0at69bg` FOREIGN KEY (`id_jenis_pekerjaan`) REFERENCES `type_pekerjaan` (`id_jenis_pekerjaan`),
   CONSTRAINT `FKlpgrt5ov7onv29pkm49883145` FOREIGN KEY (`id_jenis_pendidikan`) REFERENCES `type_pendidikan` (`id_jenis_pendidikan`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1 COLLATE=latin1_bin;
 
 -- Data exporting was unselected.
 

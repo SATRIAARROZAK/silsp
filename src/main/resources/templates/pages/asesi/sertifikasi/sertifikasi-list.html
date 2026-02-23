@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html
   lang="en"
   xmlns:th="http://www.thymeleaf.org"
@@ -136,7 +136,7 @@
                 <td class="text-center align-middle">
                   <div class="btn-group">
                     <a
-                      th:href="@{'/asesi/sertifikasi/detail/' + ${p.id}}"
+                      th:href="@{/asesi/daftar/view/{id}(id=${p.id})}"
                       class="btn btn-sm btn-info"
                       title="Detail"
                     >
@@ -144,13 +144,12 @@
                     </a>
 
                     <a
-                      th:if="${p.status == 'SUBMITTED'}"
-                      href="#"
-                      class="btn btn-sm btn-danger btn-delete"
-                      th:data-id="${p.id}"
-                      title="Batalkan"
+                      th:if="${p.status == 'REVISION'}"
+                      th:href="@{/asesi/daftar/edit/{id}(id=${p.id})}"
+                      class="btn btn-sm btn-warning btn-edit-revisi ml-1"
+                      title="Perbaiki Data"
                     >
-                      <i class="fas fa-trash"></i>
+                      <i class="fas fa-edit"></i>
                     </a>
                   </div>
                 </td>

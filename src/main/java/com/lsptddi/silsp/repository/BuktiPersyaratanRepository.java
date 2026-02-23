@@ -1,5 +1,12 @@
 package com.lsptddi.silsp.repository;
+
 import com.lsptddi.silsp.model.BuktiPersyaratan;
+import com.lsptddi.silsp.model.PermohonanSertifikasi;
+import com.lsptddi.silsp.model.PersyaratanSkema;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface BuktiPersyaratanRepository extends JpaRepository<BuktiPersyaratan, Long> {}
+public interface BuktiPersyaratanRepository extends JpaRepository<BuktiPersyaratan, Long> {
+    BuktiPersyaratan findByPermohonanAndPersyaratanSkema(PermohonanSertifikasi permohonan,
+            PersyaratanSkema persyaratanSkema);
+}

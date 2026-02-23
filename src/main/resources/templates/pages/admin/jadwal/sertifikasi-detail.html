@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html
   lang="en"
   xmlns:th="http://www.thymeleaf.org"
@@ -228,7 +228,9 @@
                         th:href="@{'/admin/accept/' + ${p.id}}"
                         class="btn btn-outline-success"
                         title="Terima"
-                        onclick="return confirm('Yakin terima permohonan ini?')"
+                        onclick="
+                          return confirm('Yakin terima permohonan ini?');
+                        "
                       >
                         <i class="fas fa-check-circle"></i>
                       </a>
@@ -246,7 +248,7 @@
                         th:href="@{'/admin/reject/' + ${p.id}}"
                         class="btn btn-outline-danger"
                         title="Tolak"
-                        onclick="return confirm('Yakin tolak permohonan ini?')"
+                        onclick="return confirm('Yakin tolak permohonan ini?');"
                       >
                         <i class="fas fa-times"></i>
                       </a>
@@ -417,11 +419,58 @@
                   </form>
                 </div>
               </div>
+              <div
+                class="modal fade"
+                id="modalLihatRevisi"
+                tabindex="-1"
+                role="dialog"
+              >
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header bg-info">
+                      <h5 class="modal-title text-white">
+                        Catatan Revisi dari Admin
+                      </h5>
+                      <button
+                        type="button"
+                        class="close text-white"
+                        data-dismiss="modal"
+                        onclick="$('#modalLihatRevisi').modal('hide')"
+                      >
+                        &times;
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <div id="kontenCatatanRevisi" class="p-2"></div>
+                    </div>
+                    <div class="modal-footer">
+                      <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-dismiss="modal"
+                        onclick="$('#modalLihatRevisi').modal('hide')"
+                      >
+                        Tutup
+                      </button>
+                      <!-- <button
+                type="button"
+                class="btn btn-secondary"
+                data-dismiss="modal"
+              >
+                Tutup
+              </button> -->
+                    </div>
+                  </div>
+                </div>
+              </div>
             </tbody>
           </table>
         </div>
 
         <div class="card-footer">
+          <button type="submit" class="btn btn-success">
+            <i class="fas fa-file-excel"></i> Export Excel
+          </button>
           <a th:href="@{/admin/jadwal-sertifikasi}" class="btn btn-default"
             >Kembali</a
           >

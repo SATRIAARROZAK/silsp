@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layouts/app}">
+
+<head th:replace="~{fragments/header :: header('Edit/Revisi Pendaftaran')}"></head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card card-blue-dark card-tabs">
+                        <div class="card-header p-0 pt-1">
+                            <ul class="nav nav-tabs" id="daftar-sertifikasi" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="tab1-link" data-toggle="pill" href="#tab1"
+                                        role="tab">1. Pengajuan Skema</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="tab2-link" data-toggle="pill" href="#tab2" role="tab">2.
+                                        Data Pemohon</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="tab3-link" data-toggle="pill" href="#tab3" role="tab">3.
+                                        Persyaratan Dasar</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="tab4-link" data-toggle="pill" href="#tab4" role="tab">4.
+                                        Bukti Administrasi</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="tab5-link" data-toggle="pill" href="#tab5" role="tab">5.
+                                        Bukti Portofolio</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="tab6-link" data-toggle="pill" href="#tab6" role="tab">6.
+                                        Tujuan Asesmen</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="tab7-link" data-toggle="pill" href="#tab7" role="tab">7.
+                                        Bukti Kompetensi</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="card-body">
+                            <form id="form-pengajuan-skema"
+                                th:action="@{/asesi/sertifikasi/update/{id}(id=${permohonan.id})}" method="post"
+                                enctype="multipart/form-data" novalidate>
+                                <div class="tab-content" id="pengajuan-skema-tabContent">
+                                    <div class="tab-pane fade show active" id="tab1" role="tabpanel">
+                                        <div class="alert alert-warning text-sm">
+                                            <i class="fas fa-lock"></i> Skema dan Jadwal tidak dapat
+                                            diubah pada tahap revisi.
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Pilih Skema Sertifikasi
+                                                        <span class="text-danger">*</span></label>
+                                                    <select class="form-control" disabled style="width: 100%">
+                                                        <option
+                                                            th:text="${permohonan.skema.code + ' - ' + permohonan.skema.name}"
+                                                            selected></option>
+                                                    </select>
+                                                    <input type="hidden" name="skemaId"
+                                                        th:value="${permohonan.skema.id}" />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Pilih Jadwal Kegiatan
+                                                        <span class="text-danger">*</span></label>
+                                                    <select class="form-control" disabled style="width: 100%">
+                                                        <option th:text="${permohonan.jadwal.name}" selected></option>
+                                                    </select>
+                                                    <input type="hidden" name="jadwalId"
+                                                        th:value="${permohonan.jadwal.id}" />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Sumber Anggaran</label>
+                                                    <input type="text" class="form-control"
+                                                        th:value="${permohonan.sumberAnggaran != null ? permohonan.sumberAnggaran.name : '-'}"
+                                                        readonly />
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Pemberi Anggaran</label>
+                                                    <input type="text" class="form-control"
+                                                        th:value="${permohonan.pemberiAnggaran != null ? permohonan.pemberiAnggaran.name : '-'}"
+                                                        readonly />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="tab-pane fade" id="tab2" role="tabpanel">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label>NIK<span class="text-danger">*</span></label>
+                                                    <input type="text" class="form-control mask-nik" name="nik"
+                                                        th:value="${permohonan.asesi.nik}" required />
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-8">
+                                                <div class="form-group">
+                                                    <label>Nama Lengkap <span class="text-danger">*</span></label>
+                                                    <input type="text" class="form-control" name="fullName"
+                                                        th:value="${permohonan.asesi.fullName}" required />
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label>Tempat Lahir <span class="text-danger">*</span></label>
+                                                    <input type="text" class="form-control" name="birthPlace"
+                                                        th:value="${permohonan.asesi.birthPlace}" required />
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label>Tanggal Lahir <span class="text-danger">*</span></label>
+                                                    <input type="date" class="form-control" name="birthDate"
+                                                        th:value="${permohonan.asesi.birthDate}" required />
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label>Jenis Kelamin<span class="text-danger">*</span></label>
+                                                    <select class="form-control" name="gender" required>
+                                                        <option value="L"
+                                                            th:selected="${permohonan.asesi.gender == 'L'}">Laki-laki
+                                                        </option>
+                                                        <option value="P"
+                                                            th:selected="${permohonan.asesi.gender == 'P'}">Perempuan
+                                                        </option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="row mt-2 col-12">
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label>Provinsi<span class="text-danger">*</span></label>
+                                                        <select class="form-control select2" id="selectProvinsi"
+                                                            name="provinceId"
+                                                            th:data-selected="${permohonan.asesi.provinceId}" required
+                                                            style="width: 100%"></select>
+                                                        <input type="hidden" id="inputProvinsi" name="provinceId"
+                                                            th:value="${permohonan.asesi.provinceId}" />
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label>Kota/Kabupaten<span class="text-danger">*</span></label>
+                                                        <select class="form-control select2" id="selectKota"
+                                                            name="cityId" th:data-selected="${permohonan.asesi.cityId}"
+                                                            required style="width: 100%">
+                                                            <option value="" disabled selected>Pilih Kota/Kab...
+                                                            </option>
+                                                        </select>
+                                                        <input type="hidden" id="inputKota" name="cityId"
+                                                            th:value="${permohonan.asesi.cityId}" />
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label>Kecamatan<span class="text-danger">*</span></label>
+                                                        <select class="form-control select2" id="selectKecamatan"
+                                                            name="districtId"
+                                                            th:data-selected="${permohonan.asesi.districtId}" required
+                                                            style="width: 100%">
+                                                            <option value="" disabled selected>Pilih Kecamatan...
+                                                            </option>
+                                                        </select>
+                                                        <input type="hidden" id="inputKecamatan" name="districtId"
+                                                            th:value="${permohonan.asesi.districtId}" />
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-md-12">
+                                                    <div class="form-group">
+                                                        <label>Alamat Jalan<span class="text-danger">*</span></label>
+                                                        <textarea class="form-control" rows="2" name="address"
+                                                            th:text="${permohonan.asesi.address}" required></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label>Kode Pos<span class="text-danger">*</span></label>
+                                                    <input type="text" class="form-control" name="postalCode"
+                                                        th:value="${permohonan.asesi.postalCode}" required />
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label>Email <span class="text-danger">*</span></label>
+                                                    <input type="email" class="form-control" name="email"
+                                                        th:value="${permohonan.asesi.email}" required />
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label>No Telp <span class="text-danger">*</span></label>
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text">+62</span>
+                                                        </div>
+                                                        <input type="text" class="form-control input-phone"
+                                                            name="phoneNumber" placeholder="812xxxxxxx"
+                                                            th:value="${permohonan.asesi.phoneNumber}" required />
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label>Pendidikan Terakhir<span class="text-danger">*</span></label>
+                                                    <select class="form-control select2" id="selectPendidikan"
+                                                        name="educationId"
+                                                        th:data-selected="${permohonan.asesi.educationId != null ? permohonan.asesi.educationId.id : ''}"
+                                                        style="width: 100%" required>
+                                                        <option value="" disabled selected></option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Jenis Pekerjaan</label>
+                                                    <select class="form-control select2" id="selectPekerjaan"
+                                                        name="jobTypeId"
+                                                        th:data-selected="${permohonan.asesi.jobTypeId != null ? permohonan.asesi.jobTypeId.id : ''}"
+                                                        style="width: 100%" required>
+                                                        <option value="">Pilih Pekerjaan...</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="row col-12">
+                                                <div id="jobDetailsSection" class="col-12" style="display: none">
+                                                    <h5 class="mt-3 text-muted">Detail Pekerjaan</h5>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                <label>Nama Instansi/Perusahaan</label>
+                                                                <input type="text" class="form-control"
+                                                                    name="companyName"
+                                                                    th:value="${permohonan.asesi.companyName}" />
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="form-group">
+                                                                <label>Jabatan</label>
+                                                                <input type="text" class="form-control" name="position"
+                                                                    th:value="${permohonan.asesi.position}" />
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label>Telp Kantor</label>
+                                                                <input type="text" class="form-control"
+                                                                    name="officePhone"
+                                                                    th:value="${permohonan.asesi.officePhone}" />
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label>Email Kantor</label>
+                                                                <input type="text" class="form-control"
+                                                                    name="officeEmail"
+                                                                    th:value="${permohonan.asesi.officeEmail}" />
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <div class="form-group">
+                                                                <label>Fax</label>
+                                                                <input type="text" class="form-control" name="officeFax"
+                                                                    th:value="${permohonan.asesi.officeFax}" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <div class="form-group">
+                                                                <label>Alamat Kantor</label>
+                                                                <textarea class="form-control" rows="1"
+                                                                    name="officeAddress"
+                                                                    th:text="${permohonan.asesi.officeAddress}"></textarea>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="tab-pane fade" id="tab3" role="tabpanel">
+                                        <div class="alert alert-info">
+                                            <i class="fas fa-info-circle"></i> Jika diminta revisi
+                                            persyaratan, silakan upload file baru.
+                                        </div>
+                                        <div class="row">
+                                            <div class="table-responsive">
+                                                <table class="table table-valign-middle table-sm table-bordered">
+                                                    <thead class="thead-light text-center">
+                                                        <tr>
+                                                            <th>No</th>
+                                                            <th>Daftar Persyaratan</th>
+                                                            <th style="width: 20%">Aksi</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="tablePersyaratanBody"></tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="tab-pane fade" id="tab4" role="tabpanel">
+                                        <div class="row">
+                                            <div class="table-responsive">
+                                                <table class="table table-valign-middle table-sm table-bordered">
+                                                    <thead class="thead-light text-center">
+                                                        <tr>
+                                                            <th>No</th>
+                                                            <th>Bukti Administrasi</th>
+                                                            <th style="width: 25%">Aksi</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td class="text-center align-middle">1</td>
+                                                            <td class="align-middle">
+                                                                Kartu Tanda Penduduk (KTP)
+                                                                <span class="badge badge-warning ml-2">Dikunci</span>
+                                                            </td>
+                                                            <td class="align-middle text-center">
+                                                                <button type="button"
+                                                                    class="btn btn-sm btn-info btn-view-file"
+                                                                    data-type="KTP">
+                                                                    <i class="fas fa-eye"></i> Lihat KTP
+                                                                </button>
+                                                                <small class="d-block text-muted mt-1">File tidak dapat
+                                                                    diubah</small>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td class="text-center align-middle">2</td>
+                                                            <td class="align-middle">
+                                                                Pasfoto terbaru ukuran 3x4 cm
+                                                            </td>
+                                                            <td class="align-middle text-center">
+                                                                <div
+                                                                    class="action-buttons d-flex justify-content-center align-items-center">
+                                                                    <button type="button"
+                                                                        class="btn btn-sm btn-info btn-view-file mr-2"
+                                                                        data-type="PASFOTO" title="Lihat Foto Lama">
+                                                                        <i class="fas fa-eye"></i>
+                                                                    </button>
+                                                                    <button
+                                                                        class="btn btn-sm btn-outline-primary btn-upload-modal"
+                                                                        data-id="administrasi_2"
+                                                                        data-type="administrasi">
+                                                                        <i class="fas fa-upload mr-1"></i> Ganti
+                                                                        File
+                                                                    </button>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="tab-pane fade" id="tab5" role="tabpanel">
+                                        <div class="alert alert-info">
+                                            <i class="fas fa-info-circle"></i> Upload bukti
+                                            portofolio tambahan jika diperlukan.
+                                        </div>
+                                    </div>
+
+                                    <div class="tab-pane fade" id="tab6" role="tabpanel"></div>
+                                    <div class="tab-pane fade" id="tab7" role="tabpanel"></div>
+                                </div>
+                                <div class="card-footer mt-3 text-right">
+                                    <a th:href="@{/asesi/daftar-sertifikasi}" class="btn btn-secondary mr-2">Batal</a>
+                                    <button type="submit" class="btn btn-warning">
+                                        <i class="fas fa-save mr-1"></i> Simpan Revisi
+                                    </button>
+                                </div>
+                            </form>
+
+                            <div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-hidden="true">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

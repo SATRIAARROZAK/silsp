@@ -8,6 +8,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.lsptddi.silsp.dto.UserProfileDto;
 import com.lsptddi.silsp.dto.SertifikasiRequestDto;
 import com.lsptddi.silsp.model.PermohonanSertifikasi;
+import com.lsptddi.silsp.model.Skema;
 // import com.lsptddi.silsp.model.PermohonanSertifikasi;
 // MODEL
 import com.lsptddi.silsp.model.User; // Import Model User Asli
@@ -36,6 +37,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -68,6 +70,9 @@ public class AsesiController {
 
     @Autowired
     private OCRService ocrService;
+
+    @Autowired
+    private NotificationService notificationService;
 
     // Method ini akan dijalankan sebelum setiap request di controller ini
     // Fungsinya mengambil User asli dari database berdasarkan siapa yang login
@@ -299,12 +304,14 @@ public class AsesiController {
                     // LOGIKA GATEKEEPER
                     // Jika NIK terbaca TAPI beda dengan inputan -> TOLAK / Warning
                     // if (!ocrResult.isNikValid()) {
-                    //     // Opsi A: Tolak Keras
-                    //     // return ResponseEntity.badRequest().body("{\"status\": \"error\", \"message\":
-                    //     // \"Validasi OCR Gagal: NIK pada foto KTP tidak sesuai dengan inputan!\"}");
+                    // // Opsi A: Tolak Keras
+                    // // return ResponseEntity.badRequest().body("{\"status\": \"error\",
+                    // \"message\":
+                    // // \"Validasi OCR Gagal: NIK pada foto KTP tidak sesuai dengan inputan!\"}");
 
-                    //     // Opsi B: Lanjut tapi catat di log/status (Recommended for demo agar ga macet)
-                    //     System.out.println("WARNING: NIK Tidak Cocok (OCR vs Input)");
+                    // // Opsi B: Lanjut tapi catat di log/status (Recommended for demo agar ga
+                    // macet)
+                    // System.out.println("WARNING: NIK Tidak Cocok (OCR vs Input)");
                     // }
                 }
             }
@@ -323,15 +330,100 @@ public class AsesiController {
         }
     }
 
-    private Long parseLongSafe(String value) {
-        if (value == null || value.trim().isEmpty() || value.equals("null")) {
-            return null;
+    @GetMapping("/daftar/view/{id}")
+    public String viewDaftar(@PathVariable Long id, Model model, Principal principal) {
+        User user = userRepository.findByUsername(principal.getName()).orElseThrow();
+        PermohonanSertifikasi permohonan = permohonanRepository.findById(id).orElseThrow();
+
+        // Keamanan: Pastikan data ini milik Asesi yang sedang login
+        if (!permohonan.getAsesi().getId().equals(user.getId())) {
+            return "redirect:/asesi/daftar-sertifikasi";
         }
+
+        model.addAttribute("permohonan", permohonan);
+        return "pages/asesi/sertifikasi/sertifikasi-view";
+    }
+
+    @GetMapping("/daftar/edit/{id}")
+    public String editDaftar(@PathVariable Long id, Model model, Principal principal) {
+        User user = userRepository.findByUsername(principal.getName()).orElseThrow();
+        PermohonanSertifikasi permohonan = permohonanRepository.findById(id).orElseThrow();
+
+        // Keamanan: Hanya bisa edit jika milik sendiri DAN statusnya REVISION
+        if (!permohonan.getAsesi().getId().equals(user.getId()) || !"REVISION".equals(permohonan.getStatus())) {
+            return "redirect:/asesi/daftar-sertifikasi";
+        }
+
+        model.addAttribute("permohonan", permohonan);
+
+        // Kirim list referensi untuk form (jika masih butuh dropdown yang bisa diedit)
+        model.addAttribute("listPekerjaan", typePekerjaanRepository.findAll());
+        // ... (Kirim referensi wilayah/pendidikan jika diperlukan di tab 2) ...
+
+        return "pages/asesi/sertifikasi/sertifikasi-edit";
+    }
+
+    // --- PROSES UPDATE DATA (Req 3: Notifikasi) ---
+    @PostMapping("/sertifikasi/update/{id}")
+    @ResponseBody
+    public ResponseEntity<?> updateSertifikasi(
+            @PathVariable Long id,
+            MultipartHttpServletRequest request,
+            Principal principal) {
         try {
-            return Long.parseLong(value);
-        } catch (NumberFormatException e) {
-            return null;
+            User user = userRepository.findByUsername(principal.getName()).orElseThrow();
+            PermohonanSertifikasi permohonan = permohonanRepository.findById(id).orElseThrow();
+
+            if (!permohonan.getAsesi().getId().equals(user.getId())) {
+                return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "Akses ditolak"));
+            }
+
+            // 1. Ambil JSON (Sama seperti fungsi save)
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(new JavaTimeModule());
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+            String jsonStr = request.getParameter("jsonData");
+            SertifikasiRequestDto payload = mapper.readValue(jsonStr, SertifikasiRequestDto.class);
+            Map<String, MultipartFile> fileMap = request.getFileMap();
+
+            // 2. Lakukan Update Data menggunakan Service (Anda perlu membuat logika
+            // updatenya di PermohonanService)
+            permohonanService.updatePermohonanJson(permohonan, payload, fileMap);
+
+            // 3. UBAH STATUS kembali ke SUBMITTED agar tombol edit hilang
+            permohonan.setStatus("SUBMITTED");
+            permohonanRepository.save(permohonan);
+
+            // 4. KIRIM NOTIFIKASI KE ADMIN (Req 3)
+            // Cari user Admin (Asumsi Anda punya metode untuk mencari role admin)
+            List<User> admins = userRepository.findByRolesName("Admin");
+            for (User admin : admins) {
+                notificationService.createNotification(
+                        admin,
+                        "Asesi Memperbaiki Data",
+                        "Asesi " + user.getFullName() + " telah melakukan revisi pendaftaran.",
+                        "/admin/jadwal-sertifikasi/detail/" + permohonan.getJadwal().getId());
+            }
+
+            return ResponseEntity.ok().body("{\"status\": \"success\", \"message\": \"Revisi berhasil dikirim!\"}");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest()
+                    .body("{\"status\": \"error\", \"message\": \"Gagal: " + e.getMessage() + "\"}");
         }
     }
+
+    // private Long parseLongSafe(String value) {
+    // if (value == null || value.trim().isEmpty() || value.equals("null")) {
+    // return null;
+    // }
+    // try {
+    // return Long.parseLong(value);
+    // } catch (NumberFormatException e) {
+    // return null;
+    // }
+    // }
 
 }

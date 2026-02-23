@@ -1557,4 +1557,156 @@ public class PermohonanService {
 
         return fileName;
     }
+
+    // ==============================================================
+    // FUNGSI BARU UNTUK PROSES REVISI (EDIT DATA)
+    // ==============================================================
+    @Transactional
+    public void updatePermohonanJson(
+            PermohonanSertifikasi permohonan,
+            SertifikasiRequestDto dto,
+            Map<String, MultipartFile> files) throws IOException {
+
+        User user = permohonan.getAsesi();
+
+        // 1. UPDATE DATA USER (TAB 2)
+        if (dto.getDataPemohon() != null) {
+            updateUserData(user, dto.getDataPemohon());
+        }
+
+        // 2. UPDATE HEADER PERMOHONAN (Hanya Tujuan Asesmen)
+        // Catatan: Skema dan Jadwal tidak diubah karena terkunci (disabled) di UI form edit
+        if (dto.getTujuanAsesmen() != null) {
+            permohonan.setTujuanAsesmen(dto.getTujuanAsesmen());
+        }
+        
+        permohonan = permohonanRepository.save(permohonan);
+
+        // --- MANAJEMEN PORTOFOLIO (Pemetaan Bukti Lama & Baru) ---
+        Map<String, BuktiPortofolio> portofolioMap = new HashMap<>();
+        
+        // Load data portofolio lama dari database
+        List<BuktiPortofolio> existingPortos = portofolioRepository.findByPermohonan(permohonan);
+        if (existingPortos != null) {
+            for (BuktiPortofolio bp : existingPortos) {
+                // Simpan berdasarkan ID aslinya (agar file lama tetap terhubung di APL-02)
+                portofolioMap.put(bp.getId().toString(), bp); 
+                // Simpan berdasarkan TempID (jika ada) untuk mapping UI
+                if (bp.getTempId() != null) {
+                    portofolioMap.put(bp.getTempId(), bp); 
+                }
+            }
+        }
+
+        // 3. PROSES PENGGANTIAN FILE (Hanya file yang di-reupload yang diproses)
+        if (files != null && !files.isEmpty()) {
+            for (String key : files.keySet()) {
+                MultipartFile file = files.get(key);
+                if (file.isEmpty()) continue; // Skip jika kosong
+
+                // Simpan fisik file baru dengan suffix _rev (Revisi)
+                String fileName = saveFile(file, user.getUsername() + "_" + key + "_rev");
+
+                // A. Update File Persyaratan Dasar
+                if (key.startsWith("syarat_")) {
+                    try {
+                        Long syaratId = Long.parseLong(key.split("_")[1]);
+                        PersyaratanSkema masterSyarat = persyaratanSkemaRepository.findById(syaratId).orElse(null);
+                        
+                        if (masterSyarat != null) {
+                            // Cek apakah syarat ini sudah pernah diupload sebelumnya
+                            BuktiPersyaratan existingBp = persyaratanRepository.findByPermohonanAndPersyaratanSkema(permohonan, masterSyarat);
+                            if (existingBp != null) {
+                                existingBp.setFilePath(fileName); // Replace file path
+                                existingBp.setStatus("PENDING");  // Reset status
+                                persyaratanRepository.save(existingBp);
+                            } else {
+                                // Jika sebelumnya kosong, buat baru
+                                BuktiPersyaratan bp = new BuktiPersyaratan();
+                                bp.setPermohonan(permohonan);
+                                bp.setPersyaratanSkema(masterSyarat);
+                                bp.setFilePath(fileName);
+                                bp.setStatus("PENDING");
+                                persyaratanRepository.save(bp);
+                            }
+                        }
+                    } catch (Exception e) {
+                        System.out.println("Error Update Syarat: " + e.getMessage());
+                    }
+                }
+
+                // B. Update File Administrasi (Misal: Hanya Pas Foto, karena KTP di-disable)
+                else if (key.startsWith("administrasi_")) {
+                    String jenis = key.contains("1") ? "KTP" : "PASFOTO";
+                    
+                    BuktiAdministrasi existingBa = buktiAdminRepository.findByPermohonanAndJenisBukti(permohonan, jenis);
+                    if (existingBa != null) {
+                        existingBa.setFilePath(fileName);
+                        buktiAdminRepository.save(existingBa);
+                    } else {
+                        BuktiAdministrasi ba = new BuktiAdministrasi();
+                        ba.setPermohonan(permohonan);
+                        ba.setJenisBukti(jenis);
+                        ba.setFilePath(fileName);
+                        buktiAdminRepository.save(ba);
+                    }
+                }
+
+                // C. Update/Tambah Bukti Portofolio Baru
+                else if (key.startsWith("portofolio_")) {
+                    BuktiPortofolio existingBp = portofolioMap.get(key);
+                    if (existingBp != null) {
+                        existingBp.setNamaDokumen(file.getOriginalFilename());
+                        existingBp.setFilePath(fileName);
+                        portofolioRepository.save(existingBp);
+                    } else {
+                        // Jika portofolio baru ditambahkan saat revisi
+                        BuktiPortofolio bp = new BuktiPortofolio();
+                        bp.setPermohonan(permohonan);
+                        bp.setNamaDokumen(file.getOriginalFilename());
+                        bp.setFilePath(fileName);
+                        bp.setTempId(key);
+                        bp = portofolioRepository.save(bp);
+                        
+                        portofolioMap.put(key, bp); // Daftarkan ke map untuk digunakan di APL-02
+                        portofolioMap.put(bp.getId().toString(), bp); 
+                    }
+                }
+            }
+        }
+
+        // 4. UPDATE APL-02 (Asesmen Mandiri)
+        if (dto.getAsesmenMandiri() != null) {
+            for (SertifikasiRequestDto.Apl02ItemDto item : dto.getAsesmenMandiri()) {
+                UnitElemenSkema elemen = unitElemenSkemaRepository.findById(item.getElemenId()).orElse(null);
+                if (elemen == null) continue;
+
+                // Cari row APL-02 lama di DB berdasarkan Elemen ID
+                AsesmenMandiri am = asesmenMandiriRepository.findByPermohonanAndUnitElemen(permohonan, elemen);
+                if (am == null) {
+                    am = new AsesmenMandiri();
+                    am.setPermohonan(permohonan);
+                    am.setUnitElemen(elemen);
+                }
+
+                // Update Rekomendasi (K / BK)
+                am.setRekomendasiAsesi(item.getStatus());
+
+                // Update Relasi Bukti Relevan (Mendukung Bukti Lama & Bukti Baru)
+                List<BuktiPortofolio> relasiBukti = new ArrayList<>();
+                if (item.getBuktiIds() != null) {
+                    for (String portoKey : item.getBuktiIds()) {
+                        // Cek di Map (portoKey bisa berupa "12" [ID DB] atau "portofolio_1" [File Baru])
+                        if (portofolioMap.containsKey(portoKey)) {
+                            relasiBukti.add(portofolioMap.get(portoKey));
+                        }
+                    }
+                }
+                
+                // Set array bukti yang baru, List lama akan otomatis ter-overwrite (terhapus relasinya)
+                am.setBuktiRelevan(relasiBukti); 
+                asesmenMandiriRepository.save(am);
+            }
+        }
+    }
 }

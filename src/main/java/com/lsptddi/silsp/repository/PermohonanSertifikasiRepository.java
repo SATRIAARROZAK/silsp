@@ -29,7 +29,7 @@ public interface PermohonanSertifikasiRepository extends JpaRepository<Permohona
             "ORDER BY p.tanggalPermohonan DESC")
     List<PermohonanSertifikasi> findByAsesiWithDetails(@Param("asesi") User asesi);
 
-    // List<PermohonanSertifikasi> findByJadwal(Schedule jadwal);
+//     List<PermohonanSertifikasi> findByJadwal(Schedule jadwal);
 
     List<PermohonanSertifikasi> findByAsesiOrderByTanggalPermohonanDesc(User asesi);
 

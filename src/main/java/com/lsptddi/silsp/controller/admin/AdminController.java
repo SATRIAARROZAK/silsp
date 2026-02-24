@@ -68,7 +68,15 @@ import com.lsptddi.silsp.service.PdfService;
 // import com.lsptddi.silsp.dto.SuratTugasDto;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
+import java.io.ByteArrayOutputStream;
+import java.time.format.DateTimeFormatter;
 import org.springframework.data.domain.Sort;
+
 // import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Map;
@@ -965,6 +973,366 @@ public class AdminController {
 
         return "pages/admin/jadwal/sertifikasi-detail"; // Sesuaikan dengan lokasi file HTML Anda
     }
+
+    // ==========================================
+    // EXPORT DATA ASESI KE EXCEL (DENGAN CUSTOM STYLE)
+    // ==========================================
+    @GetMapping("/jadwal-sertifikasi/export/{jadwalId}")
+    public ResponseEntity<byte[]> exportAsesiToExcel(@PathVariable Long jadwalId) {
+        try {
+            Schedule jadwal = scheduleRepository.findById(jadwalId)
+                    .orElseThrow(() -> new IllegalArgumentException("Jadwal tidak ditemukan"));
+
+            List<PermohonanSertifikasi> listAsesi = permohonanRepository.findByJadwalWithDetails(jadwal);
+
+            boolean allAccepted = true;
+            for (PermohonanSertifikasi p : listAsesi) {
+                if (!"ACCEPTED".equals(p.getStatus())) {
+                    allAccepted = false;
+                    break;
+                }
+            }
+
+            if (!allAccepted || listAsesi.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            }
+
+            Workbook workbook = new XSSFWorkbook();
+            Sheet sheet = workbook.createSheet("Form Asesi");
+
+            // ==========================================
+            // DEFINISI STYLE EXCEL
+            // ==========================================
+
+            // 1. Style Header (Background Biru, Tulisan Putih, Tebal, Rata Tengah)
+            CellStyle headerStyle = workbook.createCellStyle();
+            headerStyle.setAlignment(HorizontalAlignment.CENTER);
+            headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+            headerStyle.setFillForegroundColor(IndexedColors.BLUE.getIndex()); // Warna Biru
+            headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+            Font headerFont = workbook.createFont();
+            headerFont.setBold(true);
+            headerFont.setColor(IndexedColors.WHITE.getIndex()); // Tulisan Putih
+            headerStyle.setFont(headerFont);
+
+            // 2. Style Data 1: Rata Tengah + Tebal
+            CellStyle centerBoldStyle = workbook.createCellStyle();
+            centerBoldStyle.setAlignment(HorizontalAlignment.CENTER);
+            centerBoldStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+            Font boldFont = workbook.createFont();
+            boldFont.setBold(true);
+            centerBoldStyle.setFont(boldFont);
+
+            // 3. Style Data 2: Rata Tengah Biasa
+            CellStyle centerStyle = workbook.createCellStyle();
+            centerStyle.setAlignment(HorizontalAlignment.CENTER);
+            centerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+            // 4. Style Data 3: Rata Kiri
+            CellStyle leftStyle = workbook.createCellStyle();
+            leftStyle.setAlignment(HorizontalAlignment.LEFT);
+            leftStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+            // ==========================================
+            // RENDER HEADER
+            // ==========================================
+            Row headerRow = sheet.createRow(0);
+            String[] columns = {
+                    "No", "Nama Asesi", "NIK", "Tempat Lahir", "Tanggal Lahir (dd/mm/yyyy)",
+                    "Jenis Kelamin (L/P)", "Tempat Tinggal", "Kode Kota", "Kode Provinsi",
+                    "Telp", "Email", "Kode Pendidikan", "Kode Pekerjaan", "Kode Jadwal",
+                    "Tanggal Uji (dd/mm/yyyy)", "Nomor Registrasi Asesor", "Kode Sumber Anggaran",
+                    "Kode Kementerian", "K/BK"
+            };
+
+            for (int i = 0; i < columns.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(columns[i]);
+                cell.setCellStyle(headerStyle); // Terapkan style biru rata tengah
+            }
+
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+            // ==========================================
+            // RENDER DATA ASESI DENGAN STYLE SPESIFIK
+            // ==========================================
+            int rowNum = 1;
+            for (PermohonanSertifikasi p : listAsesi) {
+                Row row = sheet.createRow(rowNum++);
+                User asesi = p.getAsesi();
+
+                // 0. No (Tengah, Tebal)
+                Cell cell0 = row.createCell(0);
+                cell0.setCellValue(rowNum - 1);
+                cell0.setCellStyle(centerBoldStyle);
+
+                // 1. Nama Asesi (Kiri)
+                Cell cell1 = row.createCell(1);
+                cell1.setCellValue(asesi.getFullName() != null ? asesi.getFullName() : "");
+                cell1.setCellStyle(leftStyle);
+
+                // 2. NIK (Tengah)
+                Cell cell2 = row.createCell(2);
+                cell2.setCellValue(asesi.getNik() != null ? asesi.getNik() : "");
+                cell2.setCellStyle(centerStyle);
+
+                // 3. Tempat Lahir (Tengah)
+                Cell cell3 = row.createCell(3);
+                cell3.setCellValue(asesi.getBirthPlace() != null ? asesi.getBirthPlace() : "");
+                cell3.setCellStyle(centerStyle);
+
+                // 4. Tanggal Lahir (Tengah)
+                Cell cell4 = row.createCell(4);
+                cell4.setCellValue(asesi.getBirthDate() != null ? asesi.getBirthDate().format(dateFormatter) : "");
+                cell4.setCellStyle(centerStyle);
+
+                // 5. Jenis Kelamin (Tengah)
+                Cell cell5 = row.createCell(5);
+                cell5.setCellValue(asesi.getGender() != null ? asesi.getGender() : "");
+                cell5.setCellStyle(centerStyle);
+
+                // 6. Tempat Tinggal / Alamat (Kiri)
+                Cell cell6 = row.createCell(6);
+                cell6.setCellValue(asesi.getAddress() != null ? asesi.getAddress() : "");
+                cell6.setCellStyle(leftStyle);
+
+                // 7. Kode Kota (Tengah)
+                Cell cell7 = row.createCell(7);
+                cell7.setCellValue(asesi.getCityId() != null ? asesi.getCityId().toString() : "");
+                cell7.setCellStyle(centerStyle);
+
+                // 8. Kode Provinsi (Tengah)
+                Cell cell8 = row.createCell(8);
+                cell8.setCellValue(asesi.getProvinceId() != null ? asesi.getProvinceId().toString() : "");
+                cell8.setCellStyle(centerStyle);
+
+                // 9. Telp (Tengah)
+                Cell cell9 = row.createCell(9);
+                cell9.setCellValue(asesi.getPhoneNumber() != null ? asesi.getPhoneNumber() : "");
+                cell9.setCellStyle(centerStyle);
+
+                // 10. Email (Tengah)
+                Cell cell10 = row.createCell(10);
+                cell10.setCellValue(asesi.getEmail() != null ? asesi.getEmail() : "");
+                cell10.setCellStyle(centerStyle);
+
+                // 11. Kode Pendidikan (Tengah)
+                Cell cell11 = row.createCell(11);
+                cell11.setCellValue(asesi.getEducationId() != null ? asesi.getEducationId().getId().toString() : "");
+                cell11.setCellStyle(centerStyle);
+
+                // 12. Kode Pekerjaan (Tengah)
+                Cell cell12 = row.createCell(12);
+                cell12.setCellValue(asesi.getJobTypeId() != null ? asesi.getJobTypeId().getId().toString() : "");
+                cell12.setCellStyle(centerStyle);
+
+                // 13. Kode BNSP (Tengah, Tebal)
+                Cell cell13 = row.createCell(13);
+                cell13.setCellValue(jadwal.getBnspCode() != null ? jadwal.getBnspCode() : "");
+                cell13.setCellStyle(centerBoldStyle);
+
+                // 14. Tanggal Uji (Tengah)
+                Cell cell14 = row.createCell(14);
+                cell14.setCellValue(jadwal.getStartDate() != null ? jadwal.getStartDate().format(dateFormatter) : "");
+                cell14.setCellStyle(centerStyle);
+
+                // 15. Nomor Registrasi Asesor (Tengah, Tebal)
+                Cell cell15 = row.createCell(15);
+                cell15.setCellValue(p.getAsesor() != null ? p.getAsesor().getNoMet() : "");
+                cell15.setCellStyle(centerBoldStyle);
+
+                // 16. Kode Sumber Anggaran (Tengah, Tebal)
+                Cell cell16 = row.createCell(16);
+                cell16.setCellValue(p.getSumberAnggaran() != null ? p.getSumberAnggaran().getId().toString() : "");
+                cell16.setCellStyle(centerBoldStyle);
+
+                // 17. Kode Kementerian (Tengah, Tebal)
+                Cell cell17 = row.createCell(17);
+                cell17.setCellValue(p.getPemberiAnggaran() != null ? p.getPemberiAnggaran().getId().toString() : "");
+                cell17.setCellStyle(centerBoldStyle);
+
+                // 18. K/BK (Tengah)
+                Cell cell18 = row.createCell(18);
+                cell18.setCellValue("");
+                cell18.setCellStyle(centerStyle);
+            }
+
+            // Auto-size kolom agar lebar excel mengikuti panjang teks
+            for (int i = 0; i < columns.length; i++) {
+                sheet.autoSizeColumn(i);
+            }
+
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            workbook.write(out);
+            workbook.close();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(
+                    MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+            headers.setContentDispositionFormData("attachment", "Form Asesi_" + jadwal.getCode() + ".xlsx");
+
+            return new ResponseEntity<>(out.toByteArray(), headers, HttpStatus.OK);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    // ==========================================
+    // EXPORT DATA ASESI KE EXCEL
+    // ==========================================
+    // @GetMapping("/jadwal-sertifikasi/export/{jadwalId}")
+    // public ResponseEntity<byte[]> exportAsesiToExcel(@PathVariable Long jadwalId)
+    // {
+    // try {
+    // // 1. Ambil data Jadwal dan Pendaftar
+    // Schedule jadwal = scheduleRepository.findById(jadwalId)
+    // .orElseThrow(() -> new IllegalArgumentException("Jadwal tidak ditemukan"));
+
+    // // PERBAIKAN: Gunakan findByJadwalWithDetails (bukan findByJadwal)
+    // List<PermohonanSertifikasi> listAsesi =
+    // permohonanRepository.findByJadwalWithDetails(jadwal);
+
+    // // 2. Validasi: Pastikan SEMUA asesi statusnya ACCEPTED
+    // boolean allAccepted = true;
+    // for (PermohonanSertifikasi p : listAsesi) {
+    // if (!"ACCEPTED".equals(p.getStatus())) {
+    // allAccepted = false;
+    // break;
+    // }
+    // }
+
+    // if (!allAccepted || listAsesi.isEmpty()) {
+    // return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+    // }
+
+    // // 3. Buat Workbook Excel
+    // Workbook workbook = new XSSFWorkbook();
+    // Sheet sheet = workbook.createSheet("Form Asesi");
+
+    // // Buat Header Row
+    // Row headerRow = sheet.createRow(0);
+    // String[] columns = {
+    // "No", "Nama Asesi", "NIK", "Tempat Lahir", "Tanggal Lahir (dd/mm/yyyy)",
+    // "Jenis Kelamin (L/P)", "Tempat Tinggal", "Kode Kota", "Kode Provinsi",
+    // "Telp", "Email", "Kode Pendidikan", "Kode Pekerjaan", "Kode BNSP",
+    // "Tanggal Uji (dd/mm/yyyy)", "Nomor Registrasi Asesor", "Kode Sumber
+    // Anggaran",
+    // "Kode Kementerian", "K/BK"
+    // };
+
+    // // Styling Header (Bold)
+    // CellStyle headerStyle = workbook.createCellStyle();
+    // Font font = workbook.createFont();
+    // font.setBold(true);
+    // headerStyle.setFont(font);
+
+    // for (int i = 0; i < columns.length; i++) {
+    // Cell cell = headerRow.createCell(i);
+    // cell.setCellValue(columns[i]);
+    // cell.setCellStyle(headerStyle);
+    // }
+
+    // // Formatter Tanggal
+    // DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+    // // 4. Isi Data Row
+    // int rowNum = 1;
+    // for (PermohonanSertifikasi p : listAsesi) {
+    // Row row = sheet.createRow(rowNum++);
+    // User asesi = p.getAsesi();
+
+    // row.createCell(0).setCellValue(rowNum - 1); // No
+    // row.createCell(1).setCellValue(asesi.getFullName() != null ?
+    // asesi.getFullName() : ""); // Nama Asesi
+    // row.createCell(2).setCellValue(asesi.getNik() != null ? asesi.getNik() : "");
+    // // NIK
+    // row.createCell(3).setCellValue(asesi.getBirthPlace() != null ?
+    // asesi.getBirthPlace() : ""); // Tempat
+    // // Lahir
+
+    // // Tanggal Lahir
+    // if (asesi.getBirthDate() != null) {
+    // row.createCell(4).setCellValue(asesi.getBirthDate().format(dateFormatter));
+    // } else {
+    // row.createCell(4).setCellValue("");
+    // }
+
+    // row.createCell(5).setCellValue(asesi.getGender() != null ? asesi.getGender()
+    // : ""); // Jenis Kelamin
+    // row.createCell(6).setCellValue(asesi.getAddress() != null ?
+    // asesi.getAddress() : ""); // Tempat Tinggal
+    // row.createCell(7).setCellValue(asesi.getCityId() != null ?
+    // asesi.getCityId().toString() : ""); // Kode
+    // // Kota
+    // row.createCell(8).setCellValue(asesi.getProvinceId() != null ?
+    // asesi.getProvinceId().toString() : ""); // Kode
+    // // Provinsi
+    // row.createCell(9).setCellValue(asesi.getPhoneNumber() != null ?
+    // asesi.getPhoneNumber() : ""); // Telp
+    // row.createCell(10).setCellValue(asesi.getEmail() != null ? asesi.getEmail() :
+    // ""); // Email
+
+    // // Kode Pendidikan & Pekerjaan
+    // row.createCell(11)
+    // .setCellValue(asesi.getEducationId() != null ?
+    // asesi.getEducationId().getId().toString() : "");
+    // row.createCell(12)
+    // .setCellValue(asesi.getJobTypeId() != null ?
+    // asesi.getJobTypeId().getId().toString() : "");
+
+    // row.createCell(13).setCellValue(jadwal.getBnspCode() != null ?
+    // jadwal.getBnspCode() : ""); // Kode BNSP
+
+    // // Tanggal Uji
+    // if (jadwal.getStartDate() != null) {
+    // row.createCell(14).setCellValue(jadwal.getStartDate().format(dateFormatter));
+    // } else {
+    // row.createCell(14).setCellValue("");
+    // }
+
+    // // Asesor yang ditugaskan ke Asesi ini
+    // row.createCell(15).setCellValue(p.getAsesor() != null ?
+    // p.getAsesor().getNoMet() : "");
+
+    // // Anggaran
+    // row.createCell(16)
+    // .setCellValue(p.getSumberAnggaran() != null ?
+    // p.getSumberAnggaran().getId().toString() : "");
+    // row.createCell(17)
+    // .setCellValue(p.getPemberiAnggaran() != null ?
+    // p.getPemberiAnggaran().getId().toString() : "");
+
+    // row.createCell(18).setCellValue(""); // K/BK (Biasanya kosong saat export
+    // awal)
+    // }
+
+    // // Auto-size kolom agar rapi
+    // for (int i = 0; i < columns.length; i++) {
+    // sheet.autoSizeColumn(i);
+    // }
+
+    // // 5. Tulis ke ByteArrayOutputStream
+    // ByteArrayOutputStream out = new ByteArrayOutputStream();
+    // workbook.write(out);
+    // workbook.close();
+
+    // // 6. Return response sebagai file download
+    // HttpHeaders headers = new HttpHeaders();
+    // headers.setContentType(
+    // MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+    // headers.setContentDispositionFormData("attachment", "Data_Asesi_" +
+    // jadwal.getCode() + ".xlsx");
+
+    // return new ResponseEntity<>(out.toByteArray(), headers, HttpStatus.OK);
+
+    // } catch (Exception e) {
+    // e.printStackTrace();
+    // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+    // }
+    // }
 
     // HALAMAN TAMBAH JADWAL
     @GetMapping("/jadwal-sertifikasi/jadwal-tambah")

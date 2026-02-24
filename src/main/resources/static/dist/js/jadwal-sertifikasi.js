@@ -105,7 +105,7 @@ $(document).ready(function () {
       Swal.fire(
         "Peringatan",
         "Silakan pilih asesor terlebih dahulu",
-        "warning"
+        "warning",
       );
       return;
     }
@@ -281,7 +281,7 @@ $(document).ready(function () {
               scrollTop:
                 firstErrorElement.closest(".form-group").offset().top - 100,
             },
-            500
+            500,
           );
         }
       });
@@ -557,4 +557,54 @@ $(document).ready(function () {
   });
   // Aktifkan Tooltip Bootstrap
   $('[data-toggle="tooltip"]').tooltip();
+
+  // ==========================================
+  // HANDLER TOMBOL EXPORT EXCEL
+  // ==========================================
+  $("#btnExportExcel").on("click", function (e) {
+    e.preventDefault();
+
+    var url = $(this).data("url");
+    var unacceptedCount = parseInt($(this).data("unaccepted-count"));
+    var totalAsesi = parseInt($(this).data("total-asesi"));
+
+    // Pengecekan 1: Jadwal Kosong
+    if (totalAsesi === 0) {
+      Swal.fire({
+        icon: "error",
+        title: "Data Kosong",
+        text: "Belum ada asesi yang mendaftar pada jadwal ini.",
+      });
+      return;
+    }
+
+    // Pengecekan 2: Ada asesi yang belum ACCEPTED
+    if (unacceptedCount > 0) {
+      Swal.fire({
+        icon: "warning",
+        title: "Export Ditolak",
+        html: `Terdapat <b>${unacceptedCount} data asesi</b> yang belum diterima (Status Menunggu/Revisi/Ditolak). <br><br>Semua pendaftar harus berstatus <b>Diterima</b> sebelum diexport.`,
+        confirmButtonText: "Tutup",
+      });
+      return;
+    }
+
+    // Jika aman, lakukan request download file
+    // Karena download file tidak bisa pakai AJAX biasa, kita gunakan window.location
+    Swal.fire({
+      title: "Menyiapkan File...",
+      text: "Mohon tunggu sebentar",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+        // Arahkan ke endpoint download
+        window.location.href = url;
+
+        // Tutup loading setelah beberapa detik (karena tidak ada callback finish dari window.location)
+        setTimeout(() => {
+          Swal.close();
+        }, 2000);
+      },
+    });
+  });
 });

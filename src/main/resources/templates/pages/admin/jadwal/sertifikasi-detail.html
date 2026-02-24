@@ -468,9 +468,17 @@
         </div>
 
         <div class="card-footer">
-          <button type="submit" class="btn btn-success">
+          <button
+            type="button"
+            class="btn btn-success"
+            id="btnExportExcel"
+            th:data-url="@{/admin/jadwal-sertifikasi/export/{id}(id=${jadwal.id})}"
+            th:data-unaccepted-count="${#lists.size(listAsesi.?[status != 'ACCEPTED'])}"
+            th:data-total-asesi="${#lists.size(listAsesi)}"
+          >
             <i class="fas fa-file-excel"></i> Export Excel
           </button>
+
           <a th:href="@{/admin/jadwal-sertifikasi}" class="btn btn-default"
             >Kembali</a
           >

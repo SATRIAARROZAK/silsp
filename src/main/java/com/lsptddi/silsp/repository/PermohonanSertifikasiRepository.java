@@ -51,4 +51,6 @@ public interface PermohonanSertifikasiRepository extends JpaRepository<Permohona
     // Asumsi: Schedule punya field startDate (LocalDate)
     @Query("SELECT COUNT(p) > 0 FROM PermohonanSertifikasi p WHERE p.asesi = :asesi AND p.jadwal.startDate = :date")
     boolean existsByAsesiAndJadwalDate(@Param("asesi") User asesi, @Param("date") LocalDate date);
+
+    List<PermohonanSertifikasi> findByJadwal(Schedule jadwal);
 }

@@ -1621,7 +1621,9 @@ $(document).ready(function () {
     }
 
     // DEBUG
-    console.log("JSON Payload:", requestData);
+    // console.log("JSON Payload:", JSON.stringify(requestData, null, 2));
+    console.log("FINAL JSON:", JSON.stringify(requestData, null, 2));
+    // console.log("JSON Payload:", requestData);
     console.log("File Count:", fileCount);
 
     Swal.fire({

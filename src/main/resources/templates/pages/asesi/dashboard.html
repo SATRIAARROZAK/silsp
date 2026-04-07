@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html
   lang="en"
   xmlns:th="http://www.thymeleaf.org"
@@ -6,5 +6,116 @@
   layout:decorate="~{layouts/app}"
 >
   <head th:replace="~{fragments/header :: header('Beranda')}"></head>
-  <body></body>
+  <body>
+    <div layout:fragment="content">
+      <div class="card">
+        <div class="card-body">
+          <h4>
+            Selamat Datang,
+            <span
+              th:text="${loggedInUser != null ? loggedInUser.fullName : 'Guest'}"
+              >Guest</span
+            >
+          </h4>
+          <h6>Di Sistem Informasi</h6>
+          <h5>LSP Teknologi Data Digital Indonesia</h5>
+        </div>
+        <!-- /.card-body -->
+      </div>
+
+      <h3>Jadwal Asesmen</h3>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="row">
+            <div class="col-12 col-md-2 mb-2">
+              <div class="form-group mb-0">
+                <select class="form-control select2" style="width: 100%">
+                  <option disabled selected>Pilih Skema</option>
+                  <option>Data Analyst</option>
+                  <option>Digital Marketing</option>
+                </select>
+              </div>
+              <!-- /.form-group -->
+
+              <!-- /.form-group -->
+            </div>
+
+            <div class="col-12 col-md-2 mb-2">
+              <div class="form-group mb-0">
+                <input
+                  type="date"
+                  class="form-control"
+                  name="tanggalUji"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="col-12 col-md-4 mb-2">
+              <div class="form-group mb-0">
+                <div class="input-group">
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="keyword"
+                    th:value="${keyword}"
+                    placeholder="Masukkan Nama Jadwal"
+                  />
+                  <div class="input-group-append">
+                    <button type="submit" class="btn btn-outline-info">
+                      <i class="fas fa-search"></i> Cari
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12 col-md-3 mb-2 d-flex align-items-end">
+              <a
+                th:href="@{/asesi/dashboard}"
+                class="btn btn-default btn-block"
+              >
+                <i class="fas fa-sync-alt"></i> Reset Filter
+              </a>
+            </div>
+            <!-- /.col -->
+          </div>
+        </div>
+
+        <div class="card-body table-responsive p-0">
+          <table class="table table-hover text-nowrap table-bordered">
+            <thead class="bg-light text-center">
+              <tr>
+                <th width="5%">No</th>
+                <th>Nama Jadwal</th>
+                <th>Skema</th>
+                <th>Tanggal</th>
+                <th>TUK</th>
+                <th>Kuota</th>
+                <th width="15%">Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr></tr>
+
+              <tr>
+                <td colspan="7" class="text-center py-4 text-muted">
+                  <i class="fas fa-inbox fa-3x mb-3"></i><br />
+                  Belum ada riwayat pendaftaran sertifikasi.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div
+          class="card-footer clearfix"
+          th:if="${!#lists.isEmpty(listPermohonan)}"
+        >
+          <small class="text-muted float-left">Menampilkan semua data.</small>
+        </div>
+      </div>
+    </div>
+  </body>
 </html>

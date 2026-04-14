@@ -8,7 +8,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.lsptddi.silsp.dto.UserProfileDto;
 import com.lsptddi.silsp.dto.SertifikasiRequestDto;
 import com.lsptddi.silsp.model.PermohonanSertifikasi;
+import com.lsptddi.silsp.model.Schedule;
 import com.lsptddi.silsp.model.Skema;
+import com.lsptddi.silsp.model.ScheduleSchema;
 // import com.lsptddi.silsp.model.PermohonanSertifikasi;
 // MODEL
 import com.lsptddi.silsp.model.User; // Import Model User Asli
@@ -32,6 +34,7 @@ import java.util.List;
 
 // LIBLARY UMUM org
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -58,6 +61,9 @@ public class AsesiController {
 
     @Autowired
     private SkemaRepository skemaRepository;
+
+    @Autowired
+    private ScheduleRepository scheduleRepository;
 
     @Autowired
     private TypePekerjaanRepository typePekerjaanRepository;
@@ -91,7 +97,78 @@ public class AsesiController {
     }
 
     @GetMapping("/dashboard")
-    public String index() {
+    public String index(@RequestParam(required = false) Long skemaId,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate tanggalUji,
+            @RequestParam(required = false) String keyword,
+            Model model, Principal principal) {
+
+        User user = userRepository.findByUsername(principal.getName()).orElseThrow();
+        model.addAttribute("loggedInUser", user);
+
+        // Ambil data untuk dropdown filter
+        model.addAttribute("listSkema", skemaRepository.findAll());
+
+        // Logika Pengambilan Jadwal Aktif
+        List<Schedule> allSchedules = scheduleRepository.findAll();
+        List<Map<String, Object>> activeSchedules = new ArrayList<>();
+
+        for (Schedule sch : allSchedules) {
+            // A. Sembunyikan jika tanggal = hari H atau sudah lewat
+            if (sch.getStartDate() == null || !sch.getStartDate().isAfter(LocalDate.now())) {
+                continue;
+            }
+
+            // B. Hitung Sisa Kuota (Sembunyikan jika kuota = 0)
+            long terdaftar = permohonanRepository.countByJadwal(sch);
+            long sisaKuota = sch.getQuota() - terdaftar; // Asumsi method getQuota() ada di entity Schedule
+
+            if (sisaKuota <= 0) {
+                continue;
+            }
+
+            // C. Filter berdasarkan Pencarian Keyword (Nama Jadwal)
+            if (keyword != null && !keyword.isEmpty() && !sch.getName().toLowerCase().contains(keyword.toLowerCase())) {
+                continue;
+            }
+
+            // D. Filter berdasarkan Tanggal
+            if (tanggalUji != null && !sch.getStartDate().equals(tanggalUji)) {
+                continue;
+            }
+
+            // Memasukkan ke List (Misal 1 Jadwal bisa punya banyak Skema)
+            // Memasukkan ke List (Misal 1 Jadwal bisa punya banyak Skema)
+            if (sch.getSchemas() != null) {
+                // PERBAIKAN: Gunakan ScheduleSchema sebagai elemen loop
+                for (ScheduleSchema scheduleSchema : sch.getSchemas()) {
+                    // Ambil objek Skema dari entitas ScheduleSchema
+                    Skema skema = scheduleSchema.getSchema();
+
+                    // Pastikan skema tidak null sebelum melakukan filter
+                    if (skema == null)
+                        continue;
+
+                    // Filter berdasarkan Skema
+                    if (skemaId != null && !skema.getId().equals(skemaId)) {
+                        continue;
+                    }
+
+                    Map<String, Object> mapData = new HashMap<>();
+                    mapData.put("jadwal", sch);
+                    mapData.put("skema", skema);
+                    mapData.put("sisaKuota", sisaKuota);
+                    activeSchedules.add(mapData);
+                }
+            }
+        }
+
+        model.addAttribute("listJadwalDashboard", activeSchedules);
+
+        // Simpan state filter ke view agar tidak hilang saat direfresh
+        model.addAttribute("selectedSkemaId", skemaId);
+        model.addAttribute("selectedTanggal", tanggalUji);
+        model.addAttribute("keyword", keyword);
+
         return "pages/asesi/dashboard";
     }
 
@@ -201,7 +278,8 @@ public class AsesiController {
 
     // HALAMAN PENDAFTARAN (FORM WIZARD)
     @GetMapping("/daftar")
-    public String showDaftarUji(Model model, Principal principal) {
+    public String showDaftarUji(@RequestParam(value = "skemaId", required = false) Long presetSkemaId,
+            @RequestParam(value = "jadwalId", required = false) Long presetJadwalId, Model model, Principal principal) {
         // 1. Load Data User untuk Tab 2 (Data Pemohon)
         User user = userRepository.findByUsername(principal.getName()).orElseThrow();
 
@@ -250,6 +328,9 @@ public class AsesiController {
 
         // 3. Load Referensi Pekerjaan (Untuk Dropdown Tab 2)
         model.addAttribute("listPekerjaan", typePekerjaanRepository.findAll());
+
+        model.addAttribute("presetSkemaId", presetSkemaId);
+        model.addAttribute("presetJadwalId", presetJadwalId);
 
         return "pages/asesi/sertifikasi/sertifikasi-add";
     }

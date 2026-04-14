@@ -1,4 +1,38 @@
 $(document).ready(function () {
+  // Ambil parameter langsung dari URL browser (Lebih akurat & tidak butuh Thymeleaf)
+  const urlParams = new URLSearchParams(window.location.search);
+  const presetSkemaId = urlParams.get("skemaId");
+  const presetJadwalId = urlParams.get("jadwalId");
+
+  // Jika URL memiliki parameter skemaId dan jadwalId (Artinya user klik dari Dashboard)
+  if (presetSkemaId && presetJadwalId) {
+    // Beri jeda 0.5 detik agar Select2 dan DOM HTML 100% siap
+    setTimeout(function () {
+      console.log("Menjalankan Auto-Filter untuk Skema ID: " + presetSkemaId);
+
+      // Ubah nilai select skema dan picu event 'change' untuk memulai AJAX
+      $("#selectSkema2").val(presetSkemaId).trigger("change");
+
+      // Tangkap event saat daftar-asesi.js selesai memanggil AJAX Jadwal
+      $(document).on("ajaxComplete", function (event, xhr, settings) {
+        // Cek apakah AJAX yang baru saja selesai adalah AJAX pencarian jadwal
+        if (settings.url.includes("/api/jadwal-by-skema/")) {
+          console.log(
+            "AJAX Jadwal selesai, Memilih Jadwal ID: " + presetJadwalId,
+          );
+
+          // Beri jeda 0.1 detik ekstra agar tag <option> benar-benar ter-render di layar
+          setTimeout(function () {
+            $("#selectJadwal").val(presetJadwalId).trigger("change");
+          }, 100);
+
+          // Matikan pemantau AJAX ini agar tidak dipanggil berulang kali (mencegah loop)
+          $(document).off("ajaxComplete");
+        }
+      });
+    }, 500); // Jeda 500 ms
+  }
+
   $(".btn-lihat-revisi").on("click", function () {
     var catatan = $(this).attr("data-catatan"); // Ambil isi HTML
     var editUrl = $(this).closest("tr").find(".btn-info").attr("href"); // Ambil link detail/edit

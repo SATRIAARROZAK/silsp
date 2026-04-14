@@ -1,67 +1,49 @@
 <!doctype html>
-<html
-  lang="en"
-  xmlns:th="http://www.thymeleaf.org"
-  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-  layout:decorate="~{layouts/app}"
->
-  <head th:replace="~{fragments/header :: header('Beranda')}"></head>
-  <body>
-    <div layout:fragment="content">
-      <div class="card">
-        <div class="card-body">
-          <h4>
-            Selamat Datang,
-            <span
-              th:text="${loggedInUser != null ? loggedInUser.fullName : 'Guest'}"
-              >Guest</span
-            >
-          </h4>
-          <h6>Di Sistem Informasi</h6>
-          <h5>LSP Teknologi Data Digital Indonesia</h5>
-        </div>
-        <!-- /.card-body -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layouts/app}">
+
+<head th:replace="~{fragments/header :: header('Beranda')}"></head>
+
+<body>
+  <div layout:fragment="content">
+    <div class="card">
+      <div class="card-body">
+        <h4>
+          Selamat Datang,
+          <span th:text="${loggedInUser != null ? loggedInUser.fullName : 'Guest'}">Guest</span>
+        </h4>
+        <h6>Di Sistem Informasi</h6>
+        <h5>LSP Teknologi Data Digital Indonesia</h5>
       </div>
+    </div>
 
-      <h3>Jadwal Asesmen</h3>
+    <h3>Jadwal Asesmen Mendatang</h3>
 
-      <div class="card">
-        <div class="card-header">
+    <div class="card">
+      <div class="card-header">
+        
+        <form th:action="@{/asesi/dashboard}" method="get" id="filterForm">
           <div class="row">
-            <div class="col-12 col-md-2 mb-2">
+            
+            <div class="col-12 col-md-3 mb-2">
               <div class="form-group mb-0">
-                <select class="form-control select2" style="width: 100%">
-                  <option disabled selected>Pilih Skema</option>
-                  <option>Data Analyst</option>
-                  <option>Digital Marketing</option>
+                <select name="skemaId" class="form-control select2" style="width: 100%" onchange="document.getElementById('filterForm').submit();">
+                  <option value="">-- Semua Skema --</option>
+                  <option th:each="s : ${listSkema}" th:value="${s.id}" th:text="${s.name}" th:selected="${s.id == selectedSkemaId}"></option>
                 </select>
               </div>
-              <!-- /.form-group -->
-
-              <!-- /.form-group -->
             </div>
 
-            <div class="col-12 col-md-2 mb-2">
+            <div class="col-12 col-md-3 mb-2">
               <div class="form-group mb-0">
-                <input
-                  type="date"
-                  class="form-control"
-                  name="tanggalUji"
-                  required
-                />
+                <input type="date" class="form-control" name="tanggalUji" th:value="${selectedTanggal}" onchange="document.getElementById('filterForm').submit();" />
               </div>
             </div>
 
             <div class="col-12 col-md-4 mb-2">
               <div class="form-group mb-0">
                 <div class="input-group">
-                  <input
-                    type="text"
-                    class="form-control"
-                    name="keyword"
-                    th:value="${keyword}"
-                    placeholder="Masukkan Nama Jadwal"
-                  />
+                  <input type="text" class="form-control" name="keyword" th:value="${keyword}" placeholder="Masukkan Nama Jadwal" />
                   <div class="input-group-append">
                     <button type="submit" class="btn btn-outline-info">
                       <i class="fas fa-search"></i> Cari
@@ -71,72 +53,59 @@
               </div>
             </div>
 
-            <div class="col-12 col-md-3 mb-2 d-flex align-items-end">
-              <a
-                th:href="@{/asesi/dashboard}"
-                class="btn btn-default btn-block"
-              >
-                <i class="fas fa-sync-alt"></i> Reset Filter
+            <div class="col-12 col-md-2 mb-2 d-flex align-items-end">
+              <a th:href="@{/asesi/dashboard}" class="btn btn-default btn-block">
+                <i class="fas fa-sync-alt"></i> Reset
               </a>
             </div>
-            <!-- /.col -->
           </div>
-        </div>
+        </form>
 
-        <div class="card-body table-responsive p-0">
-          <table class="table table-hover text-nowrap table-bordered">
-            <thead class="bg-light text-center">
-              <tr>
-                <th width="5%">No</th>
-                <th>Nama Jadwal</th>
-                <th>Skema</th>
-                <th>Tanggal</th>
-                <th>TUK</th>
-                <th>Kuota</th>
-                <th width="15%">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>1</td>
-                <td>Jadwal Sertifikasi DA</td>
-                <td>Data Analyst</td>
-                <td>20 April 2026</td>
-                <td>PPKD Jakarta Barat</td>
-                <td>20</td>
-                <td>
-                  <button class="btn btn-sm btn-primary">Daftar</button>
-                </td>
-              </tr>
-              <tr>
-                <td>2</td>
-                <td>Jadwal Sertifikasi DM</td>
-                <td>Digital Marketing</td>
-                <td>25 April 2026</td>
-                <td>PPKD Jakarta Selatan</td>
-                <td>15</td>
-                <td>
-                  <button class="btn btn-sm btn-primary">Daftar</button>
-                </td>
-              </tr>
-
-              <tr>
-                <td colspan="7" class="text-center py-4 text-muted">
-                  <i class="fas fa-inbox fa-3x mb-3"></i><br />
-                  Belum ada riwayat pendaftaran sertifikasi.
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div
-          class="card-footer clearfix"
-          th:if="${!#lists.isEmpty(listPermohonan)}"
-        >
-          <small class="text-muted float-left">Menampilkan semua data.</small>
-        </div>
       </div>
+
+      <div class="card-body table-responsive p-0">
+        <table class="table table-hover text-nowrap table-bordered table-valign-middle">
+          <thead class="bg-light text-center">
+            <tr>
+              <th width="5%">No</th>
+              <th>Nama Jadwal</th>
+              <th>Skema</th>
+              <th>Tanggal</th>
+              <th>TUK</th>
+              <th>Sisa Kuota</th>
+              <th width="15%">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            
+            <tr th:each="item, stat : ${listJadwalDashboard}">
+              <td class="text-center" th:text="${stat.count}">1</td>
+              <td th:text="${item.jadwal.name}">Nama Jadwal</td>
+              <td th:text="${item.skema.name}">Skema</td>
+              <td class="text-center" th:text="${#temporals.format(item.jadwal.startDate, 'dd MMMM yyyy')}">Tanggal</td>
+              <td th:text="${item.jadwal.tuk != null ? item.jadwal.tuk.name : '-'}">TUK</td>
+              <td class="text-center">
+                <span class="badge badge-success px-2 py-1" th:text="${item.sisaKuota} + ' Tersedia'"></span>
+              </td>
+              <td class="text-center">
+                <a th:href="@{/asesi/daftar(skemaId=${item.skema.id}, jadwalId=${item.jadwal.id})}" class="btn btn-sm btn-primary">
+                  <i class="fas fa-sign-in-alt mr-1"></i> Daftar
+                </a>
+              </td>
+            </tr>
+
+            <tr th:if="${#lists.isEmpty(listJadwalDashboard)}">
+              <td colspan="7" class="text-center py-5 text-muted">
+                <i class="fas fa-calendar-times fa-3x mb-3"></i><br />
+                Belum ada jadwal asesmen yang tersedia.
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+
     </div>
-  </body>
+  </div>
+</body>
 </html>
